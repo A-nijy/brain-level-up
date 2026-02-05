@@ -90,9 +90,14 @@ export default function LibraryDetailScreen() {
                 options={{
                     title: library?.title || '암기장 상세',
                     headerRight: () => (
-                        <TouchableOpacity onPress={() => router.push(`/library/${id}/create-item`)}>
-                            <FontAwesome name="plus" size={20} color="#007AFF" style={{ marginRight: 10 }} />
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row' }}>
+                            <TouchableOpacity onPress={() => router.push(`/library/${id}/import`)} style={{ marginRight: 15 }}>
+                                <FontAwesome name="cloud-upload" size={20} color="#007AFF" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => router.push(`/library/${id}/create-item`)}>
+                                <FontAwesome name="plus" size={20} color="#007AFF" style={{ marginRight: 10 }} />
+                            </TouchableOpacity>
+                        </View>
                     )
                 }}
             />
