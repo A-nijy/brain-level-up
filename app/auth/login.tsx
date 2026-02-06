@@ -12,34 +12,96 @@ export default function LoginScreen() {
     // 간단한 테스트를 위해 이메일/비밀번호 로그인도 추가할 수 있지만, 
     // 요구사항에 따라 Google/Apple 로그인을 메인으로 배치합니다.
 
+    // URL에서 토큰 파싱하는 헬퍼 함수
+    const extractSessionFromUrl = async (url: string) => {
+        try {
+            // #access_token=...&refresh_token=... 형태 파싱
+            const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1]);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+
+            if (accessToken && refreshToken) {
+                const { error } = await supabase.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                });
+                if (error) throw error;
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.error('Session parsing error:', e);
+            return false;
+        }
+    };
+
     const onSignInWithGoogle = async () => {
         setIsLoading(true);
         try {
-            const redirectUri = makeRedirectUri({
-                scheme: 'mem-app',
-                path: 'auth/callback',
-            });
+            let redirectUri;
+            if (Platform.OS === 'web') {
+                redirectUri = typeof window !== 'undefined' ? window.location.origin : undefined;
+            } else {
+                redirectUri = makeRedirectUri({
+                    scheme: 'memapp',
+                    path: 'auth/callback',
+                });
+            }
 
+            console.log('Using Redirect URI:', redirectUri);
+
+            // 1. Get Auth URL from Supabase
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                     redirectTo: redirectUri,
-                    skipBrowserRedirect: false, // Let Supabase handle redirect
+                    skipBrowserRedirect: true,
+                    queryParams: {
+                        prompt: 'select_account',
+                    },
                 },
             });
 
-            if (error) Alert.alert('Error', error.message);
-            // OAuth flow is handled by browser redirect
+            if (error) throw error;
+            if (!data?.url) throw new Error('No auth URL returned from Supabase');
+
+            console.log('Auth URL:', data.url);
+
+            // 2. Open Browser
+            if (Platform.OS === 'web') {
+                window.location.href = data.url;
+                // 웹은 리다이렉트 후 돌아오면 supabase.ts의 detectSessionInUrl: true 덕분에 자동 처리됨
+            } else {
+                // 앱: WebBrowser 사용
+                const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUri);
+
+                console.log('WebBrowser Result:', result);
+
+                if (result.type === 'success' && result.url) {
+                    const success = await extractSessionFromUrl(result.url);
+                    if (!success) {
+                        // iOS/Android에서 type은 success지만 url에 토큰이 없는 경우가 있을 수 있음 (딥링크 처리 필요시)
+                        // 하지만 openAuthSessionAsync는 보통 리다이렉트된 URL을 반환함.
+                        Alert.alert('알림', '세션 정보를 받아오지 못했습니다.');
+                    }
+                }
+            }
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            Alert.alert('로그인 오류', error.message);
         } finally {
-            // Note: On mobile, this might run before auth completes if browser opens uniquely
-            setIsLoading(false);
+            if (Platform.OS !== 'web') {
+                setIsLoading(false);
+            }
         }
     };
 
     const onSignInWithApple = async () => {
-        Alert.alert('Notice', 'Apple Login setup requires paid developer account credentials. Placeholder logic.');
+        // Apple 로그인은 개발자 계정 설정이 필요하므로 MVP 단계에서는 준비 중 메시지 표시
+        if (Platform.OS === 'web') {
+            window.alert('알림: Apple 로그인은 현재 준비 중입니다.\n(Google 로그인이나 체험하기를 이용해주세요)');
+        } else {
+            Alert.alert('알림', 'Apple 로그인은 현재 준비 중입니다.\n(Google 로그인이나 체험하기를 이용해주세요)');
+        }
     };
 
     // Mock Login for Development (Since actual OAuth needs setup)

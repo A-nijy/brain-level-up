@@ -3,9 +3,10 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
+// import { initDB } from '@/lib/db'; // Resolves to index.ts or index.web.ts (Offline Mode Disable)
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
@@ -31,6 +32,20 @@ function InitialLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
+  const [dbInitialized, setDbInitialized] = useState(true); // Default to true since we skip initDB
+
+  // DB Init (Disabled for Online Mode)
+  useEffect(() => {
+    /*
+    const prepare = async () => {
+      await initDB();
+      setDbInitialized(true);
+    };
+    prepare();
+    */
+    // 바로 완료 처리 (이미 useState true지만 명시적 의미)
+    setDbInitialized(true);
+  }, []);
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -38,13 +53,14 @@ function InitialLayout() {
   }, [error]);
 
   useEffect(() => {
-    if (loaded) {
+    if (loaded && dbInitialized) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [loaded, dbInitialized]);
 
   useEffect(() => {
-    if (isLoading || !loaded) return;
+    // DB Init과 Font Load, Auth Check가 모두 끝나야 라우팅 처리
+    if (isLoading || !loaded || !dbInitialized) return;
 
     const inAuthGroup = segments[0] === 'auth';
 
@@ -55,9 +71,9 @@ function InitialLayout() {
       // 세션이 있는데 auth 그룹이면 메인으로
       router.replace('/(tabs)');
     }
-  }, [session, segments, isLoading, loaded]);
+  }, [session, segments, isLoading, loaded, dbInitialized]);
 
-  if (!loaded || isLoading) {
+  if (!loaded || isLoading || !dbInitialized) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />

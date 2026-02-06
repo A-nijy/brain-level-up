@@ -1,85 +1,97 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { ItemService } from '@/services/ItemService';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
-
-export default function CreateItemScreen() {
-    const { id } = useLocalSearchParams(); // library_id
-    const libraryId = Array.isArray(id) ? id[0] : id; // Ensure string type
+export default function EditItemScreen() {
+    const { id, itemId } = useLocalSearchParams(); // library_id(id), item_id(itemId)
+    const libraryId = Array.isArray(id) ? id[0] : id;
+    const itemUuid = Array.isArray(itemId) ? itemId[0] : itemId;
 
     const [question, setQuestion] = useState('');
     const [answer, setAnswer] = useState('');
     const [memo, setMemo] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const router = useRouter();
 
-    const handleCreate = async () => {
+    useEffect(() => {
+        if (!libraryId || !itemUuid) return;
+        const fetchItem = async () => {
+            try {
+                // 주의: getItems는 전체를 가져옴. 성능 이슈가 있을 수 있으나 MVP로는 허용.
+                const items = await ItemService.getItems(libraryId);
+                const target = items.find(i => i.id === itemUuid);
+
+                if (target) {
+                    setQuestion(target.question);
+                    setAnswer(target.answer);
+                    setMemo(target.memo || '');
+                } else {
+                    Alert.alert('오류', '단어를 찾을 수 없습니다.');
+                    router.back();
+                }
+            } catch (error) {
+                console.error(error);
+                Alert.alert('오류', '정보를 불러오지 못했습니다.');
+                router.back();
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchItem();
+    }, [libraryId, itemUuid]);
+
+    const handleUpdate = async () => {
         if (!question.trim() || !answer.trim()) {
             Alert.alert('오류', '문제와 정답을 모두 입력해주세요.');
             return;
         }
 
-        if (!libraryId) {
+        if (!itemUuid) {
             Alert.alert('오류', '잘못된 접근입니다.');
             return;
         }
 
-        setLoading(true);
+        setSaving(true);
         try {
-            await ItemService.createItem({
-                library_id: libraryId,
+            await ItemService.updateItem(itemUuid, {
                 question,
                 answer,
                 memo,
             });
 
             if (Platform.OS === 'web') {
-                // Web: window.confirm 사용
-                const more = window.confirm('성공! 추가되었습니다.\n계속 추가하시겠습니까?');
-                if (more) {
-                    setQuestion('');
-                    setAnswer('');
-                    setMemo('');
-                    // 포커스 로직이 필요하다면 여기에 추가 (ref 사용 등)
-                } else {
-                    router.back();
-                }
+                window.alert('수정되었습니다.');
             } else {
-                // Native: Alert 사용
-                Alert.alert('성공', '추가되었습니다. 계속 추가하시겠습니까?', [
-                    {
-                        text: '아니오',
-                        onPress: () => router.back(),
-                        style: 'cancel',
-                    },
-                    {
-                        text: '예',
-                        onPress: () => {
-                            setQuestion('');
-                            setAnswer('');
-                            setMemo('');
-                        },
-                    },
-                ]);
+                Alert.alert('성공', '수정되었습니다.');
             }
+            router.back();
         } catch (error: any) {
             if (Platform.OS === 'web') {
-                window.alert(`추가 실패: ${error.message}`);
+                window.alert(`수정 실패: ${error.message}`);
             } else {
-                Alert.alert('추가 실패', error.message);
+                Alert.alert('수정 실패', error.message);
             }
         } finally {
-            setLoading(false);
+            setSaving(false);
         }
     };
+
+    if (loading) {
+        return (
+            <View style={styles.centerContainer}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
 
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            <Stack.Screen options={{ title: '단어 추가' }} />
+            <Stack.Screen options={{ title: '단어 수정' }} />
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.formGroup}>
                     <Text style={styles.label}>문제 (단어) *</Text>
@@ -88,7 +100,6 @@ export default function CreateItemScreen() {
                         placeholder="예: Ambiguous"
                         value={question}
                         onChangeText={setQuestion}
-                        autoFocus
                     />
                 </View>
 
@@ -115,12 +126,12 @@ export default function CreateItemScreen() {
                 </View>
 
                 <TouchableOpacity
-                    style={[styles.submitButton, loading && styles.disabledButton]}
-                    onPress={handleCreate}
-                    disabled={loading}
+                    style={[styles.submitButton, saving && styles.disabledButton]}
+                    onPress={handleUpdate}
+                    disabled={saving}
                 >
                     <Text style={styles.submitButtonText}>
-                        {loading ? '저장 중...' : '저장하기'}
+                        {saving ? '저장 중...' : '저장하기'}
                     </Text>
                 </TouchableOpacity>
             </ScrollView>
@@ -133,11 +144,18 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
     scrollContent: {
         padding: 20,
     },
     formGroup: {
         marginBottom: 20,
+        backgroundColor: 'transparent',
     },
     label: {
         fontSize: 16,
@@ -159,7 +177,7 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
     },
     submitButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#007AFF', // Blue for items
         padding: 16,
         borderRadius: 12,
         alignItems: 'center',

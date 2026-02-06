@@ -1,56 +1,14 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Image } from 'react-native';
+import React from 'react';
+import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter, useFocusEffect } from 'expo-router';
+import { useLibraries } from '@/hooks/useLibraries';
+import { Library } from '@/types';
+import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-type Library = {
-  id: string;
-  title: string;
-  description: string | null;
-  count?: number; // item count join (optional implementation later)
-  created_at: string;
-};
-
 export default function LibraryListScreen() {
-  const { session } = useAuth();
-  const [libraries, setLibraries] = useState<Library[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { libraries, loading, refreshing, refresh } = useLibraries();
   const router = useRouter();
-
-  const fetchLibraries = async () => {
-    try {
-      if (!session?.user) return;
-
-      const { data, error } = await supabase
-        .from('libraries')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setLibraries(data || []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchLibraries();
-    }, [])
-  );
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchLibraries();
-  };
 
   const renderItem = ({ item }: { item: Library }) => (
     <TouchableOpacity
@@ -95,7 +53,7 @@ export default function LibraryListScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} />
           }
         />
       )}

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { supabase } from '@/lib/supabase';
+import { LibraryService } from '@/services/LibraryService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, Stack } from 'expo-router';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 
 export default function CreateLibraryScreen() {
     const { session } = useAuth();
@@ -20,25 +19,21 @@ export default function CreateLibraryScreen() {
             return;
         }
 
+        if (!session?.user) {
+            Alert.alert('오류', '로그인이 필요합니다.');
+            return;
+        }
+
         setLoading(true);
         try {
-            const { data, error } = await supabase
-                .from('libraries')
-                .insert([
-                    {
-                        user_id: session?.user?.id,
-                        title,
-                        description,
-                        category,
-                        is_public: false, // Default private for now
-                    },
-                ])
-                .select()
-                .single();
+            await LibraryService.createLibrary(session.user.id, {
+                title,
+                description,
+                category,
+                is_public: false,
+            });
 
-            if (error) throw error;
-
-            router.back(); // Or replace to library detail
+            router.back();
         } catch (error: any) {
             Alert.alert('생성 실패', error.message);
         } finally {
