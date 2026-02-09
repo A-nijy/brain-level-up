@@ -1,4 +1,4 @@
-import { StyleSheet, Alert, TouchableOpacity, useWindowDimensions, ScrollView, Platform } from 'react-native';
+import { StyleSheet, Alert, TouchableOpacity, useWindowDimensions, ScrollView, Platform, Switch, Modal, Pressable, TextInput } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -7,6 +7,10 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
 import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { PushNotificationService, PushNotificationSettings } from '@/services/PushNotificationService';
+import { LibraryService } from '@/services/LibraryService';
+import { Library } from '@/types';
 
 export default function SettingsScreen() {
   const { signOut, user, profile } = useAuth();
@@ -15,6 +19,94 @@ export default function SettingsScreen() {
   const colors = Colors[colorScheme];
   const router = useRouter();
   const { width } = useWindowDimensions();
+
+  // 푸시 알림 상태
+  const [notificationSettings, setNotificationSettings] = useState<PushNotificationSettings | null>(null);
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [libraries, setLibraries] = useState<Library[]>([]);
+  const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
+
+  useEffect(() => {
+    loadNotificationSettings();
+    loadLibraries();
+    loadProgress();
+  }, []);
+
+  const loadNotificationSettings = async () => {
+    const settings = await PushNotificationService.getSettings();
+    setNotificationSettings(settings || {
+      enabled: false,
+      libraryId: null,
+      range: 'all',
+      format: 'both',
+      order: 'sequential',
+      interval: 60,
+    });
+  };
+
+  const loadLibraries = async () => {
+    if (user) {
+      const libs = await LibraryService.getLibraries(user.id);
+      setLibraries(libs);
+    }
+  };
+
+  const loadProgress = async () => {
+    const prog = await PushNotificationService.getProgress();
+    setProgress(prog);
+  };
+
+  const handleToggleNotification = async (value: boolean) => {
+    if (!notificationSettings) return;
+
+    if (value) {
+      // 권한 요청
+      const granted = await PushNotificationService.requestPermissions();
+      if (!granted) {
+        Alert.alert('권한 필요', '푸시 알림을 위해 알림 권한이 필요합니다. 설정에서 권한을 허용해주세요.');
+        return;
+      }
+
+      // 단어장이 선택되지 않았으면 모달 표시
+      if (!notificationSettings.libraryId) {
+        Alert.alert('단어장 선택 필요', '먼저 학습할 단어장을 선택해주세요.');
+        setShowNotificationModal(true);
+        return;
+      }
+    }
+
+    const newSettings = { ...notificationSettings, enabled: value };
+    setNotificationSettings(newSettings);
+    await PushNotificationService.saveSettings(newSettings);
+    await loadProgress();
+  };
+
+  const handleUpdateSettings = async (updates: Partial<PushNotificationSettings>) => {
+    if (!notificationSettings) return;
+    const newSettings = { ...notificationSettings, ...updates };
+    setNotificationSettings(newSettings);
+    await PushNotificationService.saveSettings(newSettings);
+    await loadProgress();
+  };
+
+  const handleResetProgress = async () => {
+    Alert.alert(
+      '진행도 초기화',
+      '학습 진행도를 초기화하시겠습니까? 처음부터 다시 시작됩니다.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '초기화',
+          style: 'destructive',
+          onPress: async () => {
+            await PushNotificationService.resetProgress();
+            await loadProgress();
+            Alert.alert('완료', '학습 진행도가 초기화되었습니다.');
+          },
+        },
+      ]
+    );
+  };
 
   const handleSignOut = async () => {
     try {
@@ -132,6 +224,52 @@ export default function SettingsScreen() {
 
           <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
 
+          {/* 푸시 단어 암기 알림 */}
+          <View style={styles.item}>
+            <View variant="transparent" style={styles.itemLeft}>
+              <View variant="transparent" style={styles.iconWrapper}>
+                <FontAwesome name="bell-o" size={18} color={colors.tint} />
+              </View>
+              <Text style={styles.itemText}>푸시 단어 암기 알림</Text>
+            </View>
+            <Switch
+              value={notificationSettings?.enabled}
+              onValueChange={handleToggleNotification}
+              trackColor={{ false: colors.border, true: colors.tint }}
+              thumbColor={Platform.OS === 'ios' ? undefined : '#fff'}
+            />
+          </View>
+
+          {notificationSettings?.enabled && (
+            <>
+              <TouchableOpacity
+                style={[styles.item, { paddingTop: 0 }]}
+                onPress={() => setShowNotificationModal(true)}
+                activeOpacity={0.7}
+              >
+                <View variant="transparent" style={[styles.itemLeft, { marginLeft: 48 }]}>
+                  <Text style={[styles.valueText, { color: colors.textSecondary }]}>상세 설정 변경하기</Text>
+                </View>
+                <FontAwesome name="cog" size={18} color={colors.textSecondary} />
+              </TouchableOpacity>
+
+              {progress && (
+                <View style={[styles.item, { paddingTop: 0 }]}>
+                  <View variant="transparent" style={[styles.itemLeft, { marginLeft: 48 }]}>
+                    <Text style={[styles.valueText, { color: colors.textSecondary }]}>
+                      학습 진행도: {progress.current}/{progress.total}
+                    </Text>
+                  </View>
+                  <TouchableOpacity onPress={handleResetProgress}>
+                    <FontAwesome name="refresh" size={18} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
+          )}
+
+          <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
+
           <View style={styles.item}>
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
@@ -147,6 +285,171 @@ export default function SettingsScreen() {
           <Text style={[styles.deleteText, { color: colors.textSecondary }]}>회원 탈퇴</Text>
         </TouchableOpacity>
       </View>
+
+      {/* 푸시 알림 상세 설정 모달 */}
+      <Modal
+        visible={showNotificationModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowNotificationModal(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowNotificationModal(false)}
+        >
+          <View style={[styles.modalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
+            <View variant="transparent" style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>알림 상세 설정</Text>
+              <TouchableOpacity onPress={() => setShowNotificationModal(false)}>
+                <FontAwesome name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+              <Pressable onPress={() => { }} style={{ width: '100%' }}>
+                {/* 단어장 선택 */}
+                <Text style={styles.modalLabel}>학습할 단어장</Text>
+                <View variant="transparent" style={styles.pickerContainer}>
+                  {libraries.length > 0 ? (
+                    libraries.map((lib) => (
+                      <TouchableOpacity
+                        key={lib.id}
+                        style={[
+                          styles.pickerItem,
+                          notificationSettings?.libraryId === lib.id && {
+                            backgroundColor: `${colors.tint}20`,
+                            borderColor: colors.tint,
+                          },
+                        ]}
+                        onPress={() => handleUpdateSettings({ libraryId: lib.id })}
+                      >
+                        <Text
+                          style={[
+                            styles.pickerText,
+                            notificationSettings?.libraryId === lib.id && {
+                              color: colors.tint,
+                              fontWeight: '800',
+                            },
+                          ]}
+                        >
+                          {lib.title}
+                        </Text>
+                      </TouchableOpacity>
+                    ))
+                  ) : (
+                    <Text style={{ color: colors.textSecondary }}>생성된 단어장이 없습니다.</Text>
+                  )}
+                </View>
+
+                {/* 단어 범위 */}
+                <Text style={styles.modalLabel}>단어 범위</Text>
+                <View variant="transparent" style={styles.chipContainer}>
+                  {[
+                    { label: '전체', value: 'all' },
+                    { label: '오답만', value: 'incorrect' },
+                  ].map((opt) => (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[
+                        styles.chip,
+                        notificationSettings?.range === opt.value && { backgroundColor: colors.tint },
+                      ]}
+                      onPress={() => handleUpdateSettings({ range: opt.value as any })}
+                    >
+                      <Text
+                        style={[
+                          styles.chipText,
+                          notificationSettings?.range === opt.value && { color: '#fff' },
+                        ]}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* 노출 형식 */}
+                <Text style={styles.modalLabel}>노출 형식</Text>
+                <View variant="transparent" style={styles.chipContainer}>
+                  {[
+                    { label: '단어+뜻', value: 'both' },
+                    { label: '단어만', value: 'word_only' },
+                    { label: '뜻만', value: 'meaning_only' },
+                  ].map((opt) => (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[
+                        styles.chip,
+                        notificationSettings?.format === opt.value && { backgroundColor: colors.tint },
+                      ]}
+                      onPress={() => handleUpdateSettings({ format: opt.value as any })}
+                    >
+                      <Text
+                        style={[
+                          styles.chipText,
+                          notificationSettings?.format === opt.value && { color: '#fff' },
+                        ]}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* 출력 순서 */}
+                <Text style={styles.modalLabel}>출력 순서</Text>
+                <View variant="transparent" style={styles.chipContainer}>
+                  {[
+                    { label: '순차적', value: 'sequential' },
+                    { label: '랜덤', value: 'random' },
+                  ].map((opt) => (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[
+                        styles.chip,
+                        notificationSettings?.order === opt.value && { backgroundColor: colors.tint },
+                      ]}
+                      onPress={() => handleUpdateSettings({ order: opt.value as any })}
+                    >
+                      <Text
+                        style={[
+                          styles.chipText,
+                          notificationSettings?.order === opt.value && { color: '#fff' },
+                        ]}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* 알림 간격 */}
+                <Text style={styles.modalLabel}>알림 간격 (분)</Text>
+                <View variant="transparent" style={styles.intervalContainer}>
+                  <TextInput
+                    style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+                    keyboardType="numeric"
+                    value={notificationSettings?.interval.toString()}
+                    onChangeText={(text) =>
+                      handleUpdateSettings({ interval: parseInt(text) || 1 })
+                    }
+                  />
+                  <Text style={{ marginLeft: 12, color: colors.text, fontWeight: '700' }}>
+                    분 마다 알림
+                  </Text>
+                </View>
+              </Pressable>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={[styles.confirmButton, { backgroundColor: colors.tint }]}
+              onPress={() => setShowNotificationModal(false)}
+            >
+              <Text style={styles.confirmButtonText}>설정 완료</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
     </ScrollView>
   );
 }

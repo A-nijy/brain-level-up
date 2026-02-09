@@ -3,9 +3,11 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { View, ActivityIndicator, Platform } from 'react-native';
+import { PushNotificationService } from '@/services/PushNotificationService';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
@@ -27,6 +29,29 @@ function InitialLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
+
+  // 푸시 알림 클릭 핸들러
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data;
+
+      // 완료 알림은 무시
+      if (data?.type === 'completion') return;
+
+      // 단어장으로 이동
+      if (data?.libraryId) {
+        router.push(`/library/${data.libraryId}`);
+      }
+
+      // 다음 알림 예약
+      PushNotificationService.scheduleNextNotification();
+    });
+
+    return () => subscription.remove();
+  }, [router]);
+
   useEffect(() => {
     if (loaded && !isLoading) {
       SplashScreen.hideAsync();
