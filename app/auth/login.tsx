@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Alert, Platform, useWindowDimensions } from 'react-native';
 import { supabase } from '../../lib/supabase';
-import * as WebBrowser from 'expo-web-browser'; // For web OAuth if needed
+import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
+import { LinearGradient } from 'expo-linear-gradient';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 
-WebBrowser.maybeCompleteAuthSession(); // Required for web redirect handling
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
     const [isLoading, setIsLoading] = useState(false);
+    const colorScheme = useColorScheme() ?? 'light';
+    const colors = Colors[colorScheme];
+    const { width } = useWindowDimensions();
 
-    // 간단한 테스트를 위해 이메일/비밀번호 로그인도 추가할 수 있지만, 
-    // 요구사항에 따라 Google/Apple 로그인을 메인으로 배치합니다.
+    const isWeb = Platform.OS === 'web' && width > 768;
 
-    // URL에서 토큰 파싱하는 헬퍼 함수
     const extractSessionFromUrl = async (url: string) => {
         try {
-            // #access_token=...&refresh_token=... 형태 파싱
             const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1]);
             const accessToken = params.get('access_token');
             const refreshToken = params.get('refresh_token');
@@ -48,9 +53,6 @@ export default function LoginScreen() {
                 });
             }
 
-            console.log('Using Redirect URI:', redirectUri);
-
-            // 1. Get Auth URL from Supabase
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
@@ -65,23 +67,13 @@ export default function LoginScreen() {
             if (error) throw error;
             if (!data?.url) throw new Error('No auth URL returned from Supabase');
 
-            console.log('Auth URL:', data.url);
-
-            // 2. Open Browser
             if (Platform.OS === 'web') {
                 window.location.href = data.url;
-                // 웹은 리다이렉트 후 돌아오면 supabase.ts의 detectSessionInUrl: true 덕분에 자동 처리됨
             } else {
-                // 앱: WebBrowser 사용
                 const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUri);
-
-                console.log('WebBrowser Result:', result);
-
                 if (result.type === 'success' && result.url) {
                     const success = await extractSessionFromUrl(result.url);
                     if (!success) {
-                        // iOS/Android에서 type은 success지만 url에 토큰이 없는 경우가 있을 수 있음 (딥링크 처리 필요시)
-                        // 하지만 openAuthSessionAsync는 보통 리다이렉트된 URL을 반환함.
                         Alert.alert('알림', '세션 정보를 받아오지 못했습니다.');
                     }
                 }
@@ -96,59 +88,83 @@ export default function LoginScreen() {
     };
 
     const onSignInWithApple = async () => {
-        // Apple 로그인은 개발자 계정 설정이 필요하므로 MVP 단계에서는 준비 중 메시지 표시
-        if (Platform.OS === 'web') {
-            window.alert('알림: Apple 로그인은 현재 준비 중입니다.\n(Google 로그인이나 체험하기를 이용해주세요)');
-        } else {
-            Alert.alert('알림', 'Apple 로그인은 현재 준비 중입니다.\n(Google 로그인이나 체험하기를 이용해주세요)');
-        }
+        Alert.alert('알림', 'Apple 로그인은 현재 준비 중입니다.\n(Google 로그인이나 체험하기를 이용해주세요)');
     };
 
-    // Mock Login for Development (Since actual OAuth needs setup)
     const onDevLogin = async () => {
         setIsLoading(true);
-        // 익명 로그인 또는 테스트 계정 로그인 로직 (Optional)
-        // 여기서는 편의상 익명 로그인 시도 (Supabase Auth 설정 필요)
         const { data, error } = await supabase.auth.signInAnonymously();
-        if (error) Alert.alert('Dev Login Error', error.message);
+        if (error) Alert.alert('오류', error.message);
         setIsLoading(false);
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.title}>Memorize Mate</Text>
-                <Text style={styles.subtitle}>모든 것을 기억하는 가장 완벽한 방법</Text>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <View style={[styles.contentWrapper, isWeb && { maxWidth: 500, alignSelf: 'center', width: '100%' }]}>
+                <View style={styles.header}>
+                    <Animated.View entering={FadeInUp.delay(200).duration(800)}>
+                        <LinearGradient
+                            colors={[colors.tint, colors.primaryGradient[1]]}
+                            style={styles.logoContainer}
+                        >
+                            <FontAwesome name="book" size={48} color="#fff" />
+                        </LinearGradient>
+                    </Animated.View>
+
+                    <Animated.View entering={FadeInUp.delay(400).duration(800)} style={styles.titleContainer}>
+                        <Text style={[styles.title, { color: colors.text }]}>Memorize Mate</Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                            스마트한 암기 생활의 시작,{"\n"}지금 바로 경험해보세요.
+                        </Text>
+                    </Animated.View>
+                </View>
+
+                <Animated.View entering={FadeInDown.delay(600).duration(800)} style={styles.content}>
+                    <TouchableOpacity
+                        style={[styles.button, styles.googleButton, { borderColor: colors.border }]}
+                        onPress={onSignInWithGoogle}
+                        disabled={isLoading}
+                        activeOpacity={0.8}
+                    >
+                        <FontAwesome name="google" size={20} color="#EA4335" style={{ marginRight: 12 }} />
+                        <Text style={styles.buttonTextBlack}>Google로 시작하기</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={[styles.button, styles.appleButton]}
+                        onPress={onSignInWithApple}
+                        disabled={isLoading}
+                        activeOpacity={0.8}
+                    >
+                        <FontAwesome name="apple" size={20} color="#fff" style={{ marginRight: 12 }} />
+                        <Text style={styles.buttonTextWhite}>Apple로 시작하기</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.dividerContainer}>
+                        <View style={[styles.line, { backgroundColor: colors.border }]} />
+                        <Text style={[styles.dividerText, { color: colors.textSecondary }]}>또는</Text>
+                        <View style={[styles.line, { backgroundColor: colors.border }]} />
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.button, styles.devButton, { borderColor: colors.border }]}
+                        onPress={onDevLogin}
+                        disabled={isLoading}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={[styles.buttonTextDev, { color: colors.text }]}>게스트로 체험하기</Text>
+                    </TouchableOpacity>
+
+                    {isLoading && (
+                        <ActivityIndicator style={{ marginTop: 20 }} size="large" color={colors.tint} />
+                    )}
+                </Animated.View>
             </View>
 
-            <View style={styles.content}>
-                <TouchableOpacity
-                    style={[styles.button, styles.googleButton]}
-                    onPress={onSignInWithGoogle}
-                    disabled={isLoading}
-                >
-                    {/* Google Icon Placeholder */}
-                    <Text style={styles.buttonTextBlack}>Google로 계속하기</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={[styles.button, styles.appleButton]}
-                    onPress={onSignInWithApple}
-                    disabled={isLoading}
-                >
-                    {/* Apple Icon Placeholder */}
-                    <Text style={styles.buttonTextWhite}>Apple로 계속하기</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={[styles.button, styles.devButton]}
-                    onPress={onDevLogin}
-                    disabled={isLoading}
-                >
-                    <Text style={styles.buttonTextWhite}>체험하기 (익명 로그인)</Text>
-                </TouchableOpacity>
-
-                {isLoading && <ActivityIndicator style={{ marginTop: 20 }} size="large" color="#000" />}
+            <View style={styles.footer}>
+                <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+                    로그인 시 이용약관 및 개인정보 처리방침에 동의하게 됩니다.
+                </Text>
             </View>
         </View>
     );
@@ -157,58 +173,102 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
         padding: 24,
+        justifyContent: 'space-between',
+    },
+    contentWrapper: {
+        flex: 1,
+        justifyContent: 'center',
     },
     header: {
         alignItems: 'center',
         marginBottom: 60,
     },
+    logoContainer: {
+        width: 110,
+        height: 110,
+        borderRadius: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    titleContainer: {
+        alignItems: 'center',
+    },
     title: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: '#000',
-        marginBottom: 10,
+        fontSize: 36,
+        fontWeight: '900',
+        marginBottom: 16,
+        letterSpacing: -1,
     },
     subtitle: {
-        fontSize: 16,
-        color: '#666',
+        fontSize: 18,
         textAlign: 'center',
+        lineHeight: 26,
+        fontWeight: '500',
+        opacity: 0.7,
     },
     content: {
-        gap: 16,
+        width: '100%',
     },
     button: {
-        height: 56,
-        borderRadius: 12,
+        height: 64,
+        borderRadius: 20,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 16,
-        borderWidth: 1,
+        marginBottom: 16,
     },
     googleButton: {
         backgroundColor: '#fff',
-        borderColor: '#ddd',
+        borderWidth: 1.5,
     },
     appleButton: {
         backgroundColor: '#000',
-        borderColor: '#000',
     },
     devButton: {
-        backgroundColor: '#666',
-        borderColor: '#666',
-        marginTop: 20, // Separate from social login
+        backgroundColor: 'transparent',
+        borderWidth: 1.5,
     },
     buttonTextBlack: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '800',
         color: '#000',
     },
     buttonTextWhite: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '800',
         color: '#fff',
+    },
+    buttonTextDev: {
+        fontSize: 17,
+        fontWeight: '700',
+    },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 24,
+    },
+    line: {
+        flex: 1,
+        height: 1.5,
+        opacity: 0.1,
+    },
+    dividerText: {
+        marginHorizontal: 16,
+        fontSize: 14,
+        fontWeight: '700',
+        opacity: 0.5,
+    },
+    footer: {
+        alignItems: 'center',
+        paddingBottom: 20,
+    },
+    footerText: {
+        fontSize: 12,
+        textAlign: 'center',
+        fontWeight: '500',
+        opacity: 0.5,
     },
 });

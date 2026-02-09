@@ -47,5 +47,16 @@ export const SharedLibraryService = {
         await supabase.rpc('increment_download_count', { row_id: sharedLibrary.id });
 
         return newLib;
+    },
+
+    async getSharedItems(sharedLibraryId: string): Promise<SharedItem[]> {
+        const { data, error } = await supabase
+            .from('shared_items')
+            .select('*')
+            .eq('shared_library_id', sharedLibraryId)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
     }
 };

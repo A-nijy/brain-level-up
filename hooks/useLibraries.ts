@@ -12,17 +12,23 @@ export function useLibraries() {
     const [error, setError] = useState<Error | null>(null);
 
     const fetchLibraries = useCallback(async (isRefresh = false) => {
-        if (!session?.user) return;
+        if (!session?.user) {
+            console.log('[useLibraries] No session user, clearing loading.');
+            setLoading(false);
+            return;
+        }
 
         try {
+            console.log('[useLibraries] Fetching libraries for:', session.user.id);
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
 
             const data = await LibraryService.getLibraries(session.user.id);
+            console.log('[useLibraries] Libraries fetched:', data.length);
             setLibraries(data);
             setError(null);
         } catch (err: any) {
-            console.error(err);
+            console.error('[useLibraries] Fetch error:', err);
             setError(err);
         } finally {
             setLoading(false);
@@ -44,6 +50,14 @@ export function useLibraries() {
         refreshing,
         error,
         refresh,
-        createLibrary: LibraryService.createLibrary, // Expose service method if needed directly or wrap it
+        reorderLibraries: async (newLibraries: Library[]) => {
+            setLibraries(newLibraries);
+            const updates = newLibraries.map((lib, index) => ({
+                id: lib.id,
+                display_order: index
+            }));
+            await LibraryService.updateLibrariesOrder(updates);
+        },
+        createLibrary: LibraryService.createLibrary,
     };
 }

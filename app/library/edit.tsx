@@ -5,6 +5,9 @@ import { LibraryService } from '@/services/LibraryService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
 import { Library } from '@/types';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function EditLibraryScreen() {
     const { session } = useAuth();
@@ -16,7 +19,10 @@ export default function EditLibraryScreen() {
     const [category, setCategory] = useState('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+
     const router = useRouter();
+    const colorScheme = useColorScheme() ?? 'light';
+    const colors = Colors[colorScheme];
 
     useEffect(() => {
         if (!libraryId) return;
@@ -83,11 +89,6 @@ export default function EditLibraryScreen() {
         if (Platform.OS === 'web') {
             if (!window.confirm(confirmMessage)) return;
         } else {
-            // Native Alert
-            // We can't use await Alert here easily without a wrapper Promise, 
-            // so we just return and do the logic inside the callback.
-            // But to keep code clean, we will split logic.
-            // Here we just show Alert and return.
             Alert.alert('삭제 확인', confirmMessage, [
                 { text: '취소', style: 'cancel' },
                 {
@@ -100,8 +101,6 @@ export default function EditLibraryScreen() {
             ]);
             return;
         }
-
-        // Web (or if we could await Native Alert) executes this:
         await deleteLibraryLogic();
     };
 
@@ -125,7 +124,7 @@ export default function EditLibraryScreen() {
     if (loading) {
         return (
             <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" />
+                <ActivityIndicator size="large" color={colors.tint} />
             </View>
         );
     }
@@ -133,47 +132,54 @@ export default function EditLibraryScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
+            style={[styles.container, { backgroundColor: colors.background }]}
         >
-            <Stack.Screen options={{ title: '암기장 수정' }} />
+            <Stack.Screen
+                options={{
+                    title: '암기장 수정',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.text,
+                    headerShadowVisible: false,
+                }}
+            />
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>제목 *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>제목 *</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="예: 토익 보카 2024"
                         value={title}
                         onChangeText={setTitle}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>설명</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>설명</Text>
                     <TextInput
-                        style={[styles.input, styles.textArea]}
+                        style={[styles.input, styles.textArea, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="이 암기장에 대한 설명 (선택)"
                         value={description}
                         onChangeText={setDescription}
                         multiline
                         numberOfLines={3}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>카테고리</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>카테고리</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="예: 영어, 자격증, IT"
                         value={category}
                         onChangeText={setCategory}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <TouchableOpacity
-                    style={[styles.submitButton, saving && styles.disabledButton]}
+                    style={[styles.submitButton, { backgroundColor: colors.tint }, saving && styles.disabledButton]}
                     onPress={handleUpdate}
                     disabled={saving}
                 >
@@ -183,11 +189,11 @@ export default function EditLibraryScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.deleteButton, saving && styles.disabledButton]}
+                    style={[styles.deleteButton, { borderColor: colors.error }, saving && styles.disabledButton]}
                     onPress={handleDelete}
                     disabled={saving}
                 >
-                    <Text style={styles.deleteButtonText}>암기장 삭제</Text>
+                    <Text style={[styles.deleteButtonText, { color: colors.error }]}>암기장 삭제</Text>
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -197,60 +203,59 @@ export default function EditLibraryScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
     },
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
     },
     scrollContent: {
         padding: 20,
     },
     formGroup: {
-        marginBottom: 20,
+        marginBottom: 24,
         backgroundColor: 'transparent',
     },
     label: {
         fontSize: 16,
         fontWeight: '600',
         marginBottom: 8,
-        color: '#333',
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 12,
+        borderRadius: 12,
+        padding: 16,
         fontSize: 16,
-        backgroundColor: '#f9f9f9',
-        color: '#333',
     },
     textArea: {
-        minHeight: 80,
+        minHeight: 100,
         textAlignVertical: 'top',
     },
     submitButton: {
-        backgroundColor: '#000',
-        padding: 16,
-        borderRadius: 12,
+        padding: 18,
+        borderRadius: 16,
         alignItems: 'center',
         marginTop: 20,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     deleteButton: {
-        backgroundColor: '#fff',
+        backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: '#ff4444',
         padding: 16,
-        borderRadius: 12,
+        borderRadius: 16,
         alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 30, // 하단 여백
+        marginTop: 16,
+        marginBottom: 30,
     },
     disabledButton: {
-        backgroundColor: '#ccc',
-        borderColor: '#ccc',
+        opacity: 0.7,
     },
     submitButtonText: {
         color: '#fff',
@@ -258,7 +263,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     deleteButtonText: {
-        color: '#ff4444',
         fontSize: 16,
         fontWeight: 'bold',
     },

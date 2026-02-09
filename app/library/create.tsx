@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { LibraryService } from '@/services/LibraryService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, Stack } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function CreateLibraryScreen() {
     const { session } = useAuth();
@@ -12,6 +14,8 @@ export default function CreateLibraryScreen() {
     const [category, setCategory] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const colorScheme = useColorScheme() ?? 'light';
+    const colors = Colors[colorScheme];
 
     const handleCreate = async () => {
         if (!title.trim()) {
@@ -44,47 +48,54 @@ export default function CreateLibraryScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
+            style={[styles.container, { backgroundColor: colors.background }]}
         >
-            <Stack.Screen options={{ title: '새 암기장 만들기' }} />
+            <Stack.Screen
+                options={{
+                    title: '새 암기장 만들기',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.text,
+                    headerShadowVisible: false,
+                }}
+            />
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>제목 *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>제목 *</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="예: 토익 보카 2024"
                         value={title}
                         onChangeText={setTitle}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>설명</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>설명</Text>
                     <TextInput
-                        style={[styles.input, styles.textArea]}
+                        style={[styles.input, styles.textArea, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="이 암기장에 대한 설명 (선택)"
                         value={description}
                         onChangeText={setDescription}
                         multiline
                         numberOfLines={3}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>카테고리</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>카테고리</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="예: 영어, 자격증, IT"
                         value={category}
                         onChangeText={setCategory}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <TouchableOpacity
-                    style={[styles.submitButton, loading && styles.disabledButton]}
+                    style={[styles.submitButton, { backgroundColor: colors.tint }, loading && styles.disabledButton]}
                     onPress={handleCreate}
                     disabled={loading}
                 >
@@ -100,43 +111,45 @@ export default function CreateLibraryScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
     },
     scrollContent: {
         padding: 20,
     },
     formGroup: {
-        marginBottom: 20,
+        marginBottom: 24,
         backgroundColor: 'transparent',
     },
     label: {
         fontSize: 16,
         fontWeight: '600',
         marginBottom: 8,
-        color: '#333',
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 12,
+        borderRadius: 12,
+        padding: 16,
         fontSize: 16,
-        backgroundColor: '#f9f9f9',
-        color: '#333',
     },
     textArea: {
-        minHeight: 80,
+        minHeight: 100,
         textAlignVertical: 'top',
     },
     submitButton: {
-        backgroundColor: '#000',
-        padding: 16,
-        borderRadius: 12,
+        padding: 18,
+        borderRadius: 16,
         alignItems: 'center',
         marginTop: 20,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     disabledButton: {
-        backgroundColor: '#666',
+        opacity: 0.7,
     },
     submitButtonText: {
         color: '#fff',

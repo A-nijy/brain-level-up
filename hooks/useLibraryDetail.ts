@@ -53,6 +53,14 @@ export function useLibraryDetail(libraryId: string) {
         loading,
         refreshing,
         error,
-        refresh
+        refresh,
+        reorderItems: async (newItems: Item[]) => {
+            setItems(newItems);
+            const updates = newItems.map((item, index) => ({
+                id: item.id,
+                display_order: index
+            }));
+            await ItemService.updateItemsOrder(updates);
+        }
     };
 }

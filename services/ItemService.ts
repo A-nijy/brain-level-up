@@ -7,6 +7,7 @@ export const ItemService = {
             .from('items')
             .select('*')
             .eq('library_id', libraryId)
+            .order('display_order', { ascending: true })
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -52,6 +53,14 @@ export const ItemService = {
             .from('items')
             .delete()
             .eq('id', id);
+
+        if (error) throw error;
+    },
+
+    async updateItemsOrder(updates: { id: string, display_order: number }[]): Promise<void> {
+        const { error } = await supabase
+            .from('items')
+            .upsert(updates);
 
         if (error) throw error;
     }

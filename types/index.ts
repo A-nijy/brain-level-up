@@ -8,6 +8,8 @@ export interface UserProfile {
     created_at: string;
 }
 
+export type Profile = UserProfile;
+
 export interface Library {
     id: string;
     user_id: string;
@@ -17,6 +19,7 @@ export interface Library {
     category: string | null;
     created_at: string;
     updated_at: string;
+    display_order: number;
     // Offline support fields
     sync_status?: SyncStatus;
     last_synced_at?: string;
@@ -34,6 +37,7 @@ export interface Item {
     last_reviewed_at: string | null;
     created_at: string;
     updated_at: string | null;
+    display_order: number;
     // Offline support fields
     sync_status?: SyncStatus;
 }
@@ -56,5 +60,26 @@ export interface SharedItem {
     answer: string;
     memo: string | null;
     image_url: string | null;
+    created_at: string;
+}
+
+export interface StudyLog {
+    id: string;
+    user_id: string;
+    study_date: string;
+    items_count: number;
+    correct_count: number;
+    study_time_seconds: number;
+    created_at: string;
+}
+
+export interface Notification {
+    id: string;
+    user_id: string;
+    title: string;
+    message: string;
+    type: 'SYSTEM' | 'STUDY_REMINDER' | 'PROMOTION';
+    is_read: boolean;
+    data: any;
     created_at: string;
 }

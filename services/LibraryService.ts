@@ -10,6 +10,7 @@ export const LibraryService = {
             .from('libraries')
             .select('*')
             .eq('user_id', userId)
+            .order('display_order', { ascending: true })
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -58,6 +59,15 @@ export const LibraryService = {
             .from('libraries')
             .delete()
             .eq('id', id);
+
+        if (error) throw error;
+    },
+
+    async updateLibrariesOrder(updates: { id: string, display_order: number }[]): Promise<void> {
+        // Upsert can be used for bulk update if we provide the primary key
+        const { error } = await supabase
+            .from('libraries')
+            .upsert(updates);
 
         if (error) throw error;
     }

@@ -1,22 +1,33 @@
-import React from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, RefreshControl, Platform, ActionSheetIOS } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import React, { useState } from 'react';
+import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, RefreshControl, Platform, ActionSheetIOS, useWindowDimensions } from 'react-native';
+import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useLibraryDetail } from '@/hooks/useLibraryDetail';
 import { Item } from '@/types';
 import { LibraryService } from '@/services/LibraryService';
 import { ItemService } from '@/services/ItemService';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInUp } from 'react-native-reanimated';
+import { ExportModal, ExportOptions as PDFExportOptions } from '@/components/ExportModal';
+import { PdfService } from '@/services/PdfService';
 
 export default function LibraryDetailScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
     const libraryId = Array.isArray(id) ? id[0] : id;
+    const colorScheme = useColorScheme() ?? 'light';
+    const colors = Colors[colorScheme];
+    const { width } = useWindowDimensions();
 
-    // Custom Hook 사용
-    const { library, items, loading, refreshing, refresh } = useLibraryDetail(libraryId);
+    const { library, items, loading, refreshing, refresh, reorderItems } = useLibraryDetail(libraryId);
+    const [reorderMode, setReorderMode] = useState(false);
+    const [exportModalVisible, setExportModalVisible] = useState(false);
 
-    // --- 암기장 관련 로직 ---
+    const isWeb = Platform.OS === 'web' && width > 768;
+
     const handleEditLibrary = () => {
         router.push({
             pathname: "/library/edit",
@@ -28,10 +39,8 @@ export default function LibraryDetailScreen() {
         if (!libraryId) return;
         try {
             await LibraryService.deleteLibrary(libraryId);
-            // Web/Native Success Message
             if (Platform.OS === 'web') window.alert('암기장이 삭제되었습니다.');
             else Alert.alert('성공', '암기장이 삭제되었습니다.');
-
             router.replace('/(tabs)');
         } catch (error: any) {
             console.error(error);
@@ -59,28 +68,8 @@ export default function LibraryDetailScreen() {
                 }
             );
         } else if (Platform.OS === 'web') {
-            // Web: Simple Confirm or Custom Modal (MVP: confirm for delete)
-            // Web doesn't support ActionSheet well without custom UI. 
-            // We'll mimic selection with window.confirm or just navigate to edit? 
-            // Let's use simple window.confirm flow for Delete, but how to access Edit?
-            // Web UX: maybe distinct buttons in header?
-            // For now, let's use window.prompt or a specific flow. 
-            // Actually, let's just make two buttons in header for Web if possible, or use a JS confirm flow.
-            // Simplest: Edit is default click of gear? No. 
-            // Let's use window.confirm("확인=수정, 취소=삭제")? No, bad UX.
-            // Let's just ask user what they want with window.prompt? No.
-            // Best for Web MVP: Show two alerts or just navigate to Edit, and Put Delete button inside Edit Screen?
-            // Let's go with: Gear Icon -> ActionSheet (if library supported) or simple Alert with buttons (Android supports 3 buttons, Web supports none).
-
-            // Web Solution for MVP: 
-            // Navigate to Edit Screen directly, and PUT 'DELETE' BUTTON IN EDIT SCREEN.
-            // This is a common pattern.
-            // So for now, Gear Icon -> Edit Screen on Web/Android? 
-            // Android Alert supports 3 buttons (Neutral).
-            handleEditLibrary(); // On web/android, just go to Edit. We will add Delete button in Edit Screen later if needed.
-            // But wait, Android supports Alert with Neutral.
+            handleEditLibrary();
         } else {
-            // Android
             Alert.alert(
                 '암기장 설정',
                 '원하는 작업을 선택하세요.',
@@ -100,7 +89,6 @@ export default function LibraryDetailScreen() {
         }
     };
 
-    // --- 단어 관련 로직 ---
     const handleEditItem = (item: Item) => {
         router.push({
             pathname: `/library/${libraryId}/edit-item`,
@@ -111,7 +99,7 @@ export default function LibraryDetailScreen() {
     const handleDeleteItem = async (itemId: string) => {
         try {
             await ItemService.deleteItem(itemId);
-            refresh(); // 목록 갱신
+            refresh();
         } catch (error: any) {
             console.error(error);
             Alert.alert('오류', '삭제 실패: ' + error.message);
@@ -119,7 +107,6 @@ export default function LibraryDetailScreen() {
     };
 
     const showItemOptions = (item: Item) => {
-        // Similar logic
         if (Platform.OS === 'ios') {
             ActionSheetIOS.showActionSheetWithOptions(
                 {
@@ -133,7 +120,6 @@ export default function LibraryDetailScreen() {
                 }
             );
         } else if (Platform.OS === 'web') {
-            // Web: confirm for delete? or edit?
             if (window.confirm(`${item.question}\n\n이 단어를 수정하시겠습니까?\n(취소를 누르면 삭제를 선택할 수 있습니다)`)) {
                 handleEditItem(item);
             } else {
@@ -142,7 +128,6 @@ export default function LibraryDetailScreen() {
                 }
             }
         } else {
-            // Android
             Alert.alert(
                 item.question,
                 '작업 선택',
@@ -155,99 +140,208 @@ export default function LibraryDetailScreen() {
         }
     };
 
-    const renderItem = ({ item }: { item: Item }) => (
-        <View style={styles.itemCard}>
-            <View style={styles.itemContent}>
-                <Text style={styles.questionText}>{item.question}</Text>
-                <Text style={styles.answerText}>{item.answer}</Text>
-                {item.memo && <Text style={styles.memoText}>{item.memo}</Text>}
-            </View>
-            <View style={styles.rightAction}>
-                <View style={styles.stats}>
-                    <Text style={styles.statText}>O: {item.success_count}</Text>
-                    <Text style={styles.statText}>X: {item.fail_count}</Text>
+    const handleMoveUp = async (index: number) => {
+        if (index === 0) return;
+        const newItems = [...items];
+        [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+        await reorderItems(newItems);
+    };
+
+    const handleMoveDown = async (index: number) => {
+        if (index === items.length - 1) return;
+        const newItems = [...items];
+        [newItems[index + 1], newItems[index]] = [newItems[index], newItems[index + 1]];
+        await reorderItems(newItems);
+    };
+
+    const handleExport = async (options: PDFExportOptions) => {
+        let exportItems = [...items];
+        if (options.range === 'wrong') {
+            exportItems = items.filter(item => item.fail_count > 0);
+        }
+
+        try {
+            await PdfService.generateAndShare(exportItems, {
+                mode: options.mode,
+                order: options.order,
+                title: library?.title || '단어장',
+                action: options.action
+            });
+        } catch (error: any) {
+            Alert.alert('오류', 'PDF 생성 중 문제가 발생했습니다: ' + error.message);
+        }
+    };
+
+    const renderItem = ({ item, index }: { item: Item, index: number }) => (
+        <Animated.View
+            entering={FadeInUp.delay(index * 40).duration(400)}
+            style={isWeb && { width: '48%', marginBottom: 16 }}
+        >
+            <Card
+                style={styles.itemCard}
+                onPress={reorderMode ? undefined : () => showItemOptions(item)}
+                activeOpacity={reorderMode ? 1 : 0.7}
+            >
+                <View variant="transparent" style={styles.itemContent}>
+                    <Text style={styles.questionText}>{item.question}</Text>
+                    <Text style={[styles.answerText, { color: colors.textSecondary }]}>{item.answer}</Text>
+                    {item.memo && (
+                        <Text style={[styles.memoText, { color: colors.tint }]}>{item.memo}</Text>
+                    )}
                 </View>
-                <TouchableOpacity onPress={() => showItemOptions(item)} style={styles.moreButton}>
-                    <FontAwesome name="ellipsis-v" size={20} color="#ccc" />
-                </TouchableOpacity>
-            </View>
-        </View>
+                <View variant="transparent" style={styles.rightAction}>
+                    <View variant="transparent" style={styles.statsContainer}>
+                        <View variant="transparent" style={styles.statLine}>
+                            <FontAwesome name="check" size={12} color={colors.success} />
+                            <Text style={[styles.statValue, { color: colors.success }]}>{item.success_count}</Text>
+                        </View>
+                        <View variant="transparent" style={styles.statLine}>
+                            <FontAwesome name="times" size={12} color={colors.error} />
+                            <Text style={[styles.statValue, { color: colors.error }]}>{item.fail_count}</Text>
+                        </View>
+                    </View>
+                    <FontAwesome name="angle-right" size={20} color={colors.border} />
+                </View>
+
+                {reorderMode && (
+                    <View variant="transparent" style={styles.reorderControls}>
+                        <TouchableOpacity
+                            style={[styles.reorderButton, index === 0 && { opacity: 0.3 }]}
+                            onPress={() => handleMoveUp(index)}
+                            disabled={index === 0}
+                        >
+                            <FontAwesome name="arrow-up" size={16} color={colors.tint} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.reorderButton, index === items.length - 1 && { opacity: 0.3 }]}
+                            onPress={() => handleMoveDown(index)}
+                            disabled={index === items.length - 1}
+                        >
+                            <FontAwesome name="arrow-down" size={16} color={colors.tint} />
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </Card>
+        </Animated.View>
     );
 
     if (loading && !refreshing) {
         return (
-            <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" />
+            <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+                <ActivityIndicator size="large" color={colors.tint} />
             </View>
         );
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: library?.title || '암기장 상세',
+                    headerTitle: library?.title || '암기장 상세',
+                    headerShadowVisible: false,
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.text,
                     headerRight: () => (
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <TouchableOpacity onPress={() => router.push(`/library/${id}/import`)} style={{ marginRight: 15 }}>
-                                <FontAwesome name="cloud-upload" size={20} color="#007AFF" />
+                        <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            {items.length > 1 && (
+                                <TouchableOpacity
+                                    onPress={() => setReorderMode(!reorderMode)}
+                                    style={[styles.headerIconButton, reorderMode && { backgroundColor: colors.tint + '20', borderRadius: 8, padding: 4 }]}
+                                >
+                                    <FontAwesome name="sort" size={18} color={colors.tint} />
+                                </TouchableOpacity>
+                            )}
+                            <TouchableOpacity onPress={() => setExportModalVisible(true)} style={styles.headerIconButton}>
+                                <FontAwesome name="print" size={18} color={colors.tint} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => router.push(`/library/${id}/import`)} style={styles.headerIconButton}>
+                                <FontAwesome name="upload" size={18} color={colors.tint} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => router.push({
                                 pathname: "/library/[id]/create-item",
                                 params: { id: libraryId }
-                            })} style={{ marginRight: 15 }}>
-                                <FontAwesome name="plus" size={20} color="#007AFF" />
+                            })} style={styles.headerIconButton}>
+                                <FontAwesome name="plus" size={18} color={colors.tint} />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={showLibraryOptions}>
-                                <FontAwesome name="cog" size={22} color="#333" />
-                            </TouchableOpacity>
+                            {!isWeb && (
+                                <TouchableOpacity onPress={showLibraryOptions}>
+                                    <FontAwesome name="ellipsis-v" size={20} color={colors.textSecondary} />
+                                </TouchableOpacity>
+                            )}
                         </View>
                     )
                 }}
             />
 
-            {library?.description ? (
-                <View style={styles.header}>
-                    <Text style={styles.descriptionText}>{library.description}</Text>
-                </View>
-            ) : null}
-
             <FlatList
+                key={`item-list-${reorderMode}-${isWeb ? 2 : 1}`}
                 data={items}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.listContent}
+                numColumns={isWeb ? 2 : 1}
+                columnWrapperStyle={isWeb ? { gap: 16 } : undefined}
+                contentContainerStyle={[
+                    styles.listContent,
+                    isWeb && { maxWidth: 1000, alignSelf: 'center', width: '100%' }
+                ]}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={refresh} />
+                    <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />
+                }
+                ListHeaderComponent={
+                    <View variant="transparent" style={styles.listHeader}>
+                        {library?.description && (
+                            <Text style={[styles.descriptionText, { color: colors.textSecondary }]}>
+                                {library.description}
+                            </Text>
+                        )}
+                        <View variant="transparent" style={styles.headerStats}>
+                            <Text style={styles.countText}>총 {items.length}개의 단어</Text>
+                        </View>
+                    </View>
                 }
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <FontAwesome name="file-text-o" size={48} color="#ccc" />
-                        <Text style={styles.emptyText}>등록된 단어가 없습니다.</Text>
+                        <FontAwesome name="file-text-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 단어가 없습니다.</Text>
                         <TouchableOpacity
-                            style={styles.addButton}
+                            style={[styles.addButton, { backgroundColor: colors.tint }]}
                             onPress={() => router.push({
                                 pathname: "/library/[id]/create-item",
                                 params: { id: libraryId }
                             })}
                         >
-                            <Text style={styles.addButtonText}>단어 추가하기</Text>
+                            <Text style={styles.addButtonText}>첫 번째 단어 추가하기</Text>
                         </TouchableOpacity>
                     </View>
                 }
             />
 
             {items.length > 0 && (
-                <View style={styles.footer}>
+                <View variant="transparent" style={styles.footer}>
                     <TouchableOpacity
-                        style={styles.playButton}
+                        style={[styles.playButton, isWeb && { maxWidth: 400, alignSelf: 'center' }]}
                         onPress={() => router.push(`/study/${id}`)}
+                        activeOpacity={0.9}
                     >
-                        <FontAwesome name="play" size={20} color="#fff" style={{ marginRight: 8 }} />
-                        <Text style={styles.playButtonText}>암기 시작 ({items.length}개)</Text>
+                        <LinearGradient
+                            colors={[colors.tint, colors.primaryGradient[1]]}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.playButtonGradient}
+                        >
+                            <FontAwesome name="play" size={18} color="#fff" style={{ marginRight: 12 }} />
+                            <Text style={styles.playButtonText}>학습 시작하기</Text>
+                        </LinearGradient>
                     </TouchableOpacity>
                 </View>
             )}
+
+            <ExportModal
+                isVisible={exportModalVisible}
+                onClose={() => setExportModalVisible(false)}
+                onExport={handleExport}
+                hasWrongItems={items.some(item => item.fail_count > 0)}
+            />
         </View>
     );
 }
@@ -255,116 +349,148 @@ export default function LibraryDetailScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
     },
     centerContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    header: {
-        padding: 16,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+    listHeader: {
+        paddingHorizontal: 4,
+        paddingBottom: 24,
+        marginTop: 12,
     },
     descriptionText: {
         fontSize: 16,
-        color: '#666',
+        lineHeight: 24,
+        fontWeight: '500',
+        marginBottom: 16,
+    },
+    headerStats: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    countText: {
+        fontSize: 14,
+        fontWeight: '700',
+        opacity: 0.6,
     },
     listContent: {
-        padding: 16,
-        paddingBottom: 100, // For footer
+        padding: 20,
+        paddingBottom: 140,
     },
     itemCard: {
-        backgroundColor: '#fff',
-        padding: 16,
-        borderRadius: 8,
-        marginBottom: 12,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#eee',
+        marginBottom: 12,
+        padding: 20,
+        borderRadius: 20,
+        borderWidth: 1.5,
     },
     itemContent: {
         flex: 1,
-        marginRight: 10,
+        marginRight: 12,
     },
     questionText: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 18,
+        fontWeight: '800',
         marginBottom: 4,
-        color: '#333',
+        letterSpacing: -0.5,
     },
     answerText: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 2,
+        fontSize: 15,
+        fontWeight: '500',
+        lineHeight: 20,
+        marginBottom: 8,
     },
     memoText: {
         fontSize: 12,
-        color: '#999',
-        fontStyle: 'italic',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     rightAction: {
         flexDirection: 'row',
         alignItems: 'center',
     },
-    stats: {
-        flexDirection: 'column',
+    statsContainer: {
+        marginRight: 16,
         alignItems: 'flex-end',
-        marginRight: 15,
+        gap: 6,
     },
-    moreButton: {
-        padding: 10,
+    statLine: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
     },
-    statText: {
+    statValue: {
         fontSize: 12,
-        color: '#999',
+        fontWeight: '800',
+    },
+    headerIconButton: {
+        marginRight: 20,
     },
     emptyContainer: {
         alignItems: 'center',
-        marginTop: 50,
+        paddingVertical: 80,
     },
     emptyText: {
         fontSize: 16,
-        color: '#999',
-        marginBottom: 16,
-        marginTop: 16,
+        fontWeight: '600',
+        marginTop: 20,
+        marginBottom: 32,
     },
     addButton: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        backgroundColor: '#007AFF',
-        borderRadius: 8,
+        paddingVertical: 16,
+        paddingHorizontal: 32,
+        borderRadius: 16,
     },
     addButtonText: {
         color: '#fff',
-        fontWeight: 'bold',
+        fontWeight: '800',
+        fontSize: 16,
     },
     footer: {
         position: 'absolute',
-        bottom: 20,
-        left: 20,
-        right: 20,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 24,
+        paddingBottom: Platform.OS === 'ios' ? 44 : 24,
     },
     playButton: {
-        backgroundColor: '#000',
-        padding: 16,
-        borderRadius: 16,
+        width: '100%',
+        borderRadius: 20,
+        overflow: 'hidden',
+    },
+    playButtonGradient: {
+        paddingVertical: 20,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 5,
     },
     playButtonText: {
         color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '800',
+        letterSpacing: -0.5,
+    },
+    reorderControls: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 20,
+        marginLeft: 16,
+        paddingLeft: 16,
+        borderLeftWidth: 1,
+        borderLeftColor: 'rgba(0,0,0,0.03)',
+    },
+    reorderButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(79, 70, 229, 0.05)',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

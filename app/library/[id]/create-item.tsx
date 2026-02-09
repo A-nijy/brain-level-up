@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { ItemService } from '@/services/ItemService';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 
 export default function CreateItemScreen() {
     const { id } = useLocalSearchParams(); // library_id
@@ -13,6 +15,8 @@ export default function CreateItemScreen() {
     const [memo, setMemo] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const colorScheme = useColorScheme() ?? 'light';
+    const colors = Colors[colorScheme];
 
     const handleCreate = async () => {
         if (!question.trim() || !answer.trim()) {
@@ -35,18 +39,15 @@ export default function CreateItemScreen() {
             });
 
             if (Platform.OS === 'web') {
-                // Web: window.confirm 사용
                 const more = window.confirm('성공! 추가되었습니다.\n계속 추가하시겠습니까?');
                 if (more) {
                     setQuestion('');
                     setAnswer('');
                     setMemo('');
-                    // 포커스 로직이 필요하다면 여기에 추가 (ref 사용 등)
                 } else {
                     router.back();
                 }
             } else {
-                // Native: Alert 사용
                 Alert.alert('성공', '추가되었습니다. 계속 추가하시겠습니까?', [
                     {
                         text: '아니오',
@@ -77,45 +78,55 @@ export default function CreateItemScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.container}
+            style={[styles.container, { backgroundColor: colors.background }]}
         >
-            <Stack.Screen options={{ title: '단어 추가' }} />
+            <Stack.Screen
+                options={{
+                    title: '단어 추가',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.text,
+                    headerShadowVisible: false,
+                }}
+            />
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>문제 (단어) *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>문제 (단어) *</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="예: Ambiguous"
                         value={question}
                         onChangeText={setQuestion}
                         autoFocus
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>정답 (뜻) *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>정답 (뜻) *</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="예: 애매모호한, 불분명한"
                         value={answer}
                         onChangeText={setAnswer}
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={styles.label}>메모</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>메모</Text>
                     <TextInput
-                        style={[styles.input, styles.textArea]}
+                        style={[styles.input, styles.textArea, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
                         placeholder="예문이나 팁을 적어보세요."
                         value={memo}
                         onChangeText={setMemo}
                         multiline
                         numberOfLines={3}
+                        placeholderTextColor={colors.textSecondary}
                     />
                 </View>
 
                 <TouchableOpacity
-                    style={[styles.submitButton, loading && styles.disabledButton]}
+                    style={[styles.submitButton, { backgroundColor: colors.tint }, loading && styles.disabledButton]}
                     onPress={handleCreate}
                     disabled={loading}
                 >
@@ -131,42 +142,45 @@ export default function CreateItemScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
     },
     scrollContent: {
         padding: 20,
     },
     formGroup: {
-        marginBottom: 20,
+        marginBottom: 24,
+        backgroundColor: 'transparent',
     },
     label: {
         fontSize: 16,
         fontWeight: '600',
         marginBottom: 8,
-        color: '#333',
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 12,
+        borderRadius: 12,
+        padding: 16,
         fontSize: 16,
-        backgroundColor: '#f9f9f9',
-        color: '#333',
     },
     textArea: {
-        minHeight: 80,
+        minHeight: 100,
         textAlignVertical: 'top',
     },
     submitButton: {
-        backgroundColor: '#007AFF',
-        padding: 16,
-        borderRadius: 12,
+        padding: 18,
+        borderRadius: 16,
         alignItems: 'center',
         marginTop: 20,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     disabledButton: {
-        backgroundColor: '#666',
+        opacity: 0.7,
     },
     submitButtonText: {
         color: '#fff',

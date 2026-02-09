@@ -1,30 +1,55 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Dimensions } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
+import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
+import Animated, {
+    useSharedValue,
+    useAnimatedStyle,
+    withSpring,
+    withTiming,
+    interpolate,
+    runOnJS,
+    ZoomIn,
+    FadeInUp
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
+import { useAuth } from '@/contexts/AuthContext';
+import { StatsService } from '@/services/StatsService';
 
 type Item = {
     id: string;
     question: string;
     answer: string;
+    memo?: string | null;
     success_count: number;
     fail_count: number;
 };
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-
 export default function StudyScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
+    const { profile } = useAuth();
     const [items, setItems] = useState<Item[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [loading, setLoading] = useState(true);
     const [results, setResults] = useState({ correct: 0, wrong: 0 });
     const [isFinished, setIsFinished] = useState(false);
+    const [startTime] = useState(Date.now());
+
+    const colorScheme = useColorScheme() ?? 'light';
+    const colors = Colors[colorScheme];
+    const { width } = useWindowDimensions();
+
+    const isWeb = Platform.OS === 'web' && width > 768;
+
+    // Animation Values
+    const flipProgress = useSharedValue(0);
+    const cardScale = useSharedValue(1);
 
     useEffect(() => {
         fetchItems();
@@ -39,107 +64,138 @@ export default function StudyScreen() {
 
             if (error) throw error;
 
-            // Shuffle items for random order
             const shuffled = (data || []).sort(() => Math.random() - 0.5);
             setItems(shuffled);
         } catch (error: any) {
-            Alert.alert('Error', error.message);
-            router.back();
+            console.error(error);
         } finally {
             setLoading(false);
         }
     };
 
     const handleFlip = () => {
+        if (isFlipped) {
+            flipProgress.value = withSpring(0, { damping: 15 });
+        } else {
+            flipProgress.value = withSpring(1, { damping: 15 });
+        }
         setIsFlipped(!isFlipped);
     };
 
     const handleResult = async (success: boolean) => {
         const currentItem = items[currentIndex];
 
-        // Update local state results
+        // Animate card out
+        cardScale.value = withTiming(0.8, { duration: 100 }, () => {
+            runOnJS(processResult)(success, currentItem);
+        });
+    };
+
+    const processResult = (success: boolean, currentItem: Item) => {
         setResults(prev => ({
             ...prev,
             correct: success ? prev.correct + 1 : prev.correct,
             wrong: !success ? prev.wrong + 1 : prev.wrong
         }));
 
-        // Optimistic UI update - move to next card immediately
-        // Ideally we should batch update or update in background
         updateItemStats(currentItem.id, success);
 
         if (currentIndex < items.length - 1) {
             setIsFlipped(false);
+            flipProgress.value = 0;
+            cardScale.value = withSpring(1);
             setCurrentIndex(prev => prev + 1);
         } else {
+            if (profile) {
+                const finalCorrect = success ? results.correct + 1 : results.correct;
+                const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
+                StatsService.logStudyActivity(profile.id, items.length, finalCorrect, durationSeconds);
+            }
             setIsFinished(true);
         }
     };
 
     const updateItemStats = async (itemId: string, success: boolean) => {
         try {
-            const { error } = await supabase.rpc(success ? 'increment_success' : 'increment_fail', {
+            await supabase.rpc(success ? 'increment_success' : 'increment_fail', {
                 row_id: itemId
             });
-            // If RPC fails or not implemented, fallback to update
-            if (error) {
-                // Fallback: fetch and update (less concurrent safe but works for MVP)
-                const { data: current } = await supabase.from('items').select('success_count, fail_count').eq('id', itemId).single();
-                if (current) {
-                    await supabase.from('items').update({
-                        success_count: success ? current.success_count + 1 : current.success_count,
-                        fail_count: !success ? current.fail_count + 1 : current.fail_count,
-                        last_reviewed_at: new Date().toISOString()
-                    }).eq('id', itemId);
-                }
-            }
         } catch (e) {
             console.error("Failed to update stats", e);
         }
     };
 
-    // 결과 화면
+    const frontAnimatedStyle = useAnimatedStyle(() => {
+        const rotateY = interpolate(flipProgress.value, [0, 1], [0, 180]);
+        return {
+            transform: [
+                { scale: cardScale.value },
+                { perspective: 1000 },
+                { rotateY: `${rotateY}deg` }
+            ],
+            opacity: interpolate(flipProgress.value, [0, 0.5, 0.5, 1], [1, 0, 0, 0]),
+            zIndex: isFlipped ? 0 : 1,
+        };
+    });
+
+    const backAnimatedStyle = useAnimatedStyle(() => {
+        const rotateY = interpolate(flipProgress.value, [0, 1], [180, 360]);
+        return {
+            transform: [
+                { scale: cardScale.value },
+                { perspective: 1000 },
+                { rotateY: `${rotateY}deg` }
+            ],
+            opacity: interpolate(flipProgress.value, [0, 0.5, 0.5, 1], [0, 0, 1, 1]),
+            zIndex: isFlipped ? 1 : 0,
+        };
+    });
+
     if (isFinished) {
         return (
-            <View style={styles.container}>
-                <Stack.Screen options={{ title: '학습 완료' }} />
-                <View style={styles.resultCard}>
-                    <FontAwesome name="trophy" size={50} color="#FFD700" style={{ marginBottom: 20 }} />
-                    <Text style={styles.resultTitle}>학습 완료!</Text>
-                    <Text style={styles.resultText}>총 {items.length}개 단어 중</Text>
-                    <View style={styles.statsRow}>
-                        <View style={styles.statItem}>
-                            <Text style={[styles.statValue, { color: '#4CAF50' }]}>{results.correct}</Text>
-                            <Text style={styles.statLabel}>알아요</Text>
+            <View style={[styles.container, { backgroundColor: colors.background }]}>
+                <Stack.Screen options={{ title: '학습 완료', headerTransparent: true, headerTintColor: colors.text }} />
+
+                <Animated.View
+                    entering={ZoomIn.springify()}
+                    style={[
+                        styles.resultCard,
+                        { borderColor: colors.tint, borderWidth: 2 },
+                        isWeb && { maxWidth: 500, alignSelf: 'center' }
+                    ]}
+                >
+                    <FontAwesome name="check-circle" size={80} color={colors.success} style={{ marginBottom: 24 }} />
+                    <Text style={styles.resultTitle}>Study Complete!</Text>
+                    <Text style={[styles.resultSubtitle, { color: colors.textSecondary }]}>학습을 모두 완료했습니다.</Text>
+
+                    <View variant="transparent" style={styles.statsRow}>
+                        <View variant="transparent" style={styles.statItem}>
+                            <Text style={[styles.statNum, { color: colors.success }]}>{results.correct}</Text>
+                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>정답</Text>
                         </View>
-                        <View style={styles.statItem}>
-                            <Text style={[styles.statValue, { color: '#F44336' }]}>{results.wrong}</Text>
-                            <Text style={styles.statLabel}>몰라요</Text>
+                        <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+                        <View variant="transparent" style={styles.statItem}>
+                            <Text style={[styles.statNum, { color: colors.error }]}>{results.wrong}</Text>
+                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>오답</Text>
                         </View>
                     </View>
+
                     <TouchableOpacity
-                        style={styles.finishButton}
+                        style={[styles.finishButton, { backgroundColor: colors.tint }]}
                         onPress={() => router.back()}
+                        activeOpacity={0.8}
                     >
-                        <Text style={styles.finishButtonText}>목록으로 돌아가기</Text>
+                        <Text style={styles.finishButtonText}>돌아가기</Text>
                     </TouchableOpacity>
-                </View>
+                </Animated.View>
             </View>
         );
     }
 
     if (loading) {
         return (
-            <View style={styles.centerContainer}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
-
-    if (items.length === 0) {
-        return (
-            <View style={styles.centerContainer}>
-                <Text>학습할 단어가 없습니다.</Text>
+            <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+                <ActivityIndicator size="large" color={colors.tint} />
             </View>
         );
     }
@@ -147,46 +203,57 @@ export default function StudyScreen() {
     const currentItem = items[currentIndex];
 
     return (
-        <View style={styles.container}>
-            <Stack.Screen options={{ title: `학습 중 (${currentIndex + 1}/${items.length})` }} />
+        <View style={[styles.container, { backgroundColor: colors.background }]}>
+            <Stack.Screen options={{
+                title: `${currentIndex + 1} / ${items.length}`,
+                headerTransparent: true,
+                headerTintColor: colors.text,
+                headerTitleStyle: { fontWeight: '800' }
+            }} />
 
-            <View style={styles.cardContainer}>
-                <TouchableOpacity
-                    style={styles.card}
-                    activeOpacity={0.8}
-                    onPress={handleFlip}
-                >
-                    <View style={styles.cardContent}>
-                        <Text style={styles.cardLabel}>{isFlipped ? '정답 (뜻)' : '문제 (단어)'}</Text>
-                        <Text style={styles.cardMainText}>
-                            {isFlipped ? currentItem.answer : currentItem.question}
-                        </Text>
-                        {isFlipped && currentItem.id && (
-                            /* Future: Add memo here if needed */
-                            <Text style={styles.hintText}>터치하여 문제를 보세요</Text>
+            <View variant="transparent" style={[styles.cardContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
+                {/* Front Card */}
+                <Animated.View style={[styles.cardWrapper, frontAnimatedStyle]}>
+                    <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={[styles.cardFace, { borderColor: colors.border }]}>
+                        <Text style={[styles.cardTag, { color: colors.textSecondary }]}>QUESTION</Text>
+                        <Text style={styles.cardMainText}>{currentItem.question}</Text>
+                        <View variant="transparent" style={styles.hintContainer}>
+                            <FontAwesome name="mouse-pointer" size={12} color={colors.textSecondary} style={{ marginRight: 6, opacity: 0.5 }} />
+                            <Text style={[styles.hintText, { color: colors.textSecondary }]}>탭하여 정답 확인</Text>
+                        </View>
+                    </TouchableOpacity>
+                </Animated.View>
+
+                {/* Back Card */}
+                <Animated.View style={[styles.cardWrapper, backAnimatedStyle]}>
+                    <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={[styles.cardFace, { borderColor: colors.tint }]}>
+                        <Text style={[styles.cardTag, { color: colors.tint }]}>ANSWER</Text>
+                        <Text style={styles.cardMainText}>{currentItem.answer}</Text>
+                        {currentItem.memo && (
+                            <Text style={[styles.memoText, { color: colors.textSecondary }]}>{currentItem.memo}</Text>
                         )}
-                        {!isFlipped && (
-                            <Text style={styles.hintText}>터치하여 정답을 확인하세요</Text>
-                        )}
-                    </View>
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                </Animated.View>
             </View>
 
-            <View style={styles.buttonContainer}>
+            {/* Action Buttons */}
+            <View variant="transparent" style={[styles.buttonContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
                 <TouchableOpacity
-                    style={[styles.actionButton, styles.wrongButton]}
+                    style={[styles.actionButton, { borderColor: colors.error }]}
                     onPress={() => handleResult(false)}
+                    activeOpacity={0.7}
                 >
-                    <FontAwesome name="times" size={24} color="#fff" />
-                    <Text style={styles.buttonText}>몰라요</Text>
+                    <FontAwesome name="times" size={24} color={colors.error} />
+                    <Text style={[styles.buttonText, { color: colors.error }]}>몰라요</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.actionButton, styles.correctButton]}
+                    style={[styles.actionButton, { borderColor: colors.success }]}
                     onPress={() => handleResult(true)}
+                    activeOpacity={0.7}
                 >
-                    <FontAwesome name="check" size={24} color="#fff" />
-                    <Text style={styles.buttonText}>알아요</Text>
+                    <FontAwesome name="check" size={24} color={colors.success} />
+                    <Text style={[styles.buttonText, { color: colors.success }]}>알아요</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -196,8 +263,7 @@ export default function StudyScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f2f5',
-        padding: 20,
+        padding: 24,
     },
     centerContainer: {
         flex: 1,
@@ -208,116 +274,128 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 40,
+        marginTop: 60,
     },
-    card: {
+    cardWrapper: {
+        position: 'absolute',
         width: '100%',
-        height: 300,
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 30,
+        height: 400,
+        backfaceVisibility: 'hidden',
+    },
+    cardFace: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 32,
+        padding: 40,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 8,
+        borderWidth: 2,
+        backgroundColor: 'transparent',
     },
-    cardContent: {
-        alignItems: 'center',
-    },
-    cardLabel: {
-        fontSize: 14,
-        color: '#999',
-        marginBottom: 20,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
+    cardTag: {
+        fontSize: 12,
+        fontWeight: '800',
+        letterSpacing: 2,
+        position: 'absolute',
+        top: 40,
     },
     cardMainText: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: '#333',
+        fontSize: 36,
+        fontWeight: '800',
         textAlign: 'center',
-        marginBottom: 20,
+        letterSpacing: -1,
+    },
+    memoText: {
+        fontSize: 16,
+        fontWeight: '500',
+        textAlign: 'center',
+        marginTop: 24,
+        opacity: 0.7,
+    },
+    hintContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: 40,
     },
     hintText: {
         fontSize: 12,
-        color: '#ccc',
-        marginTop: 20,
+        fontWeight: '700',
+        opacity: 0.5,
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 20,
+        marginBottom: 32,
+        gap: 16,
     },
     actionButton: {
         flex: 1,
-        marginHorizontal: 10,
-        height: 60,
-        borderRadius: 15,
+        height: 72,
+        borderRadius: 20,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    wrongButton: {
-        backgroundColor: '#FF5252',
-    },
-    correctButton: {
-        backgroundColor: '#4CAF50',
+        borderWidth: 2,
+        backgroundColor: 'transparent',
     },
     buttonText: {
-        color: '#fff',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '800',
         marginLeft: 8,
     },
     resultCard: {
-        flex: 1,
-        justifyContent: 'center',
+        width: '100%',
+        borderRadius: 40,
+        padding: 48,
         alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 40,
-        maxHeight: 500,
+        marginTop: 100,
     },
     resultTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 10,
+        fontSize: 32,
+        fontWeight: '800',
+        marginBottom: 8,
+        letterSpacing: -1,
     },
-    resultText: {
+    resultSubtitle: {
         fontSize: 16,
-        color: '#666',
-        marginBottom: 30,
+        fontWeight: '500',
+        marginBottom: 40,
     },
     statsRow: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'center',
+        alignItems: 'center',
         width: '100%',
-        marginBottom: 40,
+        marginBottom: 48,
     },
     statItem: {
         alignItems: 'center',
+        paddingHorizontal: 24,
     },
-    statValue: {
-        fontSize: 36,
-        fontWeight: 'bold',
-        marginBottom: 4,
+    statNum: {
+        fontSize: 48,
+        fontWeight: '800',
     },
     statLabel: {
         fontSize: 14,
-        color: '#999',
+        fontWeight: '700',
+        marginTop: 4,
+    },
+    statDivider: {
+        width: 1.5,
+        height: 60,
+        opacity: 0.2,
     },
     finishButton: {
-        backgroundColor: '#000',
-        paddingVertical: 16,
-        paddingHorizontal: 40,
-        borderRadius: 30,
+        paddingVertical: 20,
+        borderRadius: 20,
+        width: '100%',
+        alignItems: 'center',
     },
     finishButtonText: {
         color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: '800',
     },
 });
