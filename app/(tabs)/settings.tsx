@@ -13,7 +13,7 @@ import { LibraryService } from '@/services/LibraryService';
 import { Library } from '@/types';
 
 export default function SettingsScreen() {
-  const { signOut, user, profile } = useAuth();
+  const { signOut, user, profile, session } = useAuth();
   const { themeMode, setThemeMode } = useTheme();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
@@ -77,7 +77,7 @@ export default function SettingsScreen() {
 
     const newSettings = { ...notificationSettings, enabled: value };
     setNotificationSettings(newSettings);
-    await PushNotificationService.saveSettings(newSettings);
+    await PushNotificationService.saveSettings(newSettings, session?.user?.id);
     await loadProgress();
   };
 
@@ -87,7 +87,7 @@ export default function SettingsScreen() {
 
     const updated = { ...notificationSettings, ...newSettings };
     setNotificationSettings(updated);
-    await PushNotificationService.saveSettings(updated);
+    await PushNotificationService.saveSettings(updated, session?.user?.id);
   };
 
   const handleResetProgress = async () => {

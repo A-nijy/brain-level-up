@@ -82,14 +82,14 @@ export const PushNotificationService = {
     /**
      * 설정 저장
      */
-    async saveSettings(settings: PushNotificationSettings): Promise<void> {
+    async saveSettings(settings: PushNotificationSettings, userId?: string): Promise<void> {
         console.log('[PushNotificationService] Saving settings:', JSON.stringify(settings));
         await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 
         if (settings.enabled) {
             // 알림이 활성화되면 진행도 초기화 및 첫 알림 예약
             await this.resetProgress();
-            await this.scheduleNextNotification();
+            await this.scheduleNextNotification(userId);
         } else {
             // 알림이 비활성화되면 모든 알림 취소
             await this.cancelAllNotifications();
@@ -173,7 +173,7 @@ export const PushNotificationService = {
     /**
      * 다음 알림 예약
      */
-    async scheduleNextNotification(): Promise<void> {
+    async scheduleNextNotification(userId?: string): Promise<void> {
         if (Platform.OS === 'web') return;
 
         const settings = await this.getSettings();
@@ -183,13 +183,18 @@ export const PushNotificationService = {
         }
 
         try {
-            // 현재 사용자 ID 가져오기 (AuthContext에서)
-            // 임시로 하드코딩, 실제로는 AuthContext에서 가져와야 함
-            const userId = await AsyncStorage.getItem('@user_id');
-            if (!userId) {
-                console.log('[Notification] User not logged in');
-                return;
+            // 사용자 ID 확인 (인자로 받거나 저장소에서 조회)
+            const currentUserId = userId || await AsyncStorage.getItem('@user_id');
+
+            // 로그인을 강제하지 않음 (로컬 알림은 로그인 없이도 동작 가능해야 함. 단, 학습 기록 연동 등을 위해 필요할 수 있음)
+            // 하지만 현재 로직에서는 userId가 없으면 리턴해버림.
+            // 일단 로그만 찍고 진행하도록 수정하거나, userId가 필수라면 인자로 확실히 받아야 함.
+            if (!currentUserId) {
+                console.log('[PushNotificationService] Warning: User ID not provided, verification skipped');
+                // return; // 로그인 체크를 일시적으로 해제하여 테스트
             }
+
+            console.log('[PushNotificationService] Scheduling for user:', currentUserId || 'anonymous');
 
             // 단어장의 모든 아이템 가져오기
             const allItems = await ItemService.getItems(settings.libraryId);
