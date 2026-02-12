@@ -1,4 +1,4 @@
-import { StyleSheet, Alert, TouchableOpacity, useWindowDimensions, ScrollView, Platform, Switch, Modal, Pressable, TextInput, ActivityIndicator } from 'react-native';
+import { StyleSheet, Alert, TouchableOpacity, useWindowDimensions, ScrollView, Platform, Switch, Modal, Pressable, TextInput, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -293,15 +293,14 @@ export default function SettingsScreen() {
         animationType="slide"
         onRequestClose={() => setShowNotificationModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={() => setShowNotificationModal(false)}
-          />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
-            <View variant="transparent" style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>알림 상세 설정</Text>
-              <TouchableOpacity onPress={() => setShowNotificationModal(false)}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>알림 상세 설정</Text>
+              <TouchableOpacity onPress={() => setShowNotificationModal(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                 <FontAwesome name="close" size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
@@ -312,162 +311,162 @@ export default function SettingsScreen() {
                 contentContainerStyle={{ paddingBottom: 20 }}
                 showsVerticalScrollIndicator={false}
               >
-                <View style={{ width: '100%' }}>
-                  {/* 단어장 선택 */}
-                  <Text style={[styles.modalLabel, { color: colors.text }]}>학습할 단어장</Text>
-                  <View style={styles.pickerContainer}>
-                    {libraries.length > 0 ? (
-                      libraries.map((lib) => (
-                        <TouchableOpacity
-                          key={lib.id}
+                {/* 단어장 선택 */}
+                <Text style={[styles.modalLabel, { color: colors.text }]}>학습할 단어장</Text>
+                <View style={styles.pickerContainer}>
+                  {libraries.length > 0 ? (
+                    libraries.map((lib) => (
+                      <TouchableOpacity
+                        key={lib.id}
+                        style={[
+                          styles.pickerItem,
+                          { borderColor: colors.border },
+                          notificationSettings?.libraryId === lib.id && {
+                            backgroundColor: `${colors.tint}20`,
+                            borderColor: colors.tint,
+                          },
+                        ]}
+                        onPress={() => handleUpdateSettings({ libraryId: lib.id })}
+                      >
+                        <Text
                           style={[
-                            styles.pickerItem,
-                            { borderColor: colors.border },
+                            styles.pickerText,
+                            { color: colors.text },
                             notificationSettings?.libraryId === lib.id && {
-                              backgroundColor: `${colors.tint}20`,
-                              borderColor: colors.tint,
+                              color: colors.tint,
+                              fontWeight: '800',
                             },
                           ]}
-                          onPress={() => handleUpdateSettings({ libraryId: lib.id })}
                         >
-                          <Text
-                            style={[
-                              styles.pickerText,
-                              { color: colors.text },
-                              notificationSettings?.libraryId === lib.id && {
-                                color: colors.tint,
-                                fontWeight: '800',
-                              },
-                            ]}
-                          >
-                            {lib.title}
-                          </Text>
-                        </TouchableOpacity>
-                      ))
-                    ) : (
-                      <Text style={{ color: colors.textSecondary }}>생성된 단어장이 없습니다.</Text>
-                    )}
-                  </View>
-
-                  {/* 단어 범위 */}
-                  <Text style={[styles.modalLabel, { color: colors.text }]}>단어 범위</Text>
-                  <View style={styles.chipContainer}>
-                    {[
-                      { label: '전체', value: 'all' },
-                      { label: '오답만', value: 'incorrect' },
-                    ].map((opt) => (
-                      <TouchableOpacity
-                        key={opt.value}
-                        style={[
-                          styles.chip,
-                          { borderColor: colors.border, backgroundColor: colors.background },
-                          notificationSettings?.range === opt.value && {
-                            backgroundColor: colors.tint,
-                            borderColor: colors.tint,
-                          },
-                        ]}
-                        onPress={() => handleUpdateSettings({ range: opt.value as any })}
-                      >
-                        <Text
-                          style={[
-                            styles.chipText,
-                            { color: colors.text },
-                            notificationSettings?.range === opt.value && { color: '#fff' },
-                          ]}
-                        >
-                          {opt.label}
+                          {lib.title}
                         </Text>
                       </TouchableOpacity>
-                    ))}
-                  </View>
+                    ))
+                  ) : (
+                    <Text style={{ color: colors.textSecondary }}>생성된 단어장이 없습니다.</Text>
+                  )}
+                </View>
 
-                  {/* 노출 형식 */}
-                  <Text style={[styles.modalLabel, { color: colors.text }]}>노출 형식</Text>
-                  <View style={styles.chipContainer}>
-                    {[
-                      { label: '단어+뜻', value: 'both' },
-                      { label: '단어만', value: 'word_only' },
-                      { label: '뜻만', value: 'meaning_only' },
-                    ].map((opt) => (
-                      <TouchableOpacity
-                        key={opt.value}
+                {/* 단어 범위 */}
+                <Text style={[styles.modalLabel, { color: colors.text }]}>단어 범위</Text>
+                <View style={styles.chipContainer}>
+                  {[
+                    { label: '전체', value: 'all' },
+                    { label: '오답만', value: 'incorrect' },
+                  ].map((opt) => (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[
+                        styles.chip,
+                        { borderColor: colors.border, backgroundColor: colors.background },
+                        notificationSettings?.range === opt.value && {
+                          backgroundColor: colors.tint,
+                          borderColor: colors.tint,
+                        },
+                      ]}
+                      onPress={() => handleUpdateSettings({ range: opt.value as any })}
+                    >
+                      <Text
                         style={[
-                          styles.chip,
-                          { borderColor: colors.border, backgroundColor: colors.background },
-                          notificationSettings?.format === opt.value && {
-                            backgroundColor: colors.tint,
-                            borderColor: colors.tint,
-                          },
+                          styles.chipText,
+                          { color: colors.text },
+                          notificationSettings?.range === opt.value && { color: '#fff' },
                         ]}
-                        onPress={() => handleUpdateSettings({ format: opt.value as any })}
                       >
-                        <Text
-                          style={[
-                            styles.chipText,
-                            { color: colors.text },
-                            notificationSettings?.format === opt.value && { color: '#fff' },
-                          ]}
-                        >
-                          {opt.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
-                  {/* 출력 순서 */}
-                  <Text style={[styles.modalLabel, { color: colors.text }]}>출력 순서</Text>
-                  <View style={styles.chipContainer}>
-                    {[
-                      { label: '순차적', value: 'sequential' },
-                      { label: '랜덤', value: 'random' },
-                    ].map((opt) => (
-                      <TouchableOpacity
-                        key={opt.value}
+                {/* 노출 형식 */}
+                <Text style={[styles.modalLabel, { color: colors.text }]}>노출 형식</Text>
+                <View style={styles.chipContainer}>
+                  {[
+                    { label: '단어+뜻', value: 'both' },
+                    { label: '단어만', value: 'word_only' },
+                    { label: '뜻만', value: 'meaning_only' },
+                  ].map((opt) => (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[
+                        styles.chip,
+                        { borderColor: colors.border, backgroundColor: colors.background },
+                        notificationSettings?.format === opt.value && {
+                          backgroundColor: colors.tint,
+                          borderColor: colors.tint,
+                        },
+                      ]}
+                      onPress={() => handleUpdateSettings({ format: opt.value as any })}
+                    >
+                      <Text
                         style={[
-                          styles.chip,
-                          { borderColor: colors.border, backgroundColor: colors.background },
-                          notificationSettings?.order === opt.value && {
-                            backgroundColor: colors.tint,
-                            borderColor: colors.tint,
-                          },
+                          styles.chipText,
+                          { color: colors.text },
+                          notificationSettings?.format === opt.value && { color: '#fff' },
                         ]}
-                        onPress={() => handleUpdateSettings({ order: opt.value as any })}
                       >
-                        <Text
-                          style={[
-                            styles.chipText,
-                            { color: colors.text },
-                            notificationSettings?.order === opt.value && { color: '#fff' },
-                          ]}
-                        >
-                          {opt.label}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
 
-                  {/* 알림 간격 */}
-                  <Text style={[styles.modalLabel, { color: colors.text }]}>알림 간격 (분)</Text>
-                  <View style={styles.intervalContainer}>
-                    <TextInput
-                      style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                      keyboardType="numeric"
-                      value={notificationSettings?.interval.toString()}
-                      onChangeText={(text) =>
-                        handleUpdateSettings({ interval: parseInt(text) || 1 })
-                      }
-                    />
-                    <Text style={{ marginLeft: 12, color: colors.text, fontWeight: '700' }}>
-                      분 마다 알림
-                    </Text>
-                  </View>
+                {/* 출력 순서 */}
+                <Text style={[styles.modalLabel, { color: colors.text }]}>출력 순서</Text>
+                <View style={styles.chipContainer}>
+                  {[
+                    { label: '순차적', value: 'sequential' },
+                    { label: '랜덤', value: 'random' },
+                  ].map((opt) => (
+                    <TouchableOpacity
+                      key={opt.value}
+                      style={[
+                        styles.chip,
+                        { borderColor: colors.border, backgroundColor: colors.background },
+                        notificationSettings?.order === opt.value && {
+                          backgroundColor: colors.tint,
+                          borderColor: colors.tint,
+                        },
+                      ]}
+                      onPress={() => handleUpdateSettings({ order: opt.value as any })}
+                    >
+                      <Text
+                        style={[
+                          styles.chipText,
+                          { color: colors.text },
+                          notificationSettings?.order === opt.value && { color: '#fff' },
+                        ]}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* 알림 간격 */}
+                <Text style={[styles.modalLabel, { color: colors.text }]}>알림 간격 (분)</Text>
+                <View style={styles.intervalContainer}>
+                  <TextInput
+                    style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+                    keyboardType="numeric"
+                    value={notificationSettings?.interval.toString()}
+                    onChangeText={(text) =>
+                      handleUpdateSettings({ interval: parseInt(text) || 1 })
+                    }
+                  />
+                  <Text style={{ marginLeft: 12, color: colors.text, fontWeight: '700' }}>
+                    분 마다 알림
+                  </Text>
                 </View>
               </ScrollView>
             ) : (
-              <View style={{ padding: 20, alignItems: 'center' }}>
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" color={colors.tint} />
+                <Text style={{ marginTop: 16, color: colors.textSecondary }}>설정을 불러오는 중...</Text>
               </View>
             )}
+
             <TouchableOpacity
               style={[styles.confirmButton, { backgroundColor: colors.tint }]}
               onPress={() => setShowNotificationModal(false)}
@@ -475,7 +474,7 @@ export default function SettingsScreen() {
               <Text style={styles.confirmButtonText}>설정 완료</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </ScrollView>
   );
