@@ -23,6 +23,7 @@ const SHOWN_IDS_KEY = '@push_notification_shown_ids';
 
 // 알림 핸들러 설정 (앱 포그라운드에서도 알림 표시)
 try {
+    console.log('[PushNotificationService] Setting notification handler...');
     Notifications.setNotificationHandler({
         handleNotification: async () => ({
             shouldShowAlert: true,
@@ -32,8 +33,9 @@ try {
             shouldShowList: true,
         }),
     });
+    console.log('[PushNotificationService] Notification handler set successfully');
 } catch (error) {
-    console.warn('Failed to set notification handler:', error);
+    console.warn('[PushNotificationService] Failed to set notification handler:', error);
 }
 
 export const PushNotificationService = {
@@ -44,27 +46,34 @@ export const PushNotificationService = {
         if (Platform.OS === 'web') return false;
 
         try {
+            console.log('[PushNotificationService] Checking permissions...');
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
             let finalStatus = existingStatus;
 
+            console.log('[PushNotificationService] Existing status:', existingStatus);
+
             if (existingStatus !== 'granted') {
+                console.log('[PushNotificationService] Requesting permissions...');
                 const { status } = await Notifications.requestPermissionsAsync();
                 finalStatus = status;
+                console.log('[PushNotificationService] New status:', status);
             }
 
             // Android 알림 채널 설정
             if (Platform.OS === 'android') {
+                console.log('[PushNotificationService] Setting up Android channel...');
                 await Notifications.setNotificationChannelAsync('word-learning', {
                     name: '단어 학습 알림',
                     importance: Notifications.AndroidImportance.HIGH,
                     vibrationPattern: [0, 250, 250, 250],
                     lightColor: '#FF231F7C',
                 });
+                console.log('[PushNotificationService] Android channel set up');
             }
 
             return finalStatus === 'granted';
         } catch (error) {
-            console.warn('Failed to request notification permissions:', error);
+            console.warn('[PushNotificationService] Failed to request notification permissions:', error);
             // 에러 발생 시 권한 없다고 처리하여 앱 크래시 방지
             return false;
         }
@@ -74,6 +83,7 @@ export const PushNotificationService = {
      * 설정 저장
      */
     async saveSettings(settings: PushNotificationSettings): Promise<void> {
+        console.log('[PushNotificationService] Saving settings:', JSON.stringify(settings));
         await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 
         if (settings.enabled) {
@@ -110,32 +120,54 @@ export const PushNotificationService = {
     },
 
     /**
-     * 이미 표시된 단어 ID 추가
+     * 완료 알림 표시 및 설정 비활성화
      */
-    async addShownId(itemId: string): Promise<void> {
-        const shownIdsJson = await AsyncStorage.getItem(SHOWN_IDS_KEY);
-        const shownIds: string[] = shownIdsJson ? JSON.parse(shownIdsJson) : [];
+    async showCompletionNotification(): Promise<void> {
+        console.log('[PushNotificationService] Showing completion notification...');
+        const settings = await this.getSettings();
 
-        if (!shownIds.includes(itemId)) {
-            shownIds.push(itemId);
-            await AsyncStorage.setItem(SHOWN_IDS_KEY, JSON.stringify(shownIds));
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: '🎉 학습 완료!',
+                body: '선택한 단어장의 모든 단어를 학습했습니다. 수고하셨습니다!',
+                data: { type: 'completion' },
+                sound: true,
+                priority: Notifications.AndroidNotificationPriority.HIGH,
+            },
+            trigger: null, // 즉시 표시
+        });
+
+        if (settings) {
+            console.log('[PushNotificationService] Disabling notifications as learning is complete');
+            await this.saveSettings({ ...settings, enabled: false });
         }
     },
 
     /**
-     * 이미 표시된 단어 ID 목록 조회
+     * 표시된 단어 ID 추가
      */
-    async getShownIds(): Promise<string[]> {
-        const shownIdsJson = await AsyncStorage.getItem(SHOWN_IDS_KEY);
-        return shownIdsJson ? JSON.parse(shownIdsJson) : [];
+    async addShownId(id: string): Promise<void> {
+        const ids = await this.getShownIds();
+        if (!ids.includes(id)) {
+            ids.push(id);
+            await AsyncStorage.setItem(SHOWN_IDS_KEY, JSON.stringify(ids));
+        }
     },
 
     /**
-     * 학습 진행도 초기화
+     * 표시된 단어 ID 목록 조회
+     */
+    async getShownIds(): Promise<string[]> {
+        const json = await AsyncStorage.getItem(SHOWN_IDS_KEY);
+        return json ? JSON.parse(json) : [];
+    },
+
+    /**
+     * 진행도 초기화
      */
     async resetProgress(): Promise<void> {
-        await AsyncStorage.setItem(LAST_INDEX_KEY, '0');
-        await AsyncStorage.setItem(SHOWN_IDS_KEY, JSON.stringify([]));
+        await AsyncStorage.removeItem(SHOWN_IDS_KEY);
+        console.log('[PushNotificationService] Progress has been reset');
     },
 
     /**
@@ -174,80 +206,65 @@ export const PushNotificationService = {
             // 이미 표시된 단어 제외
             const shownIds = await this.getShownIds();
             const remainingItems = filteredItems.filter(item => !shownIds.includes(item.id));
+            const availableItems = filteredItems.filter(item => !shownIds.includes(item.id));
 
-            // 모든 단어를 표시했으면 완료 알림 후 종료
-            if (remainingItems.length === 0) {
-                console.log('[Notification] All words completed!');
-
-                // 완료 알림 표시
-                await Notifications.scheduleNotificationAsync({
-                    content: {
-                        title: '🎉 학습 완료!',
-                        body: '모든 단어를 학습했습니다. 수고하셨습니다!',
-                        data: { type: 'completion' },
-                    },
-                    trigger: null, // 즉시 표시
-                });
-
-                // 설정 비활성화
-                await this.saveSettings({ ...settings, enabled: false });
+            if (availableItems.length === 0) {
+                console.log('[PushNotificationService] All items shown, showing completion notification');
+                await this.showCompletionNotification();
                 return;
             }
 
-            // 다음 단어 선택
+            // 다음 표시할 단어 선택
             let nextItem;
             if (settings.order === 'random') {
-                const randomIndex = Math.floor(Math.random() * remainingItems.length);
-                nextItem = remainingItems[randomIndex];
+                const randomIndex = Math.floor(Math.random() * availableItems.length);
+                nextItem = availableItems[randomIndex];
             } else {
-                nextItem = remainingItems[0]; // 순차적
+                // 순차적: display_order 기준 정렬 후 첫 번째
+                availableItems.sort((a, b) => a.display_order - b.display_order);
+                nextItem = availableItems[0];
             }
 
-            // 알림 내용 구성 (question = 단어, answer = 뜻)
-            let title = '';
-            let body = '';
-
-            switch (settings.format) {
-                case 'both':
-                    title = nextItem.question;
-                    body = nextItem.answer;
-                    break;
-                case 'word_only':
-                    title = nextItem.question;
-                    body = '뜻을 떠올려보세요';
-                    break;
-                case 'meaning_only':
-                    title = nextItem.answer;
-                    body = '단어를 떠올려보세요';
-                    break;
-            }
+            console.log('[PushNotificationService] Next item selected:', nextItem.question);
 
             // 알림 예약
+            const triggerSeconds = settings.interval * 60;
+            console.log('[PushNotificationService] Scheduling notification in', triggerSeconds, 'seconds');
+
             await Notifications.scheduleNotificationAsync({
                 content: {
-                    title,
-                    body,
+                    title: settings.format === 'meaning_only' ? '단어 퀴즈' : nextItem.question,
+                    body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' :
+                        settings.format === 'meaning_only' ? nextItem.answer : nextItem.answer,
                     data: {
                         libraryId: settings.libraryId,
                         itemId: nextItem.id,
                         question: nextItem.question,
                         answer: nextItem.answer,
+                        type: 'learning',
                     },
+                    sound: true,
+                    priority: Notifications.AndroidNotificationPriority.HIGH,
                 },
                 trigger: {
                     type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                    seconds: settings.interval * 60, // 분을 초로 변환
+                    seconds: triggerSeconds > 0 ? triggerSeconds : 60, // 최소 60초
                     repeats: false,
                 },
             });
 
-            // 표시된 단어 ID 추가
+            // 표시된 ID 저장
             await this.addShownId(nextItem.id);
+            // 진행도 업데이트 (전체 아이템 수 대비 완료 수)
+            // 완료 수 = 전체 - 남은 수
+            // 남은 수 = availableItems.length - 1 (방금 예약한거)
+            // 하지만 정확히는 shownIds.length + 1 이 완료된 수
+            // progress.total = filteredItems.length
+            // progress.current = shownIds.length + 1
 
-            const progress = filteredItems.length - remainingItems.length + 1;
-            console.log(`[Notification] Scheduled next notification: ${title} (${progress}/${filteredItems.length})`);
+            console.log('[PushNotificationService] Notification scheduled successfully');
         } catch (error) {
-            console.error('[Notification] Error scheduling notification:', error);
+            console.error('[PushNotificationService] Error scheduling notification:', error);
         }
     },
 
