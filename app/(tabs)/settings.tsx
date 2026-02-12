@@ -81,12 +81,13 @@ export default function SettingsScreen() {
     await loadProgress();
   };
 
-  const handleUpdateSettings = async (updates: Partial<PushNotificationSettings>) => {
+  // 알림 설정 변경 핸들러
+  const handleUpdateSettings = async (newSettings: Partial<PushNotificationSettings>) => {
     if (!notificationSettings) return;
-    const newSettings = { ...notificationSettings, ...updates };
-    setNotificationSettings(newSettings);
-    await PushNotificationService.saveSettings(newSettings);
-    await loadProgress();
+
+    const updated = { ...notificationSettings, ...newSettings };
+    setNotificationSettings(updated);
+    await PushNotificationService.saveSettings(updated);
   };
 
   const handleResetProgress = async () => {
@@ -145,6 +146,8 @@ export default function SettingsScreen() {
   };
 
   const isWeb = Platform.OS === 'web' && width > 768;
+
+  console.log('[Settings] Modal State:', { showNotificationModal, hasSettings: !!notificationSettings, librariesCount: libraries.length });
 
   return (
     <ScrollView
@@ -293,8 +296,7 @@ export default function SettingsScreen() {
         animationType="slide"
         onRequestClose={() => setShowNotificationModal(false)}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <View
           style={styles.modalOverlay}
         >
           <View style={[styles.modalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
@@ -474,7 +476,7 @@ export default function SettingsScreen() {
               <Text style={styles.confirmButtonText}>설정 완료</Text>
             </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </Modal>
     </ScrollView>
   );
@@ -591,7 +593,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   modalScroll: {
-    flex: 1,
+    // flex: 1 removed to allow content to dictate height
   },
   modalLabel: {
     fontSize: 14,

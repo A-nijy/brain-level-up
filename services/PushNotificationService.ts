@@ -22,15 +22,19 @@ const LAST_INDEX_KEY = '@push_notification_last_index';
 const SHOWN_IDS_KEY = '@push_notification_shown_ids';
 
 // 알림 핸들러 설정 (앱 포그라운드에서도 알림 표시)
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
+try {
+    Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: false,
+            shouldShowBanner: true,
+            shouldShowList: true,
+        }),
+    });
+} catch (error) {
+    console.warn('Failed to set notification handler:', error);
+}
 
 export const PushNotificationService = {
     /**
@@ -39,25 +43,31 @@ export const PushNotificationService = {
     async requestPermissions(): Promise<boolean> {
         if (Platform.OS === 'web') return false;
 
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
+        try {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
 
-        if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+
+            // Android 알림 채널 설정
+            if (Platform.OS === 'android') {
+                await Notifications.setNotificationChannelAsync('word-learning', {
+                    name: '단어 학습 알림',
+                    importance: Notifications.AndroidImportance.HIGH,
+                    vibrationPattern: [0, 250, 250, 250],
+                    lightColor: '#FF231F7C',
+                });
+            }
+
+            return finalStatus === 'granted';
+        } catch (error) {
+            console.warn('Failed to request notification permissions:', error);
+            // 에러 발생 시 권한 없다고 처리하여 앱 크래시 방지
+            return false;
         }
-
-        // Android 알림 채널 설정
-        if (Platform.OS === 'android') {
-            await Notifications.setNotificationChannelAsync('word-learning', {
-                name: '단어 학습 알림',
-                importance: Notifications.AndroidImportance.HIGH,
-                vibrationPattern: [0, 250, 250, 250],
-                lightColor: '#FF231F7C',
-            });
-        }
-
-        return finalStatus === 'granted';
     },
 
     /**
