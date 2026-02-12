@@ -87,9 +87,9 @@ export const PushNotificationService = {
         await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 
         if (settings.enabled) {
-            // 알림이 활성화되면 진행도 초기화 및 첫 알림 예약
+            // 알림이 활성화되면 진행도 초기화 및 배지 알림 예약
             await this.resetProgress();
-            await this.scheduleNextNotification(userId);
+            await this.scheduleNotificationBatch(userId);
         } else {
             // 알림이 비활성화되면 모든 알림 취소
             await this.cancelAllNotifications();
@@ -171,105 +171,97 @@ export const PushNotificationService = {
     },
 
     /**
-     * 다음 알림 예약
+     * 알림 일괄 예약 (Batch Scheduling)
      */
-    async scheduleNextNotification(userId?: string): Promise<void> {
+    async scheduleNotificationBatch(userId?: string): Promise<void> {
         if (Platform.OS === 'web') return;
 
+        console.log('[PushNotificationService] Starting batch scheduling...');
+
+        // 1. 기존 예약 모두 취소
+        await this.cancelAllNotifications();
+
+        // 2. 설정 확인
         const settings = await this.getSettings();
         if (!settings || !settings.enabled || !settings.libraryId) {
-            console.log('[Notification] Settings not configured or disabled');
+            console.log('[PushNotificationService] Settings not configured or disabled');
             return;
         }
 
+        const currentUserId = userId || await AsyncStorage.getItem('@user_id');
+        if (!currentUserId) {
+            console.log('[PushNotificationService] Warning: User ID not provided, continuing with anonymous scheduling');
+        }
+
         try {
-            // 사용자 ID 확인 (인자로 받거나 저장소에서 조회)
-            const currentUserId = userId || await AsyncStorage.getItem('@user_id');
-
-            // 로그인을 강제하지 않음 (로컬 알림은 로그인 없이도 동작 가능해야 함. 단, 학습 기록 연동 등을 위해 필요할 수 있음)
-            // 하지만 현재 로직에서는 userId가 없으면 리턴해버림.
-            // 일단 로그만 찍고 진행하도록 수정하거나, userId가 필수라면 인자로 확실히 받아야 함.
-            if (!currentUserId) {
-                console.log('[PushNotificationService] Warning: User ID not provided, verification skipped');
-                // return; // 로그인 체크를 일시적으로 해제하여 테스트
-            }
-
-            console.log('[PushNotificationService] Scheduling for user:', currentUserId || 'anonymous');
-
-            // 단어장의 모든 아이템 가져오기
+            // 3. 아이템 로드 및 필터링
             const allItems = await ItemService.getItems(settings.libraryId);
 
-            // 범위 필터링
             let filteredItems = allItems;
             if (settings.range === 'incorrect') {
-                // success_count가 0이고 fail_count가 0보다 큰 항목 (오답)
                 filteredItems = allItems.filter(item => item.fail_count > 0 && item.success_count === 0);
             } else if (settings.range === 'specific' && settings.rangeStart !== undefined && settings.rangeEnd !== undefined) {
                 filteredItems = allItems.slice(settings.rangeStart, settings.rangeEnd + 1);
             }
 
-            // 이미 표시된 단어 제외
+            // 배치 스케줄링 시에는 shownIds를 엄격하게 적용하지 않고, "이번 배치에서" 중복을 피하는 방식으로 진행 가능.
+            // 하지만 영단어 암기 특성상 "안 본 단어" 우선이므로 shownIds를 체크함.
             const shownIds = await this.getShownIds();
-            const remainingItems = filteredItems.filter(item => !shownIds.includes(item.id));
             const availableItems = filteredItems.filter(item => !shownIds.includes(item.id));
 
             if (availableItems.length === 0) {
-                console.log('[PushNotificationService] All items shown, showing completion notification');
+                console.log('[PushNotificationService] All items shown. Showing completion notification.');
                 await this.showCompletionNotification();
                 return;
             }
 
-            // 다음 표시할 단어 선택
-            let nextItem;
+            // 4. 정렬/셔플
+            let targetItems = [...availableItems];
             if (settings.order === 'random') {
-                const randomIndex = Math.floor(Math.random() * availableItems.length);
-                nextItem = availableItems[randomIndex];
+                for (let i = targetItems.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [targetItems[i], targetItems[j]] = [targetItems[j], targetItems[i]];
+                }
             } else {
-                // 순차적: display_order 기준 정렬 후 첫 번째
-                availableItems.sort((a, b) => a.display_order - b.display_order);
-                nextItem = availableItems[0];
+                targetItems.sort((a, b) => a.display_order - b.display_order);
             }
 
-            console.log('[PushNotificationService] Next item selected:', nextItem.question);
+            // 5. 배치 예약 (최대 50개)
+            const BATCH_SIZE = Math.min(targetItems.length, 50);
+            console.log(`[PushNotificationService] Scheduling ${BATCH_SIZE} notifications. Interval: ${settings.interval} min`);
 
-            // 알림 예약
-            const triggerSeconds = settings.interval * 60;
-            console.log('[PushNotificationService] Scheduling notification in', triggerSeconds, 'seconds');
+            for (let i = 0; i < BATCH_SIZE; i++) {
+                const item = targetItems[i];
+                const triggerSeconds = settings.interval * 60 * (i + 1);
 
-            await Notifications.scheduleNotificationAsync({
-                content: {
-                    title: settings.format === 'meaning_only' ? '단어 퀴즈' : nextItem.question,
-                    body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' :
-                        settings.format === 'meaning_only' ? nextItem.answer : nextItem.answer,
-                    data: {
-                        libraryId: settings.libraryId,
-                        itemId: nextItem.id,
-                        question: nextItem.question,
-                        answer: nextItem.answer,
-                        type: 'learning',
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: settings.format === 'meaning_only' ? '단어 퀴즈' : item.question,
+                        body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' :
+                            settings.format === 'meaning_only' ? item.answer : item.answer,
+                        data: {
+                            libraryId: settings.libraryId,
+                            itemId: item.id,
+                            question: item.question,
+                            answer: item.answer,
+                            type: 'learning',
+                            orderIndex: i,
+                        },
+                        sound: true,
+                        priority: Notifications.AndroidNotificationPriority.HIGH,
                     },
-                    sound: true,
-                    priority: Notifications.AndroidNotificationPriority.HIGH,
-                },
-                trigger: {
-                    type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                    seconds: triggerSeconds > 0 ? triggerSeconds : 60, // 최소 60초
-                    repeats: false,
-                },
-            });
+                    trigger: {
+                        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                        seconds: triggerSeconds > 0 ? triggerSeconds : 60,
+                        repeats: false,
+                    },
+                });
+            }
 
-            // 표시된 ID 저장
-            await this.addShownId(nextItem.id);
-            // 진행도 업데이트 (전체 아이템 수 대비 완료 수)
-            // 완료 수 = 전체 - 남은 수
-            // 남은 수 = availableItems.length - 1 (방금 예약한거)
-            // 하지만 정확히는 shownIds.length + 1 이 완료된 수
-            // progress.total = filteredItems.length
-            // progress.current = shownIds.length + 1
+            console.log('[PushNotificationService] Batch scheduling completed.');
 
-            console.log('[PushNotificationService] Notification scheduled successfully');
         } catch (error) {
-            console.error('[PushNotificationService] Error scheduling notification:', error);
+            console.error('[PushNotificationService] Error in batch scheduling:', error);
         }
     },
 
@@ -279,7 +271,7 @@ export const PushNotificationService = {
     async cancelAllNotifications(): Promise<void> {
         if (Platform.OS === 'web') return;
         await Notifications.cancelAllScheduledNotificationsAsync();
-        console.log('[Notification] All notifications cancelled');
+        console.log('[PushNotificationService] All notifications cancelled');
     },
 
     /**
