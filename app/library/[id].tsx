@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, RefreshControl, Platform, ActionSheetIOS, useWindowDimensions } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, RefreshControl, Platform, ActionSheetIOS, useWindowDimensions, Modal, TouchableWithoutFeedback } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -25,14 +25,22 @@ export default function LibraryDetailScreen() {
     const { library, items, loading, refreshing, refresh, reorderItems } = useLibraryDetail(libraryId);
     const [reorderMode, setReorderMode] = useState(false);
     const [exportModalVisible, setExportModalVisible] = useState(false);
+    const [menuVisible, setMenuVisible] = useState(false);
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
 
+    const toggleMenu = () => setMenuVisible(!menuVisible);
+
+    const handleMenuOption = (action: () => void) => {
+        setMenuVisible(false);
+        action();
+    };
+
     const handleEditItem = (item: Item) => {
         router.push({
-            pathname: `/library/${libraryId}/edit-item`,
-            params: { itemId: item.id }
+            pathname: "/library/[id]/edit-item",
+            params: { id: libraryId, itemId: item.id }
         });
     };
 
@@ -183,30 +191,66 @@ export default function LibraryDetailScreen() {
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            {items.length > 1 && (
-                                <TouchableOpacity
-                                    onPress={() => setReorderMode(!reorderMode)}
-                                    style={[styles.headerIconButton, reorderMode && { backgroundColor: colors.tint + '20', borderRadius: 8, padding: 4 }]}
-                                >
-                                    <FontAwesome name="sort" size={18} color={colors.tint} />
-                                </TouchableOpacity>
-                            )}
-                            <TouchableOpacity onPress={() => setExportModalVisible(true)} style={styles.headerIconButton}>
-                                <FontAwesome name="print" size={18} color={colors.tint} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => router.push(`/library/${id}/import`)} style={styles.headerIconButton}>
-                                <FontAwesome name="upload" size={18} color={colors.tint} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => router.push({
-                                pathname: "/library/[id]/create-item",
-                                params: { id: libraryId }
-                            })} style={styles.headerIconButton}>
+                            <TouchableOpacity
+                                onPress={() => router.push({
+                                    pathname: "/library/[id]/create-item",
+                                    params: { id: libraryId }
+                                })}
+                                style={styles.headerIconButton}
+                            >
                                 <FontAwesome name="plus" size={18} color={colors.tint} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={toggleMenu} style={[styles.headerIconButton, { marginRight: 0 }]}>
+                                <FontAwesome name="bars" size={20} color={colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
                     )
                 }}
             />
+
+            {/* Dropdown Menu */}
+            <Modal
+                visible={menuVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setMenuVisible(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+                    <View style={styles.menuOverlay}>
+                        <View variant="transparent" style={styles.menuContainer}>
+                            <Card style={styles.menuContent}>
+                                <TouchableOpacity
+                                    style={styles.menuOption}
+                                    onPress={() => handleMenuOption(() => setReorderMode(!reorderMode))}
+                                >
+                                    <FontAwesome name="sort" size={16} color={colors.tint} style={styles.menuIcon} />
+                                    <Text style={styles.menuOptionText}>{reorderMode ? '순서 변경 종료' : '순서 변경'}</Text>
+                                </TouchableOpacity>
+
+                                <View variant="transparent" style={styles.menuDivider} />
+
+                                <TouchableOpacity
+                                    style={styles.menuOption}
+                                    onPress={() => handleMenuOption(() => setExportModalVisible(true))}
+                                >
+                                    <FontAwesome name="print" size={16} color={colors.tint} style={styles.menuIcon} />
+                                    <Text style={styles.menuOptionText}>PDF 내보내기</Text>
+                                </TouchableOpacity>
+
+                                <View variant="transparent" style={styles.menuDivider} />
+
+                                <TouchableOpacity
+                                    style={styles.menuOption}
+                                    onPress={() => handleMenuOption(() => router.push(`/library/${id}/import`))}
+                                >
+                                    <FontAwesome name="upload" size={16} color={colors.tint} style={styles.menuIcon} />
+                                    <Text style={styles.menuOptionText}>단어 가져오기</Text>
+                                </TouchableOpacity>
+                            </Card>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
 
             <FlatList
                 key={`item-list-${reorderMode}-${isWeb ? 2 : 1}`}
@@ -427,5 +471,44 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(79, 70, 229, 0.05)',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    menuOverlay: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    menuContainer: {
+        position: 'absolute',
+        top: Platform.OS === 'ios' ? 100 : 60, // 헤더 높이에 맞춰 조정
+        right: 20,
+        zIndex: 1000,
+    },
+    menuContent: {
+        width: 180,
+        padding: 8,
+        borderRadius: 12,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    menuOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+    },
+    menuIcon: {
+        width: 24,
+        marginRight: 10,
+    },
+    menuOptionText: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    menuDivider: {
+        height: 1,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        marginHorizontal: 8,
     },
 });
