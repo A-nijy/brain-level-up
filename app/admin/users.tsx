@@ -30,19 +30,20 @@ export default function UserManagementScreen() {
 
     const handleUpdateRole = (user: Profile) => {
         const newRole = user.role === 'admin' ? 'user' : 'admin';
+        const roleName = newRole === 'admin' ? '관리자' : '사용자';
         Alert.alert(
-            'Update Role',
-            `Change ${user.email}'s role to ${newRole.toUpperCase()}?`,
+            '권한 변경',
+            `${user.email} 님의 권한을 ${roleName}(으)로 변경하시겠습니까?`,
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: '취소', style: 'cancel' },
                 {
-                    text: 'Update',
+                    text: '변경',
                     onPress: async () => {
                         try {
                             await AdminService.updateUserProfile(user.id, { role: newRole as any });
                             loadUsers();
                         } catch (error: any) {
-                            Alert.alert('Error', error.message);
+                            Alert.alert('오류', error.message);
                         }
                     }
                 }
@@ -52,13 +53,13 @@ export default function UserManagementScreen() {
 
     const handleUpdateMembership = (user: Profile) => {
         Alert.alert(
-            'Update Membership',
-            'Select membership level:',
+            '멤버십 등급 변경',
+            '변경할 멤버십 등급을 선택하세요:',
             [
                 { text: 'BASIC', onPress: () => updateMembership(user.id, 'BASIC') },
                 { text: 'PREMIUM', onPress: () => updateMembership(user.id, 'PREMIUM') },
                 { text: 'PRO', onPress: () => updateMembership(user.id, 'PRO') },
-                { text: 'Cancel', style: 'cancel' }
+                { text: '취소', style: 'cancel' }
             ]
         );
     };
@@ -68,7 +69,7 @@ export default function UserManagementScreen() {
             await AdminService.updateUserProfile(userId, { membership_level: level as any });
             loadUsers();
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            Alert.alert('오류', error.message);
         }
     };
 
@@ -77,7 +78,7 @@ export default function UserManagementScreen() {
             <View variant="transparent" style={styles.userInfo}>
                 <Text style={styles.userEmail}>{item.email}</Text>
                 <Text style={[styles.userDate, { color: colors.textSecondary }]}>
-                    Joined: {new Date(item.created_at).toLocaleDateString()}
+                    가입일: {new Date(item.created_at).toLocaleDateString()}
                 </Text>
             </View>
 
@@ -85,7 +86,7 @@ export default function UserManagementScreen() {
                 <TouchableOpacity onPress={() => handleUpdateRole(item)}>
                     <View style={[styles.tag, { backgroundColor: item.role === 'admin' ? colors.error + '20' : colors.tint + '20' }]}>
                         <Text style={[styles.tagText, { color: item.role === 'admin' ? colors.error : colors.tint }]}>
-                            {item.role?.toUpperCase()}
+                            {item.role === 'admin' ? '관리자' : '사용자'}
                         </Text>
                     </View>
                 </TouchableOpacity>
@@ -118,7 +119,7 @@ export default function UserManagementScreen() {
                 contentContainerStyle={styles.list}
                 ListHeaderComponent={
                     <Text style={[styles.headerText, { color: colors.textSecondary }]}>
-                        Total {users.length} users
+                        총 {users.length}명의 사용자
                     </Text>
                 }
             />

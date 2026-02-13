@@ -78,19 +78,19 @@ export default function AdminDashboardScreen() {
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
             <View variant="transparent" style={styles.header}>
-                <Text style={styles.welcomeText}>Admin Overview</Text>
-                <Text style={[styles.subText, { color: colors.textSecondary }]}>System statistics and management tools</Text>
+                <Text style={styles.welcomeText}>관리자 개요</Text>
+                <Text style={[styles.subText, { color: colors.textSecondary }]}>시스템 통계 및 관리 도구</Text>
             </View>
 
             <View variant="transparent" style={styles.statsGrid}>
-                <StatCard title="Total Users" value={stats?.userCount || 0} icon="users" color="#4F46E5" />
-                <StatCard title="Total Libraries" value={stats?.libraryCount || 0} icon="book" color="#7C3AED" />
-                <StatCard title="Total Items" value={stats?.itemCount || 0} icon="list" color="#EC4899" />
-                <StatCard title="Downloads" value={stats?.totalDownloads || 0} icon="download" color="#10B981" />
+                <StatCard title="총 사용자" value={stats?.userCount || 0} icon="users" color="#4F46E5" />
+                <StatCard title="총 단어장" value={stats?.libraryCount || 0} icon="book" color="#7C3AED" />
+                <StatCard title="총 단어 수" value={stats?.itemCount || 0} icon="list" color="#EC4899" />
+                <StatCard title="다운로드" value={stats?.totalDownloads || 0} icon="download" color="#10B981" />
             </View>
 
             <View variant="transparent" style={styles.menuSection}>
-                <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Management Menus</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>관리 메뉴</Text>
 
                 <TouchableOpacity style={styles.menuButton} onPress={() => router.push('/admin/users')}>
                     <LinearGradient
@@ -101,8 +101,8 @@ export default function AdminDashboardScreen() {
                         <View variant="transparent" style={styles.menuContent}>
                             <FontAwesome name="user-circle" size={24} color="#fff" />
                             <View variant="transparent" style={styles.menuTextContainer}>
-                                <Text style={styles.menuTitle}>User Management</Text>
-                                <Text style={styles.menuSub}>Manage roles and membership levels</Text>
+                                <Text style={styles.menuTitle}>사용자 관리</Text>
+                                <Text style={styles.menuSub}>역할 및 멤버십 등급 관리</Text>
                             </View>
                             <FontAwesome name="chevron-right" size={16} color="rgba(255,255,255,0.6)" />
                         </View>
@@ -118,8 +118,8 @@ export default function AdminDashboardScreen() {
                         <View variant="transparent" style={styles.menuContent}>
                             <FontAwesome name="cloud" size={24} color="#fff" />
                             <View variant="transparent" style={styles.menuTextContainer}>
-                                <Text style={styles.menuTitle}>Shared Library Manager</Text>
-                                <Text style={styles.menuSub}>Curate and manage marketplace content</Text>
+                                <Text style={styles.menuTitle}>공유 단어장 관리</Text>
+                                <Text style={styles.menuSub}>마켓플레이스 콘텐츠 관리 및 큐레이션</Text>
                             </View>
                             <FontAwesome name="chevron-right" size={16} color="rgba(255,255,255,0.6)" />
                         </View>
@@ -135,8 +135,8 @@ export default function AdminDashboardScreen() {
                         <View variant="transparent" style={styles.menuContent}>
                             <FontAwesome name="send" size={22} color="#fff" />
                             <View variant="transparent" style={styles.menuTextContainer}>
-                                <Text style={styles.menuTitle}>Broadcast Notification</Text>
-                                <Text style={styles.menuSub}>Send a message to all users</Text>
+                                <Text style={styles.menuTitle}>전체 알림 발송</Text>
+                                <Text style={styles.menuSub}>모든 사용자에게 메시지 전송</Text>
                             </View>
                             <FontAwesome name="chevron-right" size={16} color="rgba(255,255,255,0.6)" />
                         </View>
@@ -153,21 +153,21 @@ export default function AdminDashboardScreen() {
             >
                 <View variant="transparent" style={styles.modalOverlay}>
                     <Card style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Broadcast Notification</Text>
+                        <Text style={styles.modalTitle}>전체 알림 발송</Text>
 
-                        <Text style={styles.inputLabel}>Title</Text>
+                        <Text style={styles.inputLabel}>제목</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                            placeholder="Notification title..."
+                            placeholder="알림 제목을 입력하세요..."
                             placeholderTextColor={colors.textSecondary}
                             value={notifyTitle}
                             onChangeText={setNotifyTitle}
                         />
 
-                        <Text style={styles.inputLabel}>Message</Text>
+                        <Text style={styles.inputLabel}>메시지 내용</Text>
                         <TextInput
                             style={[styles.input, styles.textArea, { color: colors.text, borderColor: colors.border }]}
-                            placeholder="Enter message content..."
+                            placeholder="메시지 내용을 입력하세요..."
                             placeholderTextColor={colors.textSecondary}
                             value={notifyMessage}
                             onChangeText={setNotifyMessage}
@@ -181,7 +181,7 @@ export default function AdminDashboardScreen() {
                                 onPress={() => setIsNotifyModalVisible(false)}
                                 disabled={isSending}
                             >
-                                <Text style={{ color: colors.text }}>Cancel</Text>
+                                <Text style={{ color: colors.text }}>취소</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.modalButton, { backgroundColor: colors.tint }]}
@@ -191,7 +191,7 @@ export default function AdminDashboardScreen() {
                                 {isSending ? (
                                     <ActivityIndicator size="small" color="#fff" />
                                 ) : (
-                                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>Send All</Text>
+                                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>전체 전송</Text>
                                 )}
                             </TouchableOpacity>
                         </View>

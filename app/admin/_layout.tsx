@@ -37,9 +37,9 @@ export default function AdminLayout() {
             headerTintColor: colors.text,
             headerTitleStyle: { fontWeight: 'bold' },
         }}>
-            <Stack.Screen name="index" options={{ title: 'Admin Dashboard' }} />
-            <Stack.Screen name="users" options={{ title: 'User Management' }} />
-            <Stack.Screen name="shared-manager" options={{ title: 'Shared Libraries' }} />
+            <Stack.Screen name="index" options={{ title: '관리자 대시보드' }} />
+            <Stack.Screen name="users" options={{ title: '사용자 관리' }} />
+            <Stack.Screen name="shared-manager" options={{ title: '공유 단어장 관리' }} />
         </Stack>
     );
 }

@@ -30,7 +30,7 @@ export default function SharedManagerScreen() {
             setPublicLibs(pLibs);
             setSharedLibs(sLibs);
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            Alert.alert('오류', error.message);
         } finally {
             setLoading(false);
         }
@@ -38,19 +38,19 @@ export default function SharedManagerScreen() {
 
     const handlePublish = (lib: any) => {
         Alert.alert(
-            'Publish to Shared Market',
-            `Publish "${lib.title}" to the Shared Library list?`,
+            '공유 마켓 게시',
+            `"${lib.title}" 단어장을 공유 목록에 게시하시겠습니까?`,
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: '취소', style: 'cancel' },
                 {
-                    text: 'Publish',
+                    text: '게시하기',
                     onPress: async () => {
                         try {
                             await AdminService.publishToShared(lib.id);
-                            Alert.alert('Success', 'Library published successfully!');
+                            Alert.alert('성공', '단어장이 성공적으로 게시되었습니다!');
                             loadData();
                         } catch (error: any) {
-                            Alert.alert('Error', error.message);
+                            Alert.alert('오류', error.message);
                         }
                     }
                 }
@@ -74,29 +74,29 @@ export default function SharedManagerScreen() {
         if (!editingLib) return;
         try {
             await AdminService.updateSharedLibrary(editingLib.id, editForm);
-            Alert.alert('Success', 'Library updated successfully!');
+            Alert.alert('성공', '단어장 정보가 수정되었습니다!');
             setEditingLib(null);
             loadData();
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            Alert.alert('오류', error.message);
         }
     };
 
     const handleDeleteShared = (lib: SharedLibrary) => {
         Alert.alert(
-            'Delete Shared Library',
-            `Remove "${lib.title}" from the Shared Market?`,
+            '공유 단어장 삭제',
+            `"${lib.title}" 단어장을 공유 마켓에서 삭제하시겠습니까?`,
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: '취소', style: 'cancel' },
                 {
-                    text: 'Delete',
+                    text: '삭제',
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await AdminService.deleteSharedLibrary(lib.id);
                             loadData();
                         } catch (error: any) {
-                            Alert.alert('Error', error.message);
+                            Alert.alert('오류', error.message);
                         }
                     }
                 }
@@ -109,14 +109,14 @@ export default function SharedManagerScreen() {
             setLoading(true);
             // 1. Create a dummy library
             const { data: user } = await supabase.auth.getUser();
-            if (!user.user) throw new Error('No admin user found');
+            if (!user.user) throw new Error('관리자 정보를 찾을 수 없습니다.');
 
             const { data: lib, error: libErr } = await supabase
                 .from('libraries')
                 .insert({
-                    title: '[TEST] Premium Content',
-                    description: 'This is a test library for rewarded ad flow.',
-                    category: 'TEST',
+                    title: '[TEST] 프리미엄 콘텐츠',
+                    description: '보상형 광고 흐름 테스트를 위한 라이브러리입니다.',
+                    category: '테스트',
                     user_id: user.user.id,
                     is_public: true
                 })
@@ -138,10 +138,10 @@ export default function SharedManagerScreen() {
             // 3. Publish to shared
             await AdminService.publishToShared(lib.id);
 
-            Alert.alert('Success', 'Test Shared Library created! Go to the "Shared" tab to test downloading.');
+            Alert.alert('성공', '테스트용 공유 단어장이 생성되었습니다! "공유" 탭에서 확인해보세요.');
             loadData();
         } catch (error: any) {
-            Alert.alert('Error', error.message);
+            Alert.alert('오류', error.message);
         } finally {
             setLoading(false);
         }
@@ -159,18 +159,18 @@ export default function SharedManagerScreen() {
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
             <View variant="transparent" style={styles.header}>
                 <View variant="transparent">
-                    <Text style={styles.title}>Shared Market Manager</Text>
-                    <Text style={[styles.subText, { color: colors.textSecondary }]}>Curation and quality control</Text>
+                    <Text style={styles.title}>공유 마켓 관리자</Text>
+                    <Text style={[styles.subText, { color: colors.textSecondary }]}>콘텐츠 큐레이션 및 품질 관리</Text>
                 </View>
                 <TouchableOpacity style={[styles.testButton, { backgroundColor: colors.tint + '15' }]} onPress={createTestSharedLibrary}>
                     <FontAwesome name="flask" size={16} color={colors.tint} style={{ marginRight: 8 }} />
-                    <Text style={[styles.testButtonText, { color: colors.tint }]}>Create Test Lib</Text>
+                    <Text style={[styles.testButtonText, { color: colors.tint }]}>테스트 생성</Text>
                 </TouchableOpacity>
             </View>
 
             <View variant="transparent" style={styles.section}>
                 <View variant="transparent" style={styles.sectionHeader}>
-                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Public Libraries (Candidates)</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>공개 단어장 (게시 후보)</Text>
                     <TouchableOpacity onPress={loadData}>
                         <FontAwesome name="refresh" size={16} color={colors.tint} />
                     </TouchableOpacity>
@@ -180,23 +180,23 @@ export default function SharedManagerScreen() {
                         <View variant="transparent" style={styles.libInfo}>
                             <Text style={styles.libTitle}>{item.title}</Text>
                             <Text style={[styles.libSub, { color: colors.textSecondary }]}>
-                                By: {item.profiles?.email} | Category: {item.category || 'None'}
+                                작성자: {item.profiles?.email} | 카테고리: {item.category || '없음'}
                             </Text>
                         </View>
                         <TouchableOpacity
                             style={[styles.actionButton, { backgroundColor: colors.tint }]}
                             onPress={() => handlePublish(item)}
                         >
-                            <Text style={styles.actionButtonText}>Publish</Text>
+                            <Text style={styles.actionButtonText}>게시하기</Text>
                         </TouchableOpacity>
                     </Card>
                 ))}
-                {publicLibs.length === 0 && <Text style={styles.emptyText}>No candidates available.</Text>}
+                {publicLibs.length === 0 && <Text style={styles.emptyText}>게시 후보가 없습니다.</Text>}
             </View>
 
             <View variant="transparent" style={styles.section}>
                 <View variant="transparent" style={styles.sectionHeader}>
-                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Published Shared Libraries</Text>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>게시 완료된 공유 단어장</Text>
                     <TouchableOpacity onPress={loadData}>
                         <FontAwesome name="refresh" size={16} color={colors.tint} />
                     </TouchableOpacity>
@@ -206,7 +206,7 @@ export default function SharedManagerScreen() {
                         <View variant="transparent" style={styles.libInfo}>
                             <Text style={styles.libTitle}>{item.title}</Text>
                             <Text style={[styles.libSub, { color: colors.textSecondary }]}>
-                                Downloads: {item.download_count} | {item.category}
+                                다운로드: {item.download_count} | {item.category}
                             </Text>
                         </View>
                         <View variant="transparent" style={styles.actionGroup}>
@@ -227,8 +227,8 @@ export default function SharedManagerScreen() {
                 ))}
                 {sharedLibs.length === 0 && (
                     <View variant="transparent" style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>No shared libraries yet.</Text>
-                        <Text style={styles.helpText}>Make a user library "Public" first to see it in candidates above.</Text>
+                        <Text style={styles.emptyText}>공유된 단어장이 없습니다.</Text>
+                        <Text style={styles.helpText}>사용자 단어장을 먼저 '공개'로 설정하면 후보 목록에 나타납니다.</Text>
                     </View>
                 )}
             </View>
@@ -237,16 +237,16 @@ export default function SharedManagerScreen() {
             <Modal visible={!!editingLib} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                        <Text style={styles.modalTitle}>Edit Shared Library</Text>
+                        <Text style={styles.modalTitle}>공유 단어장 수정</Text>
 
-                        <Text style={styles.label}>Title</Text>
+                        <Text style={styles.label}>제목</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                             value={editForm.title}
                             onChangeText={(text) => setEditForm(prev => ({ ...prev, title: text }))}
                         />
 
-                        <Text style={styles.label}>Description</Text>
+                        <Text style={styles.label}>설명</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border, height: 80 }]}
                             value={editForm.description}
@@ -254,7 +254,7 @@ export default function SharedManagerScreen() {
                             multiline
                         />
 
-                        <Text style={styles.label}>Category</Text>
+                        <Text style={styles.label}>카테고리</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                             value={editForm.category}
@@ -263,10 +263,10 @@ export default function SharedManagerScreen() {
 
                         <View variant="transparent" style={styles.modalButtons}>
                             <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setEditingLib(null)}>
-                                <Text style={[styles.modalButtonText, { color: colors.text }]}>Cancel</Text>
+                                <Text style={[styles.modalButtonText, { color: colors.text }]}>취소</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleUpdate}>
-                                <Text style={styles.modalButtonText}>Save Changes</Text>
+                                <Text style={styles.modalButtonText}>저장하기</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
