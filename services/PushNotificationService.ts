@@ -64,9 +64,11 @@ export const PushNotificationService = {
                 console.log('[PushNotificationService] Setting up Android channel...');
                 await Notifications.setNotificationChannelAsync('word-learning', {
                     name: '단어 학습 알림',
-                    importance: Notifications.AndroidImportance.HIGH,
+                    importance: Notifications.AndroidImportance.MAX, // 중요도 최상으로 변경
                     vibrationPattern: [0, 250, 250, 250],
                     lightColor: '#FF231F7C',
+                    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC, // 잠금 화면 표시 허용
+                    bypassDnd: true, // 방해금지 모드 우회 시도
                 });
                 console.log('[PushNotificationService] Android channel set up');
             }
@@ -181,6 +183,9 @@ export const PushNotificationService = {
         // 1. 기존 예약 모두 취소
         await this.cancelAllNotifications();
 
+        // 취소 후 잠시 대기 (안정성 확보)
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         // 2. 설정 확인
         const settings = await this.getSettings();
         if (!settings || !settings.enabled || !settings.libraryId) {
@@ -230,9 +235,12 @@ export const PushNotificationService = {
             const BATCH_SIZE = Math.min(targetItems.length, 50);
             console.log(`[PushNotificationService] Scheduling ${BATCH_SIZE} notifications. Interval: ${settings.interval} min`);
 
+            const now = new Date();
+
             for (let i = 0; i < BATCH_SIZE; i++) {
                 const item = targetItems[i];
-                const triggerSeconds = settings.interval * 60 * (i + 1);
+                // 절대 시간 계산: (i+1) * interval 분 후
+                const triggerDate = new Date(now.getTime() + settings.interval * 60 * 1000 * (i + 1));
 
                 await Notifications.scheduleNotificationAsync({
                     content: {
@@ -246,19 +254,31 @@ export const PushNotificationService = {
                             answer: item.answer,
                             type: 'learning',
                             orderIndex: i,
+                            scheduledAt: triggerDate.toISOString(),
                         },
                         sound: true,
                         priority: Notifications.AndroidNotificationPriority.HIGH,
                     },
                     trigger: {
-                        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                        seconds: triggerSeconds > 0 ? triggerSeconds : 60,
-                        repeats: false,
+                        type: Notifications.SchedulableTriggerInputTypes.DATE,
+                        date: triggerDate, // Date 객체 직접 사용
                     },
                 });
+                console.log(`[PushNotificationService] Scheduled #${i + 1} at ${triggerDate.toLocaleTimeString()}`);
             }
 
             console.log('[PushNotificationService] Batch scheduling completed.');
+
+            // 예약 확인 로그 (상세 정보 출력)
+            const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+            console.log(`[PushNotificationService] Total scheduled: ${scheduled.length}`);
+            scheduled.forEach((n, idx) => {
+                // 상위 5개만 로그 출력
+                if (idx < 5) {
+                    console.log(`[Check] #${idx + 1} ID: ${n.identifier}`);
+                    console.log(`[Check] #${idx + 1} Trigger:`, JSON.stringify(n.trigger));
+                }
+            });
 
         } catch (error) {
             console.error('[PushNotificationService] Error in batch scheduling:', error);
