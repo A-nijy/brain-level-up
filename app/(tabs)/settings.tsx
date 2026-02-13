@@ -22,6 +22,7 @@ export default function SettingsScreen() {
 
   // 푸시 알림 상태
   const [notificationSettings, setNotificationSettings] = useState<PushNotificationSettings | null>(null);
+  const [tempSettings, setTempSettings] = useState<PushNotificationSettings | null>(null);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [libraries, setLibraries] = useState<Library[]>([]);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
@@ -67,27 +68,45 @@ export default function SettingsScreen() {
         return;
       }
 
-      // 단어장이 선택되지 않았으면 모달 표시
-      if (!notificationSettings.libraryId) {
-        Alert.alert('단어장 선택 필요', '먼저 학습할 단어장을 선택해주세요.');
-        setShowNotificationModal(true);
-        return;
-      }
+      // 켤 때는 바로 저장하지 않고 모달을 띄움
+      setTempSettings({ ...notificationSettings, enabled: true });
+      setShowNotificationModal(true);
+    } else {
+      // 끌 때는 바로 저장
+      const newSettings = { ...notificationSettings, enabled: false };
+      setNotificationSettings(newSettings);
+      await PushNotificationService.saveSettings(newSettings, session?.user?.id);
+      await loadProgress();
     }
-
-    const newSettings = { ...notificationSettings, enabled: value };
-    setNotificationSettings(newSettings);
-    await PushNotificationService.saveSettings(newSettings, session?.user?.id);
-    await loadProgress();
   };
 
-  // 알림 설정 변경 핸들러
-  const handleUpdateSettings = async (newSettings: Partial<PushNotificationSettings>) => {
+  // 상세 설정 변경하기 클릭 시
+  const handleOpenSettings = () => {
     if (!notificationSettings) return;
+    setTempSettings({ ...notificationSettings });
+    setShowNotificationModal(true);
+  };
 
-    const updated = { ...notificationSettings, ...newSettings };
-    setNotificationSettings(updated);
-    await PushNotificationService.saveSettings(updated, session?.user?.id);
+  // 알림 설정 변경 핸들러 (모달 내 로컬 상태만 변경)
+  const handleUpdateTempSettings = (newSettings: Partial<PushNotificationSettings>) => {
+    if (!tempSettings) return;
+    setTempSettings({ ...tempSettings, ...newSettings });
+  };
+
+  // 모달 내 '설정 완료' 클릭 시 최종 저장
+  const handleSaveSettings = async () => {
+    if (!tempSettings) return;
+
+    if (!tempSettings.libraryId) {
+      Alert.alert('단어장 선택 필요', '학습할 단어장을 선택해주세요.');
+      return;
+    }
+
+    const finalSettings = { ...tempSettings, enabled: true };
+    setNotificationSettings(finalSettings);
+    await PushNotificationService.saveSettings(finalSettings, session?.user?.id);
+    await loadProgress();
+    setShowNotificationModal(false);
   };
 
   const handleResetProgress = async () => {
@@ -247,7 +266,7 @@ export default function SettingsScreen() {
             <>
               <TouchableOpacity
                 style={[styles.item, { paddingTop: 0 }]}
-                onPress={() => setShowNotificationModal(true)}
+                onPress={handleOpenSettings}
                 activeOpacity={0.7}
               >
                 <View variant="transparent" style={[styles.itemLeft, { marginLeft: 48 }]}>
@@ -307,7 +326,7 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             </View>
 
-            {notificationSettings ? (
+            {tempSettings ? (
               <ScrollView
                 style={styles.modalScroll}
                 contentContainerStyle={{ paddingBottom: 20 }}
@@ -323,18 +342,18 @@ export default function SettingsScreen() {
                         style={[
                           styles.pickerItem,
                           { borderColor: colors.border },
-                          notificationSettings?.libraryId === lib.id && {
+                          tempSettings?.libraryId === lib.id && {
                             backgroundColor: `${colors.tint}20`,
                             borderColor: colors.tint,
                           },
                         ]}
-                        onPress={() => handleUpdateSettings({ libraryId: lib.id })}
+                        onPress={() => handleUpdateTempSettings({ libraryId: lib.id })}
                       >
                         <Text
                           style={[
                             styles.pickerText,
                             { color: colors.text },
-                            notificationSettings?.libraryId === lib.id && {
+                            tempSettings?.libraryId === lib.id && {
                               color: colors.tint,
                               fontWeight: '800',
                             },
@@ -361,18 +380,18 @@ export default function SettingsScreen() {
                       style={[
                         styles.chip,
                         { borderColor: colors.border, backgroundColor: colors.background },
-                        notificationSettings?.range === opt.value && {
+                        tempSettings?.range === opt.value && {
                           backgroundColor: colors.tint,
                           borderColor: colors.tint,
                         },
                       ]}
-                      onPress={() => handleUpdateSettings({ range: opt.value as any })}
+                      onPress={() => handleUpdateTempSettings({ range: opt.value as any })}
                     >
                       <Text
                         style={[
                           styles.chipText,
                           { color: colors.text },
-                          notificationSettings?.range === opt.value && { color: '#fff' },
+                          tempSettings?.range === opt.value && { color: '#fff' },
                         ]}
                       >
                         {opt.label}
@@ -394,18 +413,18 @@ export default function SettingsScreen() {
                       style={[
                         styles.chip,
                         { borderColor: colors.border, backgroundColor: colors.background },
-                        notificationSettings?.format === opt.value && {
+                        tempSettings?.format === opt.value && {
                           backgroundColor: colors.tint,
                           borderColor: colors.tint,
                         },
                       ]}
-                      onPress={() => handleUpdateSettings({ format: opt.value as any })}
+                      onPress={() => handleUpdateTempSettings({ format: opt.value as any })}
                     >
                       <Text
                         style={[
                           styles.chipText,
                           { color: colors.text },
-                          notificationSettings?.format === opt.value && { color: '#fff' },
+                          tempSettings?.format === opt.value && { color: '#fff' },
                         ]}
                       >
                         {opt.label}
@@ -426,18 +445,18 @@ export default function SettingsScreen() {
                       style={[
                         styles.chip,
                         { borderColor: colors.border, backgroundColor: colors.background },
-                        notificationSettings?.order === opt.value && {
+                        tempSettings?.order === opt.value && {
                           backgroundColor: colors.tint,
                           borderColor: colors.tint,
                         },
                       ]}
-                      onPress={() => handleUpdateSettings({ order: opt.value as any })}
+                      onPress={() => handleUpdateTempSettings({ order: opt.value as any })}
                     >
                       <Text
                         style={[
                           styles.chipText,
                           { color: colors.text },
-                          notificationSettings?.order === opt.value && { color: '#fff' },
+                          tempSettings?.order === opt.value && { color: '#fff' },
                         ]}
                       >
                         {opt.label}
@@ -452,9 +471,9 @@ export default function SettingsScreen() {
                   <TextInput
                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                     keyboardType="numeric"
-                    value={notificationSettings?.interval.toString()}
+                    value={tempSettings?.interval.toString()}
                     onChangeText={(text) =>
-                      handleUpdateSettings({ interval: parseInt(text) || 1 })
+                      handleUpdateTempSettings({ interval: parseInt(text) || 1 })
                     }
                   />
                   <Text style={{ marginLeft: 12, color: colors.text, fontWeight: '700' }}>
@@ -471,7 +490,7 @@ export default function SettingsScreen() {
 
             <TouchableOpacity
               style={[styles.confirmButton, { backgroundColor: colors.tint }]}
-              onPress={() => setShowNotificationModal(false)}
+              onPress={handleSaveSettings}
             >
               <Text style={styles.confirmButtonText}>설정 완료</Text>
             </TouchableOpacity>
