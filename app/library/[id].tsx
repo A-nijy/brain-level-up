@@ -28,66 +28,6 @@ export default function LibraryDetailScreen() {
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
-    const handleEditLibrary = () => {
-        router.push({
-            pathname: "/library/edit",
-            params: { id: libraryId }
-        });
-    };
-
-    const handleDeleteLibrary = async () => {
-        if (!libraryId) return;
-        try {
-            await LibraryService.deleteLibrary(libraryId);
-            if (Platform.OS === 'web') window.alert('암기장이 삭제되었습니다.');
-            else Alert.alert('성공', '암기장이 삭제되었습니다.');
-            router.replace('/(tabs)');
-        } catch (error: any) {
-            console.error(error);
-            if (Platform.OS === 'web') window.alert(`삭제 실패: ${error.message}`);
-            else Alert.alert('오류', error.message);
-        }
-    };
-
-    const showLibraryOptions = () => {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    options: ['취소', '암기장 수정', '암기장 삭제'],
-                    destructiveButtonIndex: 2,
-                    cancelButtonIndex: 0,
-                },
-                (buttonIndex) => {
-                    if (buttonIndex === 1) handleEditLibrary();
-                    if (buttonIndex === 2) {
-                        Alert.alert('삭제 확인', '정말 이 암기장을 삭제하시겠습니까? 포함된 모든 단어가 삭제됩니다.', [
-                            { text: '취소', style: 'cancel' },
-                            { text: '삭제', style: 'destructive', onPress: handleDeleteLibrary }
-                        ]);
-                    }
-                }
-            );
-        } else if (Platform.OS === 'web') {
-            handleEditLibrary();
-        } else {
-            Alert.alert(
-                '암기장 설정',
-                '원하는 작업을 선택하세요.',
-                [
-                    { text: '취소', style: 'cancel' },
-                    {
-                        text: '삭제', style: 'destructive', onPress: () => {
-                            Alert.alert('삭제 확인', '정말 삭제하시겠습니까?', [
-                                { text: '취소', style: 'cancel' },
-                                { text: '삭제', style: 'destructive', onPress: handleDeleteLibrary }
-                            ]);
-                        }
-                    },
-                    { text: '수정', onPress: handleEditLibrary },
-                ]
-            );
-        }
-    };
 
     const handleEditItem = (item: Item) => {
         router.push({
@@ -263,11 +203,6 @@ export default function LibraryDetailScreen() {
                             })} style={styles.headerIconButton}>
                                 <FontAwesome name="plus" size={18} color={colors.tint} />
                             </TouchableOpacity>
-                            {!isWeb && (
-                                <TouchableOpacity onPress={showLibraryOptions}>
-                                    <FontAwesome name="ellipsis-v" size={20} color={colors.textSecondary} />
-                                </TouchableOpacity>
-                            )}
                         </View>
                     )
                 }}

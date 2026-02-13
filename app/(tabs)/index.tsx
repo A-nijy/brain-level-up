@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Alert, ActionSheetIOS } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLibraries } from '@/hooks/useLibraries';
 import { Library } from '@/types';
@@ -8,6 +8,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { LibraryService } from '@/services/LibraryService';
 
 export default function LibraryListScreen() {
   const { libraries, loading, refreshing, refresh, reorderLibraries } = useLibraries();
@@ -36,6 +37,70 @@ export default function LibraryListScreen() {
     await reorderLibraries(newLibs);
   };
 
+  const handleEditLibrary = (libraryId: string) => {
+    router.push({
+      pathname: "/library/edit",
+      params: { id: libraryId }
+    });
+  };
+
+  const handleDeleteLibrary = async (libraryId: string) => {
+    try {
+      await LibraryService.deleteLibrary(libraryId);
+      if (Platform.OS === 'web') window.alert('암기장이 삭제되었습니다.');
+      else Alert.alert('성공', '암기장이 삭제되었습니다.');
+      refresh();
+    } catch (error: any) {
+      console.error(error);
+      if (Platform.OS === 'web') window.alert(`삭제 실패: ${error.message}`);
+      else Alert.alert('오류', error.message);
+    }
+  };
+
+  const showLibraryOptions = (library: Library) => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['취소', '암기장 수정', '암기장 삭제'],
+          destructiveButtonIndex: 2,
+          cancelButtonIndex: 0,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) handleEditLibrary(library.id);
+          if (buttonIndex === 2) {
+            Alert.alert('삭제 확인', '정말 이 암기장을 삭제하시겠습니까? 포함된 모든 단어가 삭제됩니다.', [
+              { text: '취소', style: 'cancel' },
+              { text: '삭제', style: 'destructive', onPress: () => handleDeleteLibrary(library.id) }
+            ]);
+          }
+        }
+      );
+    } else if (Platform.OS === 'web') {
+      if (window.confirm('이 암기장을 수정하시겠습니까? (취소를 누르면 삭제할 수 있습니다)')) {
+        handleEditLibrary(library.id);
+      } else if (window.confirm('정말 삭제하시겠습니까?')) {
+        handleDeleteLibrary(library.id);
+      }
+    } else {
+      Alert.alert(
+        '암기장 설정',
+        library.title,
+        [
+          { text: '취소', style: 'cancel' },
+          {
+            text: '삭제', style: 'destructive', onPress: () => {
+              Alert.alert('삭제 확인', '정말 삭제하시겠습니까?', [
+                { text: '취소', style: 'cancel' },
+                { text: '삭제', style: 'destructive', onPress: () => handleDeleteLibrary(library.id) }
+              ]);
+            }
+          },
+          { text: '수정', onPress: () => handleEditLibrary(library.id) },
+        ]
+      );
+    }
+  };
+
   const renderItem = ({ item, index }: { item: Library; index: number }) => (
     <Animated.View
       entering={FadeInUp.delay(index * 50).springify()}
@@ -62,6 +127,15 @@ export default function LibraryListScreen() {
               <Text style={[styles.categoryText, { color: colors.tint }]}>{item.category}</Text>
             )}
           </View>
+          {!reorderMode && (
+            <TouchableOpacity
+              style={styles.moreButton}
+              onPress={() => showLibraryOptions(item)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <FontAwesome name="ellipsis-v" size={18} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
         </View>
 
         <Text type="subtitle" numberOfLines={2} style={styles.cardDescription}>
@@ -297,4 +371,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  moreButton: {
+    padding: 8,
+    marginLeft: 8,
+  }
 });
