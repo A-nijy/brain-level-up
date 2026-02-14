@@ -1,4 +1,5 @@
 export type SyncStatus = 'synced' | 'created' | 'updated' | 'deleted';
+export type StudyStatus = 'learned' | 'confused' | 'undecided';
 
 export interface UserProfile {
     id: string;
@@ -34,6 +35,7 @@ export interface Item {
     image_url: string | null;
     success_count: number;
     fail_count: number;
+    study_status: StudyStatus;
     last_reviewed_at: string | null;
     created_at: string;
     updated_at: string | null;

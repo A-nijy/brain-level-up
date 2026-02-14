@@ -8,7 +8,7 @@ import { ItemService } from './ItemService';
 export interface PushNotificationSettings {
     enabled: boolean;
     libraryId: string | null;
-    range: 'all' | 'specific' | 'incorrect';
+    range: 'all' | 'specific' | 'learned' | 'confused';
     rangeStart?: number;
     rangeEnd?: number;
     format: 'both' | 'word_only' | 'meaning_only';
@@ -203,8 +203,10 @@ export const PushNotificationService = {
             const allItems = await ItemService.getItems(settings.libraryId);
 
             let filteredItems = allItems;
-            if (settings.range === 'incorrect') {
-                filteredItems = allItems.filter(item => item.fail_count > 0 && item.success_count === 0);
+            if (settings.range === 'confused') {
+                filteredItems = allItems.filter(item => item.study_status === 'confused');
+            } else if (settings.range === 'learned') {
+                filteredItems = allItems.filter(item => item.study_status === 'learned');
             } else if (settings.range === 'specific' && settings.rangeStart !== undefined && settings.rangeEnd !== undefined) {
                 filteredItems = allItems.slice(settings.rangeStart, settings.rangeEnd + 1);
             }
@@ -305,8 +307,10 @@ export const PushNotificationService = {
             const allItems = await ItemService.getItems(settings.libraryId);
             let filteredItems = allItems;
 
-            if (settings.range === 'incorrect') {
-                filteredItems = allItems.filter(item => item.fail_count > 0 && item.success_count === 0);
+            if (settings.range === 'confused') {
+                filteredItems = allItems.filter(item => item.study_status === 'confused');
+            } else if (settings.range === 'learned') {
+                filteredItems = allItems.filter(item => item.study_status === 'learned');
             } else if (settings.range === 'specific' && settings.rangeStart !== undefined && settings.rangeEnd !== undefined) {
                 filteredItems = allItems.slice(settings.rangeStart, settings.rangeEnd + 1);
             }

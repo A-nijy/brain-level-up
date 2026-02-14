@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform, Alert } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -25,8 +25,7 @@ type Item = {
     question: string;
     answer: string;
     memo?: string | null;
-    success_count: number;
-    fail_count: number;
+    study_status: 'learned' | 'confused' | 'undecided';
 };
 
 export default function StudyScreen() {
@@ -117,11 +116,14 @@ export default function StudyScreen() {
 
     const updateItemStats = async (itemId: string, success: boolean) => {
         try {
-            await supabase.rpc(success ? 'increment_success' : 'increment_fail', {
-                row_id: itemId
-            });
-        } catch (e) {
-            console.error("Failed to update stats", e);
+            const { error } = await supabase
+                .from('items')
+                .update({ study_status: success ? 'learned' : 'confused' })
+                .eq('id', itemId);
+            if (error) throw error;
+        } catch (e: any) {
+            console.error("Failed to update status", e);
+            Alert.alert('동기화 실패', '학습 결과 저장 중 오류가 발생했습니다. DB 설정을 확인해주세요.');
         }
     };
 

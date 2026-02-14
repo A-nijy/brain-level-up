@@ -373,7 +373,8 @@ export default function SettingsScreen() {
                 <View style={styles.chipContainer}>
                   {[
                     { label: '전체', value: 'all' },
-                    { label: '오답만', value: 'incorrect' },
+                    { label: '외움만', value: 'learned' },
+                    { label: '헷갈림만', value: 'confused' },
                   ].map((opt) => (
                     <TouchableOpacity
                       key={opt.value}

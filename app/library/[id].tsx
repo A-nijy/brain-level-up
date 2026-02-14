@@ -26,6 +26,8 @@ export default function LibraryDetailScreen() {
     const [reorderMode, setReorderMode] = useState(false);
     const [exportModalVisible, setExportModalVisible] = useState(false);
     const [menuVisible, setMenuVisible] = useState(false);
+    const [statusModalVisible, setStatusModalVisible] = useState(false);
+    const [selectedItemForStatus, setSelectedItemForStatus] = useState<Item | null>(null);
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
@@ -105,7 +107,7 @@ export default function LibraryDetailScreen() {
     const handleExport = async (options: PDFExportOptions) => {
         let exportItems = [...items];
         if (options.range === 'wrong') {
-            exportItems = items.filter(item => item.fail_count > 0);
+            exportItems = items.filter(item => item.study_status === 'confused');
         }
 
         try {
@@ -138,16 +140,21 @@ export default function LibraryDetailScreen() {
                     )}
                 </View>
                 <View variant="transparent" style={styles.rightAction}>
-                    <View variant="transparent" style={styles.statsContainer}>
-                        <View variant="transparent" style={styles.statLine}>
-                            <FontAwesome name="check" size={12} color={colors.success} />
-                            <Text style={[styles.statValue, { color: colors.success }]}>{item.success_count}</Text>
-                        </View>
-                        <View variant="transparent" style={styles.statLine}>
-                            <FontAwesome name="times" size={12} color={colors.error} />
-                            <Text style={[styles.statValue, { color: colors.error }]}>{item.fail_count}</Text>
-                        </View>
-                    </View>
+                    <TouchableOpacity
+                        style={styles.statusIconButton}
+                        onPress={() => {
+                            setSelectedItemForStatus(item);
+                            setStatusModalVisible(true);
+                        }}
+                    >
+                        {item.study_status === 'learned' ? (
+                            <FontAwesome name="check-circle" size={24} color={colors.success} />
+                        ) : item.study_status === 'confused' ? (
+                            <FontAwesome name="exclamation-circle" size={24} color={colors.error} />
+                        ) : (
+                            <FontAwesome name="circle-o" size={24} color={colors.textSecondary} />
+                        )}
+                    </TouchableOpacity>
                     <FontAwesome name="angle-right" size={20} color={colors.border} />
                 </View>
 
@@ -319,8 +326,95 @@ export default function LibraryDetailScreen() {
                 isVisible={exportModalVisible}
                 onClose={() => setExportModalVisible(false)}
                 onExport={handleExport}
-                hasWrongItems={items.some(item => item.fail_count > 0)}
+                hasWrongItems={items.some(item => item.study_status === 'confused')}
             />
+
+            {/* Status Selection Modal */}
+            <Modal
+                visible={statusModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setStatusModalVisible(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setStatusModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <View variant="transparent" style={styles.statusModalContainer}>
+                            <Card style={styles.statusModalContent}>
+                                <Text style={styles.statusModalTitle}>상태 변경</Text>
+                                <TouchableOpacity
+                                    style={styles.statusOption}
+                                    onPress={async () => {
+                                        if (selectedItemForStatus) {
+                                            try {
+                                                await ItemService.updateItem(selectedItemForStatus.id, { study_status: 'learned' });
+                                                refresh();
+                                            } catch (error: any) {
+                                                Alert.alert('변경 실패', 'DB 변경 중 오류가 발생했습니다. SQL 마이그레이션이 완료되었는지 확인해주세요.');
+                                                console.error(error);
+                                            }
+                                        }
+                                        setStatusModalVisible(false);
+                                    }}
+                                >
+                                    <FontAwesome name="check-circle" size={20} color={colors.success} style={styles.menuIcon} />
+                                    <Text style={styles.statusOptionText}>외움</Text>
+                                    {selectedItemForStatus?.study_status === 'learned' && (
+                                        <FontAwesome name="check" size={14} color={colors.tint} style={{ marginLeft: 'auto' }} />
+                                    )}
+                                </TouchableOpacity>
+
+                                <View variant="transparent" style={styles.menuDivider} />
+
+                                <TouchableOpacity
+                                    style={styles.statusOption}
+                                    onPress={async () => {
+                                        if (selectedItemForStatus) {
+                                            try {
+                                                await ItemService.updateItem(selectedItemForStatus.id, { study_status: 'confused' });
+                                                refresh();
+                                            } catch (error: any) {
+                                                Alert.alert('변경 실패', 'DB 변경 중 오류가 발생했습니다. SQL 마이그레이션이 완료되었는지 확인해주세요.');
+                                                console.error(error);
+                                            }
+                                        }
+                                        setStatusModalVisible(false);
+                                    }}
+                                >
+                                    <FontAwesome name="exclamation-circle" size={20} color={colors.error} style={styles.menuIcon} />
+                                    <Text style={styles.statusOptionText}>헷갈림</Text>
+                                    {selectedItemForStatus?.study_status === 'confused' && (
+                                        <FontAwesome name="check" size={14} color={colors.tint} style={{ marginLeft: 'auto' }} />
+                                    )}
+                                </TouchableOpacity>
+
+                                <View variant="transparent" style={styles.menuDivider} />
+
+                                <TouchableOpacity
+                                    style={styles.statusOption}
+                                    onPress={async () => {
+                                        if (selectedItemForStatus) {
+                                            try {
+                                                await ItemService.updateItem(selectedItemForStatus.id, { study_status: 'undecided' });
+                                                refresh();
+                                            } catch (error: any) {
+                                                Alert.alert('변경 실패', 'DB 변경 중 오류가 발생했습니다. SQL 마이그레이션이 완료되었는지 확인해주세요.');
+                                                console.error(error);
+                                            }
+                                        }
+                                        setStatusModalVisible(false);
+                                    }}
+                                >
+                                    <FontAwesome name="circle-o" size={20} color={colors.textSecondary} style={styles.menuIcon} />
+                                    <Text style={styles.statusOptionText}>미정</Text>
+                                    {(selectedItemForStatus?.study_status === 'undecided' || !selectedItemForStatus?.study_status) && (
+                                        <FontAwesome name="check" size={14} color={colors.tint} style={{ marginLeft: 'auto' }} />
+                                    )}
+                                </TouchableOpacity>
+                            </Card>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </View>
     );
 }
@@ -393,19 +487,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    statsContainer: {
-        marginRight: 16,
-        alignItems: 'flex-end',
-        gap: 6,
-    },
-    statLine: {
-        flexDirection: 'row',
+    statusIconButton: {
+        width: 44,
+        height: 44,
+        justifyContent: 'center',
         alignItems: 'center',
-        gap: 6,
-    },
-    statValue: {
-        fontSize: 12,
-        fontWeight: '800',
+        marginRight: 8,
     },
     headerIconButton: {
         marginRight: 20,
@@ -474,7 +561,44 @@ const styles = StyleSheet.create({
     },
     menuOverlay: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: 'rgba(0,0,0,0.05)',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    statusModalContainer: {
+        width: '100%',
+        alignItems: 'center',
+    },
+    statusModalContent: {
+        width: 240,
+        padding: 16,
+        borderRadius: 24,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+    statusModalTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        marginBottom: 16,
+        textAlign: 'center',
+        opacity: 0.8,
+    },
+    statusOption: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 8,
+    },
+    statusOptionText: {
+        fontSize: 16,
+        fontWeight: '700',
     },
     menuContainer: {
         position: 'absolute',
