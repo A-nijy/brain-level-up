@@ -12,9 +12,6 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { MembershipService } from '@/services/MembershipService';
 import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
-import { ExportModal, ExportOptions as PDFExportOptions } from '@/components/ExportModal';
-import { PdfService } from '@/services/PdfService';
-import { SharedLibraryService } from '@/services/SharedLibraryService';
 
 export default function SharedLibraryScreen() {
     const { user, profile } = useAuth();
@@ -27,9 +24,6 @@ export default function SharedLibraryScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedLib, setSelectedLib] = useState<SharedLibrary | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
-    const [exportModalVisible, setExportModalVisible] = useState(false);
-    const [exportItems, setExportItems] = useState<any[]>([]);
-    const [fetchingItems, setFetchingItems] = useState(false);
 
     const isWeb = Platform.OS === 'web';
     const numColumns = isWeb && width > 768 ? 2 : 1;
@@ -77,34 +71,6 @@ export default function SharedLibraryScreen() {
         });
     };
 
-    const handlePrintRequest = async (item: SharedLibrary) => {
-        setSelectedLib(item);
-        setFetchingItems(true);
-        try {
-            const items = await SharedLibraryService.getSharedItems(item.id);
-            setExportItems(items);
-            setExportModalVisible(true);
-        } catch (e: any) {
-            Alert.alert('오류', '데이터를 가져오는데 실패했습니다: ' + e.message);
-        } finally {
-            setFetchingItems(false);
-        }
-    };
-
-    const handleExport = async (options: PDFExportOptions) => {
-        if (!selectedLib) return;
-
-        try {
-            await PdfService.generateAndShare(exportItems as any, {
-                mode: options.mode,
-                order: options.order,
-                title: selectedLib.title,
-                action: options.action
-            });
-        } catch (error: any) {
-            Alert.alert('오류', 'PDF 생성 중 문제가 발생했습니다: ' + error.message);
-        }
-    };
 
     const renderItem = ({ item, index }: { item: SharedLibrary; index: number }) => (
         <Animated.View
@@ -153,18 +119,6 @@ export default function SharedLibraryScreen() {
                             </>
                         )}
                     </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={[styles.printButton, { borderColor: colors.border }]}
-                        onPress={() => handlePrintRequest(item)}
-                        disabled={fetchingItems && selectedLib?.id === item.id}
-                    >
-                        {fetchingItems && selectedLib?.id === item.id ? (
-                            <ActivityIndicator size="small" color={colors.textSecondary} />
-                        ) : (
-                            <FontAwesome name="print" size={14} color={colors.textSecondary} />
-                        )}
-                    </TouchableOpacity>
                 </View>
             </Card>
         </Animated.View>
@@ -208,12 +162,6 @@ export default function SharedLibraryScreen() {
                 onWatchAd={handleWatchAd}
                 title="자료 받기"
                 description="광고를 시청하시면 이 암기장을 무료로 내 보관함에 추가할 수 있습니다."
-            />
-            <ExportModal
-                isVisible={exportModalVisible}
-                onClose={() => setExportModalVisible(false)}
-                onExport={handleExport}
-                hasWrongItems={false} // 공유 자료실에서는 오답 개념이 아직 없음
             />
         </View>
     );
@@ -310,15 +258,6 @@ const styles = StyleSheet.create({
     downloadButtonText: {
         fontSize: 13,
         fontWeight: '700',
-    },
-    printButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        borderWidth: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 8,
     },
     emptyContainer: {
         alignItems: 'center',
