@@ -4,6 +4,7 @@ import { Text, View, Card } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
+import * as FileSystem from 'expo-file-system/legacy';
 import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
@@ -23,7 +24,14 @@ export default function ImportItemsScreen() {
     const pickDocument = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
-                type: ['text/csv', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'],
+                type: [
+                    'text/csv',
+                    'text/comma-separated-values',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'application/vnd.ms-excel',
+                    'application/csv',
+                    'public.comma-separated-values-text', // iOS UTI
+                ],
                 copyToCacheDirectory: true,
             });
 
@@ -33,33 +41,44 @@ export default function ImportItemsScreen() {
             setFileName(file.name);
             setLoading(true);
 
-            // Read file content
-            const response = await fetch(file.uri);
-            const blob = await response.blob();
-            const reader = new FileReader();
+            try {
+                const isCSV = file.name.toLowerCase().endsWith('.csv');
+                let json: any[] = [];
 
-            reader.onload = (e) => {
-                try {
-                    const data = e.target?.result;
-                    const workbook = XLSX.read(data, { type: 'binary' });
+                if (isCSV) {
+                    // CSV 파일은 UTF-8 문자열로 읽기 (글자 깨짐 방지)
+                    const data = await FileSystem.readAsStringAsync(file.uri, {
+                        encoding: 'utf8',
+                    });
+                    const workbook = XLSX.read(data, { type: 'string' });
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
-                    const json = XLSX.utils.sheet_to_json(sheet);
-
-                    setParsedData(json);
-                } catch (error) {
-                    Alert.alert('오류', '파일을 읽는 중 오류가 발생했습니다.');
-                    console.error(error);
-                } finally {
-                    setLoading(false);
+                    json = XLSX.utils.sheet_to_json(sheet);
+                } else {
+                    // Excel 파일은 Base64 바이너리로 읽기
+                    const base64 = await FileSystem.readAsStringAsync(file.uri, {
+                        encoding: 'base64',
+                    });
+                    const workbook = XLSX.read(base64, { type: 'base64' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    json = XLSX.utils.sheet_to_json(sheet);
                 }
-            };
 
-            reader.readAsBinaryString(blob);
+                if (json.length === 0) {
+                    Alert.alert('알림', '파일에 데이터가 없거나 형식이 올바르지 않습니다.');
+                }
+                setParsedData(json);
+            } catch (error) {
+                console.error('File parsing error:', error);
+                Alert.alert('오류', '파일을 분석하는 중 오류가 발생했습니다. 파일 형식을 확인해주세요.');
+            } finally {
+                setLoading(false);
+            }
 
         } catch (error) {
-            console.error(error);
-            Alert.alert('오류', '파일 선택 중 오류가 발생했습니다.');
+            console.error('Document picking error:', error);
+            Alert.alert('오류', '파일을 선택하는 중 오류가 발생했습니다.');
             setLoading(false);
         }
     };
