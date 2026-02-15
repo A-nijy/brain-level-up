@@ -14,6 +14,17 @@ export const SharedLibraryService = {
         return data || [];
     },
 
+    async getSharedLibraryById(id: string): Promise<SharedLibrary | null> {
+        const { data, error } = await supabase
+            .from('shared_libraries')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data;
+    },
+
     async downloadLibrary(userId: string, sharedLibrary: SharedLibrary): Promise<Library> {
         // 1. Create new library for user
         const newLib = await LibraryService.createLibrary(userId, {
@@ -38,6 +49,7 @@ export const SharedLibraryService = {
                 question: si.question,
                 answer: si.answer,
                 memo: si.memo,
+                study_status: 'undecided' as const
             }));
 
             await ItemService.createItems(newItems);

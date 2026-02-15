@@ -80,7 +80,10 @@ export default function SharedLibraryScreen() {
                 numColumns > 1 && { width: '48%', marginHorizontal: '1%' }
             ]}
         >
-            <Card style={styles.card}>
+            <Card
+                style={styles.card}
+                onPress={() => router.push({ pathname: '/shared/[id]', params: { id: item.id } })}
+            >
                 <View variant="transparent" style={styles.cardHeader}>
                     <View style={styles.iconContainer}>
                         <FontAwesome name="globe" size={20} color={colors.tint} />
@@ -91,6 +94,7 @@ export default function SharedLibraryScreen() {
                             <Text style={[styles.categoryText, { color: colors.tint }]}>{item.category}</Text>
                         )}
                     </View>
+                    <FontAwesome name="angle-right" size={18} color={colors.border} />
                 </View>
 
                 {item.description && (
@@ -106,7 +110,7 @@ export default function SharedLibraryScreen() {
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.downloadButton, { borderColor: colors.tint + '40' }]}
+                        style={[styles.downloadButton, { backgroundColor: colors.tint + '10', borderColor: colors.tint + '20' }]}
                         onPress={() => handleDownloadRequest(item)}
                         disabled={downloading === item.id}
                     >

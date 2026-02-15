@@ -3,7 +3,7 @@ import { StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { NoticeService } from '@/services/NoticeService';
 import { Notice } from '@/types';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -30,6 +30,31 @@ export default function NoticeDetailScreen() {
 
         fetchNotice();
     }, [id]);
+
+    const router = useRouter();
+
+    const renderContentWithLinks = (content: string) => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const parts = content.split(urlRegex);
+
+        return parts.map((part, index) => {
+            if (part.match(urlRegex)) {
+                return (
+                    <Text
+                        key={index}
+                        style={[styles.contentText, styles.linkText, { color: colors.tint }]}
+                        onPress={() => router.push({
+                            pathname: '/webview',
+                            params: { url: part, title: notice?.title || '공지사항' }
+                        })}
+                    >
+                        {part}
+                    </Text>
+                );
+            }
+            return <Text key={index} style={styles.contentText}>{part}</Text>;
+        });
+    };
 
     if (loading) {
         return (
@@ -75,7 +100,9 @@ export default function NoticeDetailScreen() {
                 <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
                 <View variant="transparent" style={styles.body}>
-                    <Text style={styles.contentText}>{notice.content}</Text>
+                    <Text style={styles.contentText}>
+                        {renderContentWithLinks(notice.content)}
+                    </Text>
                 </View>
             </Animated.View>
         </ScrollView>
@@ -130,5 +157,8 @@ const styles = StyleSheet.create({
     contentText: {
         fontSize: 16,
         lineHeight: 26,
+    },
+    linkText: {
+        textDecorationLine: 'underline',
     },
 });
