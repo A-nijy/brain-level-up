@@ -31,12 +31,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const lastFetchedUserId = useRef<string | null>(null);
 
-    const fetchProfile = async (userId: string) => {
+    const fetchProfile = async (userId: string, force = false) => {
         // Prevent redundant fetches for the same user in quick succession
-        if (lastFetchedUserId.current === userId && profile) return;
+        if (!force && lastFetchedUserId.current === userId && profile) return;
 
         try {
-            console.log(`[AuthContext] Fetching profile for: ${userId}`);
+            console.log(`[AuthContext] Fetching profile for: ${userId} (force: ${force})`);
             lastFetchedUserId.current = userId;
 
             const { data, error } = await supabase
@@ -132,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const refreshProfile = async () => {
         if (session?.user) {
-            await fetchProfile(session.user.id);
+            await fetchProfile(session.user.id, true);
         }
     };
 

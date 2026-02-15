@@ -176,15 +176,20 @@ export default function SettingsScreen() {
       ]}
     >
       <Animated.View entering={FadeIn.duration(800)} style={styles.profileSection}>
-        <View variant="transparent" style={styles.avatarWrapper}>
+        <TouchableOpacity
+          style={styles.avatarWrapper}
+          onPress={() => router.push('/settings/profile')}
+          activeOpacity={0.7}
+        >
           <FontAwesome name="user-circle-o" size={80} color={colors.tint} />
-        </View>
-        <Text style={styles.email}>{user?.email || '게스트 사용자'}</Text>
-        {/* 멤버십 등급 일시 숨김
-        <Text style={[styles.roleText, { color: colors.tint }]}>
-          BASIC MEMBER
+          <View variant="transparent" style={styles.editBadge}>
+            <FontAwesome name="pencil" size={12} color="#fff" />
+          </View>
+        </TouchableOpacity>
+        <Text style={styles.email}>{profile?.nickname || '게스트 사용자'}</Text>
+        <Text style={[styles.userIdBadge, { color: colors.textSecondary }]}>
+          ID: #{profile?.user_id_number || '-----'}
         </Text>
-        */}
       </Animated.View>
 
       <View variant="transparent" style={styles.content}>
@@ -204,19 +209,21 @@ export default function SettingsScreen() {
           <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
           */}
 
-          {/* 미구현 프로필 수정 기능 숨김
-          <TouchableOpacity style={styles.item} activeOpacity={0.7}>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => router.push('/settings/profile')}
+            activeOpacity={0.7}
+          >
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
                 <FontAwesome name="user-o" size={18} color={colors.textSecondary} />
               </View>
-              <Text style={styles.itemText}>프로필 수정</Text>
+              <Text style={styles.itemText}>프로필 관리</Text>
             </View>
             <FontAwesome name="angle-right" size={18} color={colors.border} />
           </TouchableOpacity>
 
           <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
-          */}
 
           <TouchableOpacity style={styles.item} onPress={handleSignOut} activeOpacity={0.7}>
             <View variant="transparent" style={styles.itemLeft}>
@@ -303,8 +310,14 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
-        <TouchableOpacity style={styles.deleteAccount} activeOpacity={0.6}>
-          <Text style={[styles.deleteText, { color: colors.textSecondary }]}>회원 탈퇴</Text>
+        {/* 회원 탈퇴는 프로필 관리 내부로 이동했으나, 하단 버튼 그대로 유지하거나 숨김 처리 가능.
+            여기서는 프로필 관리 화면 강조를 위해 숨기거나 유지. 일단 유지하되 디자인 수정 */}
+        <TouchableOpacity
+          style={styles.deleteAccount}
+          onPress={() => router.push('/settings/profile')}
+          activeOpacity={0.6}
+        >
+          <Text style={[styles.deleteText, { color: colors.textSecondary }]}>계정 관리 및 탈퇴</Text>
         </TouchableOpacity>
       </View>
 
@@ -518,6 +531,25 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginBottom: 6,
     letterSpacing: -0.5,
+  },
+  userIdBadge: {
+    fontSize: 14,
+    fontWeight: '600',
+    opacity: 0.6,
+    marginTop: 4,
+  },
+  editBadge: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#4F46E5',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   roleText: {
     fontSize: 12,
