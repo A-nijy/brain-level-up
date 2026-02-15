@@ -1,4 +1,4 @@
-import { StyleSheet, Alert, TouchableOpacity, useWindowDimensions, ScrollView, Platform, Switch, Modal, Pressable, TextInput, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, Alert, TouchableOpacity, useWindowDimensions, ScrollView, Platform, Switch, Modal, Pressable, TextInput, ActivityIndicator, KeyboardAvoidingView, TouchableWithoutFeedback } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { PushNotificationService, PushNotificationSettings } from '@/services/PushNotificationService';
 import { LibraryService } from '@/services/LibraryService';
-import { Library } from '@/types';
+import { Library, Section } from '@/types';
 
 export default function SettingsScreen() {
   const { signOut, user, profile, session } = useAuth();
@@ -25,7 +25,13 @@ export default function SettingsScreen() {
   const [tempSettings, setTempSettings] = useState<PushNotificationSettings | null>(null);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [libraries, setLibraries] = useState<Library[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
+  const [loadingSections, setLoadingSections] = useState(false);
   const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
+
+  // 셀렉트 박스 모달 상태
+  const [showLibraryList, setShowLibraryList] = useState(false);
+  const [showSectionList, setShowSectionList] = useState(false);
 
   useEffect(() => {
     loadNotificationSettings();
@@ -38,6 +44,7 @@ export default function SettingsScreen() {
     setNotificationSettings(settings || {
       enabled: false,
       libraryId: null,
+      sectionId: null,
       range: 'all',
       format: 'both',
       order: 'sequential',
@@ -56,6 +63,26 @@ export default function SettingsScreen() {
     const prog = await PushNotificationService.getProgress();
     setProgress(prog);
   };
+
+  const loadSections = async (libId: string) => {
+    setLoadingSections(true);
+    try {
+      const data = await LibraryService.getSections(libId);
+      setSections(data);
+    } catch (error) {
+      console.error('Failed to load sections:', error);
+    } finally {
+      setLoadingSections(false);
+    }
+  };
+
+  useEffect(() => {
+    if (tempSettings?.libraryId) {
+      loadSections(tempSettings.libraryId);
+    } else {
+      setSections([]);
+    }
+  }, [tempSettings?.libraryId]);
 
   const handleToggleNotification = async (value: boolean) => {
     if (!notificationSettings) return;
@@ -93,22 +120,26 @@ export default function SettingsScreen() {
     setTempSettings({ ...tempSettings, ...newSettings });
   };
 
-  // 모달 내 '설정 완료' 클릭 시 최종 저장
   const handleSaveSettings = async () => {
     if (!tempSettings) return;
 
     if (!tempSettings.libraryId) {
-      Alert.alert('단어장 선택 필요', '학습할 단어장을 선택해주세요.');
+      Alert.alert('암기장 선택 필요', '학습할 암기장을 선택해주세요.');
       return;
     }
 
-    const finalSettings = { ...tempSettings, enabled: true };
+    const finalSettings: PushNotificationSettings = {
+      ...tempSettings,
+      enabled: true,
+      libraryId: tempSettings.libraryId,
+      sectionId: tempSettings.sectionId ?? null,
+    };
+
     setNotificationSettings(finalSettings);
     await PushNotificationService.saveSettings(finalSettings, session?.user?.id);
     await loadProgress();
     setShowNotificationModal(false);
   };
-
   const handleResetProgress = async () => {
     Alert.alert(
       '진행도 초기화',
@@ -377,41 +408,42 @@ export default function SettingsScreen() {
                 contentContainerStyle={{ paddingBottom: 20 }}
                 showsVerticalScrollIndicator={false}
               >
-                {/* 단어장 선택 */}
-                <Text style={[styles.modalLabel, { color: colors.text }]}>학습할 단어장</Text>
-                <View style={styles.pickerContainer}>
-                  {libraries.length > 0 ? (
-                    libraries.map((lib) => (
-                      <TouchableOpacity
-                        key={lib.id}
-                        style={[
-                          styles.pickerItem,
-                          { borderColor: colors.border },
-                          tempSettings?.libraryId === lib.id && {
-                            backgroundColor: `${colors.tint}20`,
-                            borderColor: colors.tint,
-                          },
-                        ]}
-                        onPress={() => handleUpdateTempSettings({ libraryId: lib.id })}
-                      >
-                        <Text
-                          style={[
-                            styles.pickerText,
-                            { color: colors.text },
-                            tempSettings?.libraryId === lib.id && {
-                              color: colors.tint,
-                              fontWeight: '800',
-                            },
-                          ]}
-                        >
-                          {lib.title}
+                {/* 1단계: 암기장 선택 */}
+                <Text style={[styles.modalLabel, { color: colors.text }]}>1. 학습할 암기장 선택</Text>
+                <TouchableOpacity
+                  style={[styles.selectBox, { borderColor: colors.border }]}
+                  onPress={() => setShowLibraryList(true)}
+                >
+                  <Text style={[styles.selectBoxText, { color: tempSettings?.libraryId ? colors.text : colors.textSecondary }]}>
+                    {tempSettings?.libraryId
+                      ? libraries.find(l => l.id === tempSettings.libraryId)?.title || '암기장 선택됨'
+                      : '암기장을 선택해주세요'}
+                  </Text>
+                  <FontAwesome name="chevron-down" size={12} color={colors.textSecondary} />
+                </TouchableOpacity>
+
+                {/* 2단계: 세부 항목(섹션) 선택 */}
+                {tempSettings?.libraryId && (
+                  <>
+                    <Text style={[styles.modalLabel, { color: colors.text }]}>2. 세부 항목 선택 (소분)</Text>
+                    <TouchableOpacity
+                      style={[styles.selectBox, { borderColor: colors.border }]}
+                      onPress={() => !loadingSections && setShowSectionList(true)}
+                      disabled={loadingSections}
+                    >
+                      {loadingSections ? (
+                        <ActivityIndicator size="small" color={colors.tint} />
+                      ) : (
+                        <Text style={[styles.selectBoxText, { color: colors.text }]}>
+                          {tempSettings.sectionId === 'all' || !tempSettings.sectionId
+                            ? '전체'
+                            : sections.find(s => s.id === tempSettings.sectionId)?.title || '섹션 선택됨'}
                         </Text>
-                      </TouchableOpacity>
-                    ))
-                  ) : (
-                    <Text style={{ color: colors.textSecondary }}>생성된 단어장이 없습니다.</Text>
-                  )}
-                </View>
+                      )}
+                      <FontAwesome name="chevron-down" size={12} color={colors.textSecondary} />
+                    </TouchableOpacity>
+                  </>
+                )}
 
                 {/* 단어 범위 */}
                 <Text style={[styles.modalLabel, { color: colors.text }]}>단어 범위</Text>
@@ -542,6 +574,105 @@ export default function SettingsScreen() {
             </TouchableOpacity>
           </View>
         </View>
+      </Modal>
+
+      {/* 암기장 선택 모달 */}
+      <Modal
+        visible={showLibraryList}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowLibraryList(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowLibraryList(false)}>
+          <View style={styles.subModalOverlay}>
+            <View style={[styles.subModalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <Text style={[styles.subModalTitle, { color: colors.text }]}>암기장 선택</Text>
+              <ScrollView style={{ maxHeight: 300 }}>
+                {libraries.map((lib) => (
+                  <TouchableOpacity
+                    key={lib.id}
+                    style={[
+                      styles.listItem,
+                      tempSettings?.libraryId === lib.id && { backgroundColor: `${colors.tint}10` }
+                    ]}
+                    onPress={() => {
+                      handleUpdateTempSettings({ libraryId: lib.id, sectionId: 'all' });
+                      setShowLibraryList(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.listItemText,
+                      { color: colors.text },
+                      tempSettings?.libraryId === lib.id && { color: colors.tint, fontWeight: '800' }
+                    ]}>
+                      {lib.title}
+                    </Text>
+                    {tempSettings?.libraryId === lib.id && <FontAwesome name="check" size={14} color={colors.tint} />}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      {/* 섹션 선택 모달 */}
+      <Modal
+        visible={showSectionList}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowSectionList(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowSectionList(false)}>
+          <View style={styles.subModalOverlay}>
+            <View style={[styles.subModalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <Text style={[styles.subModalTitle, { color: colors.text }]}>세부 항목 선택</Text>
+              <ScrollView style={{ maxHeight: 300 }}>
+                <TouchableOpacity
+                  style={[
+                    styles.listItem,
+                    (tempSettings?.sectionId === 'all' || !tempSettings?.sectionId) && { backgroundColor: `${colors.tint}10` }
+                  ]}
+                  onPress={() => {
+                    handleUpdateTempSettings({ sectionId: 'all' });
+                    setShowSectionList(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.listItemText,
+                    { color: colors.text },
+                    (tempSettings?.sectionId === 'all' || !tempSettings?.sectionId) && { color: colors.tint, fontWeight: '800' }
+                  ]}>
+                    전체
+                  </Text>
+                  {(tempSettings?.sectionId === 'all' || !tempSettings?.sectionId) && <FontAwesome name="check" size={14} color={colors.tint} />}
+                </TouchableOpacity>
+                {sections.map((section) => (
+                  <TouchableOpacity
+                    key={section.id}
+                    style={[
+                      styles.listItem,
+                      tempSettings?.sectionId === section.id && { backgroundColor: `${colors.tint}10` }
+                    ]}
+                    onPress={() => {
+                      handleUpdateTempSettings({ sectionId: section.id });
+                      setShowSectionList(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.listItemText,
+                      { color: colors.text },
+                      tempSettings?.sectionId === section.id && { color: colors.tint, fontWeight: '800' }
+                    ]}>
+                      {section.title}
+                    </Text>
+                    {tempSettings?.sectionId === section.id && <FontAwesome name="check" size={14} color={colors.tint} />}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </ScrollView>
   );
@@ -718,6 +849,52 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 14,
     fontWeight: '700',
+  },
+  selectBox: {
+    height: 52,
+    borderWidth: 1.5,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  selectBoxText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  subModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 30,
+  },
+  subModalContent: {
+    width: '100%',
+    maxWidth: 340,
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1.5,
+  },
+  subModalTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+  },
+  listItemText: {
+    fontSize: 15,
+    fontWeight: '600',
   },
   intervalContainer: {
     flexDirection: 'row',

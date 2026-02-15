@@ -28,9 +28,19 @@ export interface Library {
     last_synced_at?: string;
 }
 
+export interface Section {
+    id: string;
+    library_id: string;
+    title: string;
+    display_order: number;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface Item {
     id: string;
     library_id: string;
+    section_id: string; // added
     question: string;
     answer: string;
     memo: string | null;
@@ -57,9 +67,18 @@ export interface SharedLibrary {
     created_at: string;
 }
 
+export interface SharedSection {
+    id: string;
+    shared_library_id: string;
+    title: string;
+    display_order: number;
+    created_at: string;
+}
+
 export interface SharedItem {
     id: string;
     shared_library_id: string;
+    shared_section_id: string; // added
     question: string;
     answer: string;
     memo: string | null;

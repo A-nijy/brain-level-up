@@ -2,11 +2,11 @@ import { supabase } from '@/lib/supabase';
 import { Item } from '@/types';
 
 export const ItemService = {
-    async getItems(libraryId: string): Promise<Item[]> {
+    async getItems(sectionId: string): Promise<Item[]> {
         const { data, error } = await supabase
             .from('items')
             .select('*')
-            .eq('library_id', libraryId)
+            .eq('section_id', sectionId)
             .order('display_order', { ascending: true })
             .order('created_at', { ascending: false })
             .order('id', { ascending: true });
@@ -15,7 +15,7 @@ export const ItemService = {
         return data || [];
     },
 
-    async createItem(item: Pick<Item, 'library_id' | 'question' | 'answer' | 'memo' | 'study_status'>): Promise<Item> {
+    async createItem(item: Pick<Item, 'library_id' | 'section_id' | 'question' | 'answer' | 'memo' | 'study_status'>): Promise<Item> {
         const { data, error } = await supabase
             .from('items')
             .insert(item)
@@ -27,7 +27,7 @@ export const ItemService = {
     },
 
     // 여러 아이템 한 번에 생성
-    async createItems(items: Pick<Item, 'library_id' | 'question' | 'answer' | 'memo' | 'study_status'>[]): Promise<Item[]> {
+    async createItems(items: Pick<Item, 'library_id' | 'section_id' | 'question' | 'answer' | 'memo' | 'study_status'>[]): Promise<Item[]> {
         const { data, error } = await supabase
             .from('items')
             .insert(items)
@@ -64,5 +64,17 @@ export const ItemService = {
             .upsert(updates);
 
         if (error) throw error;
+    },
+
+    async getItemsByLibrary(libraryId: string): Promise<Item[]> {
+        const { data, error } = await supabase
+            .from('items')
+            .select('*')
+            .eq('library_id', libraryId)
+            .order('display_order', { ascending: true })
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
     }
 };

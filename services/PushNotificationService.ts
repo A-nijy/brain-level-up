@@ -3,11 +3,13 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LibraryService } from './LibraryService';
 import { ItemService } from './ItemService';
+import { Item } from '@/types';
 
 // 알림 설정 타입 정의
 export interface PushNotificationSettings {
     enabled: boolean;
     libraryId: string | null;
+    sectionId: string | null; // added
     range: 'all' | 'specific' | 'learned' | 'confused';
     rangeStart?: number;
     rangeEnd?: number;
@@ -200,7 +202,12 @@ export const PushNotificationService = {
 
         try {
             // 3. 아이템 로드 및 필터링
-            const allItems = await ItemService.getItems(settings.libraryId);
+            let allItems: Item[] = [];
+            if (settings.sectionId && settings.sectionId !== 'all') {
+                allItems = await ItemService.getItems(settings.sectionId);
+            } else {
+                allItems = await ItemService.getItemsByLibrary(settings.libraryId);
+            }
 
             let filteredItems = allItems;
             if (settings.range === 'confused') {
@@ -304,9 +311,14 @@ export const PushNotificationService = {
         if (!settings || !settings.libraryId) return null;
 
         try {
-            const allItems = await ItemService.getItems(settings.libraryId);
-            let filteredItems = allItems;
+            let allItems: Item[] = [];
+            if (settings.sectionId && settings.sectionId !== 'all') {
+                allItems = await ItemService.getItems(settings.sectionId);
+            } else {
+                allItems = await ItemService.getItemsByLibrary(settings.libraryId);
+            }
 
+            let filteredItems = allItems;
             if (settings.range === 'confused') {
                 filteredItems = allItems.filter(item => item.study_status === 'confused');
             } else if (settings.range === 'learned') {

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, View as DefaultView } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, View as DefaultView, SectionList } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
-import { SharedLibrary, SharedItem } from '@/types';
+import { SharedLibrary, SharedItem, SharedSection } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,6 +24,7 @@ export default function SharedLibraryPreviewScreen() {
     const colors = Colors[colorScheme];
 
     const [library, setLibrary] = useState<SharedLibrary | null>(null);
+    const [sections, setSections] = useState<SharedSection[]>([]);
     const [items, setItems] = useState<SharedItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -35,11 +36,13 @@ export default function SharedLibraryPreviewScreen() {
         if (!sharedLibraryId) return;
         setLoading(true);
         try {
-            const [libData, itemsData] = await Promise.all([
+            const [libData, sectionsData, itemsData] = await Promise.all([
                 SharedLibraryService.getSharedLibraryById(sharedLibraryId),
-                SharedLibraryService.getSharedItems(sharedLibraryId)
+                SharedLibraryService.getSharedSections(sharedLibraryId),
+                SharedLibraryService.getSharedItemsByLibrary(sharedLibraryId)
             ]);
             setLibrary(libData);
+            setSections(sectionsData);
             setItems(itemsData);
         } catch (error) {
             console.error(error);
@@ -94,8 +97,15 @@ export default function SharedLibraryPreviewScreen() {
         });
     };
 
+    // Group items by section
+    const groupedData = sections.map(section => ({
+        title: section.title,
+        data: items.filter(item => item.shared_section_id === section.id),
+        id: section.id
+    })).filter(group => group.data.length > 0);
+
     const renderItem = ({ item, index }: { item: SharedItem, index: number }) => (
-        <Animated.View entering={FadeInUp.delay(index * 40).duration(400)}>
+        <Animated.View entering={FadeInUp.delay(index * 20).duration(400)}>
             <Card style={styles.itemCard} disabled>
                 <View variant="transparent" style={styles.itemContent}>
                     <Text style={styles.questionText}>{item.question}</Text>
@@ -106,6 +116,12 @@ export default function SharedLibraryPreviewScreen() {
                 </View>
             </Card>
         </Animated.View>
+    );
+
+    const renderSectionHeader = ({ section: { title } }: { section: { title: string } }) => (
+        <View variant="transparent" style={styles.sectionHeader}>
+            <Text style={[styles.sectionHeaderText, { color: colors.tint }]}>{title}</Text>
+        </View>
     );
 
     if (loading) {
@@ -127,11 +143,13 @@ export default function SharedLibraryPreviewScreen() {
                 }}
             />
 
-            <FlatList
-                data={items}
-                renderItem={renderItem}
+            <SectionList
+                sections={groupedData}
                 keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                renderSectionHeader={renderSectionHeader}
                 contentContainerStyle={styles.listContent}
+                stickySectionHeadersEnabled={false}
                 ListHeaderComponent={
                     <View variant="transparent" style={styles.listHeader}>
                         {library?.description && (
@@ -140,7 +158,7 @@ export default function SharedLibraryPreviewScreen() {
                             </Text>
                         )}
                         <View variant="transparent" style={styles.headerStats}>
-                            <Text style={styles.countText}>총 {items.length}개의 단어</Text>
+                            <Text style={styles.countText}>총 {sections.length}개의 항목, {items.length}개의 단어</Text>
                         </View>
                         <View style={[styles.divider, { backgroundColor: colors.border }]} />
                     </View>
@@ -227,6 +245,17 @@ const styles = StyleSheet.create({
     listContent: {
         padding: 20,
         paddingBottom: 140,
+    },
+    sectionHeader: {
+        paddingVertical: 12,
+        marginTop: 12,
+        marginBottom: 8,
+    },
+    sectionHeaderText: {
+        fontSize: 16,
+        fontWeight: '800',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     itemCard: {
         marginBottom: 12,
