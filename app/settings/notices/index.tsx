@@ -3,7 +3,7 @@ import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicat
 import { Text, View, Card } from '@/components/Themed';
 import { NoticeService } from '@/services/NoticeService';
 import { Notice } from '@/types';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, Link } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -39,31 +39,29 @@ export default function NoticesScreen() {
     };
 
     const renderItem = ({ item, index }: { item: Notice; index: number }) => (
-        <Animated.View entering={FadeInUp.delay(index * 50).springify()}>
-            <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => router.push(`/settings/notice/${item.id}`)}
-                style={styles.noticeItem}
-            >
-                <Card style={[styles.card, item.is_important && { borderColor: colors.tint, borderLeftWidth: 4 }]}>
-                    <View variant="transparent" style={styles.cardHeader}>
-                        <View variant="transparent" style={styles.badgeContainer}>
-                            {item.is_important && (
-                                <View style={[styles.importantBadge, { backgroundColor: colors.tint }]}>
-                                    <Text style={styles.importantText}>중요</Text>
-                                </View>
-                            )}
+        <Animated.View entering={FadeInUp.delay(index * 50).springify()} style={styles.noticeItem}>
+            <Link href={`/settings/notices/${item.id}`} asChild>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => console.log('[NoticeList] Link clicked for:', item.id)}>
+                    <Card style={[styles.card, item.is_important && { borderColor: colors.tint, borderLeftWidth: 4 }]}>
+                        <View variant="transparent" style={styles.cardHeader}>
+                            <View variant="transparent" style={styles.badgeContainer}>
+                                {item.is_important && (
+                                    <View style={[styles.importantBadge, { backgroundColor: colors.tint }]}>
+                                        <Text style={styles.importantText}>중요</Text>
+                                    </View>
+                                )}
+                            </View>
+                            <Text style={[styles.date, { color: colors.textSecondary }]}>
+                                {new Date(item.created_at).toLocaleDateString()}
+                            </Text>
                         </View>
-                        <Text style={[styles.date, { color: colors.textSecondary }]}>
-                            {new Date(item.created_at).toLocaleDateString()}
+                        <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+                        <Text style={[styles.contentPreview, { color: colors.textSecondary }]} numberOfLines={1}>
+                            {item.content.replace(/<[^>]*>?/gm, '')}
                         </Text>
-                    </View>
-                    <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                    <Text style={[styles.contentPreview, { color: colors.textSecondary }]} numberOfLines={1}>
-                        {item.content.replace(/<[^>]*>?/gm, '')}
-                    </Text>
-                </Card>
-            </TouchableOpacity>
+                    </Card>
+                </TouchableOpacity>
+            </Link>
         </Animated.View>
     );
 
