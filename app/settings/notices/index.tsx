@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { NoticeService } from '@/services/NoticeService';
 import { Notice } from '@/types';
@@ -39,34 +39,32 @@ export default function NoticesScreen() {
     };
 
     const renderItem = ({ item, index }: { item: Notice; index: number }) => (
-        <Animated.View entering={FadeInUp.delay(index * 50).springify()} style={styles.noticeItem}>
-            <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => {
-                    console.log('[NoticeList] Item pressed:', item.id);
-                    router.push(`/settings/notices/${item.id}`);
-                }}
-            >
-                <Card style={[styles.card, item.is_important && { borderColor: colors.tint, borderLeftWidth: 4 }]}>
-                    <View variant="transparent" style={styles.cardHeader}>
-                        <View variant="transparent" style={styles.badgeContainer}>
-                            {item.is_important && (
-                                <View style={[styles.importantBadge, { backgroundColor: colors.tint }]}>
-                                    <Text style={styles.importantText}>중요</Text>
-                                </View>
-                            )}
+        <Card
+            style={[styles.card, styles.noticeItem, item.is_important && { borderColor: colors.tint, borderLeftWidth: 4 }]}
+            onPress={() => {
+                console.log('[NoticeList] Item pressed:', item.id);
+                // 시각적으로 즉각 확인하기 위한 알럿 추가
+                Alert.alert('클릭됨', `ID: ${item.id}`);
+                router.push(`/settings/notices/${item.id}`);
+            }}
+        >
+            <View variant="transparent" style={styles.cardHeader}>
+                <View variant="transparent" style={styles.badgeContainer}>
+                    {item.is_important && (
+                        <View style={[styles.importantBadge, { backgroundColor: colors.tint }]}>
+                            <Text style={styles.importantText}>중요</Text>
                         </View>
-                        <Text style={[styles.date, { color: colors.textSecondary }]}>
-                            {new Date(item.created_at).toLocaleDateString()}
-                        </Text>
-                    </View>
-                    <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                    <Text style={[styles.contentPreview, { color: colors.textSecondary }]} numberOfLines={1}>
-                        {item.content.replace(/<[^>]*>?/gm, '')}
-                    </Text>
-                </Card>
-            </TouchableOpacity>
-        </Animated.View>
+                    )}
+                </View>
+                <Text style={[styles.date, { color: colors.textSecondary }]}>
+                    {new Date(item.created_at).toLocaleDateString()}
+                </Text>
+            </View>
+            <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
+            <Text style={[styles.contentPreview, { color: colors.textSecondary }]} numberOfLines={1}>
+                {item.content.replace(/<[^>]*>?/gm, '')}
+            </Text>
+        </Card>
     );
 
     return (
@@ -93,6 +91,14 @@ export default function NoticesScreen() {
                     contentContainerStyle={styles.listContent}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.tint} />
+                    }
+                    ListHeaderComponent={
+                        <TouchableOpacity
+                            onPress={() => Alert.alert('화면 터치 정상', '리스트 상단 테스트 버튼이 클릭되었습니다.')}
+                            style={{ padding: 15, backgroundColor: colors.tint + '20', borderRadius: 10, marginBottom: 15, borderWidth: 1, borderColor: colors.tint, alignItems: 'center' }}
+                        >
+                            <Text style={{ color: colors.tint, fontWeight: 'bold' }}>터치 작동 테스트 (여기를 눌러보세요)</Text>
+                        </TouchableOpacity>
                     }
                     ListEmptyComponent={
                         <View style={styles.empty}>
