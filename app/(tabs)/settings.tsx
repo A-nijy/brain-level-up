@@ -225,6 +225,38 @@ export default function SettingsScreen() {
 
           <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
 
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => router.push('/settings/notices')}
+            activeOpacity={0.7}
+          >
+            <View variant="transparent" style={styles.itemLeft}>
+              <View variant="transparent" style={styles.iconWrapper}>
+                <FontAwesome name="bullhorn" size={18} color={colors.textSecondary} />
+              </View>
+              <Text style={styles.itemText}>공지사항</Text>
+            </View>
+            <FontAwesome name="angle-right" size={18} color={colors.border} />
+          </TouchableOpacity>
+
+          <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
+
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() => router.push('/support/new')}
+            activeOpacity={0.7}
+          >
+            <View variant="transparent" style={styles.itemLeft}>
+              <View variant="transparent" style={styles.iconWrapper}>
+                <FontAwesome name="question-circle-o" size={18} color={colors.textSecondary} />
+              </View>
+              <Text style={styles.itemText}>Q&A 및 건의사항</Text>
+            </View>
+            <FontAwesome name="angle-right" size={18} color={colors.border} />
+          </TouchableOpacity>
+
+          <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
+
           <TouchableOpacity style={styles.item} onPress={handleSignOut} activeOpacity={0.7}>
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>

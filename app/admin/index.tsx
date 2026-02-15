@@ -126,6 +126,40 @@ export default function AdminDashboardScreen() {
                     </LinearGradient>
                 </TouchableOpacity>
 
+                <TouchableOpacity style={styles.menuButton} onPress={() => router.push('/admin/notices')}>
+                    <LinearGradient
+                        colors={['#10B981', '#059669']}
+                        start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                        style={styles.menuGradient}
+                    >
+                        <View variant="transparent" style={styles.menuContent}>
+                            <FontAwesome name="bullhorn" size={24} color="#fff" />
+                            <View variant="transparent" style={styles.menuTextContainer}>
+                                <Text style={styles.menuTitle}>공지사항 관리</Text>
+                                <Text style={styles.menuSub}>중요 소식 작성 및 게시글 관리</Text>
+                            </View>
+                            <FontAwesome name="chevron-right" size={16} color="rgba(255,255,255,0.6)" />
+                        </View>
+                    </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.menuButton} onPress={() => router.push('/admin/inquiries')}>
+                    <LinearGradient
+                        colors={['#F59E0B', '#D97706']}
+                        start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                        style={styles.menuGradient}
+                    >
+                        <View variant="transparent" style={styles.menuContent}>
+                            <FontAwesome name="envelope-o" size={24} color="#fff" />
+                            <View variant="transparent" style={styles.menuTextContainer}>
+                                <Text style={styles.menuTitle}>문의 및 건의사항 확인</Text>
+                                <Text style={styles.menuSub}>사용자 피드백 확인 및 리스트</Text>
+                            </View>
+                            <FontAwesome name="chevron-right" size={16} color="rgba(255,255,255,0.6)" />
+                        </View>
+                    </LinearGradient>
+                </TouchableOpacity>
+
                 <TouchableOpacity style={styles.menuButton} onPress={() => setIsNotifyModalVisible(true)}>
                     <LinearGradient
                         colors={['#EC4899', '#DB2777']}
