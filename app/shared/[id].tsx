@@ -36,14 +36,12 @@ export default function SharedLibraryPreviewScreen() {
         if (!sharedLibraryId) return;
         setLoading(true);
         try {
-            const [libData, sectionsData, itemsData] = await Promise.all([
+            const [libData, sectionsData] = await Promise.all([
                 SharedLibraryService.getSharedLibraryById(sharedLibraryId),
-                SharedLibraryService.getSharedSections(sharedLibraryId),
-                SharedLibraryService.getSharedItemsByLibrary(sharedLibraryId)
+                SharedLibraryService.getSharedSections(sharedLibraryId)
             ]);
             setLibrary(libData);
             setSections(sectionsData);
-            setItems(itemsData);
         } catch (error) {
             console.error(error);
             Alert.alert('오류', '데이터를 가져오는데 실패했습니다.');
@@ -97,31 +95,21 @@ export default function SharedLibraryPreviewScreen() {
         });
     };
 
-    // Group items by section
-    const groupedData = sections.map(section => ({
-        title: section.title,
-        data: items.filter(item => item.shared_section_id === section.id),
-        id: section.id
-    })).filter(group => group.data.length > 0);
-
-    const renderItem = ({ item, index }: { item: SharedItem, index: number }) => (
-        <Animated.View entering={FadeInUp.delay(index * 20).duration(400)}>
-            <Card style={styles.itemCard} disabled>
-                <View variant="transparent" style={styles.itemContent}>
-                    <Text style={styles.questionText}>{item.question}</Text>
-                    <Text style={[styles.answerText, { color: colors.textSecondary }]}>{item.answer}</Text>
-                    {item.memo && (
-                        <Text style={[styles.memoText, { color: colors.tint }]}>{item.memo}</Text>
-                    )}
+    const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (
+        <Animated.View entering={FadeInUp.delay(index * 40).duration(400)}>
+            <Card
+                style={styles.sectionCard}
+                onPress={() => router.push({
+                    pathname: "/shared/[id]/section/[sectionId]",
+                    params: { id: sharedLibraryId, sectionId: item.id }
+                })}
+            >
+                <View variant="transparent" style={styles.sectionInfo}>
+                    <Text style={styles.sectionTitle}>{item.title}</Text>
                 </View>
+                <FontAwesome name="angle-right" size={20} color={colors.border} />
             </Card>
         </Animated.View>
-    );
-
-    const renderSectionHeader = ({ section: { title } }: { section: { title: string } }) => (
-        <View variant="transparent" style={styles.sectionHeader}>
-            <Text style={[styles.sectionHeaderText, { color: colors.tint }]}>{title}</Text>
-        </View>
     );
 
     if (loading) {
@@ -143,13 +131,11 @@ export default function SharedLibraryPreviewScreen() {
                 }}
             />
 
-            <SectionList
-                sections={groupedData}
+            <FlatList
+                data={sections}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                renderSectionHeader={renderSectionHeader}
                 contentContainerStyle={styles.listContent}
-                stickySectionHeadersEnabled={false}
                 ListHeaderComponent={
                     <View variant="transparent" style={styles.listHeader}>
                         {library?.description && (
@@ -158,15 +144,17 @@ export default function SharedLibraryPreviewScreen() {
                             </Text>
                         )}
                         <View variant="transparent" style={styles.headerStats}>
-                            <Text style={styles.countText}>총 {sections.length}개의 항목, {items.length}개의 단어</Text>
+                            <Text style={styles.countText}>총 {sections.length}개의 항목</Text>
                         </View>
-                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+                        <View variant="transparent" style={styles.subHeaderTitle}>
+                            <Text style={[styles.subHeaderTitleText, { color: colors.textSecondary }]}>학습 항목 목록</Text>
+                        </View>
                     </View>
                 }
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <FontAwesome name="file-text-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 단어가 없습니다.</Text>
+                        <FontAwesome name="folder-open-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 항목이 없습니다.</Text>
                     </View>
                 }
             />
@@ -246,43 +234,31 @@ const styles = StyleSheet.create({
         padding: 20,
         paddingBottom: 140,
     },
-    sectionHeader: {
-        paddingVertical: 12,
-        marginTop: 12,
+    subHeaderTitle: {
         marginBottom: 8,
     },
-    sectionHeaderText: {
-        fontSize: 16,
+    subHeaderTitleText: {
+        fontSize: 14,
         fontWeight: '800',
+        opacity: 0.5,
         textTransform: 'uppercase',
         letterSpacing: 1,
     },
-    itemCard: {
-        marginBottom: 12,
-        padding: 20,
-        borderRadius: 20,
+    sectionCard: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 24,
+        borderRadius: 24,
         borderWidth: 1.5,
+        marginBottom: 12,
     },
-    itemContent: {
+    sectionInfo: {
         flex: 1,
     },
-    questionText: {
+    sectionTitle: {
         fontSize: 18,
         fontWeight: '800',
-        marginBottom: 4,
-        letterSpacing: -0.5,
-    },
-    answerText: {
-        fontSize: 15,
-        fontWeight: '500',
-        lineHeight: 20,
-        marginBottom: 8,
-    },
-    memoText: {
-        fontSize: 12,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
     },
     emptyContainer: {
         alignItems: 'center',

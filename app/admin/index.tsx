@@ -41,7 +41,7 @@ export default function AdminDashboardScreen() {
 
     const handleSendNotification = async () => {
         if (!notifyTitle || !notifyMessage) {
-            Alert.alert('오류', '제목과 내용을 모두 입력해주세요.');
+            window.alert('제목과 내용을 모두 입력해주세요.');
             return;
         }
 
@@ -51,13 +51,13 @@ export default function AdminDashboardScreen() {
         try {
             await AdminService.broadcastNotification(notifyTitle, notifyMessage);
             console.log('[AdminUI] Broadcast success response received.');
-            Alert.alert('성공', '전체 사용자에게 알림이 전송되었습니다.');
+            window.alert('전체 사용자에게 알림이 전송되었습니다.');
             setIsNotifyModalVisible(false);
             setNotifyTitle('');
             setNotifyMessage('');
         } catch (error: any) {
             console.error('[AdminUI] Broadcast error:', error);
-            Alert.alert('실패', error.message || '알림 전송 중 오류가 발생했습니다.');
+            window.alert('실패: ' + (error.message || '알림 전송 중 오류가 발생했습니다.'));
         } finally {
             setIsSending(false);
         }
@@ -120,6 +120,23 @@ export default function AdminDashboardScreen() {
                             <View variant="transparent" style={styles.menuTextContainer}>
                                 <Text style={styles.menuTitle}>공유 단어장 관리</Text>
                                 <Text style={styles.menuSub}>마켓플레이스 콘텐츠 관리 및 큐레이션</Text>
+                            </View>
+                            <FontAwesome name="chevron-right" size={16} color="rgba(255,255,255,0.6)" />
+                        </View>
+                    </LinearGradient>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.menuButton} onPress={() => router.push('/admin/categories')}>
+                    <LinearGradient
+                        colors={['#6366F1', '#4338CA']}
+                        start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                        style={styles.menuGradient}
+                    >
+                        <View variant="transparent" style={styles.menuContent}>
+                            <FontAwesome name="tags" size={24} color="#fff" />
+                            <View variant="transparent" style={styles.menuTextContainer}>
+                                <Text style={styles.menuTitle}>카테고리 관리</Text>
+                                <Text style={styles.menuSub}>공유 자료실 분류 체계 및 순서 관리</Text>
                             </View>
                             <FontAwesome name="chevron-right" size={16} color="rgba(255,255,255,0.6)" />
                         </View>

@@ -1,17 +1,29 @@
 import { supabase } from '@/lib/supabase';
-import { SharedLibrary, SharedItem, Library, Item, SharedSection } from '@/types';
+import { SharedLibrary, SharedItem, Library, Item, SharedSection, SharedLibraryCategory } from '@/types';
 import { LibraryService } from './LibraryService';
 import { ItemService } from './ItemService';
 
 export const SharedLibraryService = {
-    async getSharedLibraries(): Promise<SharedLibrary[]> {
-        const { data, error } = await supabase
+    async getSharedLibraries(categoryId?: string): Promise<SharedLibrary[]> {
+        let query = supabase
             .from('shared_libraries')
-            .select('*')
+            .select('*, shared_library_categories(title)')
+            .eq('is_draft', false)
             .order('created_at', { ascending: false });
 
+        if (categoryId && categoryId !== 'all') {
+            query = query.eq('category_id', categoryId);
+        }
+
+        const { data, error } = await query;
+
         if (error) throw error;
-        return data || [];
+
+        // Map join results to category field if needed for display
+        return (data || []).map(lib => ({
+            ...lib,
+            category: lib.shared_library_categories?.title || lib.category
+        }));
     },
 
     async getSharedLibraryById(id: string): Promise<SharedLibrary | null> {
@@ -84,7 +96,8 @@ export const SharedLibraryService = {
             .from('shared_sections')
             .select('*')
             .eq('shared_library_id', sharedLibraryId)
-            .order('display_order', { ascending: true });
+            .order('display_order', { ascending: true })
+            .order('created_at', { ascending: true }); // Fallback sorting
 
         if (error) throw error;
         return data || [];
@@ -95,6 +108,7 @@ export const SharedLibraryService = {
             .from('shared_items')
             .select('*')
             .eq('shared_section_id', sharedSectionId)
+            .order('display_order', { ascending: true })
             .order('created_at', { ascending: true });
 
         if (error) throw error;
@@ -107,9 +121,90 @@ export const SharedLibraryService = {
             .from('shared_items')
             .select('*')
             .eq('shared_library_id', sharedLibraryId)
+            .order('display_order', { ascending: true })
             .order('created_at', { ascending: true });
 
         if (error) throw error;
         return data || [];
+    },
+
+    async getSharedCategories(): Promise<SharedLibraryCategory[]> {
+        const { data, error } = await supabase
+            .from('shared_library_categories')
+            .select('*')
+            .order('display_order', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    async createSharedSection(sharedLibraryId: string, title: string): Promise<any> {
+        // Get current max display_order
+        const { data: sections } = await supabase
+            .from('shared_sections')
+            .select('display_order')
+            .eq('shared_library_id', sharedLibraryId)
+            .order('display_order', { ascending: false })
+            .limit(1);
+
+        const nextOrder = sections && sections.length > 0 ? sections[0].display_order + 1 : 0;
+
+        const { data, error } = await supabase
+            .from('shared_sections')
+            .insert({
+                shared_library_id: sharedLibraryId,
+                title: title,
+                display_order: nextOrder
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    async updateSharedSection(sectionId: string, updates: { title?: string }): Promise<void> {
+        const { error } = await supabase
+            .from('shared_sections')
+            .update(updates)
+            .eq('id', sectionId);
+
+        if (error) throw error;
+    },
+
+    async deleteSharedSection(sectionId: string): Promise<void> {
+        // Delete all items in this section first
+        const { error: itemsError } = await supabase
+            .from('shared_items')
+            .delete()
+            .eq('shared_section_id', sectionId);
+
+        if (itemsError) throw itemsError;
+
+        // Then delete the section
+        const { error } = await supabase
+            .from('shared_sections')
+            .delete()
+            .eq('id', sectionId);
+
+        if (error) throw error;
+    },
+
+    async reorderSharedSections(updates: { id: string; display_order: number }[]): Promise<void> {
+        const promises = updates.map(u =>
+            supabase.from('shared_sections').update({ display_order: u.display_order }).eq('id', u.id)
+        );
+        const results = await Promise.all(promises);
+        const firstError = results.find(r => r.error)?.error;
+        if (firstError) throw firstError;
+    },
+
+    async reorderSharedItems(updates: { id: string; display_order: number }[]): Promise<void> {
+        const promises = updates.map(u =>
+            supabase.from('shared_items').update({ display_order: u.display_order }).eq('id', u.id)
+        );
+        const results = await Promise.all(promises);
+        const firstError = results.find(r => r.error)?.error;
+        if (firstError) throw firstError;
     }
 };

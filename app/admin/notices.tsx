@@ -34,7 +34,7 @@ export default function AdminNoticesScreen() {
             setNotices(data);
         } catch (error) {
             console.error(error);
-            Alert.alert('오류', '공지사항을 불러오는 중 오류가 발생했습니다.');
+            window.alert('공지사항을 불러오는 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
         }
@@ -42,7 +42,7 @@ export default function AdminNoticesScreen() {
 
     const handleSave = async () => {
         if (!title.trim() || !content.trim()) {
-            Alert.alert('알림', '제목과 내용을 모두 입력해주세요.');
+            window.alert('제목과 내용을 모두 입력해주세요.');
             return;
         }
 
@@ -54,41 +54,37 @@ export default function AdminNoticesScreen() {
                     content,
                     is_important: isImportant
                 });
-                Alert.alert('성공', '공지사항이 수정되었습니다.');
+                window.alert('공지사항이 수정되었습니다.');
             } else {
                 await NoticeService.createNotice({
                     title,
                     content,
                     is_important: isImportant
                 });
-                Alert.alert('성공', '공지사항이 등록되었습니다.');
+                window.alert('공지사항이 등록되었습니다.');
             }
             setModalVisible(false);
             fetchNotices();
         } catch (error) {
             console.error(error);
-            Alert.alert('오류', '저장 중 오류가 발생했습니다.');
+            window.alert('저장 중 오류가 발생했습니다.');
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = (id: string) => {
-        Alert.alert('삭제 확인', '정말 이 공지사항을 삭제하시겠습니까?', [
-            { text: '취소', style: 'cancel' },
-            {
-                text: '삭제',
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await NoticeService.deleteNotice(id);
-                        fetchNotices();
-                    } catch (error) {
-                        Alert.alert('오류', '삭제 중 문제가 발생했습니다.');
-                    }
+        if (window.confirm('정말 이 공지사항을 삭제하시겠습니까?')) {
+            const deleteNotice = async () => {
+                try {
+                    await NoticeService.deleteNotice(id);
+                    fetchNotices();
+                } catch (error) {
+                    window.alert('삭제 중 문제가 발생했습니다.');
                 }
-            }
-        ]);
+            };
+            deleteNotice();
+        }
     };
 
     const openEditModal = (notice?: Notice) => {

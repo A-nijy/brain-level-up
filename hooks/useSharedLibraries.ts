@@ -8,13 +8,14 @@ export function useSharedLibraries() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<Error | null>(null);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
 
     const fetchLibraries = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
 
-            const data = await SharedLibraryService.getSharedLibraries();
+            const data = await SharedLibraryService.getSharedLibraries(selectedCategoryId);
             setLibraries(data);
             setError(null);
         } catch (err: any) {
@@ -24,12 +25,12 @@ export function useSharedLibraries() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, []);
+    }, [selectedCategoryId]);
 
     useFocusEffect(
         useCallback(() => {
             fetchLibraries();
-        }, [fetchLibraries])
+        }, [fetchLibraries, selectedCategoryId])
     );
 
     const refresh = () => fetchLibraries(true);
@@ -40,6 +41,8 @@ export function useSharedLibraries() {
         refreshing,
         error,
         refresh,
+        selectedCategoryId,
+        setSelectedCategoryId,
         downloadLibrary: SharedLibraryService.downloadLibrary
     };
 }

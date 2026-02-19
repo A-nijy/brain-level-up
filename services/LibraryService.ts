@@ -64,12 +64,12 @@ export const LibraryService = {
     },
 
     async updateLibrariesOrder(updates: { id: string, display_order: number }[]): Promise<void> {
-        // Upsert can be used for bulk update if we provide the primary key
-        const { error } = await supabase
-            .from('libraries')
-            .upsert(updates);
-
-        if (error) throw error;
+        const promises = updates.map(u =>
+            supabase.from('libraries').update({ display_order: u.display_order }).eq('id', u.id)
+        );
+        const results = await Promise.all(promises);
+        const firstError = results.find(r => r.error)?.error;
+        if (firstError) throw firstError;
     },
 
     // Sections
@@ -129,10 +129,11 @@ export const LibraryService = {
     },
 
     async updateSectionsOrder(updates: { id: string, display_order: number }[]): Promise<void> {
-        const { error } = await supabase
-            .from('library_sections')
-            .upsert(updates);
-
-        if (error) throw error;
+        const promises = updates.map(u =>
+            supabase.from('library_sections').update({ display_order: u.display_order }).eq('id', u.id)
+        );
+        const results = await Promise.all(promises);
+        const firstError = results.find(r => r.error)?.error;
+        if (firstError) throw firstError;
     }
 };

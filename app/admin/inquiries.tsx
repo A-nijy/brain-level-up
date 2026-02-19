@@ -37,7 +37,7 @@ export default function AdminInquiriesScreen() {
             setInquiries(data);
         } catch (error) {
             console.error(error);
-            Alert.alert('오류', '문의사항 목록을 불러올 수 없습니다.');
+            window.alert('문의사항 목록을 불러올 수 없습니다.');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -65,7 +65,7 @@ export default function AdminInquiriesScreen() {
             await SupportService.toggleInquiryResolved(item.id, newStatus);
             setInquiries(inquiries.map(i => i.id === item.id ? { ...i, is_resolved: newStatus } : i));
         } catch (error) {
-            Alert.alert('오류', '상태 변경에 실패했습니다.');
+            window.alert('상태 변경에 실패했습니다.');
         }
     };
 

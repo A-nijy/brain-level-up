@@ -59,11 +59,12 @@ export const ItemService = {
     },
 
     async updateItemsOrder(updates: { id: string, display_order: number }[]): Promise<void> {
-        const { error } = await supabase
-            .from('items')
-            .upsert(updates);
-
-        if (error) throw error;
+        const promises = updates.map(u =>
+            supabase.from('items').update({ display_order: u.display_order }).eq('id', u.id)
+        );
+        const results = await Promise.all(promises);
+        const firstError = results.find(r => r.error)?.error;
+        if (firstError) throw firstError;
     },
 
     async getItemsByLibrary(libraryId: string): Promise<Item[]> {

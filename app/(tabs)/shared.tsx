@@ -12,10 +12,21 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { MembershipService } from '@/services/MembershipService';
 import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
+import { SharedLibraryCategory } from '@/types';
+import { SharedLibraryService } from '@/services/SharedLibraryService';
 
 export default function SharedLibraryScreen() {
     const { user, profile } = useAuth();
-    const { libraries, loading, refreshing, refresh, downloadLibrary } = useSharedLibraries();
+    const {
+        libraries,
+        loading,
+        refreshing,
+        refresh,
+        downloadLibrary,
+        selectedCategoryId,
+        setSelectedCategoryId
+    } = useSharedLibraries();
+    const [categories, setCategories] = useState<SharedLibraryCategory[]>([]);
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
@@ -24,6 +35,19 @@ export default function SharedLibraryScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedLib, setSelectedLib] = useState<SharedLibrary | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
+
+    React.useEffect(() => {
+        loadCategories();
+    }, []);
+
+    const loadCategories = async () => {
+        try {
+            const cats = await SharedLibraryService.getSharedCategories();
+            setCategories(cats);
+        } catch (e) {
+            console.error('Failed to load categories', e);
+        }
+    };
 
     const isWeb = Platform.OS === 'web';
     const numColumns = isWeb && width > 768 ? 2 : 1;
@@ -147,6 +171,35 @@ export default function SharedLibraryScreen() {
                     <View variant="transparent" style={styles.header}>
                         <Text style={styles.headerTitle}>공유 자료실</Text>
                         <Text style={styles.headerSubtitle}>다른 사람들이 공유한 유용한 암기장을 확인해 보세요.</Text>
+
+                        <Animated.ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            style={styles.categoryScroll}
+                            contentContainerStyle={styles.categoryContainer}
+                        >
+                            <TouchableOpacity
+                                style={[
+                                    styles.chip,
+                                    selectedCategoryId === 'all' && { backgroundColor: colors.tint, borderColor: colors.tint }
+                                ]}
+                                onPress={() => setSelectedCategoryId('all')}
+                            >
+                                <Text style={[styles.chipText, selectedCategoryId === 'all' && { color: '#fff' }]}>전체</Text>
+                            </TouchableOpacity>
+                            {categories.map((cat) => (
+                                <TouchableOpacity
+                                    key={cat.id}
+                                    style={[
+                                        styles.chip,
+                                        selectedCategoryId === cat.id && { backgroundColor: colors.tint, borderColor: colors.tint }
+                                    ]}
+                                    onPress={() => setSelectedCategoryId(cat.id)}
+                                >
+                                    <Text style={[styles.chipText, selectedCategoryId === cat.id && { color: '#fff' }]}>{cat.title}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </Animated.ScrollView>
                     </View>
                 }
                 ListEmptyComponent={
@@ -273,5 +326,26 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#94A3B8',
         marginTop: 16,
-    }
+    },
+    categoryScroll: {
+        marginTop: 20,
+        marginHorizontal: -20,
+    },
+    categoryContainer: {
+        paddingHorizontal: 20,
+        gap: 8,
+    },
+    chip: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 20,
+        borderWidth: 1.5,
+        borderColor: '#F1F5F9',
+        backgroundColor: '#F8FAFC',
+    },
+    chipText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#64748B',
+    },
 });

@@ -20,6 +20,7 @@ export interface Library {
     description: string | null;
     is_public: boolean;
     category: string | null;
+    category_id?: string | null; // added for shared category ref
     created_at: string;
     updated_at: string;
     display_order: number;
@@ -56,15 +57,27 @@ export interface Item {
     sync_status?: SyncStatus;
 }
 
+export interface SharedLibraryCategory {
+    id: string;
+    title: string;
+    display_order: number;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface SharedLibrary {
     id: string;
     title: string;
     description: string | null;
-    category: string | null;
+    category: string | null; // legacy or display name
+    category_id: string | null; // added
     download_count: number;
     thumbnail_url: string | null;
     created_by: string | null;
     created_at: string;
+    is_draft: boolean; // added for draft workflow
+    // Optional join
+    shared_library_categories?: SharedLibraryCategory;
 }
 
 export interface SharedSection {
