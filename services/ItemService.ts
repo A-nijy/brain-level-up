@@ -15,7 +15,7 @@ export const ItemService = {
         return data || [];
     },
 
-    async createItem(item: Pick<Item, 'library_id' | 'section_id' | 'question' | 'answer' | 'memo' | 'study_status'>): Promise<Item> {
+    async createItem(item: Omit<Item, 'id' | 'created_at' | 'updated_at' | 'success_count' | 'fail_count' | 'display_order' | 'last_reviewed_at'>): Promise<Item> {
         const { data, error } = await supabase
             .from('items')
             .insert(item)
@@ -27,7 +27,7 @@ export const ItemService = {
     },
 
     // 여러 아이템 한 번에 생성
-    async createItems(items: Pick<Item, 'library_id' | 'section_id' | 'question' | 'answer' | 'memo' | 'study_status'>[]): Promise<Item[]> {
+    async createItems(items: Omit<Item, 'id' | 'created_at' | 'updated_at' | 'success_count' | 'fail_count' | 'display_order' | 'last_reviewed_at'>[]): Promise<Item[]> {
         const { data, error } = await supabase
             .from('items')
             .insert(items)

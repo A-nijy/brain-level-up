@@ -77,6 +77,7 @@ export const SharedLibraryService = {
                         question: si.question,
                         answer: si.answer,
                         memo: si.memo,
+                        image_url: si.image_url,
                         study_status: 'undecided' as const
                     }));
 
@@ -101,6 +102,17 @@ export const SharedLibraryService = {
 
         if (error) throw error;
         return data || [];
+    },
+
+    async getSharedSectionById(sectionId: string): Promise<SharedSection | null> {
+        const { data, error } = await supabase
+            .from('shared_sections')
+            .select('*')
+            .eq('id', sectionId)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data;
     },
 
     async getSharedItems(sharedSectionId: string): Promise<SharedItem[]> {

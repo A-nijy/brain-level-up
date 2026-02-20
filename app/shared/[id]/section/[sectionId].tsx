@@ -3,7 +3,7 @@ import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity } from
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { SharedLibraryService } from '@/services/SharedLibraryService';
+import { useSharedSectionDetail } from '@/hooks/useSharedSectionDetail';
 import { SharedItem, SharedSection } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -11,42 +11,12 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 export default function SharedSectionDetailScreen() {
     const { id, sectionId } = useLocalSearchParams();
-    const sharedLibraryId = Array.isArray(id) ? id[0] : id;
     const sharedSectionId = Array.isArray(sectionId) ? sectionId[0] : sectionId;
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
-    const [section, setSection] = useState<SharedSection | null>(null);
-    const [items, setItems] = useState<SharedItem[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        if (!sharedSectionId) return;
-        setLoading(true);
-        try {
-            // We need a way to get the section info, but for now we'll just get items
-            // and maybe fetch section from library context if needed.
-            // For now, let's just fetch items.
-            const itemsData = await SharedLibraryService.getSharedItems(sharedSectionId);
-            setItems(itemsData);
-
-            // Fetch library to find the section name (simplified for now)
-            const librarySections = await SharedLibraryService.getSharedSections(sharedLibraryId);
-            const currentSection = librarySections.find(s => s.id === sharedSectionId);
-            if (currentSection) setSection(currentSection);
-
-        } catch (error) {
-            console.error(error);
-            Alert.alert('오류', '데이터를 가져오는데 실패했습니다.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, [sharedSectionId]);
+    const { section, items, loading } = useSharedSectionDetail(sharedSectionId);
 
     const renderItem = ({ item, index }: { item: SharedItem, index: number }) => (
         <Animated.View entering={FadeInUp.delay(index * 20).duration(400)}>

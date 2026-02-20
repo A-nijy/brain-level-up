@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, ScrollView, Modal, TextInput } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
-import { AdminService } from '@/services/AdminService';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
 import { SharedLibrary, SharedLibraryCategory } from '@/types';
 import { supabase } from '@/lib/supabase';
@@ -10,14 +9,26 @@ import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 
+import { useAdminShared } from '@/hooks/useAdminShared';
+
 export default function SharedManagerScreen() {
-    const [sharedLibs, setSharedLibs] = useState<SharedLibrary[]>([]);
-    const [draftLibs, setDraftLibs] = useState<SharedLibrary[]>([]);
-    const [categories, setCategories] = useState<SharedLibraryCategory[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        sharedLibs,
+        draftLibs,
+        categories,
+        loading,
+        refresh,
+        updateSharedLibrary,
+        publishDraft,
+        deleteDraft,
+        deleteShared,
+        unpublishShared,
+        createDraft
+    } = useAdminShared();
+
     const [activeTab, setActiveTab] = useState<'draft' | 'published'>('draft');
     const [isDirectModalVisible, setIsDirectModalVisible] = useState(false);
-    const [directForm, setDirectForm] = useState({ // Simplified
+    const [directForm, setDirectForm] = useState({
         title: '',
         description: '',
         category_id: null as string | null
@@ -26,35 +37,9 @@ export default function SharedManagerScreen() {
     const colors = Colors[colorScheme];
     const router = useRouter();
 
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = async () => {
-        setLoading(true);
-        try {
-            const { data: userData } = await supabase.auth.getUser();
-            const adminId = userData.user?.id;
-
-            const [sLibs, cats, dLibs] = await Promise.all([
-                SharedLibraryService.getSharedLibraries(),
-                AdminService.getSharedCategories(),
-                AdminService.getDraftSharedLibraries()
-            ]);
-            setSharedLibs(sLibs);
-            setCategories(cats);
-            setDraftLibs(dLibs); // NEW
-        } catch (error: any) {
-            window.alert('오류: ' + error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const [editingLib, setEditingLib] = useState<SharedLibrary | null>(null);
     const [editForm, setEditForm] = useState({ title: '', description: '', category_id: '' as string | null });
 
-    // Draft 수정용 state
     const [editingDraft, setEditingDraft] = useState<SharedLibrary | null>(null);
     const [editDraftForm, setEditDraftForm] = useState({ title: '', description: '', category_id: null as string | null });
 
@@ -70,14 +55,13 @@ export default function SharedManagerScreen() {
     const handleUpdateDraft = async () => {
         if (!editingDraft) return;
         try {
-            await AdminService.updateSharedLibrary(editingDraft.id, {
+            await updateSharedLibrary(editingDraft.id, {
                 title: editDraftForm.title,
                 description: editDraftForm.description,
                 category_id: editDraftForm.category_id
             });
             window.alert('수정되었습니다.');
             setEditingDraft(null);
-            loadData();
         } catch (error: any) {
             window.alert('오류: ' + error.message);
         }
@@ -85,7 +69,6 @@ export default function SharedManagerScreen() {
 
     const handlePublishDraft = async (lib: SharedLibrary) => {
         try {
-            // 섹션 유무 확인
             const sections = await SharedLibraryService.getSharedSections(lib.id);
             if (sections.length === 0) {
                 window.alert('최소 1개 이상의 섹션이 필요합니다.');
@@ -93,9 +76,8 @@ export default function SharedManagerScreen() {
             }
 
             if (window.confirm(`"${lib.title}" 자료를 공유 자료실에 정식으로 게시하시겠습니까?`)) {
-                await AdminService.publishDraftSharedLibrary(lib.id);
+                await publishDraft(lib.id);
                 window.alert('공유 자료실에 게시되었습니다!');
-                loadData();
             }
         } catch (error: any) {
             window.alert('게시 실패: ' + error.message);
@@ -105,8 +87,7 @@ export default function SharedManagerScreen() {
     const handleDeleteDraft = async (lib: SharedLibrary) => {
         if (!window.confirm(`"${lib.title}" 을(를) 삭제하시겠습니까?`)) return;
         try {
-            await AdminService.deleteDraftSharedLibrary(lib.id);
-            loadData();
+            await deleteDraft(lib.id);
         } catch (error: any) {
             window.alert('삭제 실패: ' + error.message);
         }
@@ -115,14 +96,13 @@ export default function SharedManagerScreen() {
     const handleUpdate = async () => {
         if (!editingLib) return;
         try {
-            await AdminService.updateSharedLibrary(editingLib.id, {
+            await updateSharedLibrary(editingLib.id, {
                 title: editForm.title,
                 description: editForm.description,
                 category_id: editForm.category_id
             });
             window.alert('단어장 정보가 수정되었습니다!');
             setEditingLib(null);
-            loadData();
         } catch (error: any) {
             window.alert('오류: ' + error.message);
         }
@@ -131,8 +111,7 @@ export default function SharedManagerScreen() {
     const handleDeleteShared = async (item: SharedLibrary) => {
         if (window.confirm(`"${item.title}" 게시물을 완전히 삭제하시겠습니까?`)) {
             try {
-                await AdminService.deleteSharedLibrary(item.id);
-                loadData();
+                await deleteShared(item.id);
             } catch (error: any) {
                 window.alert('삭제 실패: ' + error.message);
             }
@@ -142,13 +121,13 @@ export default function SharedManagerScreen() {
     const handleUnpublishShared = async (item: SharedLibrary) => {
         if (window.confirm(`"${item.title}" 게시물을 임시 저장 상태로 되돌리시겠습니까?\n마켓플레이스에서 더 이상 노출되지 않습니다.`)) {
             try {
-                await AdminService.unpublishSharedLibrary(item.id);
-                loadData();
+                await unpublishShared(item.id);
             } catch (error: any) {
                 window.alert('처리 실패: ' + error.message);
             }
         }
     };
+
     const handleCreateDraft = async () => {
         if (!directForm.title.trim()) {
             window.alert('제목을 입력해주세요.');
@@ -156,11 +135,10 @@ export default function SharedManagerScreen() {
         }
 
         try {
-            setLoading(true);
             const { data } = await supabase.auth.getUser();
             if (!data.user) throw new Error('관리자 정보를 찾을 수 없습니다.');
 
-            await AdminService.createDraftSharedLibrary({
+            await createDraft({
                 ...directForm,
                 adminId: data.user.id
             });
@@ -172,11 +150,8 @@ export default function SharedManagerScreen() {
                 description: '',
                 category_id: null
             });
-            loadData();
         } catch (error: any) {
             window.alert('오류: ' + error.message);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -222,7 +197,7 @@ export default function SharedManagerScreen() {
                 <View variant="transparent" style={styles.section}>
                     <View variant="transparent" style={styles.sectionHeader}>
                         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>임시 저장 목록</Text>
-                        <TouchableOpacity onPress={loadData}>
+                        <TouchableOpacity onPress={refresh}>
                             <FontAwesome name="refresh" size={16} color={colors.tint} />
                         </TouchableOpacity>
                     </View>
@@ -277,7 +252,7 @@ export default function SharedManagerScreen() {
                 <View variant="transparent" style={styles.section}>
                     <View variant="transparent" style={styles.sectionHeader}>
                         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>마켓플레이스 게시물</Text>
-                        <TouchableOpacity onPress={loadData}>
+                        <TouchableOpacity onPress={refresh}>
                             <FontAwesome name="refresh" size={16} color={colors.tint} />
                         </TouchableOpacity>
                     </View>

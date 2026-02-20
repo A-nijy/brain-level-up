@@ -3,7 +3,7 @@ import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, View 
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { SharedLibraryService } from '@/services/SharedLibraryService';
+import { useSharedDetail } from '@/hooks/useSharedDetail';
 import { SharedLibrary, SharedItem, SharedSection } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -23,37 +23,10 @@ export default function SharedLibraryPreviewScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
-    const [library, setLibrary] = useState<SharedLibrary | null>(null);
-    const [sections, setSections] = useState<SharedSection[]>([]);
-    const [items, setItems] = useState<SharedItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    const { library, sections, loading, refreshing, refresh, downloadLibrary } = useSharedDetail(sharedLibraryId);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [downloading, setDownloading] = useState(false);
-
-    const fetchData = async () => {
-        if (!sharedLibraryId) return;
-        setLoading(true);
-        try {
-            const [libData, sectionsData] = await Promise.all([
-                SharedLibraryService.getSharedLibraryById(sharedLibraryId),
-                SharedLibraryService.getSharedSections(sharedLibraryId)
-            ]);
-            setLibrary(libData);
-            setSections(sectionsData);
-        } catch (error) {
-            console.error(error);
-            Alert.alert('오류', '데이터를 가져오는데 실패했습니다.');
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, [sharedLibraryId]);
 
     const handleDownloadRequest = () => {
         if (!user) {
@@ -75,7 +48,7 @@ export default function SharedLibraryPreviewScreen() {
 
         setDownloading(true);
         try {
-            const newLib = await SharedLibraryService.downloadLibrary(user.id, library);
+            const newLib = await downloadLibrary(user.id);
 
             Alert.alert('성공', '내 암기장에 추가되었습니다.', [
                 { text: '바로가기', onPress: () => router.push(`/library/${newLib.id}`) },

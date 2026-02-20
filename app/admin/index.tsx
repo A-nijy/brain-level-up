@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
-import { AdminService } from '@/services/AdminService';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -12,9 +11,15 @@ import { Modal, TextInput, Alert, ActivityIndicator } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
+import { useAdminStats } from '@/hooks/useAdminStats';
+
 export default function AdminDashboardScreen() {
-    const [stats, setStats] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const {
+        stats,
+        loading,
+        broadcastNotification
+    } = useAdminStats();
+
     const [isNotifyModalVisible, setIsNotifyModalVisible] = useState(false);
     const [notifyTitle, setNotifyTitle] = useState('');
     const [notifyMessage, setNotifyMessage] = useState('');
@@ -24,33 +29,15 @@ export default function AdminDashboardScreen() {
     const colors = Colors[colorScheme];
     const router = useRouter();
 
-    useEffect(() => {
-        loadStats();
-    }, []);
-
-    const loadStats = async () => {
-        try {
-            const data = await AdminService.getGlobalStats();
-            setStats(data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleSendNotification = async () => {
         if (!notifyTitle || !notifyMessage) {
             window.alert('제목과 내용을 모두 입력해주세요.');
             return;
         }
 
-        console.log('[AdminUI] Attempting to send notification:', { notifyTitle, notifyMessage });
-
         setIsSending(true);
         try {
-            await AdminService.broadcastNotification(notifyTitle, notifyMessage);
-            console.log('[AdminUI] Broadcast success response received.');
+            await broadcastNotification(notifyTitle, notifyMessage);
             window.alert('전체 사용자에게 알림이 전송되었습니다.');
             setIsNotifyModalVisible(false);
             setNotifyTitle('');

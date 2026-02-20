@@ -18,8 +18,17 @@ export default function LibraryDetailScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
-    const { library, loading: libLoading } = useLibraryDetail(libraryId);
-    const { sections, loading, refreshing, refresh, reorderSections } = useLibrarySections(libraryId);
+    const { library } = useLibraryDetail(libraryId);
+    const {
+        sections,
+        loading,
+        refreshing,
+        refresh,
+        reorderSections,
+        createSection,
+        updateSection,
+        deleteSection
+    } = useLibrarySections(libraryId);
 
     const [reorderMode, setReorderMode] = useState(false);
     const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -39,10 +48,9 @@ export default function LibraryDetailScreen() {
 
         setCreating(true);
         try {
-            await LibraryService.createSection(libraryId, newSectionTitle.trim());
+            await createSection(newSectionTitle.trim());
             setNewSectionTitle('');
             setCreateModalVisible(false);
-            refresh();
         } catch (error: any) {
             Alert.alert('오류', '섹션 생성 실패: ' + error.message);
         } finally {
@@ -58,11 +66,10 @@ export default function LibraryDetailScreen() {
 
         setUpdating(true);
         try {
-            await LibraryService.updateSection(editingSection.id, { title: editSectionTitle.trim() });
+            await updateSection(editingSection.id, { title: editSectionTitle.trim() });
             setEditSectionTitle('');
             setEditingSection(null);
             setEditModalVisible(false);
-            refresh();
         } catch (error: any) {
             Alert.alert('오류', '섹션 수정 실패: ' + error.message);
         } finally {
@@ -87,8 +94,7 @@ export default function LibraryDetailScreen() {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            await LibraryService.deleteSection(section.id);
-                            refresh();
+                            await deleteSection(section.id);
                         } catch (error: any) {
                             Alert.alert('오류', '삭제 실패: ' + error.message);
                         }

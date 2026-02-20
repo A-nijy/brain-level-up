@@ -9,61 +9,23 @@ import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+import { useStudyStats } from '@/hooks/useStudyStats';
+
 export default function StatsScreen() {
-    const { profile } = useAuth();
-    const [stats, setStats] = useState<StudyLog[]>([]);
-    const [streak, setStreak] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    const {
+        loading,
+        refreshing,
+        streak,
+        totals,
+        chartData,
+        refresh
+    } = useStudyStats();
+
+    const { avgAccuracy, totalItems, totalMinutes } = totals;
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
-
-    useEffect(() => {
-        loadData();
-    }, [profile]);
-
-    const loadData = async () => {
-        if (!profile) return;
-        setLoading(true);
-        try {
-            const [statsData, streakData] = await Promise.all([
-                StatsService.getRecentStats(profile.id, 7),
-                StatsService.getStudyStreak(profile.id)
-            ]);
-            setStats(statsData);
-            setStreak(streakData);
-        } catch (error) {
-            console.error('Failed to load stats:', error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
-    const onRefresh = () => {
-        setRefreshing(true);
-        loadData();
-    };
-
-    // Calculate totals
-    const totalItems = stats.reduce((acc, curr) => acc + curr.items_count, 0);
-    const totalCorrect = stats.reduce((acc, curr) => acc + curr.correct_count, 0);
-    const avgAccuracy = totalItems > 0 ? Math.round((totalCorrect / totalItems) * 100) : 0;
-    const totalMinutes = Math.round(stats.reduce((acc, curr) => acc + curr.study_time_seconds, 0) / 60);
-
-    const chartData = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - (6 - i));
-        const dateStr = d.toISOString().split('T')[0];
-        const log = stats.find(s => s.study_date === dateStr);
-        return {
-            label: d.toLocaleDateString('ko-KR', { weekday: 'short' }),
-            value: log ? log.items_count : 0,
-            fullDate: dateStr
-        };
-    });
 
     const maxVal = Math.max(...chartData.map(d => d.value), 1);
 
@@ -83,7 +45,7 @@ export default function StatsScreen() {
             contentContainerStyle={[
                 isWeb && { maxWidth: 1000, alignSelf: 'center', width: '100%', paddingVertical: 40 }
             ]}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.tint} />}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />}
         >
             <View variant="transparent" style={styles.header}>
                 <Text style={styles.headerTitle}>Learning Progress</Text>

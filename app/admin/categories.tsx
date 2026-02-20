@@ -1,37 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
-import { AdminService } from '@/services/AdminService';
 import { SharedLibraryCategory } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+import { useAdminCategories } from '@/hooks/useAdminCategories';
+
 export default function CategoryManagerScreen() {
-    const [categories, setCategories] = useState<SharedLibraryCategory[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        categories,
+        loading,
+        createCategory,
+        updateCategory,
+        deleteCategory,
+        reorderCategories
+    } = useAdminCategories();
+
     const [modalVisible, setModalVisible] = useState(false);
     const [editingCategory, setEditingCategory] = useState<SharedLibraryCategory | null>(null);
     const [title, setTitle] = useState('');
 
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
-
-    useEffect(() => {
-        loadCategories();
-    }, []);
-
-    const loadCategories = async () => {
-        setLoading(true);
-        try {
-            const data = await AdminService.getSharedCategories();
-            setCategories(data);
-        } catch (error: any) {
-            window.alert('오류: ' + error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleSave = async () => {
         if (!title.trim()) {
@@ -41,14 +33,13 @@ export default function CategoryManagerScreen() {
 
         try {
             if (editingCategory) {
-                await AdminService.updateSharedCategory(editingCategory.id, { title: title.trim() });
+                await updateCategory(editingCategory.id, { title: title.trim() });
             } else {
-                await AdminService.createSharedCategory(title.trim());
+                await createCategory(title.trim());
             }
             setModalVisible(false);
             setTitle('');
             setEditingCategory(null);
-            loadCategories();
         } catch (error: any) {
             window.alert('오류: ' + error.message);
         }
@@ -56,15 +47,14 @@ export default function CategoryManagerScreen() {
 
     const handleDelete = (category: SharedLibraryCategory) => {
         if (window.confirm(`"${category.title}" 카테고리를 삭제하시겠습니까?\n이 카테고리에 속한 자료들은 카테고리 미지정 상태가 됩니다.`)) {
-            const deleteCategory = async () => {
+            const performDelete = async () => {
                 try {
-                    await AdminService.deleteSharedCategory(category.id);
-                    loadCategories();
+                    await deleteCategory(category.id);
                 } catch (error: any) {
                     window.alert('오류: ' + error.message);
                 }
             };
-            deleteCategory();
+            performDelete();
         }
     };
 
@@ -76,18 +66,15 @@ export default function CategoryManagerScreen() {
 
         [newCategories[index], newCategories[targetIndex]] = [newCategories[targetIndex], newCategories[index]];
 
-        // Update display_order
         const updates = newCategories.map((cat, idx) => ({
             id: cat.id,
             display_order: idx
         }));
 
-        setCategories(newCategories); // Optimistic update
         try {
-            await AdminService.reorderSharedCategories(updates);
+            await reorderCategories(updates);
         } catch (error: any) {
             window.alert('오류: ' + error.message);
-            loadCategories();
         }
     };
 

@@ -28,17 +28,23 @@ type Item = {
     study_status: 'learned' | 'confused' | 'undecided';
 };
 
+import { useStudySession } from '@/hooks/useStudySession';
+
 export default function StudyScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
-    const { profile } = useAuth();
-    const [items, setItems] = useState<Item[]>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [isFlipped, setIsFlipped] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [results, setResults] = useState({ correct: 0, wrong: 0 });
-    const [isFinished, setIsFinished] = useState(false);
-    const [startTime] = useState(Date.now());
+    const {
+        currentItem,
+        currentIndex,
+        items,
+        isFlipped,
+        loading,
+        results,
+        isFinished,
+        handleFlip,
+        handleResult,
+        setIsFlipped
+    } = useStudySession(id as string);
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
@@ -50,81 +56,17 @@ export default function StudyScreen() {
     const flipProgress = useSharedValue(0);
     const cardScale = useSharedValue(1);
 
+    // Sync isFlipped with flipProgress for animations
     useEffect(() => {
-        fetchItems();
-    }, [id]);
+        flipProgress.value = withSpring(isFlipped ? 1 : 0, { damping: 15 });
+    }, [isFlipped]);
 
-    const fetchItems = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('items')
-                .select('*')
-                .eq('library_id', id);
-
-            if (error) throw error;
-
-            const shuffled = (data || []).sort(() => Math.random() - 0.5);
-            setItems(shuffled);
-        } catch (error: any) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleFlip = () => {
-        if (isFlipped) {
-            flipProgress.value = withSpring(0, { damping: 15 });
-        } else {
-            flipProgress.value = withSpring(1, { damping: 15 });
-        }
-        setIsFlipped(!isFlipped);
-    };
-
-    const handleResult = async (success: boolean) => {
-        const currentItem = items[currentIndex];
-
-        // Animate card out
+    const onResultPress = (success: boolean) => {
+        // Animate card out before processing result
         cardScale.value = withTiming(0.8, { duration: 100 }, () => {
-            runOnJS(processResult)(success, currentItem);
-        });
-    };
-
-    const processResult = (success: boolean, currentItem: Item) => {
-        setResults(prev => ({
-            ...prev,
-            correct: success ? prev.correct + 1 : prev.correct,
-            wrong: !success ? prev.wrong + 1 : prev.wrong
-        }));
-
-        updateItemStats(currentItem.id, success);
-
-        if (currentIndex < items.length - 1) {
-            setIsFlipped(false);
-            flipProgress.value = 0;
+            runOnJS(handleResult)(success);
             cardScale.value = withSpring(1);
-            setCurrentIndex(prev => prev + 1);
-        } else {
-            if (profile) {
-                const finalCorrect = success ? results.correct + 1 : results.correct;
-                const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
-                StatsService.logStudyActivity(profile.id, items.length, finalCorrect, durationSeconds);
-            }
-            setIsFinished(true);
-        }
-    };
-
-    const updateItemStats = async (itemId: string, success: boolean) => {
-        try {
-            const { error } = await supabase
-                .from('items')
-                .update({ study_status: success ? 'learned' : 'confused' })
-                .eq('id', itemId);
-            if (error) throw error;
-        } catch (e: any) {
-            console.error("Failed to update status", e);
-            Alert.alert('동기화 실패', '학습 결과 저장 중 오류가 발생했습니다. DB 설정을 확인해주세요.');
-        }
+        });
     };
 
     const frontAnimatedStyle = useAnimatedStyle(() => {
@@ -202,7 +144,7 @@ export default function StudyScreen() {
         );
     }
 
-    const currentItem = items[currentIndex];
+
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -242,7 +184,7 @@ export default function StudyScreen() {
             <View variant="transparent" style={[styles.buttonContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: colors.error }]}
-                    onPress={() => handleResult(false)}
+                    onPress={() => onResultPress(false)}
                     activeOpacity={0.7}
                 >
                     <FontAwesome name="times" size={24} color={colors.error} />
@@ -251,7 +193,7 @@ export default function StudyScreen() {
 
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: colors.success }]}
-                    onPress={() => handleResult(true)}
+                    onPress={() => onResultPress(true)}
                     activeOpacity={0.7}
                 >
                     <FontAwesome name="check" size={24} color={colors.success} />

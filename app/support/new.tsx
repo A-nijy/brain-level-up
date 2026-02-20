@@ -12,8 +12,10 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 const CATEGORIES: InquiryCategory[] = ['Q&A', '건의사항', '버그'];
 
+import { useSupport } from '@/hooks/useSupport';
+
 export default function NewSupportScreen() {
-    const { user } = useAuth();
+    const { submitInquiry } = useSupport();
     const [category, setCategory] = useState<InquiryCategory>('Q&A');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -29,20 +31,15 @@ export default function NewSupportScreen() {
             return;
         }
 
-        if (!user) {
-            Alert.alert('오류', '로그인 후 이용 가능합니다.');
-            return;
-        }
-
         setLoading(true);
         try {
-            await SupportService.submitInquiry(user.id, category, title, content);
+            await submitInquiry(category, title.trim(), content.trim());
             Alert.alert('성공', '소중한 의견이 제출되었습니다. 확인 후 처리해 드리겠습니다.', [
                 { text: '확인', onPress: () => router.back() }
             ]);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            Alert.alert('오류', '제출 중 문제가 발생했습니다. 다시 시도해 주세요.');
+            Alert.alert('오류', '제출 중 문제가 발생했습니다: ' + error.message);
         } finally {
             setLoading(false);
         }

@@ -8,10 +8,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { LibraryService } from '@/services/LibraryService';
-
 export default function LibraryListScreen() {
-  const { libraries, loading, refreshing, refresh, reorderLibraries } = useLibraries();
+  const { libraries, loading, refreshing, refresh, reorderLibraries, deleteLibrary } = useLibraries();
   const [reorderMode, setReorderMode] = useState(false);
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
@@ -46,10 +44,9 @@ export default function LibraryListScreen() {
 
   const handleDeleteLibrary = async (libraryId: string) => {
     try {
-      await LibraryService.deleteLibrary(libraryId);
+      await deleteLibrary(libraryId);
       if (Platform.OS === 'web') window.alert('암기장이 삭제되었습니다.');
       else Alert.alert('성공', '암기장이 삭제되었습니다.');
-      refresh();
     } catch (error: any) {
       console.error(error);
       if (Platform.OS === 'web') window.alert(`삭제 실패: ${error.message}`);

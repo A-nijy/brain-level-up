@@ -8,113 +8,67 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { PushNotificationService, PushNotificationSettings } from '@/services/PushNotificationService';
-import { LibraryService } from '@/services/LibraryService';
+import { PushNotificationSettings } from '@/services/PushNotificationService';
 import { Library, Section } from '@/types';
 
+import { usePushSettings } from '@/hooks/usePushSettings';
+
 export default function SettingsScreen() {
-  const { signOut, user, profile, session } = useAuth();
+  const { signOut, profile } = useAuth();
   const { themeMode, setThemeMode } = useTheme();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const router = useRouter();
   const { width } = useWindowDimensions();
 
-  // 푸시 알림 상태
-  const [notificationSettings, setNotificationSettings] = useState<PushNotificationSettings | null>(null);
+  const {
+    notificationSettings,
+    libraries,
+    sections,
+    loadingSections,
+    progress,
+    fetchSections,
+    saveSettings,
+    resetProgress,
+    requestPermissions,
+    refresh: refreshSettings
+  } = usePushSettings();
+
+  // UI State for Modal
   const [tempSettings, setTempSettings] = useState<PushNotificationSettings | null>(null);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [libraries, setLibraries] = useState<Library[]>([]);
-  const [sections, setSections] = useState<Section[]>([]);
-  const [loadingSections, setLoadingSections] = useState(false);
-  const [progress, setProgress] = useState<{ current: number; total: number } | null>(null);
-
-  // 셀렉트 박스 모달 상태
   const [showLibraryList, setShowLibraryList] = useState(false);
   const [showSectionList, setShowSectionList] = useState(false);
 
   useEffect(() => {
-    loadNotificationSettings();
-    loadLibraries();
-    loadProgress();
-  }, []);
-
-  const loadNotificationSettings = async () => {
-    const settings = await PushNotificationService.getSettings();
-    setNotificationSettings(settings || {
-      enabled: false,
-      libraryId: null,
-      sectionId: null,
-      range: 'all',
-      format: 'both',
-      order: 'sequential',
-      interval: 60,
-    });
-  };
-
-  const loadLibraries = async () => {
-    if (user) {
-      const libs = await LibraryService.getLibraries(user.id);
-      setLibraries(libs);
-    }
-  };
-
-  const loadProgress = async () => {
-    const prog = await PushNotificationService.getProgress();
-    setProgress(prog);
-  };
-
-  const loadSections = async (libId: string) => {
-    setLoadingSections(true);
-    try {
-      const data = await LibraryService.getSections(libId);
-      setSections(data);
-    } catch (error) {
-      console.error('Failed to load sections:', error);
-    } finally {
-      setLoadingSections(false);
-    }
-  };
-
-  useEffect(() => {
     if (tempSettings?.libraryId) {
-      loadSections(tempSettings.libraryId);
-    } else {
-      setSections([]);
+      fetchSections(tempSettings.libraryId);
     }
-  }, [tempSettings?.libraryId]);
+  }, [tempSettings?.libraryId, fetchSections]);
 
   const handleToggleNotification = async (value: boolean) => {
     if (!notificationSettings) return;
 
     if (value) {
-      // 권한 요청
-      const granted = await PushNotificationService.requestPermissions();
+      const granted = await requestPermissions();
       if (!granted) {
         Alert.alert('권한 필요', '푸시 알림을 위해 알림 권한이 필요합니다. 설정에서 권한을 허용해주세요.');
         return;
       }
-
-      // 켤 때는 바로 저장하지 않고 모달을 띄움
       setTempSettings({ ...notificationSettings, enabled: true });
       setShowNotificationModal(true);
     } else {
-      // 끌 때는 바로 저장
       const newSettings = { ...notificationSettings, enabled: false };
-      setNotificationSettings(newSettings);
-      await PushNotificationService.saveSettings(newSettings, session?.user?.id);
-      await loadProgress();
+      await saveSettings(newSettings);
     }
   };
 
-  // 상세 설정 변경하기 클릭 시
   const handleOpenSettings = () => {
     if (!notificationSettings) return;
     setTempSettings({ ...notificationSettings });
     setShowNotificationModal(true);
   };
 
-  // 알림 설정 변경 핸들러 (모달 내 로컬 상태만 변경)
   const handleUpdateTempSettings = (newSettings: Partial<PushNotificationSettings>) => {
     if (!tempSettings) return;
     setTempSettings({ ...tempSettings, ...newSettings });
@@ -135,11 +89,14 @@ export default function SettingsScreen() {
       sectionId: tempSettings.sectionId ?? null,
     };
 
-    setNotificationSettings(finalSettings);
-    await PushNotificationService.saveSettings(finalSettings, session?.user?.id);
-    await loadProgress();
-    setShowNotificationModal(false);
+    try {
+      await saveSettings(finalSettings);
+      setShowNotificationModal(false);
+    } catch (error: any) {
+      Alert.alert('저장 실패', error.message);
+    }
   };
+
   const handleResetProgress = async () => {
     Alert.alert(
       '진행도 초기화',
@@ -150,9 +107,12 @@ export default function SettingsScreen() {
           text: '초기화',
           style: 'destructive',
           onPress: async () => {
-            await PushNotificationService.resetProgress();
-            await loadProgress();
-            Alert.alert('완료', '학습 진행도가 초기화되었습니다.');
+            try {
+              await resetProgress();
+              Alert.alert('완료', '학습 진행도가 초기화되었습니다.');
+            } catch (error) {
+              Alert.alert('오류', '초기화에 실패했습니다.');
+            }
           },
         },
       ]

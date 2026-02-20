@@ -51,12 +51,37 @@ export function useLibraries() {
         error,
         refresh,
         reorderLibraries: async (newLibraries: Library[]) => {
+            const oldLibraries = [...libraries];
             setLibraries(newLibraries);
-            const updates = newLibraries.map((lib, index) => ({
-                id: lib.id,
-                display_order: index
-            }));
-            await LibraryService.updateLibrariesOrder(updates);
+            try {
+                const updates = newLibraries.map((lib, index) => ({
+                    id: lib.id,
+                    display_order: index
+                }));
+                await LibraryService.updateLibrariesOrder(updates);
+            } catch (err: any) {
+                console.error('[useLibraries] Reorder error:', err);
+                setLibraries(oldLibraries);
+                throw err;
+            }
+        },
+        deleteLibrary: async (libraryId: string) => {
+            try {
+                await LibraryService.deleteLibrary(libraryId);
+                setLibraries(prev => prev.filter(lib => lib.id !== libraryId));
+            } catch (err: any) {
+                console.error('[useLibraries] Delete error:', err);
+                throw err;
+            }
+        },
+        updateLibrary: async (libraryId: string, updates: Partial<Library>) => {
+            try {
+                await LibraryService.updateLibrary(libraryId, updates);
+                setLibraries(prev => prev.map(lib => lib.id === libraryId ? { ...lib, ...updates } : lib));
+            } catch (err: any) {
+                console.error('[useLibraries] Update error:', err);
+                throw err;
+            }
         },
         createLibrary: LibraryService.createLibrary,
     };

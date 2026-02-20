@@ -12,10 +12,16 @@ import Animated, { FadeInUp, Layout } from 'react-native-reanimated';
 type SortOrder = 'newest' | 'oldest';
 type StatusFilter = 'all' | 'resolved' | 'unresolved';
 
+import { useSupport } from '@/hooks/useSupport';
+
 export default function AdminInquiriesScreen() {
-    const [inquiries, setInquiries] = useState<Inquiry[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    const {
+        inquiries,
+        loading,
+        refreshing,
+        fetchAllInquiries,
+        toggleInquiryResolved
+    } = useSupport();
 
     // UI State
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -28,25 +34,11 @@ export default function AdminInquiriesScreen() {
     const colors = Colors[colorScheme];
 
     useEffect(() => {
-        fetchInquiries();
-    }, []);
-
-    const fetchInquiries = async () => {
-        try {
-            const data = await SupportService.getAllInquiries();
-            setInquiries(data);
-        } catch (error) {
-            console.error(error);
-            window.alert('문의사항 목록을 불러올 수 없습니다.');
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
+        fetchAllInquiries();
+    }, [fetchAllInquiries]);
 
     const onRefresh = () => {
-        setRefreshing(true);
-        fetchInquiries();
+        fetchAllInquiries(true);
     };
 
     const toggleExpand = (id: string) => {
@@ -62,8 +54,7 @@ export default function AdminInquiriesScreen() {
     const toggleStatus = async (item: Inquiry) => {
         try {
             const newStatus = !item.is_resolved;
-            await SupportService.toggleInquiryResolved(item.id, newStatus);
-            setInquiries(inquiries.map(i => i.id === item.id ? { ...i, is_resolved: newStatus } : i));
+            await toggleInquiryResolved(item.id, newStatus);
         } catch (error) {
             window.alert('상태 변경에 실패했습니다.');
         }

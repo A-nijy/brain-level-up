@@ -1,64 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, View as RNView } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
-import { AdminService } from '@/services/AdminService';
 import { Profile } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+import { useAdminUsers } from '@/hooks/useAdminUsers';
+
 export default function UserManagementScreen() {
-    const [users, setUsers] = useState<Profile[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        users,
+        loading,
+        updateUserProfile
+    } = useAdminUsers();
+
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
-
-    useEffect(() => {
-        loadUsers();
-    }, []);
-
-    const loadUsers = async () => {
-        try {
-            const data = await AdminService.getAllUsers();
-            setUsers(data);
-        } catch (error: any) {
-            window.alert('Error: ' + error.message);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleUpdateRole = (user: Profile) => {
         const newRole = user.role === 'admin' ? 'user' : 'admin';
         const roleName = newRole === 'admin' ? '관리자' : '사용자';
         if (window.confirm(`${user.email} 님의 권한을 ${roleName}(으)로 변경하시겠습니까?`)) {
-            const updateRole = async () => {
+            const performUpdate = async () => {
                 try {
-                    await AdminService.updateUserProfile(user.id, { role: newRole as any });
-                    loadUsers();
+                    await updateUserProfile(user.id, { role: newRole as any });
                 } catch (error: any) {
                     window.alert('오류: ' + error.message);
                 }
             };
-            updateRole();
+            performUpdate();
         }
     };
 
     const handleUpdateMembership = (user: Profile) => {
         const membership = window.prompt('변경할 멤버십 등급을 입력하세요 (BASIC, PREMIUM, PRO):', user.membership_level);
         if (membership && ['BASIC', 'PREMIUM', 'PRO'].includes(membership.toUpperCase())) {
-            updateMembership(user.id, membership.toUpperCase());
+            const performUpdate = async () => {
+                try {
+                    await updateUserProfile(user.id, { membership_level: membership.toUpperCase() as any });
+                } catch (error: any) {
+                    window.alert('오류: ' + error.message);
+                }
+            };
+            performUpdate();
         } else if (membership) {
             window.alert('올바른 멤버십 등급을 입력해주세요.');
-        }
-    };
-
-    const updateMembership = async (userId: string, level: string) => {
-        try {
-            await AdminService.updateUserProfile(userId, { membership_level: level as any });
-            loadUsers();
-        } catch (error: any) {
-            window.alert('오류: ' + error.message);
         }
     };
 

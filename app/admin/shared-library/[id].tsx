@@ -3,12 +3,12 @@ import { StyleSheet, ActivityIndicator, Alert, TouchableOpacity, ScrollView, Mod
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { SharedLibraryService } from '@/services/SharedLibraryService';
-import { AdminService } from '@/services/AdminService';
 import { SharedLibrary, SharedSection } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+
+import { useSharedDetail } from '@/hooks/useSharedDetail';
 
 export default function SharedLibraryDetailScreen() {
     const { id } = useLocalSearchParams();
@@ -18,9 +18,15 @@ export default function SharedLibraryDetailScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
-    const [library, setLibrary] = useState<SharedLibrary | null>(null);
-    const [sections, setSections] = useState<SharedSection[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        library,
+        sections,
+        loading,
+        createSharedSection,
+        updateSharedSection,
+        deleteSharedSection,
+        reorderSharedSections
+    } = useSharedDetail(draftId || '');
 
     // Section creation modal
     const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -33,28 +39,6 @@ export default function SharedLibraryDetailScreen() {
     const [editSectionTitle, setEditSectionTitle] = useState('');
     const [updating, setUpdating] = useState(false);
 
-    const fetchData = async () => {
-        if (!draftId) return;
-        setLoading(true);
-        try {
-            const [libData, sectionsData] = await Promise.all([
-                SharedLibraryService.getSharedLibraryById(draftId),
-                SharedLibraryService.getSharedSections(draftId)
-            ]);
-            setLibrary(libData);
-            setSections(sectionsData);
-        } catch (error) {
-            console.error(error);
-            window.alert('데이터를 가져오는데 실패했습니다.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, [draftId]);
-
     const handleCreateSection = async () => {
         if (!newSectionTitle.trim()) {
             window.alert('섹션 이름을 입력해주세요.');
@@ -63,10 +47,9 @@ export default function SharedLibraryDetailScreen() {
 
         setCreating(true);
         try {
-            await SharedLibraryService.createSharedSection(draftId, newSectionTitle.trim());
+            await createSharedSection(newSectionTitle.trim());
             setNewSectionTitle('');
             setCreateModalVisible(false);
-            fetchData();
         } catch (error: any) {
             window.alert('섹션 생성 실패: ' + error.message);
         } finally {
@@ -82,11 +65,10 @@ export default function SharedLibraryDetailScreen() {
 
         setUpdating(true);
         try {
-            await SharedLibraryService.updateSharedSection(editingSection.id, { title: editSectionTitle.trim() });
+            await updateSharedSection(editingSection.id, { title: editSectionTitle.trim() });
             setEditSectionTitle('');
             setEditingSection(null);
             setEditModalVisible(false);
-            fetchData();
         } catch (error: any) {
             window.alert('섹션 수정 실패: ' + error.message);
         } finally {
@@ -103,8 +85,7 @@ export default function SharedLibraryDetailScreen() {
     const handleDeleteSection = async (section: SharedSection) => {
         if (window.confirm(`'${section.title}' 섹션을 삭제하시겠습니까? 내부의 모든 단어도 삭제됩니다.`)) {
             try {
-                await SharedLibraryService.deleteSharedSection(section.id);
-                fetchData();
+                await deleteSharedSection(section.id);
             } catch (error: any) {
                 window.alert('삭제 실패: ' + error.message);
             }
@@ -124,13 +105,10 @@ export default function SharedLibraryDetailScreen() {
             display_order: idx
         }));
 
-        setSections(newSections);
-
         try {
-            await SharedLibraryService.reorderSharedSections(updates);
+            await reorderSharedSections(updates);
         } catch (error: any) {
             window.alert('순서 변경 실패: ' + error.message);
-            fetchData();
         }
     };
 

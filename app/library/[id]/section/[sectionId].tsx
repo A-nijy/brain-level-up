@@ -5,7 +5,6 @@ import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useSectionDetail } from '@/hooks/useSectionDetail';
 import { Item } from '@/types';
-import { ItemService } from '@/services/ItemService';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,7 +22,17 @@ export default function SectionDetailScreen() {
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
 
-    const { section, items, loading, refreshing, refresh, reorderItems } = useSectionDetail(sid);
+    const {
+        section,
+        items,
+        loading,
+        refreshing,
+        refresh,
+        reorderItems,
+        deleteItem,
+        updateItem
+    } = useSectionDetail(sid);
+
     const [reorderMode, setReorderMode] = useState(false);
     const [exportModalVisible, setExportModalVisible] = useState(false);
     const [menuVisible, setMenuVisible] = useState(false);
@@ -48,8 +57,7 @@ export default function SectionDetailScreen() {
 
     const handleDeleteItem = async (itemId: string) => {
         try {
-            await ItemService.deleteItem(itemId);
-            refresh();
+            await deleteItem(itemId);
         } catch (error: any) {
             console.error(error);
             Alert.alert('오류', '삭제 실패: ' + error.message);
@@ -341,8 +349,7 @@ export default function SectionDetailScreen() {
                                     onPress={async () => {
                                         if (selectedItemForStatus) {
                                             try {
-                                                await ItemService.updateItem(selectedItemForStatus.id, { study_status: 'learned' });
-                                                refresh();
+                                                await updateItem(selectedItemForStatus.id, { study_status: 'learned' });
                                             } catch (error: any) {
                                                 Alert.alert('변경 실패', '오류 발생');
                                             }
@@ -364,8 +371,7 @@ export default function SectionDetailScreen() {
                                     onPress={async () => {
                                         if (selectedItemForStatus) {
                                             try {
-                                                await ItemService.updateItem(selectedItemForStatus.id, { study_status: 'confused' });
-                                                refresh();
+                                                await updateItem(selectedItemForStatus.id, { study_status: 'confused' });
                                             } catch (error: any) {
                                                 Alert.alert('변경 실패', '오류 발생');
                                             }
@@ -387,8 +393,7 @@ export default function SectionDetailScreen() {
                                     onPress={async () => {
                                         if (selectedItemForStatus) {
                                             try {
-                                                await ItemService.updateItem(selectedItemForStatus.id, { study_status: 'undecided' });
-                                                refresh();
+                                                await updateItem(selectedItemForStatus.id, { study_status: 'undecided' });
                                             } catch (error: any) {
                                                 Alert.alert('변경 실패', '오류 발생');
                                             }

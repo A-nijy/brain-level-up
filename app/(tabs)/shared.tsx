@@ -19,6 +19,7 @@ export default function SharedLibraryScreen() {
     const { user, profile } = useAuth();
     const {
         libraries,
+        categories,
         loading,
         refreshing,
         refresh,
@@ -26,7 +27,6 @@ export default function SharedLibraryScreen() {
         selectedCategoryId,
         setSelectedCategoryId
     } = useSharedLibraries();
-    const [categories, setCategories] = useState<SharedLibraryCategory[]>([]);
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
@@ -35,19 +35,6 @@ export default function SharedLibraryScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedLib, setSelectedLib] = useState<SharedLibrary | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
-
-    React.useEffect(() => {
-        loadCategories();
-    }, []);
-
-    const loadCategories = async () => {
-        try {
-            const cats = await SharedLibraryService.getSharedCategories();
-            setCategories(cats);
-        } catch (e) {
-            console.error('Failed to load categories', e);
-        }
-    };
 
     const isWeb = Platform.OS === 'web';
     const numColumns = isWeb && width > 768 ? 2 : 1;

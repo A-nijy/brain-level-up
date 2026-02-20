@@ -5,11 +5,12 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
 import * as FileSystem from 'expo-file-system/legacy';
-import { ItemService } from '@/services/ItemService';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
+
+import { useSectionDetail } from '@/hooks/useSectionDetail';
 
 export default function ImportItemsScreen() {
     const { id, sectionId } = useLocalSearchParams();
@@ -23,6 +24,7 @@ export default function ImportItemsScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { createItems } = useSectionDetail(sid);
 
     const pickDocument = async () => {
         try {
@@ -111,7 +113,6 @@ export default function ImportItemsScreen() {
                     question: row[qKey],
                     answer: row[aKey],
                     memo: mKey ? row[mKey] : null,
-                    study_status: 'undecided' as const
                 };
             }).filter(item => item !== null) as any[];
 
@@ -119,7 +120,7 @@ export default function ImportItemsScreen() {
                 throw new Error('유효한 데이터 컬럼(문제/정답)을 찾지 못했습니다.');
             }
 
-            await ItemService.createItems(itemsToInsert);
+            await createItems(itemsToInsert);
 
             Alert.alert('성공', `${itemsToInsert.length}개의 항목을 가져왔습니다.`, [
                 { text: '확인', onPress: () => router.back() }

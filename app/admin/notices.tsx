@@ -9,9 +9,17 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+import { useNotices } from '@/hooks/useNotices';
+
 export default function AdminNoticesScreen() {
-    const [notices, setNotices] = useState<Notice[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {
+        notices,
+        loading,
+        createNotice,
+        updateNotice,
+        deleteNotice
+    } = useNotices();
+
     const [modalVisible, setModalVisible] = useState(false);
     const [editingNotice, setEditingNotice] = useState<Notice | null>(null);
 
@@ -23,23 +31,6 @@ export default function AdminNoticesScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
-    useEffect(() => {
-        fetchNotices();
-    }, []);
-
-    const fetchNotices = async () => {
-        setLoading(true);
-        try {
-            const data = await NoticeService.getNotices();
-            setNotices(data);
-        } catch (error) {
-            console.error(error);
-            window.alert('공지사항을 불러오는 중 오류가 발생했습니다.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleSave = async () => {
         if (!title.trim() || !content.trim()) {
             window.alert('제목과 내용을 모두 입력해주세요.');
@@ -49,22 +40,21 @@ export default function AdminNoticesScreen() {
         setSaving(true);
         try {
             if (editingNotice) {
-                await NoticeService.updateNotice(editingNotice.id, {
-                    title,
-                    content,
+                await updateNotice(editingNotice.id, {
+                    title: title.trim(),
+                    content: content.trim(),
                     is_important: isImportant
                 });
                 window.alert('공지사항이 수정되었습니다.');
             } else {
-                await NoticeService.createNotice({
-                    title,
-                    content,
+                await createNotice({
+                    title: title.trim(),
+                    content: content.trim(),
                     is_important: isImportant
                 });
                 window.alert('공지사항이 등록되었습니다.');
             }
             setModalVisible(false);
-            fetchNotices();
         } catch (error) {
             console.error(error);
             window.alert('저장 중 오류가 발생했습니다.');
@@ -75,15 +65,14 @@ export default function AdminNoticesScreen() {
 
     const handleDelete = (id: string) => {
         if (window.confirm('정말 이 공지사항을 삭제하시겠습니까?')) {
-            const deleteNotice = async () => {
+            const performDelete = async () => {
                 try {
-                    await NoticeService.deleteNotice(id);
-                    fetchNotices();
+                    await deleteNotice(id);
                 } catch (error) {
                     window.alert('삭제 중 문제가 발생했습니다.');
                 }
             };
-            deleteNotice();
+            performDelete();
         }
     };
 

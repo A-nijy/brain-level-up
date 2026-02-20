@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { ItemService } from '@/services/ItemService';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useSectionDetail } from '@/hooks/useSectionDetail';
 
 export default function CreateItemScreen() {
     const { id, sectionId } = useLocalSearchParams();
@@ -15,9 +15,11 @@ export default function CreateItemScreen() {
     const [answer, setAnswer] = useState('');
     const [memo, setMemo] = useState('');
     const [loading, setLoading] = useState(false);
+
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { createItem } = useSectionDetail(sid);
 
     const handleCreate = async () => {
         if (!question.trim() || !answer.trim()) {
@@ -32,13 +34,12 @@ export default function CreateItemScreen() {
 
         setLoading(true);
         try {
-            await ItemService.createItem({
+            await createItem({
                 library_id: libraryId,
                 section_id: sid,
                 question,
                 answer,
                 memo,
-                study_status: 'undecided' as const
             });
 
             if (Platform.OS === 'web') {

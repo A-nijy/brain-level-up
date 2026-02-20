@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { ItemService } from '@/services/ItemService';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useSectionDetail } from '@/hooks/useSectionDetail';
+import { Item } from '@/types';
 
 export default function EditItemScreen() {
     const { id, sectionId, itemId } = useLocalSearchParams();
@@ -15,38 +16,27 @@ export default function EditItemScreen() {
     const [question, setQuestion] = useState('');
     const [answer, setAnswer] = useState('');
     const [memo, setMemo] = useState('');
-    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
-    useEffect(() => {
-        if (!sid || !itemUuid) return;
-        const fetchItem = async () => {
-            try {
-                const items = await ItemService.getItems(sid);
-                const target = items.find(i => i.id === itemUuid);
+    const { items, loading, updateItem } = useSectionDetail(sid);
 
-                if (target) {
-                    setQuestion(target.question);
-                    setAnswer(target.answer);
-                    setMemo(target.memo || '');
-                } else {
-                    Alert.alert('오류', '단어를 찾을 수 없습니다.');
-                    router.back();
-                }
-            } catch (error) {
-                console.error(error);
-                Alert.alert('오류', '정보를 불러오지 못했습니다.');
+    useEffect(() => {
+        if (!loading && items.length > 0 && itemUuid) {
+            const target = items.find((i: Item) => i.id === itemUuid);
+            if (target) {
+                setQuestion(target.question);
+                setAnswer(target.answer);
+                setMemo(target.memo || '');
+            } else {
+                Alert.alert('오류', '단어를 찾을 수 없습니다.');
                 router.back();
-            } finally {
-                setLoading(false);
             }
-        };
-        fetchItem();
-    }, [sid, itemUuid]);
+        }
+    }, [loading, items, itemUuid]);
 
     const handleUpdate = async () => {
         if (!question.trim() || !answer.trim()) {
@@ -61,7 +51,7 @@ export default function EditItemScreen() {
 
         setSaving(true);
         try {
-            await ItemService.updateItem(itemUuid, {
+            await updateItem(itemUuid, {
                 question,
                 answer,
                 memo,

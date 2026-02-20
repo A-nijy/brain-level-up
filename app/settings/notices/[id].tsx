@@ -1,35 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { NoticeService } from '@/services/NoticeService';
 import { Notice } from '@/types';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
+import { useNotices } from '@/hooks/useNotices';
+
 export default function NoticeDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
-    const [notice, setNotice] = useState<Notice | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { notice, loading, fetchNoticeById } = useNotices();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
     useEffect(() => {
-        const fetchNotice = async () => {
-            if (!id) return;
-            try {
-                const data = await NoticeService.getNoticeById(id);
-                setNotice(data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchNotice();
-    }, [id]);
+        if (id) fetchNoticeById(id);
+    }, [id, fetchNoticeById]);
 
     const router = useRouter();
 

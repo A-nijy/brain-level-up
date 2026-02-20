@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
-import { NoticeService } from '@/services/NoticeService';
 import { Notice } from '@/types';
 import { Stack, useRouter, Link } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -9,34 +8,13 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+import { useNotices } from '@/hooks/useNotices';
+
 export default function NoticesScreen() {
-    const [notices, setNotices] = useState<Notice[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    const { notices, loading, refreshing, refresh } = useNotices();
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
-
-    const fetchNotices = async () => {
-        try {
-            const data = await NoticeService.getNotices();
-            setNotices(data);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchNotices();
-    }, []);
-
-    const onRefresh = () => {
-        setRefreshing(true);
-        fetchNotices();
-    };
 
     const renderItem = ({ item, index }: { item: Notice; index: number }) => (
         <Animated.View entering={FadeInUp.delay(index * 50).springify()} style={styles.noticeItem}>
@@ -87,7 +65,7 @@ export default function NoticesScreen() {
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={styles.listContent}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.tint} />
+                        <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />
                     }
                     ListEmptyComponent={
                         <View style={styles.empty}>
