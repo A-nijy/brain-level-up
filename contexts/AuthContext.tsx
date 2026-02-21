@@ -39,20 +39,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log(`[AuthContext] Fetching profile for: ${userId} (force: ${force})`);
             lastFetchedUserId.current = userId;
 
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .single();
+            let retries = 3;
+            let success = false;
 
-            if (error) throw error;
-            console.log('[AuthContext] Profile fetched successfully.');
-            // Force membership level to BASIC for now (payment deactivated)
-            const modifiedData = data ? { ...data, membership_level: 'BASIC' } : null;
-            setProfile(modifiedData);
+            while (retries > 0 && !success) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
+
+                if (error) {
+                    console.warn(`[AuthContext] Profile not found or error, retries left: ${retries - 1}`);
+                    retries--;
+                    if (retries === 0) throw error;
+                    await new Promise(resolve => setTimeout(resolve, 800)); // wait before retry
+                } else {
+                    console.log('[AuthContext] Profile fetched successfully.');
+                    const modifiedData = data ? { ...data, membership_level: 'BASIC' } : null;
+                    setProfile(modifiedData);
+                    success = true;
+                }
+            }
         } catch (e) {
-            console.error('[AuthContext] Error fetching profile:', e);
-            setProfile(null);
+            console.warn('[AuthContext] Error fetching profile (final). Attempting fallback profile creation...', e);
+
+            try {
+                // Get user email for the fallback profile
+                const { data: { session } } = await supabase.auth.getSession();
+                const userEmail = session?.user?.email ?? 'guest@mem-app.com';
+
+                // Try to force insert a profile (Upsert)
+                const { data: newData, error: insertError } = await supabase
+                    .from('profiles')
+                    .upsert({
+                        id: userId,
+                        email: userEmail,
+                        role: 'user',
+                        membership_level: 'BASIC'
+                    })
+                    .select()
+                    .single();
+
+                if (insertError) {
+                    console.error('[AuthContext] Fallback creation failed:', insertError);
+                    setProfile(null);
+                } else {
+                    console.log('[AuthContext] Fallback profile created successfully.');
+                    setProfile(newData);
+                }
+            } catch (fallbackErr) {
+                console.error('[AuthContext] Critical fallback error:', fallbackErr);
+                setProfile(null);
+            }
         }
     };
 

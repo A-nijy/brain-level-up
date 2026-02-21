@@ -21,9 +21,34 @@ export default function LoginScreen() {
 
     const extractSessionFromUrl = async (url: string) => {
         try {
-            const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1]);
-            const accessToken = params.get('access_token');
-            const refreshToken = params.get('refresh_token');
+            let paramsStr = '';
+            if (url.includes('#')) {
+                paramsStr = url.substring(url.indexOf('#') + 1);
+            } else if (url.includes('?')) {
+                paramsStr = url.substring(url.indexOf('?') + 1);
+            }
+
+            if (!paramsStr) {
+                Alert.alert('오류', '반환된 URL에 파라미터가 없습니다.\nURL: ' + url.substring(0, 100));
+                return false;
+            }
+
+            const params: Record<string, string> = {};
+            paramsStr.split('&').forEach(pair => {
+                const [key, value] = pair.split('=');
+                if (key && value) {
+                    params[key] = decodeURIComponent(value);
+                }
+            });
+
+            const accessToken = params['access_token'];
+            const refreshToken = params['refresh_token'];
+            const errorDesc = params['error_description'];
+
+            if (errorDesc) {
+                Alert.alert('구글 로그인 오류', errorDesc.replace(/\+/g, ' '));
+                return false;
+            }
 
             if (accessToken && refreshToken) {
                 const { error } = await supabase.auth.setSession({
@@ -33,9 +58,12 @@ export default function LoginScreen() {
                 if (error) throw error;
                 return true;
             }
+
+            Alert.alert('오류', '토큰을 찾을 수 없습니다.\n파라미터: ' + JSON.stringify(params));
             return false;
         } catch (e) {
             console.error('Session parsing error:', e);
+            Alert.alert('디버그오류', String(e));
             return false;
         }
     };
@@ -59,7 +87,7 @@ export default function LoginScreen() {
                     redirectTo: redirectUri,
                     skipBrowserRedirect: true,
                     queryParams: {
-                        prompt: 'select_account',
+                        prompt: 'consent',
                     },
                 },
             });
