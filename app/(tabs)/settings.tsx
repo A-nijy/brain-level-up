@@ -294,7 +294,7 @@ export default function SettingsScreen() {
           <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
 
           {/* 푸시 단어 암기 알림 */}
-          <View style={styles.item}>
+          <View variant="transparent" style={styles.item}>
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
                 <FontAwesome name="bell-o" size={18} color={colors.tint} />
@@ -323,7 +323,7 @@ export default function SettingsScreen() {
               </TouchableOpacity>
 
               {progress && (
-                <View style={[styles.item, { paddingTop: 0 }]}>
+                <View variant="transparent" style={[styles.item, { paddingTop: 0 }]}>
                   <View variant="transparent" style={[styles.itemLeft, { marginLeft: 48 }]}>
                     <Text style={[styles.valueText, { color: colors.textSecondary }]}>
                       학습 진행도: {progress.current}/{progress.total}
@@ -339,7 +339,7 @@ export default function SettingsScreen() {
 
           <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
 
-          <View style={styles.item}>
+          <View variant="transparent" style={styles.item}>
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
                 <FontAwesome name="info-circle" size={18} color={colors.textSecondary} />
@@ -806,7 +806,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: 'transparent',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'rgba(150, 150, 150, 0.1)',
   },
   pickerText: {
     fontSize: 14,
@@ -821,7 +821,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'rgba(150, 150, 150, 0.1)',
   },
   chipText: {
     fontSize: 14,

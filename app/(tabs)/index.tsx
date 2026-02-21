@@ -117,7 +117,7 @@ export default function LibraryListScreen() {
         activeOpacity={reorderMode ? 1 : 0.7}
       >
         <View variant="transparent" style={styles.cardHeader}>
-          <View style={styles.iconContainer}>
+          <View variant="transparent" style={styles.iconContainer}>
             <Image
               source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3389/3389081.png' }}
               style={{ width: 22, height: 22, tintColor: colors.tint }}

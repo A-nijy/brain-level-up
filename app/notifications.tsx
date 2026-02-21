@@ -94,7 +94,7 @@ export default function NotificationsScreen() {
             activeOpacity={0.7}
         >
             <View variant="transparent" style={styles.contentRow}>
-                <View style={[styles.iconContainer, { backgroundColor: item.is_read ? colors.border + '30' : colors.tint + '15' }]}>
+                <View variant="transparent" style={[styles.iconContainer, { backgroundColor: item.is_read ? colors.border + '30' : colors.tint + '15' }]}>
                     <FontAwesome
                         name={item.type === 'STUDY_REMINDER' ? 'clock-o' : 'bell'}
                         size={18}

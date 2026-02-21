@@ -226,7 +226,7 @@ export default function LibraryDetailScreen() {
                     </View>
                 }
                 ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
+                    <View variant="transparent" style={styles.emptyContainer}>
                         <FontAwesome name="folder-open-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
                         <Text style={[styles.emptyText, { color: colors.textSecondary }]}>생성된 항목이 없습니다.</Text>
                         <TouchableOpacity
