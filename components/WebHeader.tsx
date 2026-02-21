@@ -5,13 +5,14 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSegments } from 'expo-router';
+import { useSegments, useRouter } from 'expo-router';
 
 export default function WebHeader() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
     const { profile } = useAuth();
     const segments = useSegments();
+    const router = useRouter();
     const [showNotifications, setShowNotifications] = React.useState(false);
 
     // segment를 기반으로 breadcrumb 생성
@@ -80,7 +81,7 @@ export default function WebHeader() {
             <View variant="transparent" style={styles.actionArea}>
                 <TouchableOpacity
                     style={styles.iconButton}
-                    onPress={() => setShowNotifications(!showNotifications)}
+                    onPress={() => router.push('/notifications')}
                 >
                     <FontAwesome name="bell-o" size={20} color={colors.textSecondary} />
                 </TouchableOpacity>

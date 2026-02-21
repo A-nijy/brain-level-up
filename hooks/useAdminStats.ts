@@ -37,12 +37,22 @@ export function useAdminStats() {
         }
     };
 
+    const sendDirectNotification = async (email: string, title: string, message: string) => {
+        try {
+            await AdminService.sendNotificationToUser(email, title, message);
+        } catch (err: any) {
+            console.error('[useAdminStats] Direct notification error:', err);
+            throw err;
+        }
+    };
+
     return {
         stats,
         loading,
         refreshing,
         error,
         refresh: () => fetchStats(true),
-        broadcastNotification
+        broadcastNotification,
+        sendDirectNotification
     };
 }

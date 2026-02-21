@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, Alert } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationService } from '@/services/NotificationService';
@@ -7,7 +7,7 @@ import { Notification } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useRouter, Link } from 'expo-router';
 
 export default function NotificationsScreen() {
     const { profile } = useAuth();
@@ -60,28 +60,63 @@ export default function NotificationsScreen() {
         loadNotifications();
     };
 
+    const handleDelete = async (id: string) => {
+        const confirmDelete = async () => {
+            try {
+                await NotificationService.deleteNotification(id);
+                setNotifications(prev => prev.filter(n => n.id !== id));
+            } catch (error) {
+                console.error('Failed to delete notification:', error);
+            }
+        };
+
+        if (Platform.OS === 'web') {
+            if (window.confirm('알림을 삭제하시겠습니까?')) {
+                confirmDelete();
+            }
+        } else {
+            Alert.alert('알림 삭제', '알림을 삭제하시겠습니까?', [
+                { text: '취소', style: 'cancel' },
+                { text: '삭제', style: 'destructive', onPress: confirmDelete }
+            ]);
+        }
+    };
+
     const renderItem = ({ item }: { item: Notification }) => (
-        <TouchableOpacity
+        <Card
+            style={[styles.notificationCard, !item.is_read && { borderLeftWidth: 4, borderLeftColor: colors.tint }]}
+            onPress={async () => {
+                if (!item.is_read) {
+                    await handleMarkAsRead(item.id);
+                }
+                router.push(`/notification/${item.id}` as any);
+            }}
             activeOpacity={0.7}
-            onPress={() => !item.is_read && handleMarkAsRead(item.id)}
         >
-            <Card style={[styles.notificationCard, !item.is_read && { borderLeftWidth: 4, borderLeftColor: colors.tint }]}>
-                <View variant="transparent" style={styles.contentRow}>
-                    <View style={[styles.iconContainer, { backgroundColor: item.is_read ? colors.border + '30' : colors.tint + '15' }]}>
-                        <FontAwesome
-                            name={item.type === 'STUDY_REMINDER' ? 'clock-o' : 'bell'}
-                            size={18}
-                            color={item.is_read ? colors.textSecondary : colors.tint}
-                        />
-                    </View>
-                    <View variant="transparent" style={styles.textContainer}>
-                        <Text style={[styles.title, item.is_read && { color: colors.textSecondary }]}>{item.title}</Text>
-                        <Text style={[styles.message, { color: colors.textSecondary }]}>{item.message}</Text>
-                        <Text style={styles.date}>{new Date(item.created_at).toLocaleDateString()}</Text>
-                    </View>
+            <View variant="transparent" style={styles.contentRow}>
+                <View style={[styles.iconContainer, { backgroundColor: item.is_read ? colors.border + '30' : colors.tint + '15' }]}>
+                    <FontAwesome
+                        name={item.type === 'STUDY_REMINDER' ? 'clock-o' : 'bell'}
+                        size={18}
+                        color={item.is_read ? colors.textSecondary : colors.tint}
+                    />
                 </View>
-            </Card>
-        </TouchableOpacity>
+                <View variant="transparent" style={styles.textContainer}>
+                    <View variant="transparent" style={styles.titleRow}>
+                        <Text style={[styles.title, item.is_read && { color: colors.textSecondary }]} numberOfLines={1}>
+                            {item.title}
+                        </Text>
+                        <TouchableOpacity onPress={async () => handleDelete(item.id)} style={styles.deleteBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                            <FontAwesome name="trash-o" size={16} color={colors.error + '80'} />
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={[styles.message, { color: colors.textSecondary }]} numberOfLines={1}>
+                        {item.message}
+                    </Text>
+                    <Text style={styles.date}>{new Date(item.created_at).toLocaleDateString()}</Text>
+                </View>
+            </View>
+        </Card>
     );
 
     return (
@@ -153,7 +188,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 4,
+        flex: 1,
     },
     message: {
         fontSize: 14,
@@ -172,5 +207,15 @@ const styles = StyleSheet.create({
     emptyText: {
         marginTop: 16,
         fontSize: 16,
+    },
+    titleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    deleteBtn: {
+        padding: 4,
+        marginLeft: 8,
     }
 });

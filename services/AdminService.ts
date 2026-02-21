@@ -498,17 +498,54 @@ export const AdminService = {
                 title,
                 message,
                 type,
-                is_read: false
+                is_read: false,
             }));
 
-            const { error: notifyError } = await supabase
+            const { error: insertError } = await supabase
                 .from('notifications')
                 .insert(notifications);
 
-            if (notifyError) throw notifyError;
-            console.log(`[AdminService] Broadcast success to ${users.length} users.`);
+            if (insertError) throw insertError;
+            console.log('[AdminService] Broadcast completed.');
         } catch (error) {
-            console.error('[AdminService] Broadcast failed:', error);
+            console.error('[AdminService] Broadcast Error:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * 특정 사용자 이메일로 알림 단일 발송 (관리자 전용)
+     */
+    async sendNotificationToUser(email: string, title: string, message: string, type: string = 'SYSTEM') {
+        try {
+            console.log(`[AdminService] Sending notification to ${email}:`, { title, message });
+
+            // 1. 이메일로 사용자 ID 조회
+            const { data: user, error: userError } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('email', email)
+                .single();
+
+            if (userError || !user) {
+                throw new Error('해당 이메일을 가진 사용자를 찾을 수 없습니다.');
+            }
+
+            // 2. 알림 인서트
+            const { error: insertError } = await supabase
+                .from('notifications')
+                .insert({
+                    user_id: user.id,
+                    title,
+                    message,
+                    type,
+                    is_read: false,
+                });
+
+            if (insertError) throw insertError;
+            console.log(`[AdminService] Notification sent to ${email} successfully.`);
+        } catch (error) {
+            console.error('[AdminService] Send Notification Error:', error);
             throw error;
         }
     }

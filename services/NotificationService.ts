@@ -77,5 +77,17 @@ export const NotificationService = {
             });
 
         if (error) throw error;
+    },
+
+    /**
+     * 특정 알림을 삭제합니다.
+     */
+    async deleteNotification(notificationId: string): Promise<void> {
+        const { error } = await supabase
+            .from('notifications')
+            .delete()
+            .eq('id', notificationId);
+
+        if (error) throw error;
     }
 };
