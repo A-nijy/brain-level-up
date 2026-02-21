@@ -59,26 +59,30 @@ export const UserService = {
         if (error) throw error;
     },
 
-    /**
-     * 회원 탈퇴 처리를 합니다.
-     * 주의: public.profiles가 삭제되면 ON DELETE CASCADE 설정으로 인해 
-     * 관련된 단어장, 아이템, 로그 등이 모두 삭제됩니다.
-     * auth.users 삭제는 클라이언트 SDK 권한 문제로 인해 서비스 롤 키가 필요할 수 있으나,
-     * 여기서는 프로필 삭제 및 로그아웃 처리를 기본으로 합니다.
-     */
     async withdrawAccount(userId: string): Promise<void> {
-        // 1. 프로필 삭제 (연쇄 삭제 트리거)
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .delete()
-            .eq('id', userId);
+        console.log('[UserService] Attempting account withdrawal for:', userId);
 
-        if (profileError) {
-            console.error('Error deleting profile:', profileError);
-            throw profileError;
+        // 1. 계정 및 모든 데이터 연쇄 삭제를 위한 RPC 함수 호출 시도
+        // 이 함수는 auth.users에서 현재 사용자를 삭제하며, 설정된 CASCADE 규칙에 의해 관련 데이터도 삭제됩니다.
+        const { error: rpcError } = await supabase.rpc('delete_user_account');
+
+        if (rpcError) {
+            console.warn('[UserService] RPC withdrawal failed, falling back to profile delete:', rpcError.message);
+
+            // RPC를 아직 등록하지 않은 경우를 대비한 구 버전 백업 로직 (프로필만 삭제)
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .delete()
+                .eq('id', userId);
+
+            if (profileError) {
+                console.error('[UserService] Profile deletion also failed:', profileError);
+                throw profileError;
+            }
         }
 
-        // 2. 로그아웃 처리
+        // 2. 로그아웃 및 로컬 세션 클리어
         await supabase.auth.signOut();
+        console.log('[UserService] Account withdrawal process completed.');
     }
 };
