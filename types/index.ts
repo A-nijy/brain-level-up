@@ -97,6 +97,7 @@ export interface SharedItem {
     memo: string | null;
     image_url: string | null;
     created_at: string;
+    display_order: number; // added
 }
 
 export interface StudyLog {

@@ -241,12 +241,60 @@ export default function SharedLibrarySectionDetailScreen() {
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
                     headerRight: () => (
-                        <TouchableOpacity onPress={() => setAddModalVisible(true)} style={{ marginRight: 16 }}>
-                            <FontAwesome name="plus" size={20} color={colors.tint} />
-                        </TouchableOpacity>
+                        <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
+                            <TouchableOpacity
+                                onPress={() => router.push({
+                                    pathname: "/admin/shared-library/[id]/section/[sectionId]/import" as any,
+                                    params: { id: draftId, sectionId: sid }
+                                })}
+                                style={{ marginRight: 15 }}
+                            >
+                                <FontAwesome name="file-excel-o" size={18} color={colors.tint} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setAddModalVisible(true)}>
+                                <FontAwesome name="plus" size={20} color={colors.tint} />
+                            </TouchableOpacity>
+                        </View>
                     )
                 }}
             />
+
+            <View variant="transparent" style={styles.topHeader}>
+                <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => router.push({
+                            pathname: "/admin/shared-library/[id]" as any,
+                            params: { id: draftId }
+                        })}
+                    >
+                        <FontAwesome name="chevron-left" size={18} color={colors.text} />
+                    </TouchableOpacity>
+                    <View variant="transparent">
+                        <Text style={styles.titleText}>{section?.title || '단어 목록'}</Text>
+                        <Text style={[styles.countText, { color: colors.textSecondary }]}>총 {items.length}개의 단어</Text>
+                    </View>
+                </View>
+                <View variant="transparent" style={styles.topActionGroup}>
+                    <TouchableOpacity
+                        style={[styles.outlineButton, { borderColor: colors.tint }]}
+                        onPress={() => router.push({
+                            pathname: "/admin/shared-library/[id]/section/[sectionId]/import" as any,
+                            params: { id: draftId, sectionId: sid }
+                        })}
+                    >
+                        <FontAwesome name="file-excel-o" size={14} color={colors.tint} style={{ marginRight: 8 }} />
+                        <Text style={[styles.outlineButtonText, { color: colors.tint }]}>CSV 가져오기</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.headerAddButton, { backgroundColor: colors.tint }]}
+                        onPress={() => setAddModalVisible(true)}
+                    >
+                        <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
+                        <Text style={styles.headerAddButtonText}>단어 추가</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
 
             <FlatList
                 data={items}
@@ -256,11 +304,7 @@ export default function SharedLibrarySectionDetailScreen() {
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />
                 }
-                ListHeaderComponent={
-                    <View variant="transparent" style={styles.listHeader}>
-                        <Text style={styles.countText}>총 {items.length}개의 단어</Text>
-                    </View>
-                }
+                ListHeaderComponent={null}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <FontAwesome name="file-text-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
@@ -445,4 +489,64 @@ const styles = StyleSheet.create({
     modalButtons: { flexDirection: 'row', gap: 12, marginTop: 4 },
     modalButton: { flex: 1, padding: 16, borderRadius: 12, alignItems: 'center' },
     modalButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+    topHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 32,
+        paddingBottom: 0,
+    },
+    titleText: {
+        fontSize: 24,
+        fontWeight: '800',
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+        marginLeft: -8,
+    },
+    topActionGroup: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    headerAddButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+    },
+    headerAddButtonText: {
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 14,
+    },
+    outlineButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 12,
+        borderWidth: 1.5,
+    },
+    outlineButtonText: {
+        fontWeight: '700',
+        fontSize: 14,
+    },
+    importBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 24,
+        borderRadius: 16,
+        borderWidth: 1.5,
+    },
+    importBtnText: {
+        fontWeight: '700',
+        fontSize: 15,
+    },
 });

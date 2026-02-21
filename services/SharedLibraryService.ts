@@ -218,5 +218,13 @@ export const SharedLibraryService = {
         const results = await Promise.all(promises);
         const firstError = results.find(r => r.error)?.error;
         if (firstError) throw firstError;
+    },
+
+    async createSharedItems(items: { shared_library_id: string; shared_section_id: string; question: string; answer: string; memo?: string | null; display_order: number }[]): Promise<void> {
+        const { error } = await supabase
+            .from('shared_items')
+            .insert(items);
+
+        if (error) throw error;
     }
 };

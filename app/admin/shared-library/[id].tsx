@@ -185,13 +185,34 @@ export default function SharedLibraryDetailScreen() {
             />
 
             <ScrollView contentContainerStyle={styles.content}>
+                <View variant="transparent" style={styles.topHeader}>
+                    <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <TouchableOpacity
+                            style={styles.backButton}
+                            onPress={() => router.push('/admin/shared-manager')}
+                        >
+                            <FontAwesome name="chevron-left" size={18} color={colors.text} />
+                        </TouchableOpacity>
+                        <View variant="transparent">
+                            <Text style={styles.titleText}>{library?.title || '자료 상세'}</Text>
+                            <Text style={[styles.countText, { color: colors.textSecondary }]}>총 {sections.length}개의 섹션</Text>
+                        </View>
+                    </View>
+                    <TouchableOpacity
+                        style={[styles.addButton, { backgroundColor: colors.tint }]}
+                        onPress={() => setCreateModalVisible(true)}
+                    >
+                        <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
+                        <Text style={styles.addButtonText}>섹션 추가</Text>
+                    </TouchableOpacity>
+                </View>
+
                 <View variant="transparent" style={styles.header}>
                     {library?.description && (
                         <Text style={[styles.description, { color: colors.textSecondary }]}>
                             {library.description}
                         </Text>
                     )}
-                    <Text style={styles.countText}>총 {sections.length}개의 섹션</Text>
                 </View>
 
                 <View variant="transparent" style={styles.sectionList}>
@@ -298,7 +319,26 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     content: {
-        padding: 20,
+        padding: 32,
+    },
+    topHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    titleText: {
+        fontSize: 24,
+        fontWeight: '800',
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+        marginLeft: -8,
     },
     header: {
         marginBottom: 24,
