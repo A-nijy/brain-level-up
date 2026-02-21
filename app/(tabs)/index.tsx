@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Alert, ActionSheetIOS } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Alert, ActionSheetIOS, Modal, TextInput, Pressable, View as RNView } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLibraries } from '@/hooks/useLibraries';
 import { Library } from '@/types';
@@ -8,18 +8,27 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useAuth } from '@/contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useStudyStats } from '@/hooks/useStudyStats';
+
 export default function LibraryListScreen() {
   const { libraries, loading, refreshing, refresh, reorderLibraries, deleteLibrary } = useLibraries();
+  const { stats, totals, streak } = useStudyStats();
   const [reorderMode, setReorderMode] = useState(false);
+  const { profile } = useAuth();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+
+  const [selectedLibraryForMenu, setSelectedLibraryForMenu] = useState<Library | null>(null);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
   // 웹과 데스크톱 환경을 위한 그리드 설정
   const isWeb = Platform.OS === 'web';
   const numColumns = isWeb && width > 768 ? 2 : 1;
-  const key = `list-${numColumns}-${reorderMode}`; // 컬럼 수가 바뀔 때 리스트 재렌더링 보장
+  const key = `list-${numColumns}-${reorderMode}`;
 
   const handleMoveUp = async (index: number) => {
     if (index === 0) return;
@@ -54,30 +63,26 @@ export default function LibraryListScreen() {
     }
   };
 
-  const showLibraryOptions = (library: Library) => {
-    if (Platform.OS === 'ios') {
+  const showLibraryOptions = (library: Library, event: any) => {
+    if (reorderMode) return;
+
+    if (Platform.OS === 'web') {
+      const { pageX, pageY } = event.nativeEvent;
+      setMenuPosition({ x: pageX, y: pageY });
+      setSelectedLibraryForMenu(library);
+    } else if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['취소', '암기장 수정', '암기장 삭제'],
+          options: ['취소', '수정', '삭제'],
           destructiveButtonIndex: 2,
           cancelButtonIndex: 0,
+          title: library.title,
         },
         (buttonIndex) => {
           if (buttonIndex === 1) handleEditLibrary(library.id);
-          if (buttonIndex === 2) {
-            Alert.alert('삭제 확인', '정말 이 암기장을 삭제하시겠습니까? 포함된 모든 단어가 삭제됩니다.', [
-              { text: '취소', style: 'cancel' },
-              { text: '삭제', style: 'destructive', onPress: () => handleDeleteLibrary(library.id) }
-            ]);
-          }
+          else if (buttonIndex === 2) handleDeleteLibrary(library.id);
         }
       );
-    } else if (Platform.OS === 'web') {
-      if (window.confirm('이 암기장을 수정하시겠습니까? (취소를 누르면 삭제할 수 있습니다)')) {
-        handleEditLibrary(library.id);
-      } else if (window.confirm('정말 삭제하시겠습니까?')) {
-        handleDeleteLibrary(library.id);
-      }
     } else {
       Alert.alert(
         '암기장 설정',
@@ -119,15 +124,15 @@ export default function LibraryListScreen() {
             />
           </View>
           <View variant="transparent" style={styles.titleContainer}>
-            <Text type="title" style={styles.cardTitle}>{item.title}</Text>
+            <Text type="title" style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
             {item.category && (
-              <Text style={[styles.categoryText, { color: colors.tint }]}>{item.category}</Text>
+              <Text style={[styles.categoryText, { color: colors.tint }]} numberOfLines={1}>{item.category}</Text>
             )}
           </View>
           {!reorderMode && (
             <TouchableOpacity
               style={styles.moreButton}
-              onPress={() => showLibraryOptions(item)}
+              onPress={(e) => showLibraryOptions(item, e)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <FontAwesome name="ellipsis-v" size={18} color={colors.textSecondary} />
@@ -135,11 +140,17 @@ export default function LibraryListScreen() {
           )}
         </View>
 
-        <Text type="subtitle" numberOfLines={2} style={styles.cardDescription}>
-          {item.description || '설명이 없습니다.'}
-        </Text>
+        <View variant="transparent" style={styles.cardBody}>
+          <Text style={[styles.description, { color: colors.textSecondary }]} numberOfLines={2}>
+            {item.description || '작성된 설명이 없습니다.'}
+          </Text>
+        </View>
 
         <View variant="transparent" style={styles.footerRow}>
+          <View variant="transparent" style={styles.stat}>
+            <FontAwesome name="file-text-o" size={12} color={colors.textSecondary} />
+            <Text style={styles.statText}>{item.items_count || 0} 단어</Text>
+          </View>
           <View variant="transparent" style={styles.stat}>
             <FontAwesome name="calendar-o" size={12} color={colors.textSecondary} />
             <Text style={styles.statText}>
@@ -195,36 +206,98 @@ export default function LibraryListScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />
         }
         ListHeaderComponent={
-          <View variant="transparent" style={styles.headerContainer}>
-            <View variant="transparent" style={styles.headerRow}>
-              <View variant="transparent">
-                <Text style={styles.headerTitle}>나의 암기장</Text>
-                <Text style={styles.headerSubtitle}>오늘도 지식을 쌓아보세요!</Text>
+          isWeb ? (
+            <View variant="transparent" style={styles.webHeaderContainer}>
+              <View variant="transparent" style={styles.greetingRow}>
+                <View variant="transparent">
+                  <Text style={styles.webGreeting}>안녕하세요, {profile?.nickname || profile?.email?.split('@')[0] || '사용자'}님! 👋</Text>
+                  <Text style={[styles.webSubtext, { color: colors.textSecondary }]}>오늘도 목표를 달성하고 지식을 쌓아보세요.</Text>
+                </View>
               </View>
-              {libraries.length > 1 && (
-                <TouchableOpacity
-                  style={[styles.reorderToggle, reorderMode && { backgroundColor: colors.tint }]}
-                  onPress={() => setReorderMode(!reorderMode)}
-                >
-                  <FontAwesome name="sort" size={16} color={reorderMode ? '#fff' : colors.tint} />
-                  <Text style={[styles.reorderToggleText, { color: reorderMode ? '#fff' : colors.tint }]}>
-                    {reorderMode ? '완료' : '순서 변경'}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        }
-        ListEmptyComponent={
-          libraries.length === 0 && !loading ? (
-            <View style={styles.emptyContainer}>
-              <FontAwesome name="folder-open-o" size={48} color={colors.textSecondary} style={{ opacity: 0.5 }} />
-              <Text style={styles.emptyText}>암기장이 비어있습니다.</Text>
-              <Text style={styles.emptySubText}>새로운 암기장을 만들어보세요!</Text>
+
+              <View variant="transparent" style={styles.sectionHeader}>
+                <View variant="transparent">
+                  <Text style={styles.sectionTitle}>나의 암기장</Text>
+                  <View style={[styles.titleUnderline, { backgroundColor: colors.tint }]} />
+                </View>
+                <View variant="transparent" style={{ flexDirection: 'row', gap: 12 }}>
+                  <TouchableOpacity
+                    style={[
+                      styles.reorderToggle,
+                      reorderMode && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
+                    ]}
+                    onPress={() => setReorderMode(!reorderMode)}
+                  >
+                    <FontAwesome name="sort" size={14} color={reorderMode ? colors.tint : colors.textSecondary} />
+                    <Text style={[styles.reorderToggleText, { color: reorderMode ? colors.tint : colors.textSecondary }]}>
+                      {reorderMode ? '순서 완료' : '순서 변경'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.webAddBtn} onPress={() => router.push('/library/create')}>
+                    <LinearGradient
+                      colors={[colors.tint, colors.tint + 'CC']}
+                      style={styles.webAddBtnGradient}
+                    >
+                      <FontAwesome name="plus" size={14} color="#fff" />
+                      <Text style={styles.webAddBtnText}>새 암기장</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           ) : null
         }
       />
+
+      {selectedLibraryForMenu && (
+        <Modal
+          transparent
+          visible={!!selectedLibraryForMenu}
+          animationType="fade"
+          onRequestClose={() => setSelectedLibraryForMenu(null)}
+        >
+          <Pressable
+            style={styles.modalOverlay}
+            onPress={() => setSelectedLibraryForMenu(null)}
+          >
+            <RNView
+              style={[
+                styles.webActionMenu,
+                {
+                  top: Math.min(menuPosition.y, height - 150),
+                  left: Math.min(menuPosition.x - 140, width - 180),
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.border
+                }
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  handleEditLibrary(selectedLibraryForMenu.id);
+                  setSelectedLibraryForMenu(null);
+                }}
+              >
+                <FontAwesome name="pencil" size={16} color={colors.textSecondary} />
+                <Text style={[styles.menuItemText, { color: colors.text }]}>수정하기</Text>
+              </TouchableOpacity>
+              <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => {
+                  if (window.confirm('정말 삭제하시겠습니까?')) {
+                    handleDeleteLibrary(selectedLibraryForMenu.id);
+                  }
+                  setSelectedLibraryForMenu(null);
+                }}
+              >
+                <FontAwesome name="trash" size={16} color={colors.error} />
+                <Text style={[styles.menuItemText, { color: colors.error }]}>삭제하기</Text>
+              </TouchableOpacity>
+            </RNView>
+          </Pressable>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -233,52 +306,89 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  headerContainer: {
-    paddingHorizontal: 4,
-    marginBottom: 24,
-    marginTop: 12,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: '800',
-    letterSpacing: -0.5,
-    marginBottom: 6,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#64748B',
-    fontWeight: '500',
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   listContent: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 40,
+  },
+  webHeaderContainer: {
+    marginBottom: 32,
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  webGreeting: {
+    fontSize: 24,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  webSubtext: {
+    fontSize: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 8,
+  },
+  titleUnderline: {
+    height: 4,
+    width: 40,
+    borderRadius: 2,
+  },
+  webAddBtn: {
+    borderRadius: 14,
+    overflow: 'hidden',
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  webAddBtnGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  webAddBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
   },
   cardContainer: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   card: {
+    borderRadius: 24,
+    padding: 24,
     borderWidth: 1.5,
+    height: 180,
+    justifyContent: 'space-between',
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: 'rgba(79, 70, 229, 0.08)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
   },
   titleContainer: {
     flex: 1,
+    marginLeft: 16,
   },
   cardTitle: {
     fontSize: 18,
@@ -286,24 +396,22 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   categoryText: {
-    fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontSize: 13,
+    fontWeight: '600',
   },
-  cardDescription: {
+  cardBody: {
+    marginTop: 12,
+    flex: 1,
+  },
+  description: {
     fontSize: 14,
     lineHeight: 20,
-    marginBottom: 16,
-    opacity: 0.8,
   },
   footerRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.03)',
-    paddingTop: 12,
+    justifyContent: 'space-between',
+    marginTop: 12,
   },
   stat: {
     flexDirection: 'row',
@@ -315,41 +423,24 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontWeight: '500',
   },
-  emptyContainer: {
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 60,
-    marginTop: 40,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginTop: 20,
-    marginBottom: 8,
-    color: '#64748B',
-  },
-  emptySubText: {
-    fontSize: 14,
-    color: '#94A3B8',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
   },
   reorderToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 14,
     borderWidth: 1.5,
     borderColor: 'rgba(79, 70, 229, 0.2)',
-    marginTop: 4,
   },
   reorderToggleText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
-    marginLeft: 6,
+    marginLeft: 8,
   },
   reorderControls: {
     flexDirection: 'row',
@@ -361,9 +452,9 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(0,0,0,0.03)',
   },
   reorderButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: 'rgba(79, 70, 229, 0.05)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -371,5 +462,37 @@ const styles = StyleSheet.create({
   moreButton: {
     padding: 8,
     marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  webActionMenu: {
+    position: 'absolute',
+    width: 160,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 10,
+    gap: 12,
+  },
+  menuItemText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  menuDivider: {
+    height: 1,
+    marginVertical: 4,
+    opacity: 0.5,
   }
 });

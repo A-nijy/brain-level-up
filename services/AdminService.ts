@@ -118,13 +118,30 @@ export const AdminService = {
             throw userError || libError || itemError || sharedError;
         }
 
+        // 5. 최근 5명의 새 멤버(활동 로그 용)
+        const { data: recentProfiles, error: recentError } = await supabase
+            .from('profiles')
+            .select('email, created_at, role')
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+        if (recentError) throw recentError;
+
         const totalDownloads = sharedData?.reduce((acc, curr) => acc + (curr.download_count || 0), 0) || 0;
+
+        const activities = (recentProfiles || []).map(p => ({
+            id: p.email,
+            type: p.role === 'admin' ? 'admin_joined' : 'user_joined',
+            message: `새로운 사용자가 가입했습니다: ${p.email || '익명'}`,
+            created_at: p.created_at
+        }));
 
         return {
             userCount: userCount || 0,
             libraryCount: libraryCount || 0,
             itemCount: itemCount || 0,
             totalDownloads,
+            activities
         };
     },
 

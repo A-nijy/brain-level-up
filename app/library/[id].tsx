@@ -181,7 +181,7 @@ export default function LibraryDetailScreen() {
     }
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, { backgroundColor: colors.background, paddingHorizontal: Platform.OS === 'web' ? 24 : 0 }]}>
             <Stack.Screen
                 options={{
                     headerTitle: library?.title || '암기장',
@@ -189,7 +189,7 @@ export default function LibraryDetailScreen() {
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
                     headerRight: () => (
-                        <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: Platform.OS === 'web' ? 24 : 0 }}>
                             <TouchableOpacity
                                 onPress={() => setCreateModalVisible(true)}
                                 style={styles.headerIconButton}

@@ -46,7 +46,7 @@ function InitialLayout() {
       }
 
       // 다음 알림 예약
-      PushNotificationService.scheduleNextNotification();
+      PushNotificationService.scheduleNotificationBatch();
     });
 
     return () => subscription.remove();
@@ -80,15 +80,42 @@ function InitialLayout() {
     );
   }
 
+  const isWeb = Platform.OS === 'web';
+  const showWebLayout = isWeb && session && segments[0] !== 'auth';
+
+  const LayoutContent = (
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="admin" options={{ headerShown: false }} />
+      <Stack.Screen name="auth/login" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />
+      <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+    </Stack>
+  );
+
+  if (showWebLayout) {
+    const WebSidebar = require('@/components/WebSidebar').default;
+    const WebHeader = require('@/components/WebHeader').default;
+
+    return (
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <View style={{ flex: 1, flexDirection: 'row', backgroundColor: colorScheme === 'dark' ? '#0F172A' : '#F8FAFC' }}>
+          <WebSidebar />
+          <View style={{ flex: 1 }}>
+            <WebHeader />
+            <View style={{ flex: 1, paddingRight: Platform.OS === 'web' ? 24 : 0, paddingLeft: Platform.OS === 'web' ? 8 : 0 }}>
+              {LayoutContent}
+            </View>
+          </View>
+        </View>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
+      {LayoutContent}
     </ThemeProvider>
   );
 }

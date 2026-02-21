@@ -95,176 +95,178 @@ export default function AdminInquiriesScreen() {
         }
     };
 
-    const renderItem = ({ item, index }: { item: Inquiry; index: number }) => {
+    const InquiryRow = ({ item, index }: { item: Inquiry, index: number }) => {
         const isExpanded = expandedItems.has(item.id);
-        return (
-            <Animated.View layout={Layout.springify()} entering={FadeInUp.delay(index * 50).springify()}>
-                <Card style={[styles.card, item.is_resolved && { opacity: 0.8, borderColor: colors.border }]}>
-                    <View variant="transparent" style={styles.cardHeader}>
-                        <View variant="transparent" style={styles.headerLeft}>
-                            <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(item.category) }]}>
-                                <Text style={styles.categoryText}>{item.category}</Text>
-                            </View>
-                            {item.is_resolved && (
-                                <View style={[styles.resolvedBadge, { backgroundColor: colors.border + '50' }]}>
-                                    <Text style={[styles.resolvedText, { color: colors.textSecondary }]}>해결됨</Text>
-                                </View>
-                            )}
-                        </View>
+        const categoryColor = getCategoryColor(item.category);
 
-                        <View variant="transparent" style={styles.headerRightRow}>
-                            <Text style={[styles.date, { color: colors.textSecondary }]}>
-                                {new Date(item.created_at).toLocaleDateString()}
-                            </Text>
-                            <TouchableOpacity
-                                style={styles.statusToggleCompact}
-                                onPress={() => toggleStatus(item)}
-                            >
-                                <FontAwesome
-                                    name={item.is_resolved ? "check-square" : "square-o"}
-                                    size={20}
-                                    color={item.is_resolved ? colors.tint : colors.textSecondary}
-                                />
-                            </TouchableOpacity>
+        return (
+            <Animated.View layout={Layout.springify()} entering={FadeInUp.delay(index * 30).springify()}>
+                <View variant="transparent" style={[styles.tableRow, isExpanded && styles.expandedRow, { backgroundColor: index % 2 === 0 ? 'transparent' : colors.cardBackground + '30' }]}>
+                    <View variant="transparent" style={[styles.col, { flex: 1 }]}>
+                        <View style={[styles.categoryBadge, { backgroundColor: categoryColor + '20' }]}>
+                            <Text style={[styles.categoryText, { color: categoryColor }]}>{item.category}</Text>
                         </View>
                     </View>
 
-                    <View variant="transparent" style={styles.titleRow}>
-                        <Text style={styles.title} numberOfLines={isExpanded ? undefined : 1}>{item.title}</Text>
-                        <TouchableOpacity
-                            style={styles.expandButtonCompact}
-                            onPress={() => toggleExpand(item.id)}
-                        >
-                            <Text style={[styles.expandButtonText, { color: colors.tint }]}>
-                                {isExpanded ? '접기' : '펼치기'}
-                            </Text>
-                            <FontAwesome name={isExpanded ? "angle-up" : "angle-down"} size={14} color={colors.tint} />
+                    <View variant="transparent" style={[styles.col, { flex: 3.5 }]}>
+                        <TouchableOpacity style={styles.titleArea} onPress={() => toggleExpand(item.id)}>
+                            <Text style={styles.cellText} numberOfLines={1}>{item.title}</Text>
+                            <Text style={[styles.cellSubText, { color: colors.textSecondary }]} numberOfLines={1}>{item.content}</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={[styles.content, { color: colors.text }]} numberOfLines={isExpanded ? undefined : 1}>
-                        {item.content}
-                    </Text>
-
-                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
-                    <View variant="transparent" style={styles.userInfo}>
-                        <View variant="transparent" style={styles.userRow}>
-                            <FontAwesome name="user-circle" size={12} color={colors.tint} />
-                            <Text style={[styles.userInfoText, { fontWeight: 'bold' }]}>{item.user_nickname || '알 수 없음'}</Text>
-                            <Text style={[styles.userInfoText, { opacity: 0.6 }]}>ID: #{item.user_id_number || '-----'}</Text>
-                        </View>
-                        <View variant="transparent" style={[styles.userRow, { marginTop: 2 }]}>
-                            <FontAwesome name="envelope-o" size={10} color={colors.textSecondary} />
-                            <Text style={[styles.userInfoText, { fontSize: 13, color: colors.textSecondary }]}>{item.user_email || '이메일 없음'}</Text>
+                    <View variant="transparent" style={[styles.col, { flex: 1.5, justifyContent: 'flex-end', alignItems: 'center', paddingRight: 10 }]}>
+                        <View style={[styles.statusBadge, { backgroundColor: (item.is_resolved ? colors.success : '#F59E0B') + '15' }]}>
+                            <View style={[styles.statusDot, { backgroundColor: item.is_resolved ? colors.success : '#F59E0B' }]} />
+                            <Text style={[styles.statusText, { color: item.is_resolved ? colors.success : '#F59E0B' }]}>
+                                {item.is_resolved ? '해결됨' : '미해결'}
+                            </Text>
                         </View>
                     </View>
-                </Card>
+
+                    <View variant="transparent" style={[styles.col, { flex: 1.2, justifyContent: 'flex-end', paddingRight: 24 }]}>
+                        <Text style={[styles.cellSubText, { color: colors.textSecondary, textAlign: 'right' }]}>
+                            {new Date(item.created_at).toLocaleDateString()}
+                        </Text>
+                    </View>
+
+                    <View variant="transparent" style={[styles.col, { flex: 0.8, justifyContent: 'flex-end', gap: 12 }]}>
+                        <TouchableOpacity onPress={() => toggleExpand(item.id)} style={styles.actionBtn}>
+                            <FontAwesome name={isExpanded ? "chevron-up" : "chevron-down"} size={14} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => toggleStatus(item)} style={styles.actionBtn}>
+                            <FontAwesome name={item.is_resolved ? "check-circle" : "circle-o"} size={16} color={item.is_resolved ? colors.tint : colors.textSecondary} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {isExpanded && (
+                    <View variant="transparent" style={[styles.detailRow, { backgroundColor: colors.cardBackground + '20' }]}>
+                        <View variant="transparent" style={styles.detailContent}>
+                            <View variant="transparent" style={styles.detailSection}>
+                                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>상세 내용</Text>
+                                <Text style={styles.detailText}>{item.content}</Text>
+                            </View>
+                            <View variant="transparent" style={styles.detailDivider} />
+                            <View variant="transparent" style={styles.detailSection}>
+                                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>사용자 정보</Text>
+                                <View variant="transparent" style={styles.userGrid}>
+                                    <View variant="transparent" style={styles.userItem}>
+                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>닉네임</Text>
+                                        <Text style={styles.userValue}>{item.user_nickname || '미정'}</Text>
+                                    </View>
+                                    <View variant="transparent" style={styles.userItem}>
+                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>이메일</Text>
+                                        <Text style={styles.userValue}>{item.user_email || '미정'}</Text>
+                                    </View>
+                                    <View variant="transparent" style={styles.userItem}>
+                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>유저 고유번호</Text>
+                                        <Text style={styles.userValue}>#{item.user_id_number || '-----'}</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                )}
             </Animated.View>
         );
     };
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <Stack.Screen
-                options={{
-                    title: '문의 및 건의사항',
-                    headerShown: true,
-                    headerShadowVisible: false,
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.text,
-                    headerRight: () => (
-                        <TouchableOpacity onPress={() => setShowFilters(!showFilters)} style={styles.headerIcon}>
-                            <FontAwesome name="filter" size={20} color={showFilters ? colors.tint : colors.text} />
+            <Stack.Screen options={{ headerShown: false }} />
+
+            <View variant="transparent" style={styles.content}>
+                <View variant="transparent" style={styles.header}>
+                    <View variant="transparent">
+                        <Text style={styles.title}>문의 및 건의사항</Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>사용자 피드백 수집 및 이슈 대응 현황</Text>
+                    </View>
+                    <View variant="transparent" style={styles.headerActions}>
+                        <TouchableOpacity style={[styles.filterBtn, showFilters && styles.filterBtnActive]} onPress={() => setShowFilters(!showFilters)}>
+                            <FontAwesome name="filter" size={14} color={showFilters ? '#fff' : colors.textSecondary} />
+                            <Text style={[styles.filterBtnText, showFilters && { color: '#fff' }]}>필터링</Text>
                         </TouchableOpacity>
-                    ),
-                }}
-            />
+                    </View>
+                </View>
 
-            {showFilters && (
-                <View style={[styles.filterPanel, { borderBottomColor: colors.border }]}>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-                        {/* 정렬 */}
-                        <View variant="transparent" style={styles.filterGroup}>
-                            <TouchableOpacity
-                                style={[styles.miniBtn, sortOrder === 'newest' && { backgroundColor: colors.tint }]}
-                                onPress={() => setSortOrder('newest')}
-                            >
-                                <Text style={[styles.miniBtnText, sortOrder === 'newest' && { color: '#fff' }]}>최신순</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.miniBtn, sortOrder === 'oldest' && { backgroundColor: colors.tint }]}
-                                onPress={() => setSortOrder('oldest')}
-                            >
-                                <Text style={[styles.miniBtnText, sortOrder === 'oldest' && { color: '#fff' }]}>오래된순</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={[styles.vDivider, { backgroundColor: colors.border }]} />
-
-                        {/* 상태 */}
-                        <View variant="transparent" style={styles.filterGroup}>
-                            <TouchableOpacity
-                                style={[styles.miniBtn, statusFilter === 'all' && { backgroundColor: colors.tint }]}
-                                onPress={() => setStatusFilter('all')}
-                            >
-                                <Text style={[styles.miniBtnText, statusFilter === 'all' && { color: '#fff' }]}>전체</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.miniBtn, statusFilter === 'resolved' && { backgroundColor: colors.tint }]}
-                                onPress={() => setStatusFilter('resolved')}
-                            >
-                                <Text style={[styles.miniBtnText, statusFilter === 'resolved' && { color: '#fff' }]}>해결</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={[styles.miniBtn, statusFilter === 'unresolved' && { backgroundColor: colors.tint }]}
-                                onPress={() => setStatusFilter('unresolved')}
-                            >
-                                <Text style={[styles.miniBtnText, statusFilter === 'unresolved' && { color: '#fff' }]}>미해결</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={[styles.vDivider, { backgroundColor: colors.border }]} />
-
-                        {/* 카테고리 */}
-                        <View variant="transparent" style={styles.filterGroup}>
-                            {(['Q&A', '건의사항', '버그'] as InquiryCategory[]).map(cat => (
-                                <TouchableOpacity
-                                    key={cat}
-                                    style={[styles.miniBtn, selectedCategories.has(cat) && { backgroundColor: getCategoryColor(cat) }]}
-                                    onPress={() => toggleCategory(cat)}
-                                >
-                                    <Text style={[styles.miniBtnText, selectedCategories.has(cat) && { color: '#fff' }]}>{cat}</Text>
+                {showFilters && (
+                    <Animated.View entering={FadeInUp} style={[styles.filterPanel, { backgroundColor: colors.cardBackground }]}>
+                        <View variant="transparent" style={styles.filterSection}>
+                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>정렬</Text>
+                            <View variant="transparent" style={styles.filterOptions}>
+                                <TouchableOpacity style={[styles.miniBtn, sortOrder === 'newest' && styles.miniBtnActive]} onPress={() => setSortOrder('newest')}>
+                                    <Text style={[styles.miniBtnText, sortOrder === 'newest' && styles.miniBtnTextActive]}>최신순</Text>
                                 </TouchableOpacity>
-                            ))}
+                                <TouchableOpacity style={[styles.miniBtn, sortOrder === 'oldest' && styles.miniBtnActive]} onPress={() => setSortOrder('oldest')}>
+                                    <Text style={[styles.miniBtnText, sortOrder === 'oldest' && styles.miniBtnTextActive]}>과거순</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </ScrollView>
-                </View>
-            )}
+                        <View style={styles.vDivider} />
+                        <View variant="transparent" style={styles.filterSection}>
+                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>상태</Text>
+                            <View variant="transparent" style={styles.filterOptions}>
+                                <TouchableOpacity style={[styles.miniBtn, statusFilter === 'all' && styles.miniBtnActive]} onPress={() => setStatusFilter('all')}>
+                                    <Text style={[styles.miniBtnText, statusFilter === 'all' && styles.miniBtnTextActive]}>전체</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.miniBtn, statusFilter === 'resolved' && styles.miniBtnActive]} onPress={() => setStatusFilter('resolved')}>
+                                    <Text style={[styles.miniBtnText, statusFilter === 'resolved' && styles.miniBtnTextActive]}>해결</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.miniBtn, statusFilter === 'unresolved' && styles.miniBtnActive]} onPress={() => setStatusFilter('unresolved')}>
+                                    <Text style={[styles.miniBtnText, statusFilter === 'unresolved' && styles.miniBtnTextActive]}>미해결</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.vDivider} />
+                        <View variant="transparent" style={styles.filterSection}>
+                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>카테고리</Text>
+                            <View variant="transparent" style={styles.filterOptions}>
+                                {(['Q&A', '건의사항', '버그'] as InquiryCategory[]).map(cat => (
+                                    <TouchableOpacity
+                                        key={cat}
+                                        style={[styles.miniBtn, selectedCategories.has(cat) && { backgroundColor: getCategoryColor(cat) }]}
+                                        onPress={() => toggleCategory(cat)}
+                                    >
+                                        <Text style={[styles.miniBtnText, selectedCategories.has(cat) && { color: '#fff' }]}>{cat}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </View>
+                    </Animated.View>
+                )}
 
-            {loading && !refreshing ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={colors.tint} />
-                </View>
-            ) : (
-                <FlatList
-                    data={filteredAndSortedInquiries}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.listContent}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.tint} />
-                    }
-                    ListEmptyComponent={
-                        <View style={styles.empty}>
-                            <FontAwesome name="envelope-open-o" size={48} color={colors.border} />
-                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                                조건에 맞는 문의사항이 없습니다.
-                            </Text>
+                <Card style={styles.tableCard}>
+                    <View variant="transparent" style={styles.tableHeader}>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>카테고리</Text>
+                        <Text style={[styles.headerCol, { flex: 3.5 }]}>제목 및 내용</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right', paddingRight: 10 }]}>상태</Text>
+                        <Text style={[styles.headerCol, { flex: 1.2, textAlign: 'right', paddingRight: 24 }]}>날짜</Text>
+                        <Text style={[styles.headerCol, { flex: 0.8, textAlign: 'right' }]}>관리</Text>
+                    </View>
+
+                    {loading && !refreshing ? (
+                        <View style={styles.centerTable}>
+                            <ActivityIndicator size="large" color={colors.tint} />
                         </View>
-                    }
-                />
-            )}
+                    ) : (
+                        <FlatList
+                            data={filteredAndSortedInquiries}
+                            renderItem={({ item, index }) => <InquiryRow item={item} index={index} />}
+                            keyExtractor={(item) => item.id}
+                            contentContainerStyle={styles.listContent}
+                            refreshControl={
+                                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.tint} />
+                            }
+                            ListEmptyComponent={
+                                <View variant="transparent" style={styles.emptyTable}>
+                                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 문의사항이 없습니다.</Text>
+                                </View>
+                            }
+                        />
+                    )}
+                </Card>
+            </View>
         </View>
     );
 }
@@ -273,24 +275,63 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    center: {
+    content: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        padding: 32,
     },
-    headerIcon: {
-        padding: 10,
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+    },
+    subtitle: {
+        fontSize: 15,
+        marginTop: 4,
+    },
+    headerActions: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    filterBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        gap: 8,
+    },
+    filterBtnActive: {
+        backgroundColor: '#4F46E5',
+    },
+    filterBtnText: {
+        fontSize: 14,
+        fontWeight: '700',
     },
     filterPanel: {
-        paddingVertical: 12,
-        borderBottomWidth: 1,
+        flexDirection: 'row',
+        padding: 20,
+        borderRadius: 20,
+        marginBottom: 32,
+        alignItems: 'center',
+        gap: 24,
     },
-    filterScroll: {
-        paddingHorizontal: 20,
+    filterSection: {
+        flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
     },
-    filterGroup: {
+    filterLabel: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    filterOptions: {
         flexDirection: 'row',
         gap: 6,
     },
@@ -299,118 +340,158 @@ const styles = StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 20,
         backgroundColor: 'rgba(0,0,0,0.05)',
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.05)',
+    },
+    miniBtnActive: {
+        backgroundColor: '#4F46E5',
     },
     miniBtnText: {
         fontSize: 12,
-        fontWeight: 'bold',
+        fontWeight: '600',
+    },
+    miniBtnTextActive: {
+        color: '#fff',
     },
     vDivider: {
         width: 1,
-        height: 20,
-        marginHorizontal: 4,
+        height: 24,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+    },
+    tableCard: {
+        flex: 1,
+        borderRadius: 24,
+        borderWidth: 0,
+        overflow: 'hidden',
+    },
+    tableHeader: {
+        flexDirection: 'row',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: 'rgba(0,0,0,0.02)',
+    },
+    headerCol: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#64748B',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    centerTable: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 40,
     },
     listContent: {
-        padding: 20,
+        paddingBottom: 20,
     },
-    card: {
-        padding: 18,
-        borderRadius: 16,
-        marginBottom: 16,
-        borderWidth: 1,
-    },
-    cardHeader: {
+    tableRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 12,
+        padding: 16,
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.02)',
     },
-    headerLeft: {
+    expandedRow: {
+        borderBottomWidth: 0,
+    },
+    col: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
     },
     categoryBadge: {
         paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingVertical: 4,
         borderRadius: 6,
     },
     categoryText: {
-        color: '#fff',
         fontSize: 11,
-        fontWeight: 'bold',
+        fontWeight: '800',
     },
-    resolvedBadge: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
+    titleArea: {
+        flex: 1,
     },
-    resolvedText: {
-        fontSize: 11,
-        fontWeight: 'bold',
+    cellText: {
+        fontSize: 15,
+        fontWeight: '600',
     },
-    headerRightRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    statusToggleCompact: {
-        padding: 4,
-    },
-    date: {
-        fontSize: 11,
-    },
-    titleRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 6,
-    },
-    expandButtonCompact: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingLeft: 10,
-    },
-    title: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 6,
-    },
-    content: {
-        fontSize: 14,
-        lineHeight: 20,
-    },
-    expandButtonText: {
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    divider: {
-        height: 1,
-        width: '100%',
-        marginVertical: 12,
-        opacity: 0.1,
-    },
-    userInfo: {
-        backgroundColor: 'rgba(0,0,0,0.02)',
-        padding: 10,
-        borderRadius: 8,
-    },
-    userRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    userInfoText: {
+    cellSubText: {
         fontSize: 13,
+        marginTop: 2,
     },
-    empty: {
+    statusBadge: {
+        flexDirection: 'row',
         alignItems: 'center',
-        paddingTop: 100,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20,
+        gap: 6,
+    },
+    statusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+    },
+    statusText: {
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    actionBtn: {
+        padding: 6,
+    },
+    detailRow: {
+        paddingHorizontal: 16,
+        paddingBottom: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+    },
+    detailContent: {
+        padding: 20,
+        borderRadius: 12,
+        backgroundColor: 'rgba(0,0,0,0.02)',
+    },
+    detailSection: {
+        marginBottom: 16,
+    },
+    detailDivider: {
+        height: 1,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        marginBottom: 16,
+    },
+    detailLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        marginBottom: 8,
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    detailText: {
+        fontSize: 15,
+        lineHeight: 22,
+    },
+    userGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 24,
+    },
+    userItem: {
+        minWidth: 120,
+    },
+    userLabel: {
+        fontSize: 11,
+        fontWeight: '600',
+        marginBottom: 2,
+    },
+    userValue: {
+        fontSize: 14,
+        fontWeight: '700',
+    },
+    emptyTable: {
+        padding: 60,
+        alignItems: 'center',
     },
     emptyText: {
-        marginTop: 16,
-        fontSize: 16,
+        fontSize: 14,
+        fontStyle: 'italic',
     },
 });

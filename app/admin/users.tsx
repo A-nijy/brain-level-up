@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, View as RNView } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, View as RNView, TextInput } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { Profile } from '@/types';
 import Colors from '@/constants/Colors';
@@ -49,33 +49,52 @@ export default function UserManagementScreen() {
         }
     };
 
-    const renderUserItem = ({ item }: { item: Profile }) => (
-        <Card style={styles.userCard}>
-            <View variant="transparent" style={styles.userInfo}>
-                <Text style={styles.userEmail}>{item.email}</Text>
-                <Text style={[styles.userDate, { color: colors.textSecondary }]}>
-                    가입일: {new Date(item.created_at).toLocaleDateString()}
-                </Text>
+    const [searchQuery, setSearchQuery] = useState('');
+    const filteredUsers = users.filter(user =>
+        user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const UserRow = ({ item, index }: { item: Profile, index: number }) => (
+        <View variant="transparent" style={[styles.tableRow, { backgroundColor: index % 2 === 0 ? 'transparent' : colors.cardBackground + '30' }]}>
+            <View variant="transparent" style={[styles.col, { flex: 2 }]}>
+                <View style={[styles.avatarSmall, { backgroundColor: colors.tint + '10' }]}>
+                    <Text style={[styles.avatarText, { color: colors.tint }]}>{item.email[0].toUpperCase()}</Text>
+                </View>
+                <Text style={styles.cellText}>{item.email}</Text>
             </View>
 
-            <RNView style={styles.tagContainer}>
-                <TouchableOpacity onPress={() => handleUpdateRole(item)}>
-                    <View style={[styles.tag, { backgroundColor: item.role === 'admin' ? colors.error + '20' : colors.tint + '20' }]}>
+            <View variant="transparent" style={[styles.col, { flex: 1 }]}>
+                <TouchableOpacity onPress={() => handleUpdateRole(item)} style={styles.tagWrapper}>
+                    <View style={[styles.tag, { backgroundColor: item.role === 'admin' ? colors.error + '15' : colors.tint + '15' }]}>
                         <Text style={[styles.tagText, { color: item.role === 'admin' ? colors.error : colors.tint }]}>
-                            {item.role === 'admin' ? '관리자' : '사용자'}
+                            {item.role === 'admin' ? '관리자' : '일반'}
                         </Text>
                     </View>
                 </TouchableOpacity>
+            </View>
 
-                <TouchableOpacity onPress={() => handleUpdateMembership(item)}>
-                    <View style={[styles.tag, { backgroundColor: colors.success + '20' }]}>
+            <View variant="transparent" style={[styles.col, { flex: 1 }]}>
+                <TouchableOpacity onPress={() => handleUpdateMembership(item)} style={styles.tagWrapper}>
+                    <View style={[styles.tag, { backgroundColor: colors.success + '15' }]}>
                         <Text style={[styles.tagText, { color: colors.success }]}>
                             {item.membership_level}
                         </Text>
                     </View>
                 </TouchableOpacity>
-            </RNView>
-        </Card>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 1.5 }]}>
+                <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>
+                    {new Date(item.created_at).toLocaleDateString()}
+                </Text>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 0.8, justifyContent: 'flex-end' }]}>
+                <TouchableOpacity style={styles.actionBtn}>
+                    <FontAwesome name="ellipsis-h" size={16} color={colors.textSecondary} />
+                </TouchableOpacity>
+            </View>
+        </View>
     );
 
     if (loading) {
@@ -88,17 +107,40 @@ export default function UserManagementScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <FlatList
-                data={users}
-                renderItem={renderUserItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.list}
-                ListHeaderComponent={
-                    <Text style={[styles.headerText, { color: colors.textSecondary }]}>
-                        총 {users.length}명의 사용자
-                    </Text>
-                }
-            />
+            <View variant="transparent" style={styles.content}>
+                <View variant="transparent" style={styles.headerRow}>
+                    <View variant="transparent">
+                        <Text style={styles.title}>사용자 관리</Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>총 {users.length}명의 사용자가 등록되어 있습니다.</Text>
+                    </View>
+                    <View style={[styles.searchBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+                        <FontAwesome name="search" size={14} color={colors.textSecondary} />
+                        <TextInput
+                            style={[styles.searchInput, { color: colors.text }]}
+                            placeholder="사용자 이메일 검색..."
+                            placeholderTextColor={colors.textSecondary}
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                        />
+                    </View>
+                </View>
+
+                <Card style={styles.tableCard}>
+                    <View variant="transparent" style={styles.tableHeader}>
+                        <Text style={[styles.headerCol, { flex: 2 }]}>사용자 정보</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>권한</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>멤버십</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5 }]}>가입일</Text>
+                        <Text style={[styles.headerCol, { flex: 0.8, textAlign: 'right' }]}>관리</Text>
+                    </View>
+                    <FlatList
+                        data={filteredUsers}
+                        renderItem={({ item, index }) => <UserRow item={item} index={index} />}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={styles.listContent}
+                    />
+                </Card>
+            </View>
         </View>
     );
 }
@@ -107,47 +149,107 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    content: {
+        flex: 1,
+        padding: 32,
+    },
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    list: {
-        padding: 20,
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 32,
     },
-    headerText: {
+    title: {
+        fontSize: 24,
+        fontWeight: '800',
+    },
+    subtitle: {
         fontSize: 14,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textTransform: 'uppercase',
-    },
-    userCard: {
-        padding: 20,
-        marginBottom: 16,
-        borderRadius: 20,
-    },
-    userInfo: {
-        marginBottom: 12,
-    },
-    userEmail: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    userDate: {
-        fontSize: 12,
         marginTop: 4,
     },
-    tagContainer: {
+    searchBox: {
         flexDirection: 'row',
-        gap: 10,
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        width: 320,
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        fontSize: 14,
+    },
+    tableCard: {
+        flex: 1,
+        borderRadius: 24,
+        borderWidth: 0,
+        overflow: 'hidden',
+    },
+    tableHeader: {
+        flexDirection: 'row',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: 'rgba(0,0,0,0.02)',
+    },
+    headerCol: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#64748B',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    listContent: {
+        flexGrow: 1,
+    },
+    tableRow: {
+        flexDirection: 'row',
+        padding: 16,
+        alignItems: 'center',
+    },
+    col: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    avatarSmall: {
+        width: 32,
+        height: 32,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    avatarText: {
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    cellText: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    cellSubText: {
+        fontSize: 13,
+    },
+    tagWrapper: {
+        alignSelf: 'flex-start',
     },
     tag: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
     },
     tagText: {
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 'bold',
+    },
+    actionBtn: {
+        padding: 8,
     }
 });

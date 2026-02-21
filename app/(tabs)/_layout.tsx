@@ -96,12 +96,13 @@ export default function TabLayout() {
           height: tabHeight,
           paddingBottom: tabPaddingBottom,
           paddingTop: 10,
+          display: Platform.OS === 'web' ? 'none' : 'flex',
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
         },
-        headerShown: useClientOnlyValue(false, true),
+        headerShown: Platform.OS === 'web' ? false : useClientOnlyValue(false, true),
         headerStyle: {
           backgroundColor: colors.background,
           elevation: 0,

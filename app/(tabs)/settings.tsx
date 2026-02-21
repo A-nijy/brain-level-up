@@ -50,9 +50,16 @@ export default function SettingsScreen() {
     if (!notificationSettings) return;
 
     if (value) {
-      const granted = await requestPermissions();
+      let granted = false;
+      if (Platform.OS === 'web') {
+        const { WebPushService } = require('@/services/WebPushService');
+        granted = await WebPushService.requestPermission();
+      } else {
+        granted = await requestPermissions();
+      }
+
       if (!granted) {
-        Alert.alert('권한 필요', '푸시 알림을 위해 알림 권한이 필요합니다. 설정에서 권한을 허용해주세요.');
+        Alert.alert('권한 필요', '푸시 알림을 위해 알림 권한이 필요합니다. 브라우저나 기기 설정에서 권한을 허용해주세요.');
         return;
       }
       setTempSettings({ ...notificationSettings, enabled: true });
@@ -60,6 +67,10 @@ export default function SettingsScreen() {
     } else {
       const newSettings = { ...notificationSettings, enabled: false };
       await saveSettings(newSettings);
+      if (Platform.OS === 'web') {
+        const { WebPushService } = require('@/services/WebPushService');
+        await WebPushService.saveSettings(newSettings);
+      }
     }
   };
 
@@ -91,6 +102,12 @@ export default function SettingsScreen() {
 
     try {
       await saveSettings(finalSettings);
+
+      if (Platform.OS === 'web') {
+        const { WebPushService } = require('@/services/WebPushService');
+        await WebPushService.saveSettings(finalSettings);
+      }
+
       setShowNotificationModal(false);
     } catch (error: any) {
       Alert.alert('저장 실패', error.message);

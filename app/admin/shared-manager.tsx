@@ -155,6 +155,84 @@ export default function SharedManagerScreen() {
         }
     };
 
+    const LibRow = ({ item, isDraft }: { item: SharedLibrary, isDraft: boolean }) => (
+        <View variant="transparent" style={styles.tableRow}>
+            <View variant="transparent" style={[styles.col, { flex: 2.5 }]}>
+                <View style={[styles.libIconContainer, { backgroundColor: colors.tint + '10' }]}>
+                    <FontAwesome name="book" size={16} color={colors.tint} />
+                </View>
+                <View variant="transparent">
+                    <Text style={styles.cellText}>{item.title}</Text>
+                    <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>{item.category || '미지정'}</Text>
+                </View>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 1 }]}>
+                <View style={[styles.statusBadge, { backgroundColor: (isDraft ? '#F59E0B' : colors.success) + '15' }]}>
+                    <View style={[styles.statusDot, { backgroundColor: isDraft ? '#F59E0B' : colors.success }]} />
+                    <Text style={[styles.statusText, { color: isDraft ? '#F59E0B' : colors.success }]}>
+                        {isDraft ? '임시 저장' : '게시됨'}
+                    </Text>
+                </View>
+            </View>
+
+            {!isDraft && (
+                <View variant="transparent" style={[styles.col, { flex: 0.8 }]}>
+                    <Text style={styles.cellText}>{item.download_count || 0}</Text>
+                </View>
+            )}
+
+            <View variant="transparent" style={[styles.col, { flex: 1.2 }]}>
+                <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>
+                    {new Date(item.created_at).toLocaleDateString()}
+                </Text>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 1.5, justifyContent: 'flex-end', gap: 8 }]}>
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: colors.tint }]}
+                    onPress={() => router.push(`/admin/shared-library/${item.id}` as any)}
+                >
+                    <FontAwesome name="folder-open" size={12} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: '#F59E0B' }]}
+                    onPress={() => isDraft ? (
+                        setEditingDraft(item),
+                        setEditDraftForm({
+                            title: item.title,
+                            description: item.description || '',
+                            category_id: item.category_id
+                        })
+                    ) : handleEditOpen(item)}
+                >
+                    <FontAwesome name="edit" size={12} color="#fff" />
+                </TouchableOpacity>
+                {isDraft ? (
+                    <TouchableOpacity
+                        style={[styles.actionBtn, { backgroundColor: colors.success }]}
+                        onPress={() => handlePublishDraft(item)}
+                    >
+                        <FontAwesome name="check" size={12} color="#fff" />
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.actionBtn, { backgroundColor: '#3B82F6' }]}
+                        onPress={() => handleUnpublishShared(item)}
+                    >
+                        <FontAwesome name="undo" size={12} color="#fff" />
+                    </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: colors.error }]}
+                    onPress={() => isDraft ? handleDeleteDraft(item) : handleDeleteShared(item)}
+                >
+                    <FontAwesome name="trash" size={12} color="#fff" />
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+
     if (loading && !isDirectModalVisible && !editingLib) {
         return (
             <View style={styles.center}>
@@ -164,137 +242,69 @@ export default function SharedManagerScreen() {
     }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+        <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
             <View variant="transparent" style={styles.header}>
                 <View variant="transparent">
-                    <Text style={styles.title}>공유 마켓 관리자</Text>
-                    <Text style={[styles.subText, { color: colors.textSecondary }]}>콘텐츠 큐레이션 및 품질 관리</Text>
+                    <Text style={styles.title}>공유 콘텐츠 관리</Text>
+                    <Text style={[styles.subText, { color: colors.textSecondary }]}>마켓플레이스 자료 큐레이션 및 품질 관리</Text>
                 </View>
-                <View variant="transparent" style={styles.headerActions}>
-                    <TouchableOpacity style={[styles.iconButton, { backgroundColor: colors.tint }]} onPress={() => setIsDirectModalVisible(true)}>
-                        <FontAwesome name="plus" size={16} color="#fff" />
+                <TouchableOpacity style={styles.addBtn} onPress={() => setIsDirectModalVisible(true)}>
+                    <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
+                    <Text style={styles.addBtnText}>신규 자료 등록</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View variant="transparent" style={styles.tabWrapper}>
+                <View variant="transparent" style={styles.tabContainer}>
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'draft' && styles.activeTab]}
+                        onPress={() => setActiveTab('draft')}
+                    >
+                        <Text style={[styles.tabText, activeTab === 'draft' && styles.activeTabText]}>
+                            임시 저장 ({draftLibs.length})
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'published' && styles.activeTab]}
+                        onPress={() => setActiveTab('published')}
+                    >
+                        <Text style={[styles.tabText, activeTab === 'published' && styles.activeTabText]}>
+                            게시 완료 ({sharedLibs.length})
+                        </Text>
                     </TouchableOpacity>
                 </View>
-            </View>
-
-            <View variant="transparent" style={styles.tabContainer}>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'draft' && { borderBottomColor: colors.tint }]}
-                    onPress={() => setActiveTab('draft')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'draft' && { color: colors.tint, fontWeight: 'bold' }]}>임시 저장</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'published' && { borderBottomColor: colors.tint }]}
-                    onPress={() => setActiveTab('published')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'published' && { color: colors.tint, fontWeight: 'bold' }]}>게시 완료</Text>
+                <TouchableOpacity onPress={refresh} style={styles.refreshBtn}>
+                    <FontAwesome name="refresh" size={14} color={colors.textSecondary} />
                 </TouchableOpacity>
             </View>
 
-
-            {activeTab === 'draft' && (
-                <View variant="transparent" style={styles.section}>
-                    <View variant="transparent" style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>임시 저장 목록</Text>
-                        <TouchableOpacity onPress={refresh}>
-                            <FontAwesome name="refresh" size={16} color={colors.tint} />
-                        </TouchableOpacity>
-                    </View>
-                    {draftLibs.map((item) => (
-                        <Card key={item.id} style={styles.libCard}>
-                            <View variant="transparent" style={styles.libInfo}>
-                                <Text style={styles.libTitle}>{item.title}</Text>
-                                <Text style={[styles.libSub, { color: colors.textSecondary }]}>
-                                    {item.category || '미지정'} | 임시 저장
-                                </Text>
-                            </View>
-                            <View variant="transparent" style={styles.actionGroup}>
-                                <TouchableOpacity
-                                    style={[styles.miniButton, { backgroundColor: colors.tint }]}
-                                    onPress={() => router.push(`/admin/shared-library/${item.id}` as any)}
-                                >
-                                    <FontAwesome name="folder-open" size={14} color="#fff" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.miniButton, { backgroundColor: '#F59E0B' }]}
-                                    onPress={() => {
-                                        setEditingDraft(item);
-                                        setEditDraftForm({
-                                            title: item.title,
-                                            description: item.description || '',
-                                            category_id: item.category_id
-                                        });
-                                    }}
-                                >
-                                    <FontAwesome name="edit" size={14} color="#fff" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.miniButton, { backgroundColor: colors.success }]}
-                                    onPress={() => handlePublishDraft(item)}
-                                >
-                                    <FontAwesome name="check" size={14} color="#fff" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.miniButton, { backgroundColor: colors.error }]}
-                                    onPress={() => handleDeleteDraft(item)}
-                                >
-                                    <FontAwesome name="trash" size={14} color="#fff" />
-                                </TouchableOpacity>
-                            </View>
-                        </Card>
-                    ))}
-                    {draftLibs.length === 0 && <Text style={styles.emptyText}>임시 저장된 자료가 없습니다.</Text>}
+            <Card style={styles.tableCard}>
+                <View variant="transparent" style={styles.tableHeader}>
+                    <Text style={[styles.headerCol, { flex: 2.5 }]}>단어장 정보</Text>
+                    <Text style={[styles.headerCol, { flex: 1 }]}>상태</Text>
+                    {activeTab === 'published' && <Text style={[styles.headerCol, { flex: 0.8 }]}>다운로드</Text>}
+                    <Text style={[styles.headerCol, { flex: 1.2 }]}>생성일</Text>
+                    <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>관리</Text>
                 </View>
-            )}
 
-            {activeTab === 'published' && (
-                <View variant="transparent" style={styles.section}>
-                    <View variant="transparent" style={styles.sectionHeader}>
-                        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>마켓플레이스 게시물</Text>
-                        <TouchableOpacity onPress={refresh}>
-                            <FontAwesome name="refresh" size={16} color={colors.tint} />
-                        </TouchableOpacity>
-                    </View>
-                    {sharedLibs.map((item) => (
-                        <Card key={item.id} style={styles.libCard}>
-                            <View variant="transparent" style={styles.libInfo}>
-                                <Text style={styles.libTitle}>{item.title}</Text>
-                                <Text style={[styles.libSub, { color: colors.textSecondary }]}>
-                                    다운로드: {item.download_count} | {item.category}
-                                </Text>
-                            </View>
-                            <View variant="transparent" style={styles.actionGroup}>
-                                <TouchableOpacity
-                                    style={[styles.miniButton, { backgroundColor: colors.tint }]}
-                                    onPress={() => router.push(`/admin/shared-library/${item.id}` as any)}
-                                >
-                                    <FontAwesome name="folder-open" size={14} color="#fff" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.miniButton, { backgroundColor: '#F59E0B' }]}
-                                    onPress={() => handleEditOpen(item)}
-                                >
-                                    <FontAwesome name="edit" size={14} color="#fff" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.miniButton, { backgroundColor: '#3B82F6' }]}
-                                    onPress={() => handleUnpublishShared(item)}
-                                >
-                                    <FontAwesome name="undo" size={14} color="#fff" />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.miniButton, { backgroundColor: colors.error }]}
-                                    onPress={() => handleDeleteShared(item)}
-                                >
-                                    <FontAwesome name="trash" size={14} color="#fff" />
-                                </TouchableOpacity>
-                            </View>
-                        </Card>
-                    ))}
-                    {sharedLibs.length === 0 && <Text style={styles.emptyText}>공유된 단어장이 없습니다.</Text>}
-                </View>
-            )}
+                {activeTab === 'draft' ? (
+                    draftLibs.length > 0 ? (
+                        draftLibs.map((item) => <LibRow key={item.id} item={item} isDraft={true} />)
+                    ) : (
+                        <View variant="transparent" style={styles.emptyTable}>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>임시 저장된 자료가 없습니다.</Text>
+                        </View>
+                    )
+                ) : (
+                    sharedLibs.length > 0 ? (
+                        sharedLibs.map((item) => <LibRow key={item.id} item={item} isDraft={false} />)
+                    ) : (
+                        <View variant="transparent" style={styles.emptyTable}>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>게시된 자료가 없습니다.</Text>
+                        </View>
+                    )
+                )}
+            </Card>
 
             {/* Edit Modal */}
             <Modal visible={!!editingLib} transparent animationType="slide">
@@ -487,161 +497,183 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    scrollContent: {
+        padding: 32,
+    },
     header: {
-        padding: 24,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 32,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 28,
+        fontWeight: '800',
+        letterSpacing: -0.5,
     },
     subText: {
-        fontSize: 14,
+        fontSize: 15,
         marginTop: 4,
     },
-    headerActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    iconButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    testButton: {
+    addBtn: {
+        backgroundColor: '#4F46E5',
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 10,
-        borderRadius: 14,
+        borderRadius: 12,
     },
-    testButtonText: {
-        fontWeight: 'bold',
-        fontSize: 13,
+    addBtnText: {
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 14,
+    },
+    tabWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
     },
     tabContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 20,
-        marginBottom: 8,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        padding: 4,
+        borderRadius: 12,
     },
     tab: {
-        flex: 1,
-        paddingVertical: 12,
-        alignItems: 'center',
-        borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 10,
+    },
+    activeTab: {
+        backgroundColor: '#fff',
+        elevation: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
     tabText: {
         fontSize: 14,
+        fontWeight: '600',
         color: '#64748B',
+    },
+    activeTabText: {
+        color: '#4F46E5',
+    },
+    refreshBtn: {
+        padding: 8,
     },
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    section: {
+    tableCard: {
+        borderRadius: 24,
+        borderWidth: 0,
+        overflow: 'hidden',
+    },
+    tableHeader: {
+        flexDirection: 'row',
         padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: 'rgba(0,0,0,0.02)',
     },
-    sectionTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        marginBottom: 16,
+    headerCol: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#64748B',
         textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
-    libCard: {
-        padding: 18,
-        borderRadius: 20,
-        marginBottom: 16,
+    tableRow: {
+        flexDirection: 'row',
+        padding: 16,
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.02)',
+    },
+    col: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
     },
-    libInfo: {
-        flex: 1,
-        marginRight: 10,
-    },
-    libTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    libSub: {
-        fontSize: 12,
-        marginTop: 4,
-    },
-    actionGroup: {
-        flexDirection: 'row',
-        gap: 8,
-    },
-    miniButton: {
+    libIconContainer: {
         width: 36,
         height: 36,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
+        marginRight: 12,
     },
-    actionButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderRadius: 12,
+    cellText: {
+        fontSize: 14,
+        fontWeight: '600',
     },
-    actionButtonText: {
-        color: '#fff',
-        fontSize: 13,
+    cellSubText: {
+        fontSize: 12,
+        marginTop: 2,
+    },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+        gap: 6,
+    },
+    statusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+    },
+    statusText: {
+        fontSize: 12,
         fontWeight: 'bold',
     },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    actionBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
     },
-    emptyContainer: {
+    emptyTable: {
+        padding: 60,
         alignItems: 'center',
-        paddingVertical: 20,
     },
     emptyText: {
-        textAlign: 'center',
-        color: '#999',
+        fontSize: 14,
         fontStyle: 'italic',
-    },
-    helpText: {
-        fontSize: 12,
-        color: '#64748B',
-        marginTop: 8,
-        textAlign: 'center',
     },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
-        padding: 20,
+        alignItems: 'center',
     },
     modalContent: {
+        width: 500,
         borderRadius: 24,
-        padding: 24,
+        padding: 32,
     },
     modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 20,
+        fontSize: 22,
+        fontWeight: '800',
+        marginBottom: 24,
     },
     label: {
         fontSize: 14,
-        fontWeight: 'bold',
+        fontWeight: '700',
         marginBottom: 8,
         marginTop: 16,
     },
     input: {
         borderWidth: 1,
         borderRadius: 12,
-        padding: 12,
-        fontSize: 16,
+        padding: 14,
+        fontSize: 15,
     },
     categoryPicker: {
         flexDirection: 'row',
@@ -665,42 +697,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
         gap: 12,
-        marginTop: 30,
+        marginTop: 32,
     },
     modalButton: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 24,
         paddingVertical: 12,
         borderRadius: 12,
     },
     modalButtonText: {
+        fontWeight: '700',
+        fontSize: 15,
         color: '#fff',
-        fontWeight: 'bold',
-    },
-    itemInputGroup: {
-        backgroundColor: '#F8FAFC',
-        padding: 12,
-        borderRadius: 12,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: '#E2E8F0',
-    },
-    itemHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    itemLabel: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: '#64748B',
-    },
-    miniInput: {
-        borderWidth: 1,
-        borderRadius: 8,
-        padding: 8,
-        fontSize: 14,
-        marginBottom: 8,
-        backgroundColor: '#fff',
     }
 });

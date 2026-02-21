@@ -78,47 +78,53 @@ export default function CategoryManagerScreen() {
         }
     };
 
-    const renderItem = ({ item, index }: { item: SharedLibraryCategory; index: number }) => (
-        <Card style={styles.card}>
-            <View variant="transparent" style={styles.cardContent}>
-                <View variant="transparent">
-                    <Text style={styles.categoryTitle}>{item.title}</Text>
-                    <Text style={[styles.subText, { color: colors.textSecondary }]}>순서: {index + 1}</Text>
-                </View>
-                <View variant="transparent" style={styles.actionGroup}>
-                    <TouchableOpacity
-                        style={[styles.moveButton, { opacity: index === 0 ? 0.3 : 1 }]}
-                        onPress={() => handleMove(index, 'up')}
-                        disabled={index === 0}
-                    >
-                        <FontAwesome name="chevron-up" size={14} color={colors.textSecondary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.moveButton, { opacity: index === categories.length - 1 ? 0.3 : 1 }]}
-                        onPress={() => handleMove(index, 'down')}
-                        disabled={index === categories.length - 1}
-                    >
-                        <FontAwesome name="chevron-down" size={14} color={colors.textSecondary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.miniButton, { backgroundColor: colors.tint }]}
-                        onPress={() => {
-                            setEditingCategory(item);
-                            setTitle(item.title);
-                            setModalVisible(true);
-                        }}
-                    >
-                        <FontAwesome name="pencil" size={14} color="#fff" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.miniButton, { backgroundColor: colors.error }]}
-                        onPress={() => handleDelete(item)}
-                    >
-                        <FontAwesome name="trash" size={14} color="#fff" />
-                    </TouchableOpacity>
-                </View>
+    const CategoryRow = ({ item, index }: { item: SharedLibraryCategory, index: number }) => (
+        <View variant="transparent" style={[styles.tableRow, { backgroundColor: index % 2 === 0 ? 'transparent' : colors.cardBackground + '30' }]}>
+            <View variant="transparent" style={[styles.col, { flex: 0.5 }]}>
+                <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>{index + 1}</Text>
             </View>
-        </Card>
+
+            <View variant="transparent" style={[styles.col, { flex: 3 }]}>
+                <View style={[styles.iconBox, { backgroundColor: colors.tint + '10' }]}>
+                    <FontAwesome name="tag" size={14} color={colors.tint} />
+                </View>
+                <Text style={styles.cellText}>{item.title}</Text>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 1.5, justifyContent: 'flex-end', gap: 8 }]}>
+                <TouchableOpacity
+                    style={[styles.moveBtn, { opacity: index === 0 ? 0.3 : 1 }]}
+                    onPress={() => handleMove(index, 'up')}
+                    disabled={index === 0}
+                >
+                    <FontAwesome name="chevron-up" size={12} color={colors.textSecondary} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.moveBtn, { opacity: index === categories.length - 1 ? 0.3 : 1 }]}
+                    onPress={() => handleMove(index, 'down')}
+                    disabled={index === categories.length - 1}
+                >
+                    <FontAwesome name="chevron-down" size={12} color={colors.textSecondary} />
+                </TouchableOpacity>
+                <View style={styles.divider} />
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: '#F59E0B' }]}
+                    onPress={() => {
+                        setEditingCategory(item);
+                        setTitle(item.title);
+                        setModalVisible(true);
+                    }}
+                >
+                    <FontAwesome name="pencil" size={12} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: colors.error }]}
+                    onPress={() => handleDelete(item)}
+                >
+                    <FontAwesome name="trash" size={12} color="#fff" />
+                </TouchableOpacity>
+            </View>
+        </View>
     );
 
     if (loading && categories.length === 0) {
@@ -131,39 +137,53 @@ export default function CategoryManagerScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <View variant="transparent" style={styles.header}>
-                <View variant="transparent">
-                    <Text style={styles.title}>카테고리 관리</Text>
-                    <Text style={[styles.subText, { color: colors.textSecondary }]}>공유 자료실 분류 체계 설정</Text>
+            <View variant="transparent" style={styles.content}>
+                <View variant="transparent" style={styles.header}>
+                    <View variant="transparent">
+                        <Text style={styles.title}>카테고리 관리</Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>공유 자료실 분류 체계 및 정렬 순서 설정</Text>
+                    </View>
+                    <TouchableOpacity
+                        style={[styles.addBtn, { backgroundColor: colors.tint }]}
+                        onPress={() => {
+                            setEditingCategory(null);
+                            setTitle('');
+                            setModalVisible(true);
+                        }}
+                    >
+                        <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
+                        <Text style={styles.addBtnText}>신규 카테고리</Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                    style={[styles.addButton, { backgroundColor: colors.tint }]}
-                    onPress={() => {
-                        setEditingCategory(null);
-                        setTitle('');
-                        setModalVisible(true);
-                    }}
-                >
-                    <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
-                    <Text style={styles.addButtonText}>추가</Text>
-                </TouchableOpacity>
-            </View>
 
-            <FlatList
-                data={categories}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.list}
-                ListEmptyComponent={<Text style={styles.emptyText}>등록된 카테고리가 없습니다.</Text>}
-            />
+                <Card style={styles.tableCard}>
+                    <View variant="transparent" style={styles.tableHeader}>
+                        <Text style={[styles.headerCol, { flex: 0.5 }]}>#</Text>
+                        <Text style={[styles.headerCol, { flex: 3 }]}>카테고리 명칭</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>관리</Text>
+                    </View>
+                    <FlatList
+                        data={categories}
+                        renderItem={({ item, index }) => <CategoryRow item={item} index={index} />}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={styles.listContent}
+                        ListEmptyComponent={
+                            <View variant="transparent" style={styles.emptyTable}>
+                                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 카테고리가 없습니다.</Text>
+                            </View>
+                        }
+                    />
+                </Card>
+            </View>
 
             <Modal visible={modalVisible} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
-                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                        <Text style={styles.modalTitle}>{editingCategory ? '카테고리 수정' : '카테고리 추가'}</Text>
+                    <Card style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>{editingCategory ? '카테고리 이름 수정' : '새 카테고리 추가'}</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>이름</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                            placeholder="카테고리 이름을 입력하세요"
+                            placeholder="예: 비즈니스 영어, JLPT N1 등"
                             placeholderTextColor={colors.textSecondary}
                             value={title}
                             onChangeText={setTitle}
@@ -171,19 +191,19 @@ export default function CategoryManagerScreen() {
                         />
                         <View variant="transparent" style={styles.modalButtons}>
                             <TouchableOpacity
-                                style={[styles.modalButton, { backgroundColor: colors.border }]}
+                                style={[styles.modalBtn, { backgroundColor: colors.border + '30' }]}
                                 onPress={() => setModalVisible(false)}
                             >
-                                <Text style={[styles.modalButtonText, { color: colors.text }]}>취소</Text>
+                                <Text style={{ color: colors.text }}>취소</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.modalButton, { backgroundColor: colors.tint }]}
+                                style={[styles.modalBtn, { backgroundColor: colors.tint }]}
                                 onPress={handleSave}
                             >
-                                <Text style={styles.modalButtonText}>저장</Text>
+                                <Text style={styles.modalBtnText}>저장하기</Text>
                             </TouchableOpacity>
                         </View>
-                    </View>
+                    </Card>
                 </View>
             </Modal>
         </View>
@@ -194,112 +214,162 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    center: {
+    content: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        padding: 32,
     },
     header: {
-        padding: 24,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 32,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 28,
+        fontWeight: '800',
+        letterSpacing: -0.5,
     },
-    subText: {
-        fontSize: 14,
+    subtitle: {
+        fontSize: 15,
         marginTop: 4,
     },
-    addButton: {
+    addBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 10,
-        borderRadius: 14,
+        borderRadius: 12,
     },
-    addButtonText: {
+    addBtnText: {
         color: '#fff',
-        fontWeight: 'bold',
+        fontWeight: '700',
         fontSize: 14,
     },
-    list: {
+    tableCard: {
+        flex: 1,
+        borderRadius: 24,
+        borderWidth: 0,
+        overflow: 'hidden',
+    },
+    tableHeader: {
+        flexDirection: 'row',
         padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: 'rgba(0,0,0,0.02)',
     },
-    card: {
+    headerCol: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#64748B',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    listContent: {
+        paddingBottom: 20,
+    },
+    tableRow: {
+        flexDirection: 'row',
         padding: 16,
-        borderRadius: 20,
-        marginBottom: 12,
-    },
-    cardContent: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.02)',
     },
-    categoryTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    actionGroup: {
+    col: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
     },
-    moveButton: {
+    iconBox: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    cellText: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    cellSubText: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    moveBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.05)',
+    },
+    divider: {
+        width: 1,
+        height: 20,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        marginHorizontal: 4,
+    },
+    actionBtn: {
         width: 32,
         height: 32,
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    miniButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
-        justifyContent: 'center',
+    emptyTable: {
+        padding: 60,
         alignItems: 'center',
     },
     emptyText: {
-        textAlign: 'center',
-        marginTop: 40,
-        color: '#999',
+        fontSize: 14,
+        fontStyle: 'italic',
+    },
+    center: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'center',
+        alignItems: 'center',
         padding: 20,
     },
     modalContent: {
+        width: 400,
         borderRadius: 24,
-        padding: 24,
+        padding: 32,
     },
     modalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 20,
+        fontSize: 22,
+        fontWeight: '800',
+        marginBottom: 24,
+    },
+    label: {
+        fontSize: 13,
+        fontWeight: '700',
+        marginBottom: 8,
     },
     input: {
         borderWidth: 1,
         borderRadius: 12,
-        padding: 12,
+        padding: 14,
         fontSize: 16,
-        marginBottom: 20,
+        marginBottom: 24,
     },
     modalButtons: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
         gap: 12,
     },
-    modalButton: {
+    modalBtn: {
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 12,
     },
-    modalButtonText: {
+    modalBtnText: {
         color: '#fff',
-        fontWeight: 'bold',
+        fontWeight: '700',
     }
 });
