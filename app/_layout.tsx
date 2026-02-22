@@ -12,6 +12,7 @@ import { PushNotificationService } from '@/services/PushNotificationService';
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ThemeProvider as AppThemeProvider } from '@/contexts/ThemeContext';
+import { LogService } from '@/services/LogService';
 
 export { ErrorBoundary } from 'expo-router';
 

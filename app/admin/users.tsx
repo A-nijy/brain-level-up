@@ -5,8 +5,67 @@ import { Profile } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useRouter, Link } from 'expo-router';
 
 import { useAdminUsers } from '@/hooks/useAdminUsers';
+
+// 사용자 목록의 개별 행 컴포넌트
+const UserRow = ({ item, index, colors, handleUpdateRole, handleUpdateMembership }: {
+    item: Profile,
+    index: number,
+    colors: any,
+    handleUpdateRole: (user: Profile) => void,
+    handleUpdateMembership: (user: Profile) => void
+}) => {
+    const router = useRouter();
+
+    return (
+        <TouchableOpacity
+            style={[
+                styles.tableRow,
+                { backgroundColor: index % 2 === 0 ? 'transparent' : colors.cardBackground + '30' }
+            ]}
+            onPress={() => router.push(`/admin/users/${item.id}`)}
+        >
+            <View variant="transparent" style={[styles.col, { flex: 2 }]}>
+                <View style={[styles.avatarSmall, { backgroundColor: colors.tint + '10' }]}>
+                    <Text style={[styles.avatarText, { color: colors.tint }]}>{item.email[0].toUpperCase()}</Text>
+                </View>
+                <Text style={styles.cellText}>{item.email}</Text>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 1 }]}>
+                <TouchableOpacity onPress={(e) => { e.stopPropagation(); handleUpdateRole(item); }} style={styles.tagWrapper}>
+                    <View style={[styles.tag, { backgroundColor: item.role === 'admin' ? colors.error + '15' : colors.tint + '15' }]}>
+                        <Text style={[styles.tagText, { color: item.role === 'admin' ? colors.error : colors.tint }]}>
+                            {item.role === 'admin' ? '관리자' : '일반'}
+                        </Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 1 }]}>
+                <TouchableOpacity onPress={(e) => { e.stopPropagation(); handleUpdateMembership(item); }} style={styles.tagWrapper}>
+                    <View style={[styles.tag, { backgroundColor: colors.success + '15' }]}>
+                        <Text style={[styles.tagText, { color: colors.success }]}>
+                            {item.membership_level}
+                        </Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 1.5 }]}>
+                <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>
+                    {new Date(item.created_at).toLocaleDateString()}
+                </Text>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 0.8, justifyContent: 'flex-end' }]}>
+                <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+            </View>
+        </TouchableOpacity>
+    );
+};
 
 export default function UserManagementScreen() {
     const {
@@ -54,49 +113,6 @@ export default function UserManagementScreen() {
         user.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const UserRow = ({ item, index }: { item: Profile, index: number }) => (
-        <View variant="transparent" style={[styles.tableRow, { backgroundColor: index % 2 === 0 ? 'transparent' : colors.cardBackground + '30' }]}>
-            <View variant="transparent" style={[styles.col, { flex: 2 }]}>
-                <View style={[styles.avatarSmall, { backgroundColor: colors.tint + '10' }]}>
-                    <Text style={[styles.avatarText, { color: colors.tint }]}>{item.email[0].toUpperCase()}</Text>
-                </View>
-                <Text style={styles.cellText}>{item.email}</Text>
-            </View>
-
-            <View variant="transparent" style={[styles.col, { flex: 1 }]}>
-                <TouchableOpacity onPress={() => handleUpdateRole(item)} style={styles.tagWrapper}>
-                    <View style={[styles.tag, { backgroundColor: item.role === 'admin' ? colors.error + '15' : colors.tint + '15' }]}>
-                        <Text style={[styles.tagText, { color: item.role === 'admin' ? colors.error : colors.tint }]}>
-                            {item.role === 'admin' ? '관리자' : '일반'}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-
-            <View variant="transparent" style={[styles.col, { flex: 1 }]}>
-                <TouchableOpacity onPress={() => handleUpdateMembership(item)} style={styles.tagWrapper}>
-                    <View style={[styles.tag, { backgroundColor: colors.success + '15' }]}>
-                        <Text style={[styles.tagText, { color: colors.success }]}>
-                            {item.membership_level}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-
-            <View variant="transparent" style={[styles.col, { flex: 1.5 }]}>
-                <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>
-                    {new Date(item.created_at).toLocaleDateString()}
-                </Text>
-            </View>
-
-            <View variant="transparent" style={[styles.col, { flex: 0.8, justifyContent: 'flex-end' }]}>
-                <TouchableOpacity style={styles.actionBtn}>
-                    <FontAwesome name="ellipsis-h" size={16} color={colors.textSecondary} />
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
-
     if (loading) {
         return (
             <View style={styles.center}>
@@ -135,7 +151,15 @@ export default function UserManagementScreen() {
                     </View>
                     <FlatList
                         data={filteredUsers}
-                        renderItem={({ item, index }) => <UserRow item={item} index={index} />}
+                        renderItem={({ item, index }) => (
+                            <UserRow
+                                item={item}
+                                index={index}
+                                colors={colors}
+                                handleUpdateRole={handleUpdateRole}
+                                handleUpdateMembership={handleUpdateMembership}
+                            />
+                        )}
                         keyExtractor={(item) => item.id}
                         contentContainerStyle={styles.listContent}
                     />

@@ -16,6 +16,7 @@ import { useAdminStats } from '@/hooks/useAdminStats';
 export default function AdminDashboardScreen() {
     const {
         stats,
+        advancedStats,
         loading,
         broadcastNotification
     } = useAdminStats();
@@ -24,35 +25,51 @@ export default function AdminDashboardScreen() {
     const colors = Colors[colorScheme];
     const router = useRouter();
 
-
-    const StatGridCard = ({ title, value, icon, color, trend, trendLabel }: any) => (
-        <Card style={styles.webStatCard}>
+    const StatGridCard = ({ title, value, icon, color, trend, trendLabel, isCurrency, onPress }: any) => (
+        <Card style={styles.webStatCard} onPress={onPress}>
             <View variant="transparent" style={styles.statHeaderRow}>
                 <View style={[styles.statIconContainer, { backgroundColor: color + '15' }]}>
                     <FontAwesome name={icon} size={20} color={color} />
                 </View>
-                {trend && (
-                    <View style={[styles.trendBadge, { backgroundColor: (trend > 0 ? colors.success : colors.error) + '15' }]}>
-                        <FontAwesome name={trend > 0 ? "line-chart" : "arrow-down"} size={10} color={trend > 0 ? colors.success : colors.error} />
-                        <Text style={[styles.trendText, { color: trend > 0 ? colors.success : colors.error }]}>
-                            {trend > 0 ? `+${trend}%` : `${trend}%`}
+                {trend !== undefined && (
+                    <View style={[styles.trendBadge, { backgroundColor: (trend >= 0 ? colors.success : colors.error) + '15' }]}>
+                        <FontAwesome name={trend >= 0 ? "line-chart" : "arrow-down"} size={10} color={trend >= 0 ? colors.success : colors.error} />
+                        <Text style={[styles.trendText, { color: trend >= 0 ? colors.success : colors.error }]}>
+                            {trend >= 0 ? `+${trend}` : `${trend}`}
                         </Text>
                     </View>
                 )}
             </View>
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{title}</Text>
-            <Text style={styles.statValueText}>{value.toLocaleString()}</Text>
-            <Text style={[styles.statSubtext, { color: colors.textSecondary }]}>{trendLabel}</Text>
+            <Text style={styles.statValueText}>
+                {isCurrency ? `₩${value.toLocaleString()}` : value.toLocaleString()}
+            </Text>
+            <View variant="transparent" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={[styles.statSubtext, { color: colors.textSecondary }]}>{trendLabel}</Text>
+                <FontAwesome name="chevron-right" size={12} color={colors.textSecondary + '60'} />
+            </View>
         </Card>
     );
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
             <View variant="transparent" style={styles.header}>
-                <Text style={styles.welcomeText}>관리자 개요</Text>
-                <Text style={[styles.subText, { color: colors.textSecondary }]}>시스템 통계 및 관리 도구</Text>
+                <View variant="transparent" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View variant="transparent">
+                        <Text style={styles.welcomeText}>관리자 개요</Text>
+                        <Text style={[styles.subText, { color: colors.textSecondary }]}>시스템 통계 및 운영 현황</Text>
+                    </View>
+                    <TouchableOpacity
+                        style={[styles.addBtn, { backgroundColor: colors.tint }]}
+                        onPress={() => router.push('/admin/analysis')}
+                    >
+                        <FontAwesome name="bar-chart" size={16} color="#fff" style={{ marginRight: 8 }} />
+                        <Text style={styles.addBtnText}>상세 분석 보기</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
 
+            <Text style={[styles.cardTitle, { marginBottom: 16 }]}>필수 운영 지표</Text>
             <View variant="transparent" style={styles.webStatsGrid}>
                 {loading ? (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
@@ -60,10 +77,52 @@ export default function AdminDashboardScreen() {
                     </View>
                 ) : (
                     <>
-                        <StatGridCard title="총 사용자" value={stats?.userCount || 0} icon="users" color="#4F46E5" trendLabel="누적 회원 수" />
-                        <StatGridCard title="생성된 암기장" value={stats?.libraryCount || 0} icon="book" color="#7C3AED" trendLabel="전체 암기장 개수" />
-                        <StatGridCard title="저장된 단어 카드" value={stats?.itemCount || 0} icon="list-ol" color="#F59E0B" trendLabel="시스템에 등록된 총 단어" />
-                        <StatGridCard title="공유 다운로드" value={stats?.totalDownloads || 0} icon="download" color="#10B981" trendLabel="자료실 누적 이용 수" />
+                        <StatGridCard
+                            title="오늘 활성 사용자 (DAU)"
+                            value={advancedStats?.dau || 0}
+                            icon="bolt"
+                            color="#F59E0B"
+                            trendLabel={`전체 MAU: ${advancedStats?.mau || 0}`}
+                            onPress={() => router.push('/admin/stats/dau')}
+                        />
+                        <StatGridCard
+                            title="신규 가입자"
+                            value={advancedStats?.newUsersToday || 0}
+                            icon="user-plus"
+                            color="#10B981"
+                            trend={advancedStats?.newUsersToday - advancedStats?.newUsersYesterday}
+                            trendLabel="어제 대비 변동"
+                            onPress={() => router.push('/admin/stats/new_users')}
+                        />
+                        <StatGridCard
+                            title="예상 광고 수익"
+                            value={advancedStats?.estRevenue || 0}
+                            icon="money"
+                            color="#4F46E5"
+                            isCurrency
+                            trendLabel={`오늘 광고 시청: ${advancedStats?.adViews || 0}회`}
+                            onPress={() => router.push('/admin/stats/revenue')}
+                        />
+                        <StatGridCard
+                            title="시스템 에러"
+                            value={advancedStats?.errorCount || 0}
+                            icon="exclamation-triangle"
+                            color={advancedStats?.errorCount > 0 ? colors.error : "#6B7280"}
+                            trendLabel="최근 24시간 발생 건수"
+                            onPress={() => router.push('/admin/stats/errors')}
+                        />
+                    </>
+                )}
+            </View>
+
+            <Text style={[styles.cardTitle, { marginBottom: 16, marginTop: 16 }]}>누적 데이터 요약</Text>
+            <View variant="transparent" style={styles.webStatsGrid}>
+                {loading ? null : (
+                    <>
+                        <StatGridCard title="총 사용자" value={stats?.userCount || 0} icon="users" color="#6366F1" trendLabel="전체 회원 수" onPress={() => router.push('/admin/users')} />
+                        <StatGridCard title="전체 암기장" value={stats?.libraryCount || 0} icon="book" color="#8B5CF6" trendLabel="사용자 생성 암기장" onPress={() => router.push('/admin/shared-manager')} />
+                        <StatGridCard title="평균 학습 시간" value={advancedStats?.avgStudyTimeMinutes || 0} icon="clock-o" color="#EC4899" trendLabel="회당 평균 학습 (분)" onPress={() => router.push('/admin/analysis')} />
+                        <StatGridCard title="총 다운로드" value={stats?.totalDownloads || 0} icon="download" color="#06B6D4" trendLabel="자료실 이용 횟수" onPress={() => router.push('/admin/analysis')} />
                     </>
                 )}
             </View>
@@ -121,6 +180,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 20,
         marginBottom: 32,
+    },
+    webStatCardWrapper: {
+        flex: 1,
     },
     webStatCard: {
         flex: 1,

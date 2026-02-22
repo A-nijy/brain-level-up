@@ -3,6 +3,7 @@ import { AdminService } from '@/services/AdminService';
 
 export function useAdminStats() {
     const [stats, setStats] = useState<any>(null);
+    const [advancedStats, setAdvancedStats] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<Error | null>(null);
@@ -12,8 +13,13 @@ export function useAdminStats() {
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
 
-            const data = await AdminService.getGlobalStats();
-            setStats(data);
+            const [basic, advanced] = await Promise.all([
+                AdminService.getGlobalStats(),
+                AdminService.getAdvancedStats()
+            ]);
+
+            setStats(basic);
+            setAdvancedStats(advanced);
             setError(null);
         } catch (err: any) {
             console.error('[useAdminStats] Fetch error:', err);
@@ -48,6 +54,7 @@ export function useAdminStats() {
 
     return {
         stats,
+        advancedStats,
         loading,
         refreshing,
         error,

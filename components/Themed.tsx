@@ -3,7 +3,7 @@
  * https://docs.expo.io/guides/color-schemes/
  */
 
-import { Text as DefaultText, View as DefaultView, TouchableOpacity as DefaultTouchableOpacity, ColorValue, TouchableOpacityProps } from 'react-native';
+import { Text as DefaultText, View as DefaultView, TouchableOpacity as DefaultTouchableOpacity, ColorValue, TouchableOpacityProps, StyleSheet } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from './useColorScheme';
@@ -52,7 +52,7 @@ export function Text(props: TextProps) {
       textStyle = { fontSize: 16, color };
   }
 
-  return <DefaultText style={[textStyle, style]} {...otherProps} />;
+  return <DefaultText style={StyleSheet.flatten([textStyle, style])} {...otherProps} />;
 }
 
 export function View(props: ViewProps) {
@@ -73,7 +73,7 @@ export function View(props: ViewProps) {
     borderColor,
   } : {};
 
-  return <DefaultView style={[{ backgroundColor }, variantStyles, style]} {...otherProps} />;
+  return <DefaultView style={StyleSheet.flatten([{ backgroundColor }, variantStyles, style])} {...otherProps} />;
 }
 
 export function Card(props: CardProps) {
@@ -83,7 +83,7 @@ export function Card(props: CardProps) {
 
   return (
     <DefaultTouchableOpacity
-      style={[
+      style={StyleSheet.flatten([
         {
           backgroundColor,
           borderRadius: 16,
@@ -92,7 +92,7 @@ export function Card(props: CardProps) {
           padding: 16,
         },
         style
-      ]}
+      ])}
       activeOpacity={0.7}
       {...otherProps}
     />
