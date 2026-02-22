@@ -173,8 +173,6 @@ export default function SharedLibraryDetailScreen() {
             <Stack.Screen
                 options={{
                     headerTitle: library?.title || '자료 상세',
-                    headerShadowVisible: false,
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <TouchableOpacity onPress={() => setCreateModalVisible(true)} style={{ marginRight: 16 }}>

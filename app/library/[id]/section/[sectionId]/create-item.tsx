@@ -87,9 +87,7 @@ export default function CreateItemScreen() {
             <Stack.Screen
                 options={{
                     title: '단어 추가',
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
-                    headerShadowVisible: false,
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollContent}>

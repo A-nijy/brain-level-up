@@ -60,7 +60,7 @@ export default function AdminNotificationScreen() {
                     <Text style={[styles.subtitle, { color: colors.textSecondary }]}>사용자에게 중요 메시지나 개인 알림을 푸시 알림으로 전송합니다.</Text>
                 </View>
                 <TouchableOpacity style={[styles.backBtn, { borderColor: colors.border }]} onPress={() => router.back()}>
-                    <FontAwesome name="arrow-left" size={14} color={colors.textSecondary} style={{ marginRight: 8 }} />
+                    <FontAwesome name="chevron-left" size={14} color={colors.textSecondary} style={{ marginRight: 10 }} />
                     <Text style={[styles.backBtnText, { color: colors.textSecondary }]}>돌아가기</Text>
                 </TouchableOpacity>
             </View>

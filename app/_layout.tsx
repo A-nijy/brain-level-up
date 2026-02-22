@@ -6,7 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { View, ActivityIndicator, Platform } from 'react-native';
+import { View, ActivityIndicator, Platform, TouchableOpacity } from 'react-native';
 import { PushNotificationService } from '@/services/PushNotificationService';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -16,6 +16,24 @@ import { ThemeProvider as AppThemeProvider } from '@/contexts/ThemeContext';
 export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = { initialRouteName: '(tabs)' };
+
+const CustomLightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    card: '#F8FAFC',
+    background: '#F8FAFC',
+  },
+};
+
+const CustomDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    card: '#0F172A',
+    background: '#0F172A',
+  },
+};
 
 SplashScreen.preventAutoHideAsync();
 
@@ -84,11 +102,30 @@ function InitialLayout() {
   const showWebLayout = isWeb && session && segments[0] !== 'auth';
 
   const LayoutContent = (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerShadowVisible: false,
+        headerTintColor: colorScheme === 'dark' ? '#fff' : '#000',
+        headerLeft: (props) => (
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={{
+              marginLeft: Platform.OS === 'web' ? 0 : 8,
+              padding: 8,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <FontAwesome name="chevron-left" size={20} color={colorScheme === 'dark' ? '#fff' : '#000'} />
+          </TouchableOpacity>
+        ),
+      }}
+    >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="admin" options={{ headerShown: false }} />
       <Stack.Screen name="auth/login" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="statistics_detail" options={{ headerTitle: '세부 학습 상태도' }} />
       <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
     </Stack>
@@ -99,7 +136,7 @@ function InitialLayout() {
     const WebHeader = require('@/components/WebHeader').default;
 
     return (
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
         <View style={{ flex: 1, flexDirection: 'row', backgroundColor: colorScheme === 'dark' ? '#0F172A' : '#F8FAFC' }}>
           <WebSidebar />
           <View style={{ flex: 1 }}>
@@ -114,7 +151,7 @@ function InitialLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
       {LayoutContent}
     </ThemeProvider>
   );

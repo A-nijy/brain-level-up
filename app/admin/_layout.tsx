@@ -34,7 +34,6 @@ export default function AdminLayout() {
     return (
         <Stack screenOptions={{
             headerShown: Platform.OS !== 'web',
-            headerStyle: { backgroundColor: colors.background },
             headerTintColor: colors.text,
             headerTitleStyle: { fontWeight: 'bold' },
         }}>

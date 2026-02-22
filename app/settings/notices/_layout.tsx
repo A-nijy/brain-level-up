@@ -10,8 +10,6 @@ export default function NoticesLayout() {
         <Stack
             screenOptions={{
                 headerShown: true,
-                headerShadowVisible: false,
-                headerStyle: { backgroundColor: colors.background },
                 headerTintColor: colors.text,
             }}
         >

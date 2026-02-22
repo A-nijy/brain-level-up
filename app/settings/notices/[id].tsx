@@ -66,8 +66,6 @@ export default function NoticeDetailScreen() {
                 options={{
                     title: '공지사항 상세',
                     headerShown: true,
-                    headerShadowVisible: false,
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
                 }}
             />

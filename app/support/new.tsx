@@ -54,8 +54,6 @@ export default function NewSupportScreen() {
                 options={{
                     title: 'Q&A 및 건의사항',
                     headerShown: true,
-                    headerShadowVisible: false,
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
                 }}
             />

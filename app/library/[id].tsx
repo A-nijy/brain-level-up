@@ -185,8 +185,6 @@ export default function LibraryDetailScreen() {
             <Stack.Screen
                 options={{
                     headerTitle: library?.title || '암기장',
-                    headerShadowVisible: false,
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: Platform.OS === 'web' ? 24 : 0 }}>

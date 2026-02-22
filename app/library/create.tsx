@@ -53,9 +53,7 @@ export default function CreateLibraryScreen() {
             <Stack.Screen
                 options={{
                     title: '새 암기장 만들기',
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
-                    headerShadowVisible: false,
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollContent}>

@@ -1,33 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, RefreshControl, useWindowDimensions, ActivityIndicator, Platform } from 'react-native';
+import React from 'react';
+import { StyleSheet, ScrollView, RefreshControl, useWindowDimensions, ActivityIndicator, Platform, TouchableOpacity, Pressable, Alert } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
-import { useAuth } from '@/contexts/AuthContext';
-import { StatsService } from '@/services/StatsService';
-import { StudyLog } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
 
 import { useStudyStats } from '@/hooks/useStudyStats';
+import ActivityCalendar from '@/components/stats/ActivityCalendar';
+import DonutChart from '@/components/stats/DonutChart';
 
 export default function StatsScreen() {
     const {
         loading,
         refreshing,
         streak,
-        totals,
-        chartData,
+        overallDistribution,
+        activities,
         refresh
     } = useStudyStats();
-
-    const { avgAccuracy, totalItems, totalMinutes } = totals;
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
-
-    const maxVal = Math.max(...chartData.map(d => d.value), 1);
+    const router = useRouter();
 
     if (loading && !refreshing) {
         return (
@@ -39,85 +36,82 @@ export default function StatsScreen() {
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
+    const { learned, confused, undecided, total } = overallDistribution;
+    const learnedPct = total > 0 ? Math.round((learned / total) * 100) : 0;
+    const confusedPct = total > 0 ? Math.round((confused / total) * 100) : 0;
+    const undecidedPct = total > 0 ? Math.round((undecided / total) * 100) : 0;
+
     return (
         <ScrollView
             style={[styles.container, { backgroundColor: colors.background }]}
             contentContainerStyle={[
-                isWeb && { maxWidth: 1000, alignSelf: 'center', width: '100%', paddingVertical: 40 }
+                styles.content,
+                isWeb && { maxWidth: 650, alignSelf: 'center', width: '100%', paddingVertical: 40 }
             ]}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />}
         >
-            <View variant="transparent" style={styles.header}>
-                <Text style={styles.headerTitle}>Learning Progress</Text>
-                <Text style={styles.headerSubtitle}>최근 7일간의 학습 성과를 확인하세요.</Text>
+            {/* Streak Section */}
+            <Animated.View entering={FadeInUp.delay(100)} style={styles.streakContainer}>
+                <Text style={styles.streakText}>
+                    🔥 현재 <Text style={[styles.streakCount, { color: colors.tint }]}>{streak}일</Text> 연속 학습 중 🔥
+                </Text>
+            </Animated.View>
+
+            {/* Calendar Section */}
+            <Animated.View entering={FadeInUp.delay(200)} style={styles.section}>
+                <ActivityCalendar activities={activities} />
+            </Animated.View>
+
+            {/* Overall Distribution Section Header */}
+            <View variant="transparent" style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>전체 학습 상태도</Text>
             </View>
 
-            <View variant="transparent" style={[styles.statsGrid, isWeb && { flexDirection: 'row', flexWrap: 'wrap' }]}>
-                <Animated.View entering={FadeInUp.delay(100)} style={styles.statCardWrapper}>
-                    <Card style={[styles.statCard, { borderColor: '#F59E0B' }]}>
-                        <View variant="transparent" style={styles.statHeader}>
-                            <FontAwesome name="fire" size={20} color="#F59E0B" />
-                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Streak</Text>
-                        </View>
-                        <Text style={styles.statValue}>{streak} Days</Text>
-                    </Card>
-                </Animated.View>
+            <Animated.View entering={FadeInUp.delay(300)} style={{ zIndex: 10 }}>
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.mainStatCard,
+                        {
+                            borderColor: colors.border,
+                            opacity: pressed ? 0.6 : 1,
+                            transform: [{ scale: pressed ? 0.98 : 1 }]
+                        }
+                    ]}
+                    onPress={() => {
+                        console.log('Navigating to statistics_detail');
+                        router.push('/statistics_detail');
+                    }}
+                >
+                    <View variant="transparent" style={styles.statRow} pointerEvents="none">
+                        {/* Left: Chart */}
+                        <DonutChart data={overallDistribution} size={150} strokeWidth={18} />
 
-                <Animated.View entering={FadeInUp.delay(200)} style={styles.statCardWrapper}>
-                    <Card style={[styles.statCard, { borderColor: colors.tint }]}>
-                        <View variant="transparent" style={styles.statHeader}>
-                            <FontAwesome name="line-chart" size={20} color={colors.tint} />
-                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Accuracy</Text>
-                        </View>
-                        <Text style={styles.statValue}>{avgAccuracy}%</Text>
-                    </Card>
-                </Animated.View>
+                        {/* Right: Info */}
+                        <View variant="transparent" style={styles.statInfo}>
 
-                <Animated.View entering={FadeInUp.delay(300)} style={styles.statCardWrapper}>
-                    <Card style={[styles.statCard, { borderColor: '#10B981' }]}>
-                        <View variant="transparent" style={styles.statHeader}>
-                            <FontAwesome name="check-square-o" size={20} color="#10B981" />
-                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Solved</Text>
-                        </View>
-                        <Text style={styles.statValue}>{totalItems}</Text>
-                    </Card>
-                </Animated.View>
-
-                <Animated.View entering={FadeInUp.delay(400)} style={styles.statCardWrapper}>
-                    <Card style={[styles.statCard, { borderColor: '#6366F1' }]}>
-                        <View variant="transparent" style={styles.statHeader}>
-                            <FontAwesome name="clock-o" size={20} color="#6366F1" />
-                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Study Time</Text>
-                        </View>
-                        <Text style={styles.statValue}>{totalMinutes}m</Text>
-                    </Card>
-                </Animated.View>
-            </View>
-
-            <View variant="transparent" style={styles.section}>
-                <Text style={styles.sectionTitle}>Weekly Activity</Text>
-                <Card style={styles.chartCard}>
-                    <View variant="transparent" style={styles.chartContent}>
-                        {chartData.map((day, index) => (
-                            <View key={index} variant="transparent" style={styles.barWrapper}>
-                                <View variant="transparent" style={styles.barContainer}>
-                                    <Animated.View
-                                        entering={FadeInUp.delay(500 + index * 50)}
-                                        style={[
-                                            styles.bar,
-                                            {
-                                                height: `${(day.value / maxVal) * 100}%`,
-                                                backgroundColor: day.value === 0 ? colors.border : colors.tint
-                                            }
-                                        ]}
-                                    />
+                            <View variant="transparent" style={styles.indicatorList}>
+                                <View variant="transparent" style={styles.indicatorItem}>
+                                    <View style={[styles.dot, { backgroundColor: colors.success || '#10B981' }]} />
+                                    <Text style={styles.indicatorText}>{learned}개 / {learnedPct}%</Text>
                                 </View>
-                                <Text style={[styles.barLabel, { color: colors.textSecondary }]}>{day.label}</Text>
+                                <View variant="transparent" style={styles.indicatorItem}>
+                                    <View style={[styles.dot, { backgroundColor: '#F59E0B' }]} />
+                                    <Text style={styles.indicatorText}>{confused}개 / {confusedPct}%</Text>
+                                </View>
+                                <View variant="transparent" style={styles.indicatorItem}>
+                                    <View style={[styles.dot, { backgroundColor: colorScheme === 'dark' ? '#334155' : '#E2E8F0' }]} />
+                                    <Text style={styles.indicatorText}>{undecided}개 / {undecidedPct}%</Text>
+                                </View>
                             </View>
-                        ))}
+                        </View>
                     </View>
-                </Card>
-            </View>
+
+                    <View style={[styles.detailLink, { borderTopColor: colors.border + '50' }]} pointerEvents="none">
+                        <Text style={[styles.detailLinkText, { color: colors.tint }]}>암기장별 상세 분석 보기</Text>
+                        <FontAwesome name="chevron-right" size={10} color={colors.tint} />
+                    </View>
+                </Pressable>
+            </Animated.View>
 
             <View variant="transparent" style={{ height: 100 }} />
         </ScrollView>
@@ -128,97 +122,110 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    content: {
+        padding: 24,
+    },
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    header: {
-        paddingHorizontal: 24,
-        paddingTop: 12,
-        marginBottom: 24,
-    },
-    headerTitle: {
-        fontSize: 32,
-        fontWeight: '800',
-        letterSpacing: -0.5,
-        marginBottom: 6,
-    },
-    headerSubtitle: {
-        fontSize: 16,
-        color: '#64748B',
-        fontWeight: '500',
-    },
-    statsGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        paddingHorizontal: 16,
-        marginBottom: 8,
-    },
-    statCardWrapper: {
-        width: '50%',
-        padding: 8,
-    },
-    statCard: {
-        padding: 16,
-        borderRadius: 20,
-        borderWidth: 1.5,
-    },
-    statHeader: {
-        flexDirection: 'row',
+    streakContainer: {
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 32,
+        paddingVertical: 12,
     },
-    statValue: {
+    streakText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    streakCount: {
         fontSize: 22,
-        fontWeight: '800',
-        letterSpacing: -0.5,
-    },
-    statLabel: {
-        fontSize: 12,
-        marginLeft: 8,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        fontWeight: '900',
     },
     section: {
-        padding: 24,
+        marginBottom: 40,
+    },
+    sectionHeader: {
+        marginBottom: 16,
+        alignItems: 'center',
     },
     sectionTitle: {
-        fontSize: 20,
+        fontSize: 18,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+    },
+    mainStatCard: {
+        borderRadius: 32,
+        padding: 24,
+        borderWidth: 1.5,
+    },
+    statRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 20,
+    },
+    statInfo: {
+        flex: 1,
+        marginLeft: 8,
+    },
+    totalCountLabel: {
+        fontSize: 13,
         fontWeight: '700',
         marginBottom: 16,
     },
-    chartCard: {
-        padding: 24,
-        borderRadius: 24,
-        borderWidth: 1.5,
+    totalCountValue: {
+        fontSize: 16,
+        fontWeight: '900',
     },
-    chartContent: {
+    indicatorList: {
+        gap: 8,
+        marginBottom: 20,
+    },
+    indicatorItem: {
         flexDirection: 'row',
-        height: 180,
-        alignItems: 'flex-end',
-        justifyContent: 'space-between',
-    },
-    barWrapper: {
         alignItems: 'center',
-        flex: 1,
+        gap: 10,
     },
-    barContainer: {
-        height: 140,
-        width: 14,
-        backgroundColor: 'rgba(0,0,0,0.03)',
-        borderRadius: 7,
-        justifyContent: 'flex-end',
-        overflow: 'hidden',
-        marginBottom: 10,
+    dot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
     },
-    bar: {
-        width: '100%',
-        borderRadius: 7,
-    },
-    barLabel: {
-        fontSize: 11,
+    indicatorText: {
+        fontSize: 15,
         fontWeight: '700',
+    },
+    trendFooter: {
+        flexDirection: 'row',
+        gap: 12,
+    },
+    trendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    miniDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+    },
+    trendText: {
+        fontSize: 11,
+        fontWeight: '800',
+    },
+    detailLink: {
+        marginTop: 12,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+    },
+    detailLinkText: {
+        fontSize: 13,
+        fontWeight: 'bold',
     }
 });

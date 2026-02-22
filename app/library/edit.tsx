@@ -137,9 +137,7 @@ export default function EditLibraryScreen() {
             <Stack.Screen
                 options={{
                     title: '암기장 수정',
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
-                    headerShadowVisible: false,
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollContent}>

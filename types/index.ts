@@ -22,8 +22,8 @@ export interface Library {
     category: string | null;
     category_id?: string | null; // added for shared category ref
     created_at: string;
-    updated_at: string;
     display_order: number;
+    items_count?: number;
     // Offline support fields
     sync_status?: SyncStatus;
     last_synced_at?: string;

@@ -143,9 +143,7 @@ export default function AdminImportItemsScreen() {
             <Stack.Screen
                 options={{
                     title: '데이터 대량 등록 (관리자)',
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
-                    headerShadowVisible: false,
                 }}
             />
 

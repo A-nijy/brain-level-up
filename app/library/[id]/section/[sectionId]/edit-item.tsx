@@ -90,9 +90,7 @@ export default function EditItemScreen() {
             <Stack.Screen
                 options={{
                     title: '단어 수정',
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
-                    headerShadowVisible: false,
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollContent}>

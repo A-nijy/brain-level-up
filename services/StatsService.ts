@@ -118,5 +118,75 @@ export const StatsService = {
         }
 
         return streak;
+    },
+
+    /**
+     * 모든 암기장 또는 특정 암기장의 학습 상태(외움/헷갈림/미정) 분포를 가져옵니다.
+     */
+    async getStudyDistribution(userId: string, libraryId?: string): Promise<{
+        learned: number;
+        confused: number;
+        undecided: number;
+        total: number;
+    }> {
+        let query = supabase
+            .from('items')
+            .select('study_status, count', { count: 'exact' })
+            .eq('library_id__user_id', userId); // RPC 또는 조인이 필요할 수 있음. 하지만 items에는 user_id가 직접 없을 수 있으므로 라이브러리 필터링이 필요함.
+
+        // 실제 스키마 확인: items 테이블에는 library_id가 있고, libraries 테이블에는 user_id가 있음.
+        // Supabase에서 직접 조인 필터링을 하거나, library_ids를 먼저 가져와야 함.
+
+        const { data: libs } = await supabase.from('libraries').select('id').eq('user_id', userId);
+        const libIds = libs?.map(l => l.id) || [];
+
+        if (libIds.length === 0) return { learned: 0, confused: 0, undecided: 0, total: 0 };
+
+        let finalQuery = supabase
+            .from('items')
+            .select('study_status');
+
+        if (libraryId) {
+            finalQuery = finalQuery.eq('library_id', libraryId);
+        } else {
+            finalQuery = finalQuery.in('library_id', libIds);
+        }
+
+        const { data, error } = await finalQuery;
+
+        if (error) throw error;
+
+        const distribution = {
+            learned: 0,
+            confused: 0,
+            undecided: 0,
+            total: data?.length || 0
+        };
+
+        data?.forEach(item => {
+            if (item.study_status === 'learned') distribution.learned++;
+            else if (item.study_status === 'confused') distribution.confused++;
+            else distribution.undecided++;
+        });
+
+        return distribution;
+    },
+
+    /**
+     * 월간 학습 활동 기록을 가져옵니다 (캘린더용).
+     */
+    async getMonthlyActivity(userId: string, year: number, month: number): Promise<string[]> {
+        const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
+        const endDate = new Date(year, month, 0).toISOString().split('T')[0];
+
+        const { data, error } = await supabase
+            .from('study_logs')
+            .select('study_date')
+            .eq('user_id', userId)
+            .gte('study_date', startDate)
+            .lte('study_date', endDate);
+
+        if (error) throw error;
+        return data?.map(log => log.study_date) || [];
     }
 };

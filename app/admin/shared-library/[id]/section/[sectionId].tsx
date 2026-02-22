@@ -237,8 +237,6 @@ export default function SharedLibrarySectionDetailScreen() {
             <Stack.Screen
                 options={{
                     headerTitle: section?.title || '단어 목록',
-                    headerShadowVisible: false,
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>

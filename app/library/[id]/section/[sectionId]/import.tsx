@@ -138,9 +138,7 @@ export default function ImportItemsScreen() {
             <Stack.Screen
                 options={{
                     title: '데이터 가져오기',
-                    headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
-                    headerShadowVisible: false,
                 }}
             />
 

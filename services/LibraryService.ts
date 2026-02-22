@@ -8,13 +8,18 @@ export const LibraryService = {
     async getLibraries(userId: string): Promise<Library[]> {
         const { data, error } = await supabase
             .from('libraries')
-            .select('*')
+            .select('*, items:items(count)')
             .eq('user_id', userId)
             .order('display_order', { ascending: true })
             .order('created_at', { ascending: false });
 
         if (error) throw error;
-        return data || [];
+
+        // items count 매핑
+        return (data || []).map((lib: any) => ({
+            ...lib,
+            items_count: lib.items?.[0]?.count || 0
+        }));
     },
 
     async getLibraryById(id: string): Promise<Library | null> {

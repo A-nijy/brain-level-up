@@ -151,13 +151,15 @@ export default function LibraryListScreen() {
             <FontAwesome name="file-text-o" size={12} color={colors.textSecondary} />
             <Text style={styles.statText}>{item.items_count || 0} 단어</Text>
           </View>
-          <View variant="transparent" style={styles.stat}>
-            <FontAwesome name="calendar-o" size={12} color={colors.textSecondary} />
-            <Text style={styles.statText}>
-              {new Date(item.created_at || Date.now()).toLocaleDateString()}
-            </Text>
+          <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View variant="transparent" style={styles.stat}>
+              <FontAwesome name="calendar-o" size={12} color={colors.textSecondary} />
+              <Text style={styles.statText}>
+                {new Date(item.created_at || Date.now()).toLocaleDateString()}
+              </Text>
+            </View>
+            <FontAwesome name="angle-right" size={18} color={colors.textSecondary} />
           </View>
-          <FontAwesome name="angle-right" size={18} color={colors.textSecondary} />
         </View>
 
         {reorderMode && (
