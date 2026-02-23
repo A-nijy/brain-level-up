@@ -145,6 +145,10 @@ export const PushNotificationService = {
         if (settings) {
             console.log('[PushNotificationService] Disabling notifications as learning is complete');
             await this.saveSettings({ ...settings, enabled: false });
+
+            // 실시간 UI 갱신 이벤트 발생 (설정 화면 스위치 오프)
+            const { DeviceEventEmitter } = require('react-native');
+            DeviceEventEmitter.emit('push-progress-updated');
         }
     },
 
@@ -156,6 +160,9 @@ export const PushNotificationService = {
         if (!ids.includes(id)) {
             ids.push(id);
             await AsyncStorage.setItem(SHOWN_IDS_KEY, JSON.stringify(ids));
+
+            // 실시간 완료 체크 (100% 도달 시 알림 종료)
+            await this.getProgress();
         }
     },
 
@@ -369,10 +376,18 @@ export const PushNotificationService = {
             }
 
             const current = finalShownIds.filter(id => filteredItems.some(item => item.id === id)).length;
+            const total = filteredItems.length;
+
+            // 추가: 진행도가 100%이면 자동으로 완료 처리 (단, 이미 꺼져있는 경우는 제외)
+            if (total > 0 && current >= total && settings.enabled) {
+                console.log('[PushNotificationService] Progress reached 100% in getProgress. Triggering completion.');
+                // 비동기로 실행하여 루프 방지
+                setTimeout(() => this.showCompletionNotification(), 500);
+            }
 
             return {
                 current,
-                total: filteredItems.length,
+                total,
             };
         } catch (error) {
             console.error('[Notification] Error getting progress:', error);

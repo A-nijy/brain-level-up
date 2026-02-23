@@ -45,9 +45,17 @@ export const WebPushService = {
 
     async saveSettings(settings: WebPushSettings): Promise<void> {
         if (Platform.OS !== 'web') return;
+
+        // 1. 웹 전용 설정 저장
         await AsyncStorage.setItem(WEB_PUSH_SETTINGS_KEY, JSON.stringify(settings));
 
-        // 알림 설정이 업데이트되면 인터벌 재설정
+        // 2. 메인 설정(@push_notification_settings)과 동기화하여 UI 반영 보장
+        const MAIN_SETTINGS_KEY = '@push_notification_settings';
+        await AsyncStorage.setItem(MAIN_SETTINGS_KEY, JSON.stringify(settings));
+
+        console.log('[WebPush] Settings synchronized with main key.');
+
+        // 3. 알림 설정이 업데이트되면 인터벌 재설정
         this.handleWebPushInterval(settings);
     },
 
@@ -95,9 +103,17 @@ export const WebPushService = {
 
                     // 모든 단어를 다 본 경우 처리
                     if (remainingItems.length === 0) {
-                        console.log('[WebPush] All items have been shown. Notifying user.');
-                        this.showNotification('학습 완료!', '모든 단어를 확인했습니다. 수고하셨습니다!');
-                        // 원한다면 여기서 shownIds를 초기화하여 다시 시작하게 할 수도 있음
+                        console.log('[WebPush] All items have been shown. Automatically disabling notification.');
+
+                        // 1. 안내 알림 전송
+                        this.showNotification('학습 완료!', '모든 단어를 확인했습니다. 알림 기능을 종료합니다.');
+
+                        // 2. 설정 비활성화 및 저장 (인터벌 자동 중단됨)
+                        const currentSettings = { ...settings, enabled: false };
+                        await this.saveSettings(currentSettings);
+
+                        // 3. 실시간 UI 갱신 이벤트 발생 (설정 화면 스위치 오프)
+                        DeviceEventEmitter.emit('push-progress-updated');
                         return;
                     }
 

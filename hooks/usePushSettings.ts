@@ -82,16 +82,6 @@ export function usePushSettings() {
         }
     };
 
-    const resetProgress = async () => {
-        try {
-            await PushNotificationService.resetProgress();
-            const prog = await PushNotificationService.getProgress();
-            setProgress(prog);
-        } catch (error) {
-            console.error('[usePushSettings] Reset progress error:', error);
-            throw error;
-        }
-    };
 
     const requestPermissions = async () => {
         return await PushNotificationService.requestPermissions();
@@ -106,7 +96,6 @@ export function usePushSettings() {
         loading,
         fetchSections,
         saveSettings,
-        resetProgress,
         requestPermissions,
         refresh: loadData
     };

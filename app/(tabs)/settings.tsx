@@ -31,7 +31,6 @@ export default function SettingsScreen() {
     progress,
     fetchSections,
     saveSettings,
-    resetProgress,
     requestPermissions,
     refresh: refreshSettings
   } = usePushSettings();
@@ -123,27 +122,6 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleResetProgress = async () => {
-    Alert.alert(
-      Strings.pushModal.alerts.resetTitle,
-      Strings.pushModal.alerts.resetMsg,
-      [
-        { text: Strings.common.cancel, style: 'cancel' },
-        {
-          text: Strings.common.confirm,
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await resetProgress();
-              Alert.alert(Strings.common.success, Strings.pushModal.alerts.resetSuccess);
-            } catch (error) {
-              Alert.alert(Strings.common.error, Strings.pushModal.alerts.resetFail);
-            }
-          },
-        },
-      ]
-    );
-  };
 
   const handleSignOut = async () => {
     try {
@@ -321,9 +299,6 @@ export default function SettingsScreen() {
                       {Strings.settings.studyProgress}: {progress.current}/{progress.total}
                     </Text>
                   </View>
-                  <TouchableOpacity onPress={handleResetProgress}>
-                    <FontAwesome name={Strings.settings.icons.refresh as any} size={18} color={colors.textSecondary} />
-                  </TouchableOpacity>
                 </View>
               )}
             </>
