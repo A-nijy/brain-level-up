@@ -41,6 +41,9 @@ try {
     console.warn('[PushNotificationService] Failed to set notification handler:', error);
 }
 
+// 중복 실행 방지 플래그
+let isProcessing = false;
+
 export const PushNotificationService = {
     /**
      * 알림 권한 요청
@@ -184,32 +187,35 @@ export const PushNotificationService = {
     },
 
     /**
-     * 알림 일괄 예약 (Batch Scheduling)
+     * 다음 알림 하나 예약 (릴레이 방식)
      */
-    async scheduleNotificationBatch(userId?: string): Promise<void> {
+    async scheduleNextNotification(userId?: string): Promise<void> {
         if (Platform.OS === 'web') return;
-
-        console.log('[PushNotificationService] Starting batch scheduling...');
-
-        // 1. 기존 예약 모두 취소
-        await this.cancelAllNotifications();
-
-        // 취소 후 잠시 대기 (안정성 확보)
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // 2. 설정 확인
-        const settings = await this.getSettings();
-        if (!settings || !settings.enabled || !settings.libraryId) {
-            console.log('[PushNotificationService] Settings not configured or disabled');
+        if (isProcessing) {
+            console.log('[PushNotificationService] Already processing. Skipping...');
             return;
         }
 
-        const currentUserId = userId || await AsyncStorage.getItem('@user_id');
-        if (!currentUserId) {
-            console.log('[PushNotificationService] Warning: User ID not provided, continuing with anonymous scheduling');
-        }
-
         try {
+            isProcessing = true;
+            console.log('[PushNotificationService] Starting relay scheduling...');
+
+            // 1. 현재 예약된 알림 확인 (중복 예약 방지)
+            const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+            const hasLearningNotification = scheduled.some(n => n.content.data?.type === 'learning');
+
+            if (hasLearningNotification) {
+                console.log('[PushNotificationService] A learning notification is already scheduled. Skipping relay.');
+                return;
+            }
+
+            // 2. 설정 확인
+            const settings = await this.getSettings();
+            if (!settings || !settings.enabled || !settings.libraryId) {
+                console.log('[PushNotificationService] Settings not configured or disabled');
+                return;
+            }
+
             // 3. 아이템 로드 및 필터링
             let allItems: Item[] = [];
             if (settings.sectionId && settings.sectionId !== 'all') {
@@ -227,91 +233,78 @@ export const PushNotificationService = {
                 filteredItems = allItems.slice(settings.rangeStart, settings.rangeEnd + 1);
             }
 
-            // 배치 스케줄링 시에는 shownIds를 엄격하게 적용하지 않고, "이번 배치에서" 중복을 피하는 방식으로 진행 가능.
-            // 하지만 영단어 암기 특성상 "안 본 단어" 우선이므로 shownIds를 체크함.
             const shownIds = await this.getShownIds();
-            const availableItems = filteredItems.filter(item => !shownIds.includes(item.id));
+            const remainingItems = filteredItems.filter(item => !shownIds.includes(item.id));
 
-            if (availableItems.length === 0) {
-                console.log('[PushNotificationService] All items shown. Showing completion notification.');
+            if (remainingItems.length === 0) {
+                console.log('[PushNotificationService] No remaining items. Completion check...');
                 await this.showCompletionNotification();
                 return;
             }
 
-            // 4. 정렬/셔플
-            let targetItems = [...availableItems];
+            // 4. 다음 아이템 선택
+            let nextItem: Item;
             if (settings.order === 'random') {
-                for (let i = targetItems.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [targetItems[i], targetItems[j]] = [targetItems[j], targetItems[i]];
-                }
+                const randomIndex = Math.floor(Math.random() * remainingItems.length);
+                nextItem = remainingItems[randomIndex];
             } else {
-                targetItems.sort((a, b) => a.display_order - b.display_order);
+                remainingItems.sort((a, b) => a.display_order - b.display_order);
+                nextItem = remainingItems[0];
             }
 
-            // 5. 배치 예약 (최대 50개)
-            const BATCH_SIZE = Math.min(targetItems.length, 50);
-            console.log(`[PushNotificationService] Scheduling ${BATCH_SIZE} notifications. Interval: ${settings.interval} min`);
-
+            // 5. 발송 시간 계산 (Issue 2 해결: Drift 방지)
+            // 마지막 예약 목록의 시간을 기준으로 하거나, 단순히 현재+간격으로 설정
             const now = new Date();
+            const triggerDate = new Date(now.getTime() + settings.interval * 60 * 1000);
 
-            for (let i = 0; i < BATCH_SIZE; i++) {
-                const item = targetItems[i];
-                // 절대 시간 계산: (i+1) * interval 분 후
-                const triggerDate = new Date(now.getTime() + settings.interval * 60 * 1000 * (i + 1));
-
-                await Notifications.scheduleNotificationAsync({
-                    content: {
-                        title: settings.format === 'meaning_only' ? '단어 퀴즈' : item.question,
-                        body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' :
-                            settings.format === 'meaning_only' ? item.answer : item.answer,
-                        data: {
-                            libraryId: settings.libraryId,
-                            itemId: item.id,
-                            question: item.question,
-                            answer: item.answer,
-                            type: 'learning',
-                            orderIndex: i,
-                            scheduledAt: triggerDate.toISOString(),
-                        },
-                        sound: true,
-                        priority: Notifications.AndroidNotificationPriority.HIGH,
+            // 6. 예약
+            await Notifications.scheduleNotificationAsync({
+                content: {
+                    title: settings.format === 'meaning_only' ? '단어 퀴즈' : nextItem.question,
+                    body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' :
+                        settings.format === 'meaning_only' ? nextItem.answer : nextItem.answer,
+                    data: {
+                        libraryId: settings.libraryId,
+                        itemId: nextItem.id,
+                        question: nextItem.question,
+                        answer: nextItem.answer,
+                        type: 'learning',
+                        scheduledAt: triggerDate.toISOString(),
                     },
-                    trigger: {
-                        type: Notifications.SchedulableTriggerInputTypes.DATE,
-                        date: triggerDate, // Date 객체 직접 사용
-                    },
-                });
-                console.log(`[PushNotificationService] Scheduled #${i + 1} at ${triggerDate.toLocaleTimeString()}`);
-            }
+                    sound: true,
+                    priority: Notifications.AndroidNotificationPriority.HIGH,
+                },
+                trigger: {
+                    type: Notifications.SchedulableTriggerInputTypes.DATE,
+                    date: triggerDate,
+                },
+            });
 
-            // 6. 예약된 목록 저장 (나중에 getProgress에서 도착 여부 판단용)
+            // 7. 예약된 목록(상태바 카운팅용) 업데이트
             try {
-                const scheduledList = targetItems.slice(0, BATCH_SIZE).map((item, idx) => ({
-                    id: item.id,
-                    triggerAt: new Date(now.getTime() + settings.interval * 60 * 1000 * (idx + 1)).toISOString()
-                }));
+                const scheduledList = [{
+                    id: nextItem.id,
+                    triggerAt: triggerDate.toISOString()
+                }];
                 await AsyncStorage.setItem(SCHEDULED_LIST_KEY, JSON.stringify(scheduledList));
             } catch (err) {
                 console.error('[PushNotificationService] Failed to save scheduled list:', err);
             }
 
-            console.log('[PushNotificationService] Batch scheduling completed.');
-
-            // 예약 확인 로그 (상세 정보 출력)
-            const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-            console.log(`[PushNotificationService] Total scheduled: ${scheduled.length}`);
-            scheduled.forEach((n, idx) => {
-                // 상위 5개만 로그 출력
-                if (idx < 5) {
-                    console.log(`[Check] #${idx + 1} ID: ${n.identifier}`);
-                    console.log(`[Check] #${idx + 1} Trigger:`, JSON.stringify(n.trigger));
-                }
-            });
+            console.log(`[PushNotificationService] Relay: Next notification scheduled for ${nextItem.question} at ${triggerDate.toLocaleTimeString()}`);
 
         } catch (error) {
-            console.error('[PushNotificationService] Error in batch scheduling:', error);
+            console.error('[PushNotificationService] Error in relay scheduling:', error);
+        } finally {
+            isProcessing = false;
         }
+    },
+
+    /**
+     * 구 버전 호환용 (이제 relay 방식을 사용하지만 이름 유지를 위해 래핑)
+     */
+    async scheduleNotificationBatch(userId?: string): Promise<void> {
+        await this.scheduleNextNotification(userId);
     },
 
     /**

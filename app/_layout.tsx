@@ -55,41 +55,42 @@ function InitialLayout() {
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
-    // 1. 알림 응답(클릭) 리스너
+    // 1. 알림 응답(클릭) 리스너 - 클릭 시에만 다음 알림 예약
     const responseSubscription = Notifications.addNotificationResponseReceivedListener(async response => {
       try {
         const data = response.notification.request.content.data;
         if (!data) return;
 
-        // 도착 시 카운팅되도록 이미 구현되어 있지만, 클릭 시에도 확실히 한번 더 체크 (중복은 addShownId에서 방지됨)
+        console.log('[Layout] Notification response received:', data.type);
+
+        // 학습 알림 클릭 시 처리
         if (data.itemId) {
           console.log('[Layout] Processing click for item:', data.itemId);
           await PushNotificationService.addShownId(data.itemId as string);
 
-          // 실시간 UI 갱신 이벤트 발생
-          DeviceEventEmitter.emit('push-progress-updated');
+          // 완료 알림이 아니면 해당 단어장으로 이동
+          if (data.type !== 'completion' && data.libraryId) {
+            router.push(`/library/${data.libraryId as string}`);
+          }
         }
 
-        // 완료 알림은 무시하고 단어장 이동
-        if (data.type !== 'completion' && data.libraryId) {
-          router.push(`/library/${data.libraryId as string}`);
-        }
+        // 실시간 UI 갱신 이벤트 발생
+        DeviceEventEmitter.emit('push-progress-updated');
 
-        PushNotificationService.scheduleNotificationBatch();
+        // [핵심] 클릭 시점에 다음 알림 예약 (릴레이)
+        await PushNotificationService.scheduleNextNotification();
       } catch (err) {
         console.error('[Layout] Error handling notification response:', err);
       }
     });
 
-    // 2. 알림 수신(포그라운드) 리스너
+    // 2. 알림 수신 리스너 - 수신 시에는 다음 예약을 하지 않음 (이미 PushNotificationService.addShownId에서 처리)
     const notificationSubscription = Notifications.addNotificationReceivedListener(async notification => {
       try {
         const data = notification.request.content.data;
         if (data?.itemId) {
-          console.log('[Layout] Foreground notification arrived for item:', data.itemId);
+          console.log('[Layout] Foreground notification arrived:', data.itemId);
           await PushNotificationService.addShownId(data.itemId as string);
-
-          // 실시간 UI 갱신 이벤트 발생
           DeviceEventEmitter.emit('push-progress-updated');
         }
       } catch (err) {
