@@ -81,12 +81,12 @@ export default function StatsDetailScreen() {
 
                                                 <View variant="transparent" style={styles.indicatorList}>
                                                     <View variant="transparent" style={styles.indicatorItem}>
-                                                        <Text style={[styles.statusTag, { backgroundColor: '#E7F9F0', color: '#10B981' }]}>{Strings.librarySection.statusModal.learned}</Text>
-                                                        <Text style={styles.indicatorText}>{lib.learned}개 ({learnedPct}%)</Text>
+                                                        <View style={[styles.dot, { backgroundColor: '#10B981' }]} />
+                                                        <Text style={styles.indicatorText}>{Strings.librarySection.statusModal.learned}: {lib.learned}개 ({learnedPct}%)</Text>
                                                     </View>
                                                     <View variant="transparent" style={styles.indicatorItem}>
-                                                        <Text style={[styles.statusTag, { backgroundColor: '#FFFEEB', color: '#F59E0B' }]}>{Strings.librarySection.statusModal.confused}</Text>
-                                                        <Text style={styles.indicatorText}>{lib.confused}개 ({confusedPct}%)</Text>
+                                                        <View style={[styles.dot, { backgroundColor: '#F59E0B' }]} />
+                                                        <Text style={styles.indicatorText}>{Strings.librarySection.statusModal.confused}: {lib.confused}개 ({confusedPct}%)</Text>
                                                     </View>
                                                     <View variant="transparent" style={styles.indicatorItem}>
                                                         <View style={[styles.dot, { backgroundColor: colorScheme === 'dark' ? '#334155' : '#E2E8F0' }]} />

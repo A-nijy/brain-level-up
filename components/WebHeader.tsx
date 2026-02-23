@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, Image, TouchableOpacity, Platform } from 'react-
 import { Text, View } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
+import { Strings } from '@/constants/Strings';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSegments, useRouter } from 'expo-router';
@@ -29,7 +30,7 @@ export default function WebHeader() {
                 'categories': '카테고리 관리',
                 'inquiries': '문의 및 건의사항'
             };
-            return '관리 콘솔 / ' + (adminMap[seg1] || seg1);
+            return adminMap[seg1] || seg1;
         }
 
         const userMap: Record<string, string> = {
@@ -38,7 +39,7 @@ export default function WebHeader() {
             'stats': '학습 통계',
             'settings': '환경 설정'
         };
-        return 'FlashMaster / ' + (userMap[seg1] || seg1);
+        return userMap[seg1] || seg1;
     };
 
     const getPageTitle = () => {
@@ -66,7 +67,7 @@ export default function WebHeader() {
             'stats': '나의 학습 리포트',
             'settings': '시스템 환경 설정'
         };
-        return userTitleMap[seg1] || 'FlashMaster';
+        return userTitleMap[seg1] || Strings.common.appName;
     };
 
     return (

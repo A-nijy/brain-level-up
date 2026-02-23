@@ -14,6 +14,7 @@ export const Strings = {
         save: "저장", // 저장 버튼
         edit: "수정", // 수정 버튼
         delete: "삭제", // 삭제 버튼
+        appName: "뇌벨업", // [전체] 앱 이름
         close: "닫기", // 모달 등 닫기 버튼
         add: "추가", // 추가 버튼
         success: "성공", // 성공 알림 제목

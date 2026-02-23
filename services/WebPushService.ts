@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { Platform, DeviceEventEmitter } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { ItemService } from '@/services/ItemService';
 import { Item } from '@/types';
@@ -112,7 +112,27 @@ export const WebPushService = {
                         body = `${selectedItem.answer}${selectedItem.memo ? ` (${selectedItem.memo})` : ''}`;
                     }
 
+                    // 4. 알림 노출 (사용자에게 우선적으로 보여줌)
+                    console.log(`[WebPush] Triggering notification for item: ${selectedItem.id}`);
                     this.showNotification(title, body);
+
+                    // 5. 도착 시 카운팅 기록 (비동기로 백그라운드 처리)
+                    try {
+                        const SHOWN_IDS_KEY = '@push_notification_shown_ids';
+                        const json = await AsyncStorage.getItem(SHOWN_IDS_KEY);
+                        const shownIds: string[] = json ? JSON.parse(json) : [];
+
+                        if (!shownIds.includes(selectedItem.id)) {
+                            shownIds.push(selectedItem.id);
+                            await AsyncStorage.setItem(SHOWN_IDS_KEY, JSON.stringify(shownIds));
+                            console.log(`[WebPush] Item ${selectedItem.id} recorded successfully`);
+
+                            // 실시간 UI 갱신 이벤트 발생 (새로고침 없이 숫자 변경)
+                            DeviceEventEmitter.emit('push-progress-updated');
+                        }
+                    } catch (idErr) {
+                        console.error('[WebPush] Error recording id (but notification shown):', idErr);
+                    }
                 } catch (err) {
                     console.error('[WebPush] Failed to fetch items for notification:', err);
                 }
@@ -126,18 +146,37 @@ export const WebPushService = {
     },
 
     async showNotification(title: string, body: string) {
-        if (Platform.OS === 'web' && Notification.permission === 'granted') {
-            const notification = new Notification(title, {
-                body,
-                icon: '/favicon.png',
-                tag: 'word-notification', // 같은 태그는 최신 것만 유지
-                requireInteraction: true // 사용자가 닫을 때까지 유지 시도
-            });
+        if (Platform.OS === 'web') {
+            const permission = Notification.permission;
+            console.log(`[WebPush] Attempting to show notification. Permission: ${permission}`);
 
-            notification.onclick = () => {
-                window.focus();
-                notification.close();
-            };
+            if (permission === 'granted') {
+                try {
+                    // 아이콘 경로 에러 및 복잡한 옵션이 노출을 방해할 수 있으므로 최소화
+                    const notification = new Notification(title, {
+                        body,
+                        // icon, tag, requireInteraction 제거하여 가장 기본적인 알림으로 전송
+                    });
+
+                    notification.onshow = () => {
+                        console.log('[WebPush] Notification displayed successfully on screen');
+                    };
+
+                    notification.onerror = (err) => {
+                        console.error('[WebPush] Browser failed to display notification:', err);
+                    };
+
+                    notification.onclick = () => {
+                        window.focus();
+                        notification.close();
+                    };
+                    console.log('[WebPush] Notification object created and event listeners attached');
+                } catch (e) {
+                    console.error('[WebPush] Failed to create Notification object:', e);
+                }
+            } else {
+                console.warn('[WebPush] Cannot show notification: Permission is', permission);
+            }
         }
     }
 };

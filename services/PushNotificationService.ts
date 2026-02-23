@@ -22,6 +22,7 @@ export interface PushNotificationSettings {
 const SETTINGS_KEY = '@push_notification_settings';
 const LAST_INDEX_KEY = '@push_notification_last_index';
 const SHOWN_IDS_KEY = '@push_notification_shown_ids';
+const SCHEDULED_LIST_KEY = '@push_notification_scheduled_list'; // 예약된 알림 목록 (도착 카운팅용)
 
 // 알림 핸들러 설정 (앱 포그라운드에서도 알림 표시)
 try {
@@ -171,7 +172,8 @@ export const PushNotificationService = {
      */
     async resetProgress(): Promise<void> {
         await AsyncStorage.removeItem(SHOWN_IDS_KEY);
-        console.log('[PushNotificationService] Progress has been reset');
+        await AsyncStorage.removeItem(SCHEDULED_LIST_KEY);
+        console.log('[PushNotificationService] Progress and scheduled list have been reset');
     },
 
     /**
@@ -276,6 +278,17 @@ export const PushNotificationService = {
                 console.log(`[PushNotificationService] Scheduled #${i + 1} at ${triggerDate.toLocaleTimeString()}`);
             }
 
+            // 6. 예약된 목록 저장 (나중에 getProgress에서 도착 여부 판단용)
+            try {
+                const scheduledList = targetItems.slice(0, BATCH_SIZE).map((item, idx) => ({
+                    id: item.id,
+                    triggerAt: new Date(now.getTime() + settings.interval * 60 * 1000 * (idx + 1)).toISOString()
+                }));
+                await AsyncStorage.setItem(SCHEDULED_LIST_KEY, JSON.stringify(scheduledList));
+            } catch (err) {
+                console.error('[PushNotificationService] Failed to save scheduled list:', err);
+            }
+
             console.log('[PushNotificationService] Batch scheduling completed.');
 
             // 예약 확인 로그 (상세 정보 출력)
@@ -327,7 +340,35 @@ export const PushNotificationService = {
                 filteredItems = allItems.slice(settings.rangeStart, settings.rangeEnd + 1);
             }
             const shownIds = await this.getShownIds();
-            const current = shownIds.filter(id => filteredItems.some(item => item.id === id)).length;
+
+            // 도착 카운팅 로직 보강: 예약된 목록 중 현재 시간이 지난 것들을 '표시됨'으로 간주
+            let finalShownIds = [...shownIds];
+            try {
+                const scheduledJson = await AsyncStorage.getItem(SCHEDULED_LIST_KEY);
+                if (scheduledJson) {
+                    const scheduledList: { id: string, triggerAt: string }[] = JSON.parse(scheduledJson);
+                    const now = new Date();
+                    const passedItems = scheduledList
+                        .filter(item => new Date(item.triggerAt) <= now)
+                        .map(item => item.id);
+
+                    // 기존 shownIds에 없는 것들 추가
+                    passedItems.forEach(id => {
+                        if (!finalShownIds.includes(id)) {
+                            finalShownIds.push(id);
+                        }
+                    });
+
+                    // (선택사항) 실제 shownIds 저장소에도 반영하여 영구화
+                    if (passedItems.some(id => !shownIds.includes(id))) {
+                        await AsyncStorage.setItem(SHOWN_IDS_KEY, JSON.stringify(finalShownIds));
+                    }
+                }
+            } catch (err) {
+                console.error('[PushNotificationService] Error checking scheduled list:', err);
+            }
+
+            const current = finalShownIds.filter(id => filteredItems.some(item => item.id === id)).length;
 
             return {
                 current,

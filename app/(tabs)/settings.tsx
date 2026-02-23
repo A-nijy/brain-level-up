@@ -6,8 +6,8 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useEffect, useState, useCallback } from 'react';
 import { PushNotificationSettings } from '@/services/PushNotificationService';
 import { Library, Section } from '@/types';
 
@@ -35,6 +35,13 @@ export default function SettingsScreen() {
     requestPermissions,
     refresh: refreshSettings
   } = usePushSettings();
+
+  // 화면 진입 시마다 진행도 새로고침
+  useFocusEffect(
+    useCallback(() => {
+      refreshSettings();
+    }, [refreshSettings])
+  );
 
   // UI State for Modal
   const [tempSettings, setTempSettings] = useState<PushNotificationSettings | null>(null);

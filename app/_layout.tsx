@@ -8,7 +8,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { View, ActivityIndicator, Platform, TouchableOpacity } from 'react-native';
+import { View, ActivityIndicator, Platform, TouchableOpacity, DeviceEventEmitter } from 'react-native';
 import { PushNotificationService } from '@/services/PushNotificationService';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -51,27 +51,100 @@ function InitialLayout() {
     ...FontAwesome.font,
   });
 
-  // 푸시 알림 클릭 핸들러
+  // 푸시 알림 클릭 및 수신 핸들러
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
-    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
-      const data = response.notification.request.content.data;
+    // 1. 알림 응답(클릭) 리스너
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener(async response => {
+      try {
+        const data = response.notification.request.content.data;
+        if (!data) return;
 
-      // 완료 알림은 무시
-      if (data?.type === 'completion') return;
+        // 도착 시 카운팅되도록 이미 구현되어 있지만, 클릭 시에도 확실히 한번 더 체크 (중복은 addShownId에서 방지됨)
+        if (data.itemId) {
+          console.log('[Layout] Processing click for item:', data.itemId);
+          await PushNotificationService.addShownId(data.itemId as string);
 
-      // 단어장으로 이동
-      if (data?.libraryId) {
-        router.push(`/library/${data.libraryId}`);
+          // 실시간 UI 갱신 이벤트 발생
+          DeviceEventEmitter.emit('push-progress-updated');
+        }
+
+        // 완료 알림은 무시하고 단어장 이동
+        if (data.type !== 'completion' && data.libraryId) {
+          router.push(`/library/${data.libraryId as string}`);
+        }
+
+        PushNotificationService.scheduleNotificationBatch();
+      } catch (err) {
+        console.error('[Layout] Error handling notification response:', err);
       }
-
-      // 다음 알림 예약
-      PushNotificationService.scheduleNotificationBatch();
     });
 
-    return () => subscription.remove();
+    // 2. 알림 수신(포그라운드) 리스너
+    const notificationSubscription = Notifications.addNotificationReceivedListener(async notification => {
+      try {
+        const data = notification.request.content.data;
+        if (data?.itemId) {
+          console.log('[Layout] Foreground notification arrived for item:', data.itemId);
+          await PushNotificationService.addShownId(data.itemId as string);
+
+          // 실시간 UI 갱신 이벤트 발생
+          DeviceEventEmitter.emit('push-progress-updated');
+        }
+      } catch (err) {
+        console.error('[Layout] Error handling foreground notification:', err);
+      }
+    });
+
+    return () => {
+      responseSubscription.remove();
+      notificationSubscription.remove();
+    };
   }, [router]);
+
+  // 웹 푸시 알림 전역 초기화
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    const initWebPush = async () => {
+      try {
+        console.log('[Layout] Checking for Web Push settings...');
+        const { WebPushService } = require('@/services/WebPushService');
+        // WebPushService가 사용하는 고유 키와 PushNotificationService 공용 키 모두 확인
+        const WEB_SETTINGS_KEY = '@web_push_settings';
+        const PUSH_SETTINGS_KEY = '@push_notification_settings';
+        const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+
+        let settings = null;
+        const webJson = await AsyncStorage.getItem(WEB_SETTINGS_KEY);
+        const pushJson = await AsyncStorage.getItem(PUSH_SETTINGS_KEY);
+
+        console.log('[Layout] Web Settings raw:', webJson);
+        console.log('[Layout] Push Settings raw:', pushJson);
+
+        if (webJson) settings = JSON.parse(webJson);
+        else if (pushJson) settings = JSON.parse(pushJson);
+
+        if (settings && settings.enabled) {
+          console.log('[Layout] Initializing Web Push with settings. Interval:', settings.interval);
+          if (settings.interval > 0) {
+            WebPushService.handleWebPushInterval(settings);
+          } else {
+            console.warn('[Layout] Web Push interval is 0, not starting');
+          }
+        } else {
+          console.log('[Layout] Web Push is disabled or no settings found. Settings:', settings);
+        }
+      } catch (error) {
+        console.error('[Layout] Failed to initialize Web Push:', error);
+      }
+    };
+
+    // 약간의 지연을 주어 다른 초기화와 겹치지 않게 함
+    const timer = setTimeout(initWebPush, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (loaded && !isLoading) {
@@ -107,6 +180,7 @@ function InitialLayout() {
   const LayoutContent = (
     <Stack
       screenOptions={{
+        headerShown: !isWeb, // 웹에서는 WebHeader가 있으므로 Stack 헤더를 숨깁니다.
         headerShadowVisible: false,
         headerTintColor: colorScheme === 'dark' ? '#fff' : '#000',
         headerLeft: (props) => (

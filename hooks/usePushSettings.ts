@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Platform, DeviceEventEmitter } from 'react-native';
 import { PushNotificationService, PushNotificationSettings } from '@/services/PushNotificationService';
 import { LibraryService } from '@/services/LibraryService';
 import { Library, Section } from '@/types';
@@ -44,7 +44,17 @@ export function usePushSettings() {
 
     useEffect(() => {
         loadData();
-    }, [loadData]);
+
+        // 실시간 진행도 업데이트 수신
+        const subscription = DeviceEventEmitter.addListener('push-progress-updated', () => {
+            console.log('[usePushSettings] Real-time progress update triggered');
+            loadData(); // Call loadData directly as refresh is an alias for it
+        });
+
+        return () => {
+            subscription.remove();
+        };
+    }, [loadData]); // Keep loadData in dependencies to re-subscribe if loadData changes (e.g., user changes)
 
     const fetchSections = useCallback(async (libId: string) => {
         setLoadingSections(true);
