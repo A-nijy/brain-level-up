@@ -86,17 +86,32 @@ export const WebPushService = {
 
                     if (items.length === 0) return;
 
-                    // 3. 선택 (random / sequential)
-                    let selectedItem: Item;
-                    if (settings.order === 'random') {
-                        selectedItem = items[Math.floor(Math.random() * items.length)];
-                    } else {
-                        if (this._currentIndex >= items.length) this._currentIndex = 0;
-                        selectedItem = items[this._currentIndex];
-                        this._currentIndex++;
+                    // 3. 중복 방지 필터링 (이미 노출된 단어 제외)
+                    const SHOWN_IDS_KEY = '@push_notification_shown_ids';
+                    const shownIdsJson = await AsyncStorage.getItem(SHOWN_IDS_KEY);
+                    const shownIds: string[] = shownIdsJson ? JSON.parse(shownIdsJson) : [];
+
+                    const remainingItems = items.filter(i => !shownIds.includes(i.id));
+
+                    // 모든 단어를 다 본 경우 처리
+                    if (remainingItems.length === 0) {
+                        console.log('[WebPush] All items have been shown. Notifying user.');
+                        this.showNotification('학습 완료!', '모든 단어를 확인했습니다. 수고하셨습니다!');
+                        // 원한다면 여기서 shownIds를 초기화하여 다시 시작하게 할 수도 있음
+                        return;
                     }
 
-                    // 4. 포맷팅 및 노출
+                    // 4. 선택 (random / sequential)
+                    let selectedItem: Item;
+                    if (settings.order === 'random') {
+                        selectedItem = remainingItems[Math.floor(Math.random() * remainingItems.length)];
+                    } else {
+                        // 순차적 출력 시 인덱스 관리 (전체 items 기준이 아닌 remainingItems 기준으로 하거나, 
+                        // 전체 items에서 shownIds가 아닌 첫 번째를 가져오는 식)
+                        selectedItem = remainingItems[0];
+                    }
+
+                    // 5. 포맷팅 및 노출
                     let title = '단어 학습 시간입니다!';
                     let body = '';
 
@@ -112,22 +127,18 @@ export const WebPushService = {
                         body = `${selectedItem.answer}${selectedItem.memo ? ` (${selectedItem.memo})` : ''}`;
                     }
 
-                    // 4. 알림 노출 (사용자에게 우선적으로 보여줌)
+                    // 6. 알림 노출
                     console.log(`[WebPush] Triggering notification for item: ${selectedItem.id}`);
                     this.showNotification(title, body);
 
-                    // 5. 도착 시 카운팅 기록 (비동기로 백그라운드 처리)
+                    // 7. 도착 시 카운팅 기록
                     try {
-                        const SHOWN_IDS_KEY = '@push_notification_shown_ids';
-                        const json = await AsyncStorage.getItem(SHOWN_IDS_KEY);
-                        const shownIds: string[] = json ? JSON.parse(json) : [];
-
                         if (!shownIds.includes(selectedItem.id)) {
                             shownIds.push(selectedItem.id);
                             await AsyncStorage.setItem(SHOWN_IDS_KEY, JSON.stringify(shownIds));
-                            console.log(`[WebPush] Item ${selectedItem.id} recorded successfully`);
+                            console.log(`[WebPush] Item ${selectedItem.id} recorded successfully (Total: ${shownIds.length})`);
 
-                            // 실시간 UI 갱신 이벤트 발생 (새로고침 없이 숫자 변경)
+                            // 실시간 UI 갱신 이벤트 발생
                             DeviceEventEmitter.emit('push-progress-updated');
                         }
                     } catch (idErr) {
