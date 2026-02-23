@@ -56,8 +56,8 @@ export default function LibraryListScreen() {
   const handleDeleteLibrary = async (libraryId: string) => {
     try {
       await deleteLibrary(libraryId);
-      if (Platform.OS === 'web') window.alert(Strings.home.deleteSuccess);
-      else Alert.alert(Strings.common.success, Strings.home.deleteSuccess);
+      if (Platform.OS === 'web') window.alert(Strings.libraryForm.deleteSuccess);
+      else Alert.alert(Strings.common.success, Strings.libraryForm.deleteSuccess);
     } catch (error: any) {
       console.error(error);
       if (Platform.OS === 'web') window.alert(`${Strings.common.delete} 실패: ${error.message}`);
@@ -137,7 +137,7 @@ export default function LibraryListScreen() {
               onPress={(e) => showLibraryOptions(item, e)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <FontAwesome name={Strings.home.icons.more} size={18} color={colors.textSecondary} />
+              <FontAwesome name={Strings.home.icons.more as any} size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
         </View>
@@ -150,17 +150,17 @@ export default function LibraryListScreen() {
 
         <View variant="transparent" style={styles.footerRow}>
           <View variant="transparent" style={styles.stat}>
-            <FontAwesome name={Strings.home.icons.items} size={12} color={colors.textSecondary} />
-            <Text style={styles.statText}>{item.items_count || 0} {Strings.home.unitWord}</Text>
+            <FontAwesome name={Strings.home.icons.items as any} size={12} color={colors.textSecondary} />
+            <Text style={styles.statText}>{item.items_count || 0} {Strings.common.unitWord}</Text>
           </View>
           <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View variant="transparent" style={styles.stat}>
-              <FontAwesome name={Strings.home.icons.date} size={12} color={colors.textSecondary} />
+              <FontAwesome name={Strings.home.icons.date as any} size={12} color={colors.textSecondary} />
               <Text style={styles.statText}>
                 {new Date(item.created_at || Date.now()).toLocaleDateString()}
               </Text>
             </View>
-            <FontAwesome name={Strings.home.icons.arrowRight} size={18} color={colors.textSecondary} />
+            <FontAwesome name={Strings.home.icons.arrowRight as any} size={18} color={colors.textSecondary} />
           </View>
         </View>
 
@@ -171,14 +171,14 @@ export default function LibraryListScreen() {
               onPress={() => handleMoveUp(index)}
               disabled={index === 0}
             >
-              <FontAwesome name={Strings.home.icons.up} size={16} color={colors.tint} />
+              <FontAwesome name={Strings.home.icons.up as any} size={16} color={colors.tint} />
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.reorderButton, index === libraries.length - 1 && { opacity: 0.3 }]}
               onPress={() => handleMoveDown(index)}
               disabled={index === libraries.length - 1}
             >
-              <FontAwesome name={Strings.home.icons.down} size={16} color={colors.tint} />
+              <FontAwesome name={Strings.home.icons.down as any} size={16} color={colors.tint} />
             </TouchableOpacity>
           </View>
         )}
@@ -242,7 +242,7 @@ export default function LibraryListScreen() {
                       colors={[colors.tint, colors.tint + 'CC']}
                       style={styles.webAddBtnGradient}
                     >
-                      <FontAwesome name={Strings.home.icons.plus} size={14} color="#fff" />
+                      <FontAwesome name={Strings.common.icons.add as any} size={14} color="#fff" />
                       <Text style={styles.webAddBtnText}>{Strings.home.newLibrary}</Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -264,7 +264,7 @@ export default function LibraryListScreen() {
               style={[styles.emptyAddBtn, { backgroundColor: colors.tint }]}
               onPress={() => router.push('/library/create')}
             >
-              <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
+              <FontAwesome name={Strings.common.icons.add as any} size={14} color="#fff" style={{ marginRight: 8 }} />
               <Text style={styles.emptyAddBtnText}>{Strings.home.newLibrary}</Text>
             </TouchableOpacity>
           </View>

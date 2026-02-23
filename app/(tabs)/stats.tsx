@@ -94,15 +94,15 @@ export default function StatsScreen() {
                             <View variant="transparent" style={styles.indicatorList}>
                                 <View variant="transparent" style={styles.indicatorItem}>
                                     <View style={[styles.dot, { backgroundColor: colors.success || '#10B981' }]} />
-                                    <Text style={styles.indicatorText}>{learned}{Strings.statsTab.unitWord} / {learnedPct}%</Text>
+                                    <Text style={styles.indicatorText}>{learned}{Strings.common.unitWord} / {learnedPct}%</Text>
                                 </View>
                                 <View variant="transparent" style={styles.indicatorItem}>
                                     <View style={[styles.dot, { backgroundColor: '#F59E0B' }]} />
-                                    <Text style={styles.indicatorText}>{confused}{Strings.statsTab.unitWord} / {confusedPct}%</Text>
+                                    <Text style={styles.indicatorText}>{confused}{Strings.common.unitWord} / {confusedPct}%</Text>
                                 </View>
                                 <View variant="transparent" style={styles.indicatorItem}>
                                     <View style={[styles.dot, { backgroundColor: colorScheme === 'dark' ? '#334155' : '#E2E8F0' }]} />
-                                    <Text style={styles.indicatorText}>{undecided}{Strings.statsTab.unitWord} / {undecidedPct}%</Text>
+                                    <Text style={styles.indicatorText}>{undecided}{Strings.common.unitWord} / {undecidedPct}%</Text>
                                 </View>
                             </View>
                         </View>

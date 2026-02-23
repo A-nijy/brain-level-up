@@ -153,7 +153,7 @@ export default function CategoryManagerScreen() {
                             setModalVisible(true);
                         }}
                     >
-                        <FontAwesome name={Strings.home.icons.plus as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                        <FontAwesome name={Strings.common.icons.add as any} size={14} color="#fff" style={{ marginRight: 8 }} />
                         <Text style={styles.addBtnText}>{Strings.adminCategories.addBtn}</Text>
                     </TouchableOpacity>
                 </View>

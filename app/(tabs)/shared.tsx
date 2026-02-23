@@ -131,7 +131,7 @@ export default function SharedLibraryScreen() {
                             <ActivityIndicator size="small" color={colors.tint} />
                         ) : (
                             <>
-                                <FontAwesome name={Strings.home.icons.plus as any} size={12} color={colors.tint} style={{ marginRight: 6 }} />
+                                <FontAwesome name={Strings.common.icons.add as any} size={12} color={colors.tint} style={{ marginRight: 6 }} />
                                 <Text style={[styles.downloadButtonText, { color: colors.tint }]}>{Strings.shared.import}</Text>
                             </>
                         )}

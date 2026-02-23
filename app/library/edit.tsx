@@ -88,7 +88,7 @@ export default function EditLibraryScreen() {
         if (Platform.OS === 'web') {
             if (!window.confirm(confirmMessage)) return;
         } else {
-            Alert.alert(Strings.libraryForm.deleteConfirmTitle, confirmMessage, [
+            Alert.alert(Strings.common.deleteConfirmTitle, confirmMessage, [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.delete,

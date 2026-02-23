@@ -150,7 +150,7 @@ export default function AdminNoticesScreen() {
                         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{Strings.adminNotices.subtitle}</Text>
                     </View>
                     <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.tint }]} onPress={() => openEditModal()}>
-                        <FontAwesome name={Strings.home.icons.plus as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                        <FontAwesome name={Strings.common.icons.add as any} size={14} color="#fff" style={{ marginRight: 8 }} />
                         <Text style={styles.addBtnText}>{Strings.adminNotices.newNotice}</Text>
                     </TouchableOpacity>
                 </View>

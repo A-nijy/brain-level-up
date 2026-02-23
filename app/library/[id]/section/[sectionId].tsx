@@ -213,7 +213,7 @@ export default function SectionDetailScreen() {
                                 })}
                                 style={styles.headerIconButton}
                             >
-                                <FontAwesome name={Strings.home.icons.plus as any} size={18} color={colors.tint} />
+                                <FontAwesome name={Strings.common.icons.add as any} size={18} color={colors.tint} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={toggleMenu} style={[styles.headerIconButton, { marginRight: 0 }]}>
                                 <FontAwesome name="bars" size={20} color={colors.textSecondary} />

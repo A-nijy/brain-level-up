@@ -35,15 +35,19 @@ export const Strings = {
         yes: "예", // 긍정 응답
         no: "아니오", // 부정 응답
         ok: "확인", // 단순 확인 버튼
+        // 단위 텍스트 (전체 화면 공통 사용)
+        unitWord: "단어", // [(tabs)/index.tsx, library/*, adminSharedSection] 단어 개수 표시 단위
+        unitMinute: "분", // [(tabs)/stats.tsx, study/*] 시간 단위
+        unitCount: "횟", // [(tabs)/stats.tsx] 횟수 단위
         icons: {
-            delete: "trash", // 삭제 아이콘
-            edit: "pencil", // 수정 아이콘
-            add: "plus", // 추가(+) 아이콘
-            close: "times", // 닫기(×) 아이콘
-            check: "check", // 선택/체크 아이콘
-            back: "chevron-left", // 뒤로가기 화살표 아이콘
-            more: "ellipsis-v", // 더보기(⋮) 아이콘
-            refresh: "refresh", // 새로고침 아이콘
+            delete: "trash", // [전체] 삭제 아이콘
+            edit: "pencil", // [전체] 수정 아이콘
+            add: "plus", // [전체] 추가(+) 아이콘
+            close: "times", // [전체] 닫기(×) 아이콘
+            check: "check", // [전체] 선택/체크 아이콘
+            back: "chevron-left", // [전체] 뒤로가기 화살표
+            more: "ellipsis-v", // [전체] 더보기(⋮) 아이콘
+            refresh: "refresh", // [전체] 새로고침 아이콘
         },
     },
 
@@ -51,7 +55,7 @@ export const Strings = {
      * 인증(로그인, 가입) 화면 텍스트입니다.
      */
     auth: {
-        appName: "Memorize Mate", // 서비스 이름
+        appName: "뇌벨업", // 서비스 이름
         welcomeMsg: "스마트한 암기 생활의 시작,\n지금 바로 경험해보세요.", // 로그인 환영 문구
         googleLogin: "Google로 시작하기", // 구글 로그인 버튼
         appleLogin: "Apple로 시작하기", // 애플 로그인 버튼
@@ -92,6 +96,8 @@ export const Strings = {
 
     /**
      * 홈 화면 (나의 암기장 리스트)에서 사용하는 텍스트들입니다.
+    /**
+     * 홈 화면 ((탭)/index.tsx) - 나의 암기장 리스트 화면
      */
     home: {
         greeting: (name: string) => `안녕하세요, ${name}님! 👋`, // 상단 인사말
@@ -101,10 +107,9 @@ export const Strings = {
         reorderStart: "순서 변경", // 정렬 모드 시작 버튼
         newLibrary: "새 암기장", // 암기장 생성 버튼
         emptyDescription: "작성된 설명이 없습니다.", // 설명이 비었을 때 문구
-        unitWord: "단어", // 개수 표시 단위 (예: 10 단어)
+        emptyPrompt: "첫 번째 암기장을 만들어 학습을 시작해보세요!", // 빈 화면 안내 문구
         editAction: "수정하기", // 카드 메뉴 - 수정
         deleteAction: "삭제하기", // 카드 메뉴 - 삭제
-        deleteSuccess: "암기장이 삭제되었습니다.", // 삭제 완료 메시지
         icons: {
             more: "ellipsis-v", // 카드 우측 상단 더보기 아이콘
             items: "file-text-o", // 단어 개수 아이콘
@@ -112,8 +117,7 @@ export const Strings = {
             arrowRight: "angle-right", // 카드 우측 화살표 아이콘
             up: "arrow-up", // 순서 올리기 아이콘
             down: "arrow-down", // 순서 내리기 아이콘
-            plus: "plus", // 추가(+) 아이콘
-            bell: "bell-o", // 상단 알림 아이콘
+            bell: "bell-o", // 상단 알림 아이콘 ((탭)/index.tsx)
         },
         images: {
             libraryDefault: "https://cdn-icons-png.flaticon.com/512/3389/3389081.png", // 암기장 기본 아이콘 이미지 URL
@@ -121,11 +125,11 @@ export const Strings = {
     },
 
     /**
-     * 암기장 생성 및 수정 폼 텍스트입니다.
+     * 암기장 생성/수정 폼 (library/create.tsx, library/edit.tsx)
      */
     libraryForm: {
-        createTitle: "새 암기장 만들기", // 생성 화면 타이틀
-        editTitle: "암기장 수정", // 수정 화면 타이틀
+        createTitle: "새 암기장 만들기", // library/create.tsx 화면 타이틀
+        editTitle: "암기장 수정", // library/edit.tsx 화면 타이틀
         labelTitle: "제목 *", // 제목 입력 필드 라벨
         labelDesc: "설명", // 설명 입력 필드 라벨
         labelCategory: "카테고리", // 카테고리 입력 필드 라벨
@@ -135,12 +139,11 @@ export const Strings = {
         submitCreate: "만들기", // 생성 완료 버튼
         submitEdit: "수정 완료", // 수정 완료 버튼
         validationTitle: "제목을 입력해주세요.", // 제목 미입력 에러
-        deleteBtn: "암기장 삭제하기", // 리스트 아이템 삭제 버튼
-        deleteConfirm: "정말 이 암기장을 삭제하시겠습니까?\n포함된 모든 단어가 함께 삭제됩니다.",
-        deleteSuccess: "암기장이 삭제되었습니다.",
-        fetchError: "정보를 불러오지 못했습니다.",
-        deleteFail: "삭제 실패",
-        deleteConfirmTitle: "삭제 확인",
+        deleteBtn: "암기장 삭제하기", // library/edit.tsx 삭제 버튼
+        deleteConfirm: "정말 이 암기장을 삭제하시겠습니까?\n포함된 모든 단어가 함께 삭제됩니다.", // 삭제 확인 메시지
+        deleteSuccess: "암기장이 삭제되었습니다.", // library/create·edit 삭제 왕료 (공통 값)
+        fetchError: "정보를 불러오지 못했습니다.", // 데이터 로드 실패 메시지
+        deleteFail: "삭제 실패", // 삭제 실패 알림 제목 (공통: common.deleteConfirmTitle 사용)
     },
     /**
      * 학습 화면 텍스트입니다. (단어 플래시카드 학습)
@@ -484,36 +487,34 @@ export const Strings = {
     },
 
     /**
-     * 학습 통계 화면 텍스트입니다.
+     * 학습 통계 탭 화면 (app/(tabs)/stats.tsx)
+     * 단위 텍스트(분/회/개)는 common.unitMinute / common.unitCount / common.unitWord 사용
      */
     statsTab: {
-        title: "학습 리포트",
-        subtitle: "나의 학습 기록을 한눈에 확인하고 성장을 경험하세요.",
-        weeklyTitle: "주간 학습 현황",
-        dailyTitle: "오늘의 성과",
-        totalStudyTime: "총 학습 시간",
-        studyCount: "학습 횟수",
-        newWords: "새로 배운 단어",
-        unitMinute: "분",
-        unitCount: "회",
-        unitWord: "개",
-        streakMsg: (days: number) => `🔥 현재 ${days}일 연속 학습 중 🔥`,
-        chartTitle: "전체 학습 상태도",
-        detailLink: "암기장별 상세 분석 보기",
+        title: "학습 리포트", // [(tabs)/stats.tsx] 탭 화면 제목
+        subtitle: "나의 학습 기록을 한눈에 확인하고 성장을 경험하세요.", // 서브 타이틀
+        weeklyTitle: "주간 학습 현황", // 주간 섹션 제목
+        dailyTitle: "오늘의 성과", // 일간 섹션 제목
+        totalStudyTime: "총 학습 시간", // 통계 카드 라벨
+        studyCount: "학습 횟수", // 통계 카드 라벨
+        newWords: "새로 배운 단어", // 통계 카드 라벨
+        streakMsg: (days: number) => `🔥 현재 ${days}일 연속 학습 중 🔥`, // 스트릭 메시지
+        chartTitle: "전체 학습 상태도", // 도넛 차트 제목
+        detailLink: "암기장별 상세 분석 보기", // 상세 분석 링크
 
         legends: {
-            learned: "외움",
-            confused: "헷갈림",
-            undecided: "미완료",
+            learned: "외움", // 외운 단어 범례
+            confused: "헷갈림", // 헷갈리는 단어 범례
+            undecided: "미완료", // 미완료 단어 범례
         },
 
         sections: {
-            chart: "학습량 추이",
-            achievements: "달성 업적",
-            insights: "AI 학습 인사이트",
+            chart: "학습량 추이", // 학습 추이 섹션 제목
+            achievements: "달성 업적", // 업적 섹션 제목
+            insights: "AI 학습 인사이트", // AI 분석 섹션 제목
         },
 
-        empty: "학습 데이터가 부족합니다.\n지금 바로 암기를 시작해보세요!",
+        empty: "학습 데이터가 부족합니다.\n지금 바로 암기를 시작해보세요!", // 데이터 없을 때 안내
     },
 
     /**
