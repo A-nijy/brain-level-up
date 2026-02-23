@@ -36,7 +36,7 @@ export const Strings = {
         no: "아니오", // 부정 응답
         ok: "확인", // 단순 확인 버튼
         // 단위 텍스트 (전체 화면 공통 사용)
-        unitWord: "단어", // [(tabs)/index.tsx, library/*, adminSharedSection] 단어 개수 표시 단위
+        unitWord: "문제", // [(tabs)/index.tsx, library/*, adminSharedSection] 단어 개수 표시 단위
         unitMinute: "분", // [(tabs)/stats.tsx, study/*] 시간 단위
         unitCount: "횟", // [(tabs)/stats.tsx] 횟수 단위
         icons: {
@@ -321,7 +321,7 @@ export const Strings = {
         title: "알림 상세 설정",
         step1: "1. 학습할 암기장 선택",
         step2: "2. 세부 항목 선택 (소분)",
-        labelRange: "단어 범위",
+        labelRange: "문제 범위",
         labelFormat: "노출 형식",
         labelOrder: "출력 순서",
         labelInterval: "알림 간격 (분)",
@@ -334,7 +334,7 @@ export const Strings = {
         sectionSelected: "항목 선택됨",
 
         ranges: { all: "전체", learned: "외움만", confused: "헷갈림만" },
-        formats: { both: "단어+뜻", word_only: "단어만", meaning_only: "뜻만" },
+        formats: { both: "문제+정답", word_only: "문제만", meaning_only: "정답만" },
         orders: { sequential: "순차적", random: "랜덤" },
 
         alerts: {
@@ -531,8 +531,8 @@ export const Strings = {
         unitDownload: (count: number) => `다운로드 ${count}회`,
         other: "기타",
         stages: {
-            create: "단어장 생성",
-            add: "단어 추가",
+            create: "암기장 생성",
+            add: "문제 추가",
             study: "학습 실천 (30일내)",
         }
     },
@@ -705,7 +705,7 @@ export const Strings = {
      * library/[id]/import.tsx 에서 사용합니다.
      */
     userImport: {
-        title: "단어 가져오기",
+        title: "문제 가져오기",
         fileSelect: "파일 선택하기 (CSV, Excel)",
         fileChange: "파일 변경하기",
         btnImport: "데이터 가져오기",
@@ -715,16 +715,16 @@ export const Strings = {
         guide: {
             title: "가져오기 가이드",
             step1: "1. 엑셀이나 CSV 파일을 준비해주세요.",
-            step2: "2. 첫 줄에 '단어(Question)'와 '뜻(Answer)' 컬럼이 포함되어야 합니다.",
-            step3: "3. 파일을 선택하고 아래 버튼을 누르면 단어장에 추가됩니다.",
+            step2: "2. 첫 줄에 '문제(Question)'와 '정답(Answer)' 컬럼이 필수로 포함되어야 하며, '메모' 컬럼은 선택사항입니다.",
+            step3: "3. 파일을 선택하고 아래 버튼을 누르면 암기장에 추가됩니다.",
         },
         alerts: {
             emptyFile: "파일에 내용이 없습니다.",
             parseError: "파일 읽기에 실패했습니다.",
             pickError: "파일 선택 중 오류 발생",
             noData: "가져올 데이터가 없습니다.",
-            noColumns: "단어/뜻 컬럼을 찾을 수 없습니다.",
-            importSuccess: (count: number) => `${count}개의 단어를 성공적으로 가져왔습니다.`,
+            noColumns: "문제/정답 컬럼을 찾을 수 없습니다.",
+            importSuccess: (count: number) => `${count}개의 문제를 성공적으로 가져왔습니다.`,
             importFail: "가져오기 실패",
         },
         icons: {
@@ -773,7 +773,7 @@ export const Strings = {
             published: (count: number) => `게시 완료 (${count})`,
         },
         table: {
-            info: "단어장 정보",
+            info: "암기장 정보",
             status: "상태",
             download: "다운로드",
             date: "생성일",
@@ -784,7 +784,7 @@ export const Strings = {
             published: "게시됨",
         },
         modal: {
-            editTitle: "공유 단어장 수정",
+            editTitle: "공유 암기장 수정",
             draftEditTitle: "임시 저장 자료 수정",
             createTitle: "신규 자료 직접 작성 및 게시",
             labelTitle: "제목",
@@ -829,7 +829,7 @@ export const Strings = {
             enterName: "섹션 이름을 입력해주세요.",
             createFail: "섹션 생성 실패",
             editFail: "섹션 수정 실패",
-            deleteConfirm: (title: string) => `'${title}' 섹션을 삭제하시겠습니까? 내부의 모든 단어도 삭제됩니다.`,
+            deleteConfirm: (title: string) => `'${title}' 섹션을 삭제하시겠습니까? 내부의 모든 문제도 삭제됩니다.`,
             reorderFail: "순서 변경 실패",
         }
     },
@@ -838,12 +838,12 @@ export const Strings = {
      * shared-library/[id]/section/[sectionId].tsx 에서 사용합니다.
      */
     adminSharedSection: {
-        title: "단어 목록",
-        count: (count: number) => `총 ${count}개의 단어`,
-        addItem: "단어 추가",
+        title: "문제 목록",
+        count: (count: number) => `총 ${count}개의 문제`,
+        addItem: "문제 추가",
         importCsv: "CSV 가져오기",
-        addFirstItem: "첫 번째 단어 추가하기",
-        empty: "등록된 단어가 없습니다.",
+        addFirstItem: "첫 번째 문제 추가하기",
+        empty: "등록된 문제가 없습니다.",
         labelQuestion: "질문 *",
         labelAnswer: "답변 *",
         labelMemo: "메모 (선택)",
@@ -851,15 +851,15 @@ export const Strings = {
         placeholderAnswer: "답변 (뒷면)",
         placeholderMemo: "추가 설명이나 예문",
         modal: {
-            createTitle: "단어 추가",
-            editTitle: "단어 수정",
+            createTitle: "문제 추가",
+            editTitle: "문제 수정",
         },
         alerts: {
             enterQA: "질문과 답변을 입력해주세요.",
             fetchFail: "데이터를 가져오는데 실패했습니다.",
-            addFail: "단어 추가 실패",
-            editFail: "단어 수정 실패",
-            deleteConfirm: (title: string) => `'${title}' 단어를 삭제하시겠습니까?`,
+            addFail: "문제 추가 실패",
+            editFail: "문제 수정 실패",
+            deleteConfirm: (title: string) => `'${title}' 문제를 삭제하시겠습니까?`,
         }
     },
     /**
@@ -939,7 +939,7 @@ export const Strings = {
             enterName: "이름을 입력해주세요.",
             createFail: "섹션 생성 실패",
             editFail: "섹션 수정 실패",
-            deleteConfirm: (title: string) => `'${title}' 섹션을 삭제하시겠습니까? 내부의 모든 단어도 삭제됩니다.`,
+            deleteConfirm: (title: string) => `'${title}' 섹션을 삭제하시겠습니까? 내부의 모든 문제도 삭제됩니다.`,
             deleteFail: "삭제 실패",
         }
     },
@@ -948,16 +948,16 @@ export const Strings = {
      * library/[id]/section/[sectionId].tsx 에서 사용합니다.
      */
     librarySection: {
-        title: "단어 목록",
-        count: (count: number) => `총 ${count}개의 단어`,
-        empty: "등록된 단어가 없습니다.",
-        addFirst: "첫 번째 단어 추가하기",
+        title: "문제 목록",
+        count: (count: number) => `총 ${count}개의 문제`,
+        empty: "등록된 문제가 없습니다.",
+        addFirst: "첫 번째 문제 추가하기",
         playBtn: "이 항목 학습하기",
         menu: {
             reorderStart: "순서 변경",
             reorderEnd: "순서 변경 종료",
             exportPdf: "PDF 내보내기",
-            importWords: "단어 가져오기",
+            importWords: "문제 가져오기",
         },
         statusModal: {
             title: "상태 변경",
@@ -982,8 +982,8 @@ export const Strings = {
      * create-item.tsx / edit-item.tsx 에서 사용합니다.
      */
     itemForm: {
-        createTitle: "단어 추가",
-        editTitle: "단어 수정",
+        createTitle: "문제 추가",
+        editTitle: "문제 수정",
         labelQuestion: "문제 (단어) *",
         labelAnswer: "정답 (뜻) *",
         labelMemo: "메모",
@@ -995,7 +995,7 @@ export const Strings = {
         alerts: {
             enterAll: "문제와 정답을 모두 입력해주세요.",
             invalidAccess: "잘못된 접근입니다.",
-            notFound: "단어를 찾을 수 없습니다.",
+            notFound: "문제를 찾을 수 없습니다.",
             saveSuccess: "추가되었습니다. 계속 추가하시겠습니까?",
             editSuccess: "수정되었습니다.",
             saveFail: "추가 실패",
