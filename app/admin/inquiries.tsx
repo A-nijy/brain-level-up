@@ -14,6 +14,8 @@ type StatusFilter = 'all' | 'resolved' | 'unresolved';
 
 import { useSupport } from '@/hooks/useSupport';
 
+import { Strings } from '@/constants/Strings';
+
 export default function AdminInquiriesScreen() {
     const {
         inquiries,
@@ -25,7 +27,11 @@ export default function AdminInquiriesScreen() {
 
     // UI State
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-    const [selectedCategories, setSelectedCategories] = useState<Set<InquiryCategory>>(new Set(['Q&A', '건의사항', '버그']));
+    const [selectedCategories, setSelectedCategories] = useState<Set<InquiryCategory>>(new Set([
+        Strings.adminInquiries.categories.qa as InquiryCategory,
+        Strings.adminInquiries.categories.suggestion as InquiryCategory,
+        Strings.adminInquiries.categories.bug as InquiryCategory
+    ]));
     const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
     const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
     const [showFilters, setShowFilters] = useState(false);
@@ -56,7 +62,7 @@ export default function AdminInquiriesScreen() {
             const newStatus = !item.is_resolved;
             await toggleInquiryResolved(item.id, newStatus);
         } catch (error) {
-            window.alert('상태 변경에 실패했습니다.');
+            Alert.alert(Strings.common.error, Strings.adminInquiries.alerts.statusFail);
         }
     };
 
@@ -88,9 +94,9 @@ export default function AdminInquiriesScreen() {
 
     const getCategoryColor = (category: string) => {
         switch (category) {
-            case '버그': return '#FF4444';
-            case '건의사항': return '#10B981';
-            case 'Q&A': return '#4F46E5';
+            case Strings.adminInquiries.categories.bug: return '#FF4444';
+            case Strings.adminInquiries.categories.suggestion: return '#10B981';
+            case Strings.adminInquiries.categories.qa: return '#4F46E5';
             default: return colors.textSecondary;
         }
     };
@@ -119,7 +125,7 @@ export default function AdminInquiriesScreen() {
                         <View style={[styles.statusBadge, { backgroundColor: (item.is_resolved ? colors.success : '#F59E0B') + '15' }]}>
                             <View style={[styles.statusDot, { backgroundColor: item.is_resolved ? colors.success : '#F59E0B' }]} />
                             <Text style={[styles.statusText, { color: item.is_resolved ? colors.success : '#F59E0B' }]}>
-                                {item.is_resolved ? '해결됨' : '미해결'}
+                                {item.is_resolved ? Strings.adminInquiries.status.resolved : Strings.adminInquiries.status.unresolved}
                             </Text>
                         </View>
                     </View>
@@ -132,10 +138,10 @@ export default function AdminInquiriesScreen() {
 
                     <View variant="transparent" style={[styles.col, { flex: 0.8, justifyContent: 'flex-end', gap: 12 }]}>
                         <TouchableOpacity onPress={() => toggleExpand(item.id)} style={styles.actionBtn}>
-                            <FontAwesome name={isExpanded ? "chevron-up" : "chevron-down"} size={14} color={colors.textSecondary} />
+                            <FontAwesome name={(isExpanded ? Strings.settings.icons.down : Strings.settings.icons.down) as any} size={14} color={colors.textSecondary} style={isExpanded ? { transform: [{ rotate: '180deg' }] } : {}} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => toggleStatus(item)} style={styles.actionBtn}>
-                            <FontAwesome name={item.is_resolved ? "check-circle" : "circle-o"} size={16} color={item.is_resolved ? colors.tint : colors.textSecondary} />
+                            <FontAwesome name={(item.is_resolved ? Strings.admin.icons.success : Strings.settings.icons.circle) as any} size={16} color={item.is_resolved ? colors.tint : colors.textSecondary} />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -144,23 +150,23 @@ export default function AdminInquiriesScreen() {
                     <View variant="transparent" style={[styles.detailRow, { backgroundColor: colors.cardBackground + '20' }]}>
                         <View variant="transparent" style={styles.detailContent}>
                             <View variant="transparent" style={styles.detailSection}>
-                                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>상세 내용</Text>
+                                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.content}</Text>
                                 <Text style={styles.detailText}>{item.content}</Text>
                             </View>
                             <View variant="transparent" style={styles.detailDivider} />
                             <View variant="transparent" style={styles.detailSection}>
-                                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>사용자 정보</Text>
+                                <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.userInfo}</Text>
                                 <View variant="transparent" style={styles.userGrid}>
                                     <View variant="transparent" style={styles.userItem}>
-                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>닉네임</Text>
-                                        <Text style={styles.userValue}>{item.user_nickname || '미정'}</Text>
+                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.nickname}</Text>
+                                        <Text style={styles.userValue}>{item.user_nickname || Strings.adminInquiries.details.none}</Text>
                                     </View>
                                     <View variant="transparent" style={styles.userItem}>
-                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>이메일</Text>
-                                        <Text style={styles.userValue}>{item.user_email || '미정'}</Text>
+                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.email}</Text>
+                                        <Text style={styles.userValue}>{item.user_email || Strings.adminInquiries.details.none}</Text>
                                     </View>
                                     <View variant="transparent" style={styles.userItem}>
-                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>유저 고유번호</Text>
+                                        <Text style={[styles.userLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.userId}</Text>
                                         <Text style={styles.userValue}>#{item.user_id_number || '-----'}</Text>
                                     </View>
                                 </View>
@@ -179,13 +185,13 @@ export default function AdminInquiriesScreen() {
             <View variant="transparent" style={styles.content}>
                 <View variant="transparent" style={styles.header}>
                     <View variant="transparent">
-                        <Text style={styles.title}>문의 및 건의사항</Text>
-                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>사용자 피드백 수집 및 이슈 대응 현황</Text>
+                        <Text style={styles.title}>{Strings.adminInquiries.title}</Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{Strings.adminInquiries.subtitle}</Text>
                     </View>
                     <View variant="transparent" style={styles.headerActions}>
                         <TouchableOpacity style={[styles.filterBtn, showFilters && styles.filterBtnActive]} onPress={() => setShowFilters(!showFilters)}>
-                            <FontAwesome name="filter" size={14} color={showFilters ? '#fff' : colors.textSecondary} />
-                            <Text style={[styles.filterBtnText, showFilters && { color: '#fff' }]}>필터링</Text>
+                            <FontAwesome name={Strings.admin.icons.filter as any} size={14} color={showFilters ? '#fff' : colors.textSecondary} />
+                            <Text style={[styles.filterBtnText, showFilters && { color: '#fff' }]}>{Strings.adminInquiries.filterBtn}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -193,36 +199,40 @@ export default function AdminInquiriesScreen() {
                 {showFilters && (
                     <Animated.View entering={FadeInUp} style={[styles.filterPanel, { backgroundColor: colors.cardBackground }]}>
                         <View variant="transparent" style={styles.filterSection}>
-                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>정렬</Text>
+                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.filters.sort}</Text>
                             <View variant="transparent" style={styles.filterOptions}>
                                 <TouchableOpacity style={[styles.miniBtn, sortOrder === 'newest' && styles.miniBtnActive]} onPress={() => setSortOrder('newest')}>
-                                    <Text style={[styles.miniBtnText, sortOrder === 'newest' && styles.miniBtnTextActive]}>최신순</Text>
+                                    <Text style={[styles.miniBtnText, sortOrder === 'newest' && styles.miniBtnTextActive]}>{Strings.adminInquiries.filters.newest}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.miniBtn, sortOrder === 'oldest' && styles.miniBtnActive]} onPress={() => setSortOrder('oldest')}>
-                                    <Text style={[styles.miniBtnText, sortOrder === 'oldest' && styles.miniBtnTextActive]}>과거순</Text>
+                                    <Text style={[styles.miniBtnText, sortOrder === 'oldest' && styles.miniBtnTextActive]}>{Strings.adminInquiries.filters.oldest}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
                         <View style={styles.vDivider} />
                         <View variant="transparent" style={styles.filterSection}>
-                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>상태</Text>
+                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.filters.status}</Text>
                             <View variant="transparent" style={styles.filterOptions}>
                                 <TouchableOpacity style={[styles.miniBtn, statusFilter === 'all' && styles.miniBtnActive]} onPress={() => setStatusFilter('all')}>
-                                    <Text style={[styles.miniBtnText, statusFilter === 'all' && styles.miniBtnTextActive]}>전체</Text>
+                                    <Text style={[styles.miniBtnText, statusFilter === 'all' && styles.miniBtnTextActive]}>{Strings.adminInquiries.filters.all}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.miniBtn, statusFilter === 'resolved' && styles.miniBtnActive]} onPress={() => setStatusFilter('resolved')}>
-                                    <Text style={[styles.miniBtnText, statusFilter === 'resolved' && styles.miniBtnTextActive]}>해결</Text>
+                                    <Text style={[styles.miniBtnText, statusFilter === 'resolved' && styles.miniBtnTextActive]}>{Strings.adminInquiries.filters.resolved}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.miniBtn, statusFilter === 'unresolved' && styles.miniBtnActive]} onPress={() => setStatusFilter('unresolved')}>
-                                    <Text style={[styles.miniBtnText, statusFilter === 'unresolved' && styles.miniBtnTextActive]}>미해결</Text>
+                                    <Text style={[styles.miniBtnText, statusFilter === 'unresolved' && styles.miniBtnTextActive]}>{Strings.adminInquiries.filters.unresolved}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
                         <View style={styles.vDivider} />
                         <View variant="transparent" style={styles.filterSection}>
-                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>카테고리</Text>
+                            <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.filters.category}</Text>
                             <View variant="transparent" style={styles.filterOptions}>
-                                {(['Q&A', '건의사항', '버그'] as InquiryCategory[]).map(cat => (
+                                {([
+                                    Strings.adminInquiries.categories.qa,
+                                    Strings.adminInquiries.categories.suggestion,
+                                    Strings.adminInquiries.categories.bug
+                                ] as InquiryCategory[]).map(cat => (
                                     <TouchableOpacity
                                         key={cat}
                                         style={[styles.miniBtn, selectedCategories.has(cat) && { backgroundColor: getCategoryColor(cat) }]}
@@ -238,11 +248,11 @@ export default function AdminInquiriesScreen() {
 
                 <Card style={styles.tableCard}>
                     <View variant="transparent" style={styles.tableHeader}>
-                        <Text style={[styles.headerCol, { flex: 1 }]}>카테고리</Text>
-                        <Text style={[styles.headerCol, { flex: 3.5 }]}>제목 및 내용</Text>
-                        <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right', paddingRight: 10 }]}>상태</Text>
-                        <Text style={[styles.headerCol, { flex: 1.2, textAlign: 'right', paddingRight: 24 }]}>날짜</Text>
-                        <Text style={[styles.headerCol, { flex: 0.8, textAlign: 'right' }]}>관리</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminInquiries.table.category}</Text>
+                        <Text style={[styles.headerCol, { flex: 3.5 }]}>{Strings.adminInquiries.table.content}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right', paddingRight: 10 }]}>{Strings.adminInquiries.table.status}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.2, textAlign: 'right', paddingRight: 24 }]}>{Strings.adminInquiries.table.date}</Text>
+                        <Text style={[styles.headerCol, { flex: 0.8, textAlign: 'right' }]}>{Strings.adminInquiries.table.manage}</Text>
                     </View>
 
                     {loading && !refreshing ? (
@@ -260,7 +270,7 @@ export default function AdminInquiriesScreen() {
                             }
                             ListEmptyComponent={
                                 <View variant="transparent" style={styles.emptyTable}>
-                                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 문의사항이 없습니다.</Text>
+                                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminInquiries.alerts.empty}</Text>
                                 </View>
                             }
                         />

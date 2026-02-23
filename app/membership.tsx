@@ -5,8 +5,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Animated, { FadeInUp } from 'react-native-reanimated';
-import { PaymentService } from '@/services/deprecated/PaymentService';
+import Animated, { FadeInUp, FadeIn } from 'react-native-reanimated';
+import { MembershipService } from '@/services/MembershipService';
+
+import { Strings } from '@/constants/Strings';
 
 export default function MembershipScreen() {
     const { profile, refreshProfile } = useAuth();
@@ -19,33 +21,30 @@ export default function MembershipScreen() {
 
     const plans = [
         {
-            level: 'BASIC',
-            price: '무료',
-            features: ['최대 5개의 암기장', '암기장당 50개 단어', '기본 학습 통계', '광고 포함'],
+            ...Strings.membership.plans.basic,
+            level: Strings.membership.plans.basic.name,
             color: '#64748B',
         },
         {
-            level: 'PREMIUM',
-            price: '₩4,900 /월',
-            features: ['암기장 무제한 생성', '단어 등록 무제한', '광고 제거', '모든 테마 사용 가능', '우선 순위 지원'],
+            ...Strings.membership.plans.premium,
+            level: Strings.membership.plans.premium.name,
             color: '#4F46E5',
         },
         {
-            level: 'PRO',
-            price: '₩9,900 /월',
-            features: ['PREMIUM 모든 기능', '마켓플레이스 공유', '고급 학습 통합 분석', '클라우드 실시간 동기화'],
+            ...Strings.membership.plans.pro,
+            level: Strings.membership.plans.pro.name,
             color: '#7C3AED',
         }
     ];
 
     const handleUpgrade = async (level: string) => {
-        Alert.alert('시스템 점검', '현재 멤버십 결제 기능 준비 중입니다. 잠시 후 다시 이용해 주세요.');
+        Alert.alert(Strings.common.info, Strings.membership.checkMaintenance);
         return;
 
         /* 기존 결제 로직 보존
         if (!profile) return;
         if (level === currentLevel) {
-            Alert.alert('알림', '이미 사용 중인 플랜입니다.');
+            Alert.alert(Strings.common.info, Strings.membership.alerts.alreadySubscribed);
             return;
         }
 
@@ -64,9 +63,9 @@ export default function MembershipScreen() {
             ]}
         >
             <View variant="transparent" style={styles.header}>
-                <Text style={styles.title}>Membership Plan</Text>
+                <Text style={styles.title}>{Strings.membership.screenTitle}</Text>
                 <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                    나에게 딱 맞는 학습 플랜을 선택하고{"\n"}더 효율적으로 암기하세요.
+                    {Strings.membership.subtitle}
                 </Text>
             </View>
 
@@ -83,7 +82,7 @@ export default function MembershipScreen() {
                         ]}>
                             {currentLevel === plan.level && (
                                 <View style={[styles.currentBadge, { backgroundColor: plan.color }]}>
-                                    <Text style={styles.currentBadgeText}>현재 플랜</Text>
+                                    <Text style={styles.currentBadgeText}>{Strings.membership.currentPlan}</Text>
                                 </View>
                             )}
 
@@ -114,7 +113,7 @@ export default function MembershipScreen() {
                                     styles.planButtonText,
                                     { color: currentLevel === plan.level ? colors.textSecondary : '#fff' }
                                 ]}>
-                                    {currentLevel === plan.level ? '사용 중' : '플랜 업그레이드'}
+                                    {currentLevel === plan.level ? Strings.membership.using : Strings.membership.upgrade}
                                 </Text>
                             </TouchableOpacity>
                         </Card>

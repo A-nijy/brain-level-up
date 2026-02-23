@@ -8,6 +8,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { useAdminCategories } from '@/hooks/useAdminCategories';
 
+import { Strings } from '@/constants/Strings';
+
 export default function CategoryManagerScreen() {
     const {
         categories,
@@ -27,7 +29,7 @@ export default function CategoryManagerScreen() {
 
     const handleSave = async () => {
         if (!title.trim()) {
-            window.alert('카테고리 이름을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.adminCategories.alerts.enterName);
             return;
         }
 
@@ -41,17 +43,17 @@ export default function CategoryManagerScreen() {
             setTitle('');
             setEditingCategory(null);
         } catch (error: any) {
-            window.alert('오류: ' + error.message);
+            Alert.alert(Strings.common.error, error.message);
         }
     };
 
     const handleDelete = (category: SharedLibraryCategory) => {
-        if (window.confirm(`"${category.title}" 카테고리를 삭제하시겠습니까?\n이 카테고리에 속한 자료들은 카테고리 미지정 상태가 됩니다.`)) {
+        if (window.confirm(Strings.adminCategories.alerts.deleteConfirm(category.title))) {
             const performDelete = async () => {
                 try {
                     await deleteCategory(category.id);
                 } catch (error: any) {
-                    window.alert('오류: ' + error.message);
+                    Alert.alert(Strings.common.error, error.message);
                 }
             };
             performDelete();
@@ -74,7 +76,7 @@ export default function CategoryManagerScreen() {
         try {
             await reorderCategories(updates);
         } catch (error: any) {
-            window.alert('오류: ' + error.message);
+            Alert.alert(Strings.common.error, error.message);
         }
     };
 
@@ -86,7 +88,7 @@ export default function CategoryManagerScreen() {
 
             <View variant="transparent" style={[styles.col, { flex: 3 }]}>
                 <View style={[styles.iconBox, { backgroundColor: colors.tint + '10' }]}>
-                    <FontAwesome name="tag" size={14} color={colors.tint} />
+                    <FontAwesome name={Strings.shared.icons.filter as any} size={14} color={colors.tint} />
                 </View>
                 <Text style={styles.cellText}>{item.title}</Text>
             </View>
@@ -97,14 +99,14 @@ export default function CategoryManagerScreen() {
                     onPress={() => handleMove(index, 'up')}
                     disabled={index === 0}
                 >
-                    <FontAwesome name="chevron-up" size={12} color={colors.textSecondary} />
+                    <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} style={{ transform: [{ rotate: '180deg' }] }} />
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.moveBtn, { opacity: index === categories.length - 1 ? 0.3 : 1 }]}
                     onPress={() => handleMove(index, 'down')}
                     disabled={index === categories.length - 1}
                 >
-                    <FontAwesome name="chevron-down" size={12} color={colors.textSecondary} />
+                    <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} />
                 </TouchableOpacity>
                 <View style={styles.divider} />
                 <TouchableOpacity
@@ -115,13 +117,13 @@ export default function CategoryManagerScreen() {
                         setModalVisible(true);
                     }}
                 >
-                    <FontAwesome name="pencil" size={12} color="#fff" />
+                    <FontAwesome name={Strings.settings.icons.pencil as any} size={12} color="#fff" />
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.actionBtn, { backgroundColor: colors.error }]}
                     onPress={() => handleDelete(item)}
                 >
-                    <FontAwesome name="trash" size={12} color="#fff" />
+                    <FontAwesome name={Strings.common.delete as any} size={12} color="#fff" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -140,8 +142,8 @@ export default function CategoryManagerScreen() {
             <View variant="transparent" style={styles.content}>
                 <View variant="transparent" style={styles.header}>
                     <View variant="transparent">
-                        <Text style={styles.title}>카테고리 관리</Text>
-                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>공유 자료실 분류 체계 및 정렬 순서 설정</Text>
+                        <Text style={styles.title}>{Strings.adminCategories.title}</Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{Strings.adminCategories.subtitle}</Text>
                     </View>
                     <TouchableOpacity
                         style={[styles.addBtn, { backgroundColor: colors.tint }]}
@@ -151,16 +153,16 @@ export default function CategoryManagerScreen() {
                             setModalVisible(true);
                         }}
                     >
-                        <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
-                        <Text style={styles.addBtnText}>신규 카테고리</Text>
+                        <FontAwesome name={Strings.home.icons.plus as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                        <Text style={styles.addBtnText}>{Strings.adminCategories.addBtn}</Text>
                     </TouchableOpacity>
                 </View>
 
                 <Card style={styles.tableCard}>
                     <View variant="transparent" style={styles.tableHeader}>
-                        <Text style={[styles.headerCol, { flex: 0.5 }]}>#</Text>
-                        <Text style={[styles.headerCol, { flex: 3 }]}>카테고리 명칭</Text>
-                        <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>관리</Text>
+                        <Text style={[styles.headerCol, { flex: 0.5 }]}>{Strings.adminCategories.table.index}</Text>
+                        <Text style={[styles.headerCol, { flex: 3 }]}>{Strings.adminCategories.table.title}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>{Strings.adminCategories.table.manage}</Text>
                     </View>
                     <FlatList
                         data={categories}
@@ -169,7 +171,7 @@ export default function CategoryManagerScreen() {
                         contentContainerStyle={styles.listContent}
                         ListEmptyComponent={
                             <View variant="transparent" style={styles.emptyTable}>
-                                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 카테고리가 없습니다.</Text>
+                                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminCategories.alerts.empty}</Text>
                             </View>
                         }
                     />
@@ -179,11 +181,11 @@ export default function CategoryManagerScreen() {
             <Modal visible={modalVisible} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
                     <Card style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>{editingCategory ? '카테고리 이름 수정' : '새 카테고리 추가'}</Text>
-                        <Text style={[styles.label, { color: colors.textSecondary }]}>이름</Text>
+                        <Text style={styles.modalTitle}>{editingCategory ? Strings.adminCategories.modal.editTitle : Strings.adminCategories.modal.addTitle}</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>{Strings.adminCategories.table.title}</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                            placeholder="예: 비즈니스 영어, JLPT N1 등"
+                            placeholder={Strings.adminCategories.modal.placeholder}
                             placeholderTextColor={colors.textSecondary}
                             value={title}
                             onChangeText={setTitle}
@@ -194,13 +196,13 @@ export default function CategoryManagerScreen() {
                                 style={[styles.modalBtn, { backgroundColor: colors.border + '30' }]}
                                 onPress={() => setModalVisible(false)}
                             >
-                                <Text style={{ color: colors.text }}>취소</Text>
+                                <Text style={{ color: colors.text }}>{Strings.common.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.modalBtn, { backgroundColor: colors.tint }]}
                                 onPress={handleSave}
                             >
-                                <Text style={styles.modalBtnText}>저장하기</Text>
+                                <Text style={styles.modalBtnText}>{Strings.adminCategories.modal.save}</Text>
                             </TouchableOpacity>
                         </View>
                     </Card>

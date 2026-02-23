@@ -11,6 +11,8 @@ import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 
 WebBrowser.maybeCompleteAuthSession();
 
+import { Strings } from '@/constants/Strings';
+
 export default function LoginScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const colorScheme = useColorScheme() ?? 'light';
@@ -29,7 +31,7 @@ export default function LoginScreen() {
             }
 
             if (!paramsStr) {
-                Alert.alert('오류', '반환된 URL에 파라미터가 없습니다.\nURL: ' + url.substring(0, 100));
+                Alert.alert(Strings.common.error, Strings.auth.errorNoParams + '\nURL: ' + url.substring(0, 100));
                 return false;
             }
 
@@ -46,7 +48,7 @@ export default function LoginScreen() {
             const errorDesc = params['error_description'];
 
             if (errorDesc) {
-                Alert.alert('구글 로그인 오류', errorDesc.replace(/\+/g, ' '));
+                Alert.alert(Strings.auth.errorGoogleTitle, errorDesc.replace(/\+/g, ' '));
                 return false;
             }
 
@@ -59,11 +61,11 @@ export default function LoginScreen() {
                 return true;
             }
 
-            Alert.alert('오류', '토큰을 찾을 수 없습니다.\n파라미터: ' + JSON.stringify(params));
+            Alert.alert(Strings.common.error, Strings.auth.errorNoToken + '\n파라미터: ' + JSON.stringify(params));
             return false;
         } catch (e) {
             console.error('Session parsing error:', e);
-            Alert.alert('디버그오류', String(e));
+            Alert.alert(Strings.common.error, String(e));
             return false;
         }
     };
@@ -102,12 +104,12 @@ export default function LoginScreen() {
                 if (result.type === 'success' && result.url) {
                     const success = await extractSessionFromUrl(result.url);
                     if (!success) {
-                        Alert.alert('알림', '세션 정보를 받아오지 못했습니다.');
+                        Alert.alert(Strings.common.info, Strings.auth.errorSession);
                     }
                 }
             }
         } catch (error: any) {
-            Alert.alert('로그인 오류', error.message);
+            Alert.alert(Strings.auth.errorLoginTitle, error.message);
         } finally {
             if (Platform.OS !== 'web') {
                 setIsLoading(false);
@@ -116,13 +118,13 @@ export default function LoginScreen() {
     };
 
     const onSignInWithApple = async () => {
-        Alert.alert('알림', 'Apple 로그인은 현재 준비 중입니다.\n(Google 로그인이나 체험하기를 이용해주세요)');
+        Alert.alert(Strings.common.info, Strings.auth.appleComingSoon);
     };
 
     const onDevLogin = async () => {
         setIsLoading(true);
         const { data, error } = await supabase.auth.signInAnonymously();
-        if (error) Alert.alert('오류', error.message);
+        if (error) Alert.alert(Strings.common.error, error.message);
         setIsLoading(false);
     }
 
@@ -131,18 +133,17 @@ export default function LoginScreen() {
             <View style={[styles.contentWrapper, isWeb && { maxWidth: 500, alignSelf: 'center', width: '100%' }]}>
                 <View style={styles.header}>
                     <Animated.View entering={FadeInUp.delay(200).duration(800)}>
-                        <LinearGradient
-                            colors={[colors.tint, colors.primaryGradient[1]]}
-                            style={styles.logoContainer}
-                        >
-                            <FontAwesome name="book" size={48} color="#fff" />
-                        </LinearGradient>
+                        <Image
+                            source={require('@/assets/images/logo.png')}
+                            style={styles.logoImage}
+                            resizeMode="contain"
+                        />
                     </Animated.View>
 
                     <Animated.View entering={FadeInUp.delay(400).duration(800)} style={styles.titleContainer}>
-                        <Text style={[styles.title, { color: colors.text }]}>Memorize Mate</Text>
+                        <Text style={[styles.title, { color: colors.text }]}>{Strings.auth.appName}</Text>
                         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                            스마트한 암기 생활의 시작,{"\n"}지금 바로 경험해보세요.
+                            {Strings.auth.welcomeMsg}
                         </Text>
                     </Animated.View>
                 </View>
@@ -154,8 +155,8 @@ export default function LoginScreen() {
                         disabled={isLoading}
                         activeOpacity={0.8}
                     >
-                        <FontAwesome name="google" size={20} color="#EA4335" style={{ marginRight: 12 }} />
-                        <Text style={styles.buttonTextBlack}>Google로 시작하기</Text>
+                        <FontAwesome name={Strings.auth.icons.google as any} size={20} color="#EA4335" style={{ marginRight: 12 }} />
+                        <Text style={styles.buttonTextBlack}>{Strings.auth.googleLogin}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -164,13 +165,13 @@ export default function LoginScreen() {
                         disabled={isLoading}
                         activeOpacity={0.8}
                     >
-                        <FontAwesome name="apple" size={20} color="#fff" style={{ marginRight: 12 }} />
-                        <Text style={styles.buttonTextWhite}>Apple로 시작하기</Text>
+                        <FontAwesome name={Strings.auth.icons.apple as any} size={20} color="#fff" style={{ marginRight: 12 }} />
+                        <Text style={styles.buttonTextWhite}>{Strings.auth.appleLogin}</Text>
                     </TouchableOpacity>
 
                     <View style={styles.dividerContainer}>
                         <View style={[styles.line, { backgroundColor: colors.border }]} />
-                        <Text style={[styles.dividerText, { color: colors.textSecondary }]}>또는</Text>
+                        <Text style={[styles.dividerText, { color: colors.textSecondary }]}>{Strings.auth.or}</Text>
                         <View style={[styles.line, { backgroundColor: colors.border }]} />
                     </View>
 
@@ -180,7 +181,7 @@ export default function LoginScreen() {
                         disabled={isLoading}
                         activeOpacity={0.8}
                     >
-                        <Text style={[styles.buttonTextDev, { color: colors.text }]}>게스트로 체험하기</Text>
+                        <Text style={[styles.buttonTextDev, { color: colors.text }]}>{Strings.auth.guestLogin}</Text>
                     </TouchableOpacity>
 
                     {isLoading && (
@@ -191,7 +192,7 @@ export default function LoginScreen() {
 
             <View style={styles.footer}>
                 <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-                    로그인 시 이용약관 및 개인정보 처리방침에 동의하게 됩니다.
+                    {Strings.auth.footerLaw}
                 </Text>
             </View>
         </View>
@@ -212,13 +213,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 60,
     },
-    logoContainer: {
-        width: 110,
-        height: 110,
-        borderRadius: 32,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 32,
+    logoImage: {
+        width: 160,
+        height: 160,
+        marginBottom: 16,
     },
     titleContainer: {
         alignItems: 'center',

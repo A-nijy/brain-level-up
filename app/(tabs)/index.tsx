@@ -12,6 +12,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStudyStats } from '@/hooks/useStudyStats';
 
+import { Strings } from '@/constants/Strings';
+
 export default function LibraryListScreen() {
   const { libraries, loading, refreshing, refresh, reorderLibraries, deleteLibrary } = useLibraries();
   const { stats, totals, streak } = useStudyStats();
@@ -54,12 +56,12 @@ export default function LibraryListScreen() {
   const handleDeleteLibrary = async (libraryId: string) => {
     try {
       await deleteLibrary(libraryId);
-      if (Platform.OS === 'web') window.alert('암기장이 삭제되었습니다.');
-      else Alert.alert('성공', '암기장이 삭제되었습니다.');
+      if (Platform.OS === 'web') window.alert(Strings.home.deleteSuccess);
+      else Alert.alert(Strings.common.success, Strings.home.deleteSuccess);
     } catch (error: any) {
       console.error(error);
-      if (Platform.OS === 'web') window.alert(`삭제 실패: ${error.message}`);
-      else Alert.alert('오류', error.message);
+      if (Platform.OS === 'web') window.alert(`${Strings.common.delete} 실패: ${error.message}`);
+      else Alert.alert(Strings.common.error, error.message);
     }
   };
 
@@ -73,7 +75,7 @@ export default function LibraryListScreen() {
     } else if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['취소', '수정', '삭제'],
+          options: [Strings.common.cancel, Strings.common.edit, Strings.common.delete],
           destructiveButtonIndex: 2,
           cancelButtonIndex: 0,
           title: library.title,
@@ -88,16 +90,16 @@ export default function LibraryListScreen() {
         '암기장 설정',
         library.title,
         [
-          { text: '취소', style: 'cancel' },
+          { text: Strings.common.cancel, style: 'cancel' },
           {
-            text: '삭제', style: 'destructive', onPress: () => {
-              Alert.alert('삭제 확인', '정말 삭제하시겠습니까?', [
-                { text: '취소', style: 'cancel' },
-                { text: '삭제', style: 'destructive', onPress: () => handleDeleteLibrary(library.id) }
+            text: Strings.common.delete, style: 'destructive', onPress: () => {
+              Alert.alert(Strings.common.deleteConfirmTitle, Strings.common.deleteConfirmMsg, [
+                { text: Strings.common.cancel, style: 'cancel' },
+                { text: Strings.common.delete, style: 'destructive', onPress: () => handleDeleteLibrary(library.id) }
               ]);
             }
           },
-          { text: '수정', onPress: () => handleEditLibrary(library.id) },
+          { text: Strings.common.edit, onPress: () => handleEditLibrary(library.id) },
         ]
       );
     }
@@ -119,7 +121,7 @@ export default function LibraryListScreen() {
         <View variant="transparent" style={styles.cardHeader}>
           <View variant="transparent" style={styles.iconContainer}>
             <Image
-              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3389/3389081.png' }}
+              source={{ uri: Strings.home.images.libraryDefault }}
               style={{ width: 22, height: 22, tintColor: colors.tint }}
             />
           </View>
@@ -135,30 +137,30 @@ export default function LibraryListScreen() {
               onPress={(e) => showLibraryOptions(item, e)}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <FontAwesome name="ellipsis-v" size={18} color={colors.textSecondary} />
+              <FontAwesome name={Strings.home.icons.more} size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
         </View>
 
         <View variant="transparent" style={styles.cardBody}>
           <Text style={[styles.description, { color: colors.textSecondary }]} numberOfLines={2}>
-            {item.description || '작성된 설명이 없습니다.'}
+            {item.description || Strings.home.emptyDescription}
           </Text>
         </View>
 
         <View variant="transparent" style={styles.footerRow}>
           <View variant="transparent" style={styles.stat}>
-            <FontAwesome name="file-text-o" size={12} color={colors.textSecondary} />
-            <Text style={styles.statText}>{item.items_count || 0} 단어</Text>
+            <FontAwesome name={Strings.home.icons.items} size={12} color={colors.textSecondary} />
+            <Text style={styles.statText}>{item.items_count || 0} {Strings.home.unitWord}</Text>
           </View>
           <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View variant="transparent" style={styles.stat}>
-              <FontAwesome name="calendar-o" size={12} color={colors.textSecondary} />
+              <FontAwesome name={Strings.home.icons.date} size={12} color={colors.textSecondary} />
               <Text style={styles.statText}>
                 {new Date(item.created_at || Date.now()).toLocaleDateString()}
               </Text>
             </View>
-            <FontAwesome name="angle-right" size={18} color={colors.textSecondary} />
+            <FontAwesome name={Strings.home.icons.arrowRight} size={18} color={colors.textSecondary} />
           </View>
         </View>
 
@@ -169,14 +171,14 @@ export default function LibraryListScreen() {
               onPress={() => handleMoveUp(index)}
               disabled={index === 0}
             >
-              <FontAwesome name="arrow-up" size={16} color={colors.tint} />
+              <FontAwesome name={Strings.home.icons.up} size={16} color={colors.tint} />
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.reorderButton, index === libraries.length - 1 && { opacity: 0.3 }]}
               onPress={() => handleMoveDown(index)}
               disabled={index === libraries.length - 1}
             >
-              <FontAwesome name="arrow-down" size={16} color={colors.tint} />
+              <FontAwesome name={Strings.home.icons.down} size={16} color={colors.tint} />
             </TouchableOpacity>
           </View>
         )}
@@ -212,14 +214,14 @@ export default function LibraryListScreen() {
             <View variant="transparent" style={styles.webHeaderContainer}>
               <View variant="transparent" style={styles.greetingRow}>
                 <View variant="transparent">
-                  <Text style={styles.webGreeting}>안녕하세요, {profile?.nickname || profile?.email?.split('@')[0] || '사용자'}님! 👋</Text>
-                  <Text style={[styles.webSubtext, { color: colors.textSecondary }]}>오늘도 목표를 달성하고 지식을 쌓아보세요.</Text>
+                  <Text style={styles.webGreeting}>{Strings.home.greeting(profile?.nickname || profile?.email?.split('@')[0] || '사용자')}</Text>
+                  <Text style={[styles.webSubtext, { color: colors.textSecondary }]}>{Strings.home.subGreeting}</Text>
                 </View>
               </View>
 
               <View variant="transparent" style={styles.sectionHeader}>
                 <View variant="transparent">
-                  <Text style={styles.sectionTitle}>나의 암기장</Text>
+                  <Text style={styles.sectionTitle}>{Strings.home.sectionTitle}</Text>
                   <View style={[styles.titleUnderline, { backgroundColor: colors.tint }]} />
                 </View>
                 <View variant="transparent" style={{ flexDirection: 'row', gap: 12 }}>
@@ -232,7 +234,7 @@ export default function LibraryListScreen() {
                   >
                     <FontAwesome name="sort" size={14} color={reorderMode ? colors.tint : colors.textSecondary} />
                     <Text style={[styles.reorderToggleText, { color: reorderMode ? colors.tint : colors.textSecondary }]}>
-                      {reorderMode ? '순서 완료' : '순서 변경'}
+                      {reorderMode ? Strings.home.reorderDone : Strings.home.reorderStart}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.webAddBtn} onPress={() => router.push('/library/create')}>
@@ -240,14 +242,32 @@ export default function LibraryListScreen() {
                       colors={[colors.tint, colors.tint + 'CC']}
                       style={styles.webAddBtnGradient}
                     >
-                      <FontAwesome name="plus" size={14} color="#fff" />
-                      <Text style={styles.webAddBtnText}>새 암기장</Text>
+                      <FontAwesome name={Strings.home.icons.plus} size={14} color="#fff" />
+                      <Text style={styles.webAddBtnText}>{Strings.home.newLibrary}</Text>
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
           ) : null
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Image
+              source={require('@/assets/images/logo.png')}
+              style={styles.emptyLogo}
+              resizeMode="contain"
+            />
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>{Strings.home.sectionTitle}</Text>
+            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>첫 번째 암기장을 만들어 학습을 시작해보세요!</Text>
+            <TouchableOpacity
+              style={[styles.emptyAddBtn, { backgroundColor: colors.tint }]}
+              onPress={() => router.push('/library/create')}
+            >
+              <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
+              <Text style={styles.emptyAddBtnText}>{Strings.home.newLibrary}</Text>
+            </TouchableOpacity>
+          </View>
         }
       />
 
@@ -281,20 +301,20 @@ export default function LibraryListScreen() {
                 }}
               >
                 <FontAwesome name="pencil" size={16} color={colors.textSecondary} />
-                <Text style={[styles.menuItemText, { color: colors.text }]}>수정하기</Text>
+                <Text style={[styles.menuItemText, { color: colors.text }]}>{Strings.home.editAction}</Text>
               </TouchableOpacity>
               <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
               <TouchableOpacity
                 style={styles.menuItem}
                 onPress={() => {
-                  if (window.confirm('정말 삭제하시겠습니까?')) {
+                  if (window.confirm(Strings.common.deleteConfirmMsg)) {
                     handleDeleteLibrary(selectedLibraryForMenu.id);
                   }
                   setSelectedLibraryForMenu(null);
                 }}
               >
                 <FontAwesome name="trash" size={16} color={colors.error} />
-                <Text style={[styles.menuItemText, { color: colors.error }]}>삭제하기</Text>
+                <Text style={[styles.menuItemText, { color: colors.error }]}>{Strings.home.deleteAction}</Text>
               </TouchableOpacity>
             </RNView>
           </Pressable>
@@ -496,5 +516,48 @@ const styles = StyleSheet.create({
     height: 1,
     marginVertical: 4,
     opacity: 0.5,
-  }
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 80,
+    paddingHorizontal: 32,
+  },
+  emptyLogo: {
+    width: 160,
+    height: 160,
+    marginBottom: 24,
+    opacity: 0.9,
+  },
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 12,
+  },
+  emptySubtitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 32,
+    opacity: 0.7,
+  },
+  emptyAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 28,
+    borderRadius: 16,
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  emptyAddBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '800',
+  },
 });

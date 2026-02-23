@@ -7,6 +7,8 @@ import { Stack, useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useAdminStats } from '@/hooks/useAdminStats';
 
+import { Strings } from '@/constants/Strings';
+
 export default function AdminNotificationScreen() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
@@ -21,12 +23,12 @@ export default function AdminNotificationScreen() {
 
     const handleSendNotification = async () => {
         if (!notifyTitle || !notifyMessage) {
-            window.alert('제목과 내용을 모두 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.adminNotifications.alerts.enterAll);
             return;
         }
 
         if (notifyTarget === 'SINGLE' && !targetEmail) {
-            window.alert('대상이 될 사용자의 이메일을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.adminNotifications.alerts.enterEmail);
             return;
         }
 
@@ -34,17 +36,17 @@ export default function AdminNotificationScreen() {
         try {
             if (notifyTarget === 'ALL') {
                 await broadcastNotification(notifyTitle, notifyMessage);
-                window.alert('전체 사용자에게 알림이 전송되었습니다.');
+                Alert.alert(Strings.common.success, Strings.adminNotifications.alerts.sendSuccess);
             } else {
                 await sendDirectNotification(targetEmail.trim(), notifyTitle, notifyMessage);
-                window.alert(`${targetEmail} 사용자에게 알림이 전송되었습니다.`);
+                Alert.alert(Strings.common.success, `${targetEmail} ${Strings.adminNotifications.alerts.sendSuccess}`);
                 setTargetEmail('');
             }
             setNotifyTitle('');
             setNotifyMessage('');
         } catch (error: any) {
             console.error('[AdminUI] Notification error:', error);
-            window.alert('알림 전송 중 오류가 발생했습니다: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.adminNotifications.alerts.sendError}: ${error.message}`);
         } finally {
             setIsSending(false);
         }
@@ -56,12 +58,12 @@ export default function AdminNotificationScreen() {
 
             <View variant="transparent" style={styles.header}>
                 <View variant="transparent">
-                    <Text style={styles.title}>알림 발송</Text>
-                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>사용자에게 중요 메시지나 개인 알림을 푸시 알림으로 전송합니다.</Text>
+                    <Text style={styles.title}>{Strings.adminNotifications.title}</Text>
+                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{Strings.adminNotifications.subtitle}</Text>
                 </View>
                 <TouchableOpacity style={[styles.backBtn, { borderColor: colors.border }]} onPress={() => router.back()}>
-                    <FontAwesome name="chevron-left" size={14} color={colors.textSecondary} style={{ marginRight: 10 }} />
-                    <Text style={[styles.backBtnText, { color: colors.textSecondary }]}>돌아가기</Text>
+                    <FontAwesome name={Strings.tabs.icons.shared as any} size={14} color={colors.textSecondary} style={{ marginRight: 10, transform: [{ rotate: '180deg' }] }} />
+                    <Text style={[styles.backBtnText, { color: colors.textSecondary }]}>{Strings.common.close}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -71,24 +73,24 @@ export default function AdminNotificationScreen() {
                         style={[styles.targetToggleBtn, notifyTarget === 'ALL' && [styles.targetToggleBtnActive, { borderColor: colors.tint, backgroundColor: colors.tint + '10' }]]}
                         onPress={() => setNotifyTarget('ALL')}
                     >
-                        <FontAwesome name="users" size={16} color={notifyTarget === 'ALL' ? colors.tint : colors.textSecondary} style={{ marginRight: 8 }} />
-                        <Text style={[styles.targetToggleText, { color: notifyTarget === 'ALL' ? colors.tint : colors.textSecondary }]}>전체 사용자</Text>
+                        <FontAwesome name={Strings.admin.icons.users as any} size={16} color={notifyTarget === 'ALL' ? colors.tint : colors.textSecondary} style={{ marginRight: 8 }} />
+                        <Text style={[styles.targetToggleText, { color: notifyTarget === 'ALL' ? colors.tint : colors.textSecondary }]}>{Strings.adminNotifications.targets.all}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.targetToggleBtn, notifyTarget === 'SINGLE' && [styles.targetToggleBtnActive, { borderColor: colors.tint, backgroundColor: colors.tint + '10' }]]}
                         onPress={() => setNotifyTarget('SINGLE')}
                     >
-                        <FontAwesome name="user" size={16} color={notifyTarget === 'SINGLE' ? colors.tint : colors.textSecondary} style={{ marginRight: 8 }} />
-                        <Text style={[styles.targetToggleText, { color: notifyTarget === 'SINGLE' ? colors.tint : colors.textSecondary }]}>특정 사용자</Text>
+                        <FontAwesome name={Strings.settings.icons.user as any} size={16} color={notifyTarget === 'SINGLE' ? colors.tint : colors.textSecondary} style={{ marginRight: 8 }} />
+                        <Text style={[styles.targetToggleText, { color: notifyTarget === 'SINGLE' ? colors.tint : colors.textSecondary }]}>{Strings.adminNotifications.targets.individual}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {notifyTarget === 'SINGLE' && (
                     <View variant="transparent" style={styles.inputContainer}>
-                        <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>수신 이메일 <Text style={{ color: colors.error }}>*</Text></Text>
+                        <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.email} <Text style={{ color: colors.error }}>*</Text></Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-                            placeholder="예: user@example.com"
+                            placeholder={Strings.adminNotifications.placeholders.email}
                             placeholderTextColor={colors.textSecondary + '80'}
                             value={targetEmail}
                             onChangeText={setTargetEmail}
@@ -100,10 +102,10 @@ export default function AdminNotificationScreen() {
                 )}
 
                 <View variant="transparent" style={styles.inputContainer}>
-                    <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>알림 제목 <Text style={{ color: colors.error }}>*</Text></Text>
+                    <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{Strings.adminNotifications.labelTitle} <Text style={{ color: colors.error }}>*</Text></Text>
                     <TextInput
                         style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-                        placeholder="예: [안내] 시스템 점검 및 업데이트 알림"
+                        placeholder={Strings.adminNotifications.placeholders.title}
                         placeholderTextColor={colors.textSecondary + '80'}
                         value={notifyTitle}
                         onChangeText={setNotifyTitle}
@@ -112,10 +114,10 @@ export default function AdminNotificationScreen() {
                 </View>
 
                 <View variant="transparent" style={[styles.inputContainer, { flex: 1 }]}>
-                    <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>알림 내용 <Text style={{ color: colors.error }}>*</Text></Text>
+                    <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>{Strings.adminNotifications.labelContent} <Text style={{ color: colors.error }}>*</Text></Text>
                     <TextInput
                         style={[styles.input, styles.textArea, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
-                        placeholder="전달하실 메시지 본문을 상세하게 입력해주세요."
+                        placeholder={Strings.adminNotifications.placeholders.content}
                         placeholderTextColor={colors.textSecondary + '80'}
                         value={notifyMessage}
                         onChangeText={setNotifyMessage}
@@ -131,7 +133,7 @@ export default function AdminNotificationScreen() {
                         onPress={() => { setNotifyTitle(''); setNotifyMessage(''); setTargetEmail(''); }}
                         disabled={isSending}
                     >
-                        <Text style={[styles.actionBtnText, { color: colors.text }]}>초기화</Text>
+                        <Text style={[styles.actionBtnText, { color: colors.text }]}>{Strings.settings.options.notificationOff}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.actionBtn, styles.primaryBtn, { backgroundColor: colors.tint }]}
@@ -142,9 +144,9 @@ export default function AdminNotificationScreen() {
                             <ActivityIndicator size="small" color="#fff" />
                         ) : (
                             <>
-                                <FontAwesome name="paper-plane" size={14} color="#fff" style={{ marginRight: 8 }} />
+                                <FontAwesome name={Strings.shared.icons.globe as any} size={14} color="#fff" style={{ marginRight: 8 }} />
                                 <Text style={[styles.actionBtnText, { color: '#fff' }]}>
-                                    {notifyTarget === 'ALL' ? '전체 전송하기' : '단일 전송하기'}
+                                    {Strings.adminNotifications.btnSend}
                                 </Text>
                             </>
                         )}

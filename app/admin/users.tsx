@@ -9,6 +9,8 @@ import { useRouter, Link } from 'expo-router';
 
 import { useAdminUsers } from '@/hooks/useAdminUsers';
 
+import { Strings } from '@/constants/Strings';
+
 // 사용자 목록의 개별 행 컴포넌트
 const UserRow = ({ item, index, colors, handleUpdateRole, handleUpdateMembership }: {
     item: Profile,
@@ -38,7 +40,7 @@ const UserRow = ({ item, index, colors, handleUpdateRole, handleUpdateMembership
                 <TouchableOpacity onPress={(e) => { e.stopPropagation(); handleUpdateRole(item); }} style={styles.tagWrapper}>
                     <View style={[styles.tag, { backgroundColor: item.role === 'admin' ? colors.error + '15' : colors.tint + '15' }]}>
                         <Text style={[styles.tagText, { color: item.role === 'admin' ? colors.error : colors.tint }]}>
-                            {item.role === 'admin' ? '관리자' : '일반'}
+                            {item.role === 'admin' ? Strings.adminUsers.roles.admin : Strings.adminUsers.roles.user}
                         </Text>
                     </View>
                 </TouchableOpacity>
@@ -61,7 +63,7 @@ const UserRow = ({ item, index, colors, handleUpdateRole, handleUpdateMembership
             </View>
 
             <View variant="transparent" style={[styles.col, { flex: 0.8, justifyContent: 'flex-end' }]}>
-                <FontAwesome name="chevron-right" size={14} color={colors.textSecondary} />
+                <FontAwesome name={Strings.admin.icons.arrowRight as any} size={14} color={colors.textSecondary} />
             </View>
         </TouchableOpacity>
     );
@@ -79,13 +81,13 @@ export default function UserManagementScreen() {
 
     const handleUpdateRole = (user: Profile) => {
         const newRole = user.role === 'admin' ? 'user' : 'admin';
-        const roleName = newRole === 'admin' ? '관리자' : '사용자';
-        if (window.confirm(`${user.email} 님의 권한을 ${roleName}(으)로 변경하시겠습니까?`)) {
+        const roleName = newRole === 'admin' ? Strings.adminUsers.roles.admin : Strings.adminUsers.roles.user;
+        if (window.confirm(Strings.adminUsers.prompts.roleChange(user.email, roleName))) {
             const performUpdate = async () => {
                 try {
                     await updateUserProfile(user.id, { role: newRole as any });
                 } catch (error: any) {
-                    window.alert('오류: ' + error.message);
+                    Alert.alert(Strings.common.error, error.message);
                 }
             };
             performUpdate();
@@ -93,18 +95,18 @@ export default function UserManagementScreen() {
     };
 
     const handleUpdateMembership = (user: Profile) => {
-        const membership = window.prompt('변경할 멤버십 등급을 입력하세요 (BASIC, PREMIUM, PRO):', user.membership_level);
+        const membership = window.prompt(Strings.adminUsers.prompts.membershipChange, user.membership_level);
         if (membership && ['BASIC', 'PREMIUM', 'PRO'].includes(membership.toUpperCase())) {
             const performUpdate = async () => {
                 try {
                     await updateUserProfile(user.id, { membership_level: membership.toUpperCase() as any });
                 } catch (error: any) {
-                    window.alert('오류: ' + error.message);
+                    Alert.alert(Strings.common.error, error.message);
                 }
             };
             performUpdate();
         } else if (membership) {
-            window.alert('올바른 멤버십 등급을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.adminUsers.prompts.invalidMembership);
         }
     };
 
@@ -126,14 +128,14 @@ export default function UserManagementScreen() {
             <View variant="transparent" style={styles.content}>
                 <View variant="transparent" style={styles.headerRow}>
                     <View variant="transparent">
-                        <Text style={styles.title}>사용자 관리</Text>
-                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>총 {users.length}명의 사용자가 등록되어 있습니다.</Text>
+                        <Text style={styles.title}>{Strings.adminUsers.title}</Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{Strings.adminUsers.subtitle(users.length)}</Text>
                     </View>
                     <View style={[styles.searchBox, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-                        <FontAwesome name="search" size={14} color={colors.textSecondary} />
+                        <FontAwesome name={Strings.adminUsers.icons.search as any} size={14} color={colors.textSecondary} />
                         <TextInput
                             style={[styles.searchInput, { color: colors.text }]}
-                            placeholder="사용자 이메일 검색..."
+                            placeholder={Strings.adminUsers.searchPlaceholder}
                             placeholderTextColor={colors.textSecondary}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
@@ -143,11 +145,11 @@ export default function UserManagementScreen() {
 
                 <Card style={styles.tableCard}>
                     <View variant="transparent" style={styles.tableHeader}>
-                        <Text style={[styles.headerCol, { flex: 2 }]}>사용자 정보</Text>
-                        <Text style={[styles.headerCol, { flex: 1 }]}>권한</Text>
-                        <Text style={[styles.headerCol, { flex: 1 }]}>멤버십</Text>
-                        <Text style={[styles.headerCol, { flex: 1.5 }]}>가입일</Text>
-                        <Text style={[styles.headerCol, { flex: 0.8, textAlign: 'right' }]}>관리</Text>
+                        <Text style={[styles.headerCol, { flex: 2 }]}>{Strings.adminUsers.table.userInfo}</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminUsers.table.role}</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminUsers.table.membership}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5 }]}>{Strings.adminUsers.table.joinDate}</Text>
+                        <Text style={[styles.headerCol, { flex: 0.8, textAlign: 'right' }]}>{Strings.adminUsers.table.manage}</Text>
                     </View>
                     <FlatList
                         data={filteredUsers}

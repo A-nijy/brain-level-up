@@ -5,6 +5,7 @@ import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useSectionDetail } from '@/hooks/useSectionDetail';
+import { Strings } from '@/constants/Strings';
 
 export default function CreateItemScreen() {
     const { id, sectionId } = useLocalSearchParams();
@@ -23,12 +24,12 @@ export default function CreateItemScreen() {
 
     const handleCreate = async () => {
         if (!question.trim() || !answer.trim()) {
-            Alert.alert('오류', '문제와 정답을 모두 입력해주세요.');
+            Alert.alert(Strings.common.error, Strings.itemForm.alerts.enterAll);
             return;
         }
 
         if (!libraryId || !sid) {
-            Alert.alert('오류', '잘못된 접근입니다.');
+            Alert.alert(Strings.common.error, Strings.itemForm.alerts.invalidAccess);
             return;
         }
 
@@ -43,7 +44,7 @@ export default function CreateItemScreen() {
             });
 
             if (Platform.OS === 'web') {
-                const more = window.confirm('성공! 추가되었습니다.\n계속 추가하시겠습니까?');
+                const more = window.confirm(`${Strings.common.success}! ${Strings.itemForm.alerts.saveSuccess}`);
                 if (more) {
                     setQuestion('');
                     setAnswer('');
@@ -52,14 +53,14 @@ export default function CreateItemScreen() {
                     router.back();
                 }
             } else {
-                Alert.alert('성공', '추가되었습니다. 계속 추가하시겠습니까?', [
+                Alert.alert(Strings.common.success, Strings.itemForm.alerts.saveSuccess, [
                     {
-                        text: '아니오',
+                        text: Strings.common.no,
                         onPress: () => router.back(),
                         style: 'cancel',
                     },
                     {
-                        text: '예',
+                        text: Strings.common.yes,
                         onPress: () => {
                             setQuestion('');
                             setAnswer('');
@@ -70,9 +71,9 @@ export default function CreateItemScreen() {
             }
         } catch (error: any) {
             if (Platform.OS === 'web') {
-                window.alert(`추가 실패: ${error.message}`);
+                window.alert(`${Strings.itemForm.alerts.saveFail}: ${error.message}`);
             } else {
-                Alert.alert('추가 실패', error.message);
+                Alert.alert(Strings.itemForm.alerts.saveFail, error.message);
             }
         } finally {
             setLoading(false);
@@ -86,16 +87,16 @@ export default function CreateItemScreen() {
         >
             <Stack.Screen
                 options={{
-                    title: '단어 추가',
+                    title: Strings.itemForm.createTitle,
                     headerTintColor: colors.text,
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>문제 (단어) *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.itemForm.labelQuestion}</Text>
                     <TextInput
                         style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예: Ambiguous"
+                        placeholder={Strings.itemForm.placeholderQuestion}
                         value={question}
                         onChangeText={setQuestion}
                         autoFocus
@@ -104,10 +105,10 @@ export default function CreateItemScreen() {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>정답 (뜻) *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.itemForm.labelAnswer}</Text>
                     <TextInput
                         style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예: 애매모호한, 불분명한"
+                        placeholder={Strings.itemForm.placeholderAnswer}
                         value={answer}
                         onChangeText={setAnswer}
                         placeholderTextColor={colors.textSecondary}
@@ -115,10 +116,10 @@ export default function CreateItemScreen() {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>메모</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.itemForm.labelMemo}</Text>
                     <TextInput
                         style={[styles.input, styles.textArea, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예문이나 팁을 적어보세요."
+                        placeholder={Strings.itemForm.placeholderMemo}
                         value={memo}
                         onChangeText={setMemo}
                         multiline
@@ -133,7 +134,7 @@ export default function CreateItemScreen() {
                     disabled={loading}
                 >
                     <Text style={styles.submitButtonText}>
-                        {loading ? '저장 중...' : '저장하기'}
+                        {loading ? Strings.itemForm.submitSaving : Strings.itemForm.submitSave}
                     </Text>
                 </TouchableOpacity>
             </ScrollView>

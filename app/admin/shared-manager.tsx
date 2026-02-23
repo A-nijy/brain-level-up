@@ -11,6 +11,8 @@ import { useRouter } from 'expo-router';
 
 import { useAdminShared } from '@/hooks/useAdminShared';
 
+import { Strings } from '@/constants/Strings';
+
 export default function SharedManagerScreen() {
     const {
         sharedLibs,
@@ -60,10 +62,10 @@ export default function SharedManagerScreen() {
                 description: editDraftForm.description,
                 category_id: editDraftForm.category_id
             });
-            window.alert('수정되었습니다.');
+            Alert.alert(Strings.common.success, Strings.adminSharedManager.alerts.updated);
             setEditingDraft(null);
         } catch (error: any) {
-            window.alert('오류: ' + error.message);
+            Alert.alert(Strings.common.error, error.message);
         }
     };
 
@@ -71,26 +73,48 @@ export default function SharedManagerScreen() {
         try {
             const sections = await SharedLibraryService.getSharedSections(lib.id);
             if (sections.length === 0) {
-                window.alert('최소 1개 이상의 섹션이 필요합니다.');
+                Alert.alert(Strings.common.warning, Strings.adminSharedManager.alerts.noSections);
                 return;
             }
 
-            if (window.confirm(`"${lib.title}" 자료를 공유 자료실에 정식으로 게시하시겠습니까?`)) {
-                await publishDraft(lib.id);
-                window.alert('공유 자료실에 게시되었습니다!');
-            }
+            Alert.alert(
+                Strings.common.info,
+                Strings.adminSharedManager.alerts.publishConfirm(lib.title),
+                [
+                    { text: Strings.common.cancel, style: 'cancel' },
+                    {
+                        text: Strings.common.confirm,
+                        onPress: async () => {
+                            await publishDraft(lib.id);
+                            Alert.alert(Strings.common.success, Strings.adminSharedManager.alerts.publishSuccess);
+                        }
+                    }
+                ]
+            );
         } catch (error: any) {
-            window.alert('게시 실패: ' + error.message);
+            Alert.alert(Strings.common.error, error.message);
         }
     };
 
     const handleDeleteDraft = async (lib: SharedLibrary) => {
-        if (!window.confirm(`"${lib.title}" 을(를) 삭제하시겠습니까?`)) return;
-        try {
-            await deleteDraft(lib.id);
-        } catch (error: any) {
-            window.alert('삭제 실패: ' + error.message);
-        }
+        Alert.alert(
+            Strings.common.deleteConfirmTitle,
+            Strings.adminSharedManager.alerts.deleteConfirm(lib.title),
+            [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteDraft(lib.id);
+                        } catch (error: any) {
+                            Alert.alert(Strings.common.error, error.message);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const handleUpdate = async () => {
@@ -101,49 +125,70 @@ export default function SharedManagerScreen() {
                 description: editForm.description,
                 category_id: editForm.category_id
             });
-            window.alert('단어장 정보가 수정되었습니다!');
+            Alert.alert(Strings.common.success, Strings.adminSharedManager.alerts.updated);
             setEditingLib(null);
         } catch (error: any) {
-            window.alert('오류: ' + error.message);
+            Alert.alert(Strings.common.error, error.message);
         }
     };
 
     const handleDeleteShared = async (item: SharedLibrary) => {
-        if (window.confirm(`"${item.title}" 게시물을 완전히 삭제하시겠습니까?`)) {
-            try {
-                await deleteShared(item.id);
-            } catch (error: any) {
-                window.alert('삭제 실패: ' + error.message);
-            }
-        }
+        Alert.alert(
+            Strings.common.deleteConfirmTitle,
+            Strings.adminSharedManager.alerts.deleteSharedConfirm(item.title),
+            [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteShared(item.id);
+                        } catch (error: any) {
+                            Alert.alert(Strings.common.error, error.message);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const handleUnpublishShared = async (item: SharedLibrary) => {
-        if (window.confirm(`"${item.title}" 게시물을 임시 저장 상태로 되돌리시겠습니까?\n마켓플레이스에서 더 이상 노출되지 않습니다.`)) {
-            try {
-                await unpublishShared(item.id);
-            } catch (error: any) {
-                window.alert('처리 실패: ' + error.message);
-            }
-        }
+        Alert.alert(
+            Strings.common.info,
+            Strings.adminSharedManager.alerts.unpublishConfirm(item.title),
+            [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.confirm,
+                    onPress: async () => {
+                        try {
+                            await unpublishShared(item.id);
+                        } catch (error: any) {
+                            Alert.alert(Strings.common.error, error.message);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const handleCreateDraft = async () => {
         if (!directForm.title.trim()) {
-            window.alert('제목을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.adminSharedManager.alerts.enterTitle);
             return;
         }
 
         try {
             const { data } = await supabase.auth.getUser();
-            if (!data.user) throw new Error('관리자 정보를 찾을 수 없습니다.');
+            if (!data.user) throw new Error(Strings.auth.errorNoAdmin);
 
             await createDraft({
                 ...directForm,
                 adminId: data.user.id
             });
 
-            window.alert('임시 저장되었습니다. 임시 저장 탭에서 내용을 추가해주세요.');
+            Alert.alert(Strings.common.success, Strings.adminSharedManager.alerts.saveSuccess);
             setIsDirectModalVisible(false);
             setDirectForm({
                 title: '',
@@ -151,7 +196,7 @@ export default function SharedManagerScreen() {
                 category_id: null
             });
         } catch (error: any) {
-            window.alert('오류: ' + error.message);
+            Alert.alert(Strings.common.error, error.message);
         }
     };
 
@@ -159,11 +204,11 @@ export default function SharedManagerScreen() {
         <View variant="transparent" style={styles.tableRow}>
             <View variant="transparent" style={[styles.col, { flex: 2.5 }]}>
                 <View style={[styles.libIconContainer, { backgroundColor: colors.tint + '10' }]}>
-                    <FontAwesome name="book" size={16} color={colors.tint} />
+                    <FontAwesome name={Strings.admin.icons.libraries as any} size={16} color={colors.tint} />
                 </View>
                 <View variant="transparent">
                     <Text style={styles.cellText}>{item.title}</Text>
-                    <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>{item.category || '미지정'}</Text>
+                    <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>{item.category || Strings.adminSharedManager.modal.none}</Text>
                 </View>
             </View>
 
@@ -171,7 +216,7 @@ export default function SharedManagerScreen() {
                 <View style={[styles.statusBadge, { backgroundColor: (isDraft ? '#F59E0B' : colors.success) + '15' }]}>
                     <View style={[styles.statusDot, { backgroundColor: isDraft ? '#F59E0B' : colors.success }]} />
                     <Text style={[styles.statusText, { color: isDraft ? '#F59E0B' : colors.success }]}>
-                        {isDraft ? '임시 저장' : '게시됨'}
+                        {isDraft ? Strings.adminSharedManager.status.draft : Strings.adminSharedManager.status.published}
                     </Text>
                 </View>
             </View>
@@ -193,7 +238,7 @@ export default function SharedManagerScreen() {
                     style={[styles.actionBtn, { backgroundColor: colors.tint }]}
                     onPress={() => router.push(`/admin/shared-library/${item.id}` as any)}
                 >
-                    <FontAwesome name="folder-open" size={12} color="#fff" />
+                    <FontAwesome name={Strings.shared.icons.globe as any} size={12} color="#fff" />
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.actionBtn, { backgroundColor: '#F59E0B' }]}
@@ -206,28 +251,28 @@ export default function SharedManagerScreen() {
                         })
                     ) : handleEditOpen(item)}
                 >
-                    <FontAwesome name="edit" size={12} color="#fff" />
+                    <FontAwesome name={Strings.settings.icons.pencil as any} size={12} color="#fff" />
                 </TouchableOpacity>
                 {isDraft ? (
                     <TouchableOpacity
                         style={[styles.actionBtn, { backgroundColor: colors.success }]}
                         onPress={() => handlePublishDraft(item)}
                     >
-                        <FontAwesome name="check" size={12} color="#fff" />
+                        <FontAwesome name={Strings.settings.icons.check as any} size={12} color="#fff" />
                     </TouchableOpacity>
                 ) : (
                     <TouchableOpacity
                         style={[styles.actionBtn, { backgroundColor: '#3B82F6' }]}
                         onPress={() => handleUnpublishShared(item)}
                     >
-                        <FontAwesome name="undo" size={12} color="#fff" />
+                        <FontAwesome name={Strings.settings.icons.refresh as any} size={12} color="#fff" />
                     </TouchableOpacity>
                 )}
                 <TouchableOpacity
                     style={[styles.actionBtn, { backgroundColor: colors.error }]}
                     onPress={() => isDraft ? handleDeleteDraft(item) : handleDeleteShared(item)}
                 >
-                    <FontAwesome name="trash" size={12} color="#fff" />
+                    <FontAwesome name={Strings.common.icons.delete as any} size={12} color="#fff" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -245,12 +290,12 @@ export default function SharedManagerScreen() {
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
             <View variant="transparent" style={styles.header}>
                 <View variant="transparent">
-                    <Text style={styles.title}>공유 콘텐츠 관리</Text>
-                    <Text style={[styles.subText, { color: colors.textSecondary }]}>마켓플레이스 자료 큐레이션 및 품질 관리</Text>
+                    <Text style={styles.title}>{Strings.adminSharedManager.title}</Text>
+                    <Text style={[styles.subText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.subtitle}</Text>
                 </View>
                 <TouchableOpacity style={styles.addBtn} onPress={() => setIsDirectModalVisible(true)}>
-                    <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
-                    <Text style={styles.addBtnText}>신규 자료 등록</Text>
+                    <FontAwesome name={Strings.shared.icons.plus as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                    <Text style={styles.addBtnText}>{Strings.adminSharedManager.addBtn}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -261,7 +306,7 @@ export default function SharedManagerScreen() {
                         onPress={() => setActiveTab('draft')}
                     >
                         <Text style={[styles.tabText, activeTab === 'draft' && styles.activeTabText]}>
-                            임시 저장 ({draftLibs.length})
+                            {Strings.adminSharedManager.tabs.draft(draftLibs.length)}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -269,22 +314,22 @@ export default function SharedManagerScreen() {
                         onPress={() => setActiveTab('published')}
                     >
                         <Text style={[styles.tabText, activeTab === 'published' && styles.activeTabText]}>
-                            게시 완료 ({sharedLibs.length})
+                            {Strings.adminSharedManager.tabs.published(sharedLibs.length)}
                         </Text>
                     </TouchableOpacity>
                 </View>
                 <TouchableOpacity onPress={refresh} style={styles.refreshBtn}>
-                    <FontAwesome name="refresh" size={14} color={colors.textSecondary} />
+                    <FontAwesome name={Strings.settings.icons.refresh as any} size={14} color={colors.textSecondary} />
                 </TouchableOpacity>
             </View>
 
             <Card style={styles.tableCard}>
                 <View variant="transparent" style={styles.tableHeader}>
-                    <Text style={[styles.headerCol, { flex: 2.5 }]}>단어장 정보</Text>
-                    <Text style={[styles.headerCol, { flex: 1 }]}>상태</Text>
-                    {activeTab === 'published' && <Text style={[styles.headerCol, { flex: 0.8 }]}>다운로드</Text>}
-                    <Text style={[styles.headerCol, { flex: 1.2 }]}>생성일</Text>
-                    <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>관리</Text>
+                    <Text style={[styles.headerCol, { flex: 2.5 }]}>{Strings.adminSharedManager.table.info}</Text>
+                    <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminSharedManager.table.status}</Text>
+                    {activeTab === 'published' && <Text style={[styles.headerCol, { flex: 0.8 }]}>{Strings.adminSharedManager.table.download}</Text>}
+                    <Text style={[styles.headerCol, { flex: 1.2 }]}>{Strings.adminSharedManager.table.date}</Text>
+                    <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>{Strings.adminSharedManager.table.manage}</Text>
                 </View>
 
                 {activeTab === 'draft' ? (
@@ -292,7 +337,7 @@ export default function SharedManagerScreen() {
                         draftLibs.map((item) => <LibRow key={item.id} item={item} isDraft={true} />)
                     ) : (
                         <View variant="transparent" style={styles.emptyTable}>
-                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>임시 저장된 자료가 없습니다.</Text>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.alerts.emptyDraft}</Text>
                         </View>
                     )
                 ) : (
@@ -300,7 +345,7 @@ export default function SharedManagerScreen() {
                         sharedLibs.map((item) => <LibRow key={item.id} item={item} isDraft={false} />)
                     ) : (
                         <View variant="transparent" style={styles.emptyTable}>
-                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>게시된 자료가 없습니다.</Text>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.alerts.emptyPublished}</Text>
                         </View>
                     )
                 )}
@@ -310,16 +355,16 @@ export default function SharedManagerScreen() {
             <Modal visible={!!editingLib} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                        <Text style={styles.modalTitle}>공유 단어장 수정</Text>
+                        <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.editTitle}</Text>
 
-                        <Text style={styles.label}>제목</Text>
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelTitle}</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                             value={editForm.title}
                             onChangeText={(text) => setEditForm(prev => ({ ...prev, title: text }))}
                         />
 
-                        <Text style={styles.label}>설명</Text>
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelDesc}</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border, height: 80 }]}
                             value={editForm.description}
@@ -327,7 +372,7 @@ export default function SharedManagerScreen() {
                             multiline
                         />
 
-                        <Text style={styles.label}>카테고리</Text>
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelCategory}</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryPicker}>
                             <TouchableOpacity
                                 style={[
@@ -336,7 +381,7 @@ export default function SharedManagerScreen() {
                                 ]}
                                 onPress={() => setEditForm(prev => ({ ...prev, category_id: null }))}
                             >
-                                <Text style={[styles.categoryChipText, !editForm.category_id && { color: '#fff' }]}>미지정</Text>
+                                <Text style={[styles.categoryChipText, !editForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
                             </TouchableOpacity>
                             {categories.map(cat => (
                                 <TouchableOpacity
@@ -356,10 +401,10 @@ export default function SharedManagerScreen() {
 
                         <View variant="transparent" style={styles.modalButtons}>
                             <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setEditingLib(null)}>
-                                <Text style={[styles.modalButtonText, { color: colors.text }]}>취소</Text>
+                                <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleUpdate}>
-                                <Text style={styles.modalButtonText}>저장하기</Text>
+                                <Text style={styles.modalButtonText}>{Strings.common.save}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -370,34 +415,34 @@ export default function SharedManagerScreen() {
             <Modal visible={!!editingDraft} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                        <Text style={styles.modalTitle}>임시 저장 자료 수정</Text>
+                        <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.draftEditTitle}</Text>
 
-                        <Text style={styles.label}>제목</Text>
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelTitle}</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                             value={editDraftForm.title}
                             onChangeText={(text) => setEditDraftForm(prev => ({ ...prev, title: text }))}
-                            placeholder="제목"
+                            placeholder={Strings.adminSharedManager.modal.labelTitle}
                             placeholderTextColor={colors.textSecondary}
                         />
 
-                        <Text style={styles.label}>설명</Text>
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelDesc}</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border, height: 80 }]}
                             value={editDraftForm.description}
                             onChangeText={(text) => setEditDraftForm(prev => ({ ...prev, description: text }))}
                             multiline
-                            placeholder="설명 (선택)"
+                            placeholder={Strings.adminSharedManager.modal.placeholderDescDraft}
                             placeholderTextColor={colors.textSecondary}
                         />
 
-                        <Text style={styles.label}>카테고리</Text>
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelCategory}</Text>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryPicker}>
                             <TouchableOpacity
                                 style={[styles.categoryChip, !editDraftForm.category_id && { backgroundColor: colors.tint }]}
                                 onPress={() => setEditDraftForm(prev => ({ ...prev, category_id: null }))}
                             >
-                                <Text style={[styles.categoryChipText, !editDraftForm.category_id && { color: '#fff' }]}>미지정</Text>
+                                <Text style={[styles.categoryChipText, !editDraftForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
                             </TouchableOpacity>
                             {categories.map(cat => (
                                 <TouchableOpacity
@@ -414,10 +459,10 @@ export default function SharedManagerScreen() {
 
                         <View variant="transparent" style={styles.modalButtons}>
                             <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setEditingDraft(null)}>
-                                <Text style={[styles.modalButtonText, { color: colors.text }]}>취소</Text>
+                                <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleUpdateDraft}>
-                                <Text style={styles.modalButtonText}>저장</Text>
+                                <Text style={styles.modalButtonText}>{Strings.common.save}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -428,29 +473,29 @@ export default function SharedManagerScreen() {
             <Modal visible={isDirectModalVisible} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: colors.cardBackground, maxHeight: '90%' }]}>
-                        <Text style={styles.modalTitle}>신규 자료 직접 작성 및 게시</Text>
+                        <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.createTitle}</Text>
 
                         <ScrollView showsVerticalScrollIndicator={false}>
-                            <Text style={styles.label}>제목</Text>
+                            <Text style={styles.label}>{Strings.adminSharedManager.modal.labelTitle}</Text>
                             <TextInput
                                 style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                                 value={directForm.title}
                                 onChangeText={(text) => setDirectForm(prev => ({ ...prev, title: text }))}
-                                placeholder="예: [공식] 수능 필수 영단어 TOP 100"
+                                placeholder={Strings.adminSharedManager.modal.placeholderTitle}
                                 placeholderTextColor={colors.textSecondary}
                             />
 
-                            <Text style={styles.label}>설명</Text>
+                            <Text style={styles.label}>{Strings.adminSharedManager.modal.labelDesc}</Text>
                             <TextInput
                                 style={[styles.input, { color: colors.text, borderColor: colors.border, height: 60 }]}
                                 value={directForm.description}
                                 onChangeText={(text) => setDirectForm(prev => ({ ...prev, description: text }))}
                                 multiline
-                                placeholder="자료에 대한 상세 설명을 입력하세요."
+                                placeholder={Strings.adminSharedManager.modal.placeholderDesc}
                                 placeholderTextColor={colors.textSecondary}
                             />
 
-                            <Text style={styles.label}>카테고리</Text>
+                            <Text style={styles.label}>{Strings.adminSharedManager.modal.labelCategory}</Text>
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryPicker}>
                                 <TouchableOpacity
                                     style={[
@@ -459,7 +504,7 @@ export default function SharedManagerScreen() {
                                     ]}
                                     onPress={() => setDirectForm(prev => ({ ...prev, category_id: null }))}
                                 >
-                                    <Text style={[styles.categoryChipText, !directForm.category_id && { color: '#fff' }]}>미지정</Text>
+                                    <Text style={[styles.categoryChipText, !directForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
                                 </TouchableOpacity>
                                 {categories.map(cat => (
                                     <TouchableOpacity
@@ -480,10 +525,10 @@ export default function SharedManagerScreen() {
 
                         <View variant="transparent" style={styles.modalButtons}>
                             <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setIsDirectModalVisible(false)}>
-                                <Text style={[styles.modalButtonText, { color: colors.text }]}>취소</Text>
+                                <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleCreateDraft}>
-                                <Text style={styles.modalButtonText}>임시 저장</Text>
+                                <Text style={styles.modalButtonText}>{Strings.adminSharedManager.status.draft}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

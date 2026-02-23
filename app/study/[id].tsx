@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform, Alert } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
-import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, {
     useSharedValue,
@@ -12,23 +11,11 @@ import Animated, {
     interpolate,
     runOnJS,
     ZoomIn,
-    FadeInUp
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useAuth } from '@/contexts/AuthContext';
-import { StatsService } from '@/services/StatsService';
-
-type Item = {
-    id: string;
-    question: string;
-    answer: string;
-    memo?: string | null;
-    study_status: 'learned' | 'confused' | 'undecided';
-};
-
 import { useStudySession } from '@/hooks/useStudySession';
+import { Strings } from '@/constants/Strings';
 
 export default function StudyScreen() {
     const { id } = useLocalSearchParams();
@@ -43,7 +30,6 @@ export default function StudyScreen() {
         isFinished,
         handleFlip,
         handleResult,
-        setIsFlipped
     } = useStudySession(id as string);
 
     const colorScheme = useColorScheme() ?? 'light';
@@ -98,7 +84,7 @@ export default function StudyScreen() {
     if (isFinished) {
         return (
             <View style={[styles.container, { backgroundColor: colors.background }]}>
-                <Stack.Screen options={{ title: '학습 완료', headerTransparent: true, headerTintColor: colors.text }} />
+                <Stack.Screen options={{ title: Strings.study.finishTitle, headerTransparent: true, headerTintColor: colors.text }} />
 
                 <Animated.View
                     entering={ZoomIn.springify()}
@@ -109,18 +95,18 @@ export default function StudyScreen() {
                     ]}
                 >
                     <FontAwesome name="check-circle" size={80} color={colors.success} style={{ marginBottom: 24 }} />
-                    <Text style={styles.resultTitle}>Study Complete!</Text>
-                    <Text style={[styles.resultSubtitle, { color: colors.textSecondary }]}>학습을 모두 완료했습니다.</Text>
+                    <Text style={styles.resultTitle}>{Strings.study.completeTitle}</Text>
+                    <Text style={[styles.resultSubtitle, { color: colors.textSecondary }]}>{Strings.study.completeSubtitle}</Text>
 
                     <View variant="transparent" style={styles.statsRow}>
                         <View variant="transparent" style={styles.statItem}>
                             <Text style={[styles.statNum, { color: colors.success }]}>{results.correct}</Text>
-                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>정답</Text>
+                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{Strings.study.correct}</Text>
                         </View>
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
                         <View variant="transparent" style={styles.statItem}>
                             <Text style={[styles.statNum, { color: colors.error }]}>{results.wrong}</Text>
-                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>오답</Text>
+                            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{Strings.study.wrong}</Text>
                         </View>
                     </View>
 
@@ -129,7 +115,7 @@ export default function StudyScreen() {
                         onPress={() => router.back()}
                         activeOpacity={0.8}
                     >
-                        <Text style={styles.finishButtonText}>돌아가기</Text>
+                        <Text style={styles.finishButtonText}>{Strings.study.backBtn}</Text>
                     </TouchableOpacity>
                 </Animated.View>
             </View>
@@ -144,12 +130,10 @@ export default function StudyScreen() {
         );
     }
 
-
-
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{
-                title: `${currentIndex + 1} / ${items.length}`,
+                title: Strings.study.screenTitle(currentIndex + 1, items.length),
                 headerTransparent: true,
                 headerTintColor: colors.text,
                 headerTitleStyle: { fontWeight: '800' }
@@ -159,11 +143,11 @@ export default function StudyScreen() {
                 {/* Front Card */}
                 <Animated.View style={[styles.cardWrapper, frontAnimatedStyle]}>
                     <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={[styles.cardFace, { borderColor: colors.border }]}>
-                        <Text style={[styles.cardTag, { color: colors.textSecondary }]}>QUESTION</Text>
+                        <Text style={[styles.cardTag, { color: colors.textSecondary }]}>{Strings.study.questionTag}</Text>
                         <Text style={styles.cardMainText}>{currentItem.question}</Text>
                         <View variant="transparent" style={styles.hintContainer}>
                             <FontAwesome name="mouse-pointer" size={12} color={colors.textSecondary} style={{ marginRight: 6, opacity: 0.5 }} />
-                            <Text style={[styles.hintText, { color: colors.textSecondary }]}>탭하여 정답 확인</Text>
+                            <Text style={[styles.hintText, { color: colors.textSecondary }]}>{Strings.study.hintText}</Text>
                         </View>
                     </TouchableOpacity>
                 </Animated.View>
@@ -171,7 +155,7 @@ export default function StudyScreen() {
                 {/* Back Card */}
                 <Animated.View style={[styles.cardWrapper, backAnimatedStyle]}>
                     <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={[styles.cardFace, { borderColor: colors.tint }]}>
-                        <Text style={[styles.cardTag, { color: colors.tint }]}>ANSWER</Text>
+                        <Text style={[styles.cardTag, { color: colors.tint }]}>{Strings.study.answerTag}</Text>
                         <Text style={styles.cardMainText}>{currentItem.answer}</Text>
                         {currentItem.memo && (
                             <Text style={[styles.memoText, { color: colors.textSecondary }]}>{currentItem.memo}</Text>
@@ -188,7 +172,7 @@ export default function StudyScreen() {
                     activeOpacity={0.7}
                 >
                     <FontAwesome name="times" size={24} color={colors.error} />
-                    <Text style={[styles.buttonText, { color: colors.error }]}>몰라요</Text>
+                    <Text style={[styles.buttonText, { color: colors.error }]}>{Strings.study.dontKnow}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -197,7 +181,7 @@ export default function StudyScreen() {
                     activeOpacity={0.7}
                 >
                     <FontAwesome name="check" size={24} color={colors.success} />
-                    <Text style={[styles.buttonText, { color: colors.success }]}>알아요</Text>
+                    <Text style={[styles.buttonText, { color: colors.success }]}>{Strings.study.know}</Text>
                 </TouchableOpacity>
             </View>
         </View>

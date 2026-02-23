@@ -11,6 +11,8 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { useNotices } from '@/hooks/useNotices';
 
+import { Strings } from '@/constants/Strings';
+
 export default function AdminNoticesScreen() {
     const {
         notices,
@@ -35,7 +37,7 @@ export default function AdminNoticesScreen() {
 
     const handleSave = async () => {
         if (!title.trim() || !content.trim()) {
-            window.alert('제목과 내용을 모두 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.adminNotices.alerts.enterAll);
             return;
         }
 
@@ -47,32 +49,32 @@ export default function AdminNoticesScreen() {
                     content: content.trim(),
                     is_important: isImportant
                 });
-                window.alert('공지사항이 수정되었습니다.');
+                Alert.alert(Strings.common.success, Strings.adminNotices.alerts.updSuccess);
             } else {
                 await createNotice({
                     title: title.trim(),
                     content: content.trim(),
                     is_important: isImportant
                 });
-                window.alert('공지사항이 등록되었습니다.');
+                Alert.alert(Strings.common.success, Strings.adminNotices.alerts.saveSuccess);
             }
             setModalVisible(false);
         } catch (error) {
             console.error(error);
-            window.alert('저장 중 오류가 발생했습니다.');
+            Alert.alert(Strings.common.error, Strings.adminNotices.alerts.saveError);
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm('정말 이 공지사항을 삭제하시겠습니까?')) {
+        if (window.confirm(Strings.adminNotices.alerts.delConfirm)) {
             const performDelete = async () => {
                 try {
                     await deleteNotice(id);
                     if (viewingNotice?.id === id) setViewModalVisible(false);
                 } catch (error) {
-                    window.alert('삭제 중 문제가 발생했습니다.');
+                    Alert.alert(Strings.common.error, Strings.adminNotices.alerts.delError);
                 }
             };
             performDelete();
@@ -108,11 +110,11 @@ export default function AdminNoticesScreen() {
             >
                 <View variant="transparent" style={[styles.col, { flex: 4, paddingRight: 16 }]}>
                     <View style={[styles.iconBox, { backgroundColor: (item.is_important ? colors.tint : colors.textSecondary) + '15' }]}>
-                        <FontAwesome name={item.is_important ? "star" : "info-circle"} size={14} color={item.is_important ? colors.tint : colors.textSecondary} />
+                        <FontAwesome name={(item.is_important ? Strings.settings.icons.star : Strings.settings.icons.info) as any} size={14} color={item.is_important ? colors.tint : colors.textSecondary} />
                     </View>
                     <View variant="transparent" style={{ flex: 1 }}>
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            {item.is_important && <Text style={[styles.importantTag, { color: colors.tint }]}>[중요]</Text>}
+                            {item.is_important && <Text style={[styles.importantTag, { color: colors.tint }]}>{Strings.adminNotices.alerts.importantTag}</Text>}
                             <Text style={styles.cellText} numberOfLines={1}>{item.title}</Text>
                         </View>
                         <Text style={[styles.cellSubText, { color: colors.textSecondary }]} numberOfLines={1}>{item.content}</Text>
@@ -127,10 +129,10 @@ export default function AdminNoticesScreen() {
 
                 <View variant="transparent" style={[styles.col, { flex: 1, justifyContent: 'flex-end', gap: 12 }]}>
                     <TouchableOpacity onPress={() => openEditModal(item)} style={styles.actionBtn}>
-                        <FontAwesome name="pencil" size={14} color={colors.tint} />
+                        <FontAwesome name={Strings.settings.icons.pencil as any} size={14} color={colors.tint} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.actionBtn}>
-                        <FontAwesome name="trash" size={14} color="#FF4444" />
+                        <FontAwesome name={Strings.common.delete as any} size={14} color="#FF4444" />
                     </TouchableOpacity>
                 </View>
             </TouchableOpacity>
@@ -144,20 +146,20 @@ export default function AdminNoticesScreen() {
             <View variant="transparent" style={styles.content}>
                 <View variant="transparent" style={styles.header}>
                     <View variant="transparent">
-                        <Text style={styles.title}>공지사항 관리</Text>
-                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>시스템 공지 및 주요 안내 사항 관리</Text>
+                        <Text style={styles.title}>{Strings.adminNotices.title}</Text>
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{Strings.adminNotices.subtitle}</Text>
                     </View>
                     <TouchableOpacity style={[styles.addBtn, { backgroundColor: colors.tint }]} onPress={() => openEditModal()}>
-                        <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
-                        <Text style={styles.addBtnText}>신규 공지 작성</Text>
+                        <FontAwesome name={Strings.home.icons.plus as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                        <Text style={styles.addBtnText}>{Strings.adminNotices.newNotice}</Text>
                     </TouchableOpacity>
                 </View>
 
                 <Card style={styles.tableCard}>
                     <View variant="transparent" style={styles.tableHeader}>
-                        <Text style={[styles.headerCol, { flex: 4 }]}>공지 내용</Text>
-                        <Text style={[styles.headerCol, { flex: 2, textAlign: 'right', paddingRight: 24 }]}>등록 일시</Text>
-                        <Text style={[styles.headerCol, { flex: 1, textAlign: 'right' }]}>관리</Text>
+                        <Text style={[styles.headerCol, { flex: 4 }]}>{Strings.adminNotices.table.content}</Text>
+                        <Text style={[styles.headerCol, { flex: 2, textAlign: 'right', paddingRight: 24 }]}>{Strings.adminNotices.table.regDate}</Text>
+                        <Text style={[styles.headerCol, { flex: 1, textAlign: 'right' }]}>{Strings.adminNotices.table.manage}</Text>
                     </View>
 
                     {loading ? (
@@ -172,7 +174,7 @@ export default function AdminNoticesScreen() {
                             contentContainerStyle={styles.listContent}
                             ListEmptyComponent={
                                 <View variant="transparent" style={styles.emptyTable}>
-                                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 공지사항이 없습니다.</Text>
+                                    <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminNotices.alerts.empty}</Text>
                                 </View>
                             }
                         />
@@ -198,7 +200,7 @@ export default function AdminNoticesScreen() {
                             <View style={{ flex: 1, paddingRight: 16 }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
                                     {viewingNotice?.is_important && (
-                                        <Text style={[styles.importantTag, { color: colors.tint, fontSize: 14 }]}>[중요]</Text>
+                                        <Text style={[styles.importantTag, { color: colors.tint, fontSize: 14 }]}>{Strings.adminNotices.alerts.importantTag}</Text>
                                     )}
                                     <Text style={[styles.modalTitle, { marginBottom: 0 }]}>{viewingNotice?.title}</Text>
                                 </View>
@@ -207,7 +209,7 @@ export default function AdminNoticesScreen() {
                                 </Text>
                             </View>
                             <TouchableOpacity onPress={() => setViewModalVisible(false)} style={{ padding: 4 }}>
-                                <FontAwesome name="close" size={24} color={colors.textSecondary} />
+                                <FontAwesome name={Strings.settings.icons.close as any} size={24} color={colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
 
@@ -224,7 +226,7 @@ export default function AdminNoticesScreen() {
                                 style={[styles.modalButton, { backgroundColor: colors.tint }]}
                                 onPress={() => openEditModal(viewingNotice!)}
                             >
-                                <Text style={styles.modalButtonText}>수정하기</Text>
+                                <Text style={styles.modalButtonText}>{Strings.adminNotices.modal.btnUpdate}</Text>
                             </TouchableOpacity>
                         </View>
                     </Card>
@@ -240,10 +242,10 @@ export default function AdminNoticesScreen() {
             >
                 <View variant="transparent" style={styles.modalOverlay}>
                     <Card style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>{editingNotice ? '공지사항 수정' : '새 공지사항'}</Text>
+                        <Text style={styles.modalTitle}>{editingNotice ? Strings.adminNotices.modal.editTitle : Strings.adminNotices.modal.createTitle}</Text>
 
                         <View variant="transparent" style={styles.importantRow}>
-                            <Text style={styles.label}>중요 공지 설정</Text>
+                            <Text style={styles.label}>{Strings.adminNotices.modal.labelImportant}</Text>
                             <Switch
                                 value={isImportant}
                                 onValueChange={setIsImportant}
@@ -251,21 +253,21 @@ export default function AdminNoticesScreen() {
                             />
                         </View>
 
-                        <Text style={styles.label}>제목</Text>
+                        <Text style={styles.label}>{Strings.adminNotices.modal.labelTitle}</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                             value={title}
                             onChangeText={setTitle}
-                            placeholder="공지 제목을 입력하세요"
+                            placeholder={Strings.adminNotices.modal.placeholderTitle}
                             placeholderTextColor={colors.textSecondary + '80'}
                         />
 
-                        <Text style={styles.label}>내용</Text>
+                        <Text style={styles.label}>{Strings.adminNotices.modal.labelContent}</Text>
                         <TextInput
                             style={[styles.textArea, { color: colors.text, borderColor: colors.border }]}
                             value={content}
                             onChangeText={setContent}
-                            placeholder="공지 내용을 입력하세요"
+                            placeholder={Strings.adminNotices.modal.placeholderContent}
                             placeholderTextColor={colors.textSecondary + '80'}
                             multiline
                             numberOfLines={8}
@@ -277,14 +279,14 @@ export default function AdminNoticesScreen() {
                                 style={[styles.modalButton, styles.cancelButton]}
                                 onPress={() => setModalVisible(false)}
                             >
-                                <Text style={styles.modalButtonText}>취소</Text>
+                                <Text style={styles.modalButtonText}>{Strings.common.cancel}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.modalButton, { backgroundColor: colors.tint }]}
                                 onPress={handleSave}
                                 disabled={saving}
                             >
-                                {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalButtonText}>{editingNotice ? '수정' : '등록'}</Text>}
+                                {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.modalButtonText}>{editingNotice ? Strings.adminNotices.modal.btnEdit : Strings.adminNotices.modal.btnCreate}</Text>}
                             </TouchableOpacity>
                         </View>
                     </Card>

@@ -6,6 +6,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useSharedSectionDetail } from '@/hooks/useSharedSectionDetail';
 import { SharedItem, SharedSection } from '@/types';
 import Colors from '@/constants/Colors';
+import { Strings } from '@/constants/Strings';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
@@ -44,7 +45,7 @@ export default function SharedSectionDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: section?.title || '상세 보기',
+                    headerTitle: section?.title || Strings.sharedDetail.screenTitle,
                     headerShadowVisible: false,
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,

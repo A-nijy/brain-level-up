@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { Notice } from '@/types';
-import { Stack, useRouter, Link } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-
 import { useNotices } from '@/hooks/useNotices';
+import { Strings } from '@/constants/Strings';
 
 export default function NoticesScreen() {
     const { notices, loading, refreshing, refresh } = useNotices();
@@ -26,7 +26,7 @@ export default function NoticesScreen() {
                     <View variant="transparent" style={styles.badgeContainer}>
                         {item.is_important && (
                             <View style={[styles.importantBadge, { backgroundColor: colors.tint }]}>
-                                <Text style={styles.importantText}>중요</Text>
+                                <Text style={styles.importantText}>{Strings.notices.badgeImportant}</Text>
                             </View>
                         )}
                     </View>
@@ -46,7 +46,7 @@ export default function NoticesScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: '공지사항',
+                    title: Strings.notices.screenTitle,
                     headerShown: true,
                     headerShadowVisible: false,
                     headerStyle: { backgroundColor: colors.background },
@@ -71,7 +71,7 @@ export default function NoticesScreen() {
                         <View style={styles.empty}>
                             <FontAwesome name="bullhorn" size={48} color={colors.border} />
                             <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                                등록된 공지사항이 없습니다.
+                                {Strings.notices.empty}
                             </Text>
                         </View>
                     }

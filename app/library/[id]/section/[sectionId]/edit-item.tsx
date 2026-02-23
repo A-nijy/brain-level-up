@@ -6,6 +6,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useSectionDetail } from '@/hooks/useSectionDetail';
 import { Item } from '@/types';
+import { Strings } from '@/constants/Strings';
 
 export default function EditItemScreen() {
     const { id, sectionId, itemId } = useLocalSearchParams();
@@ -32,7 +33,7 @@ export default function EditItemScreen() {
                 setAnswer(target.answer);
                 setMemo(target.memo || '');
             } else {
-                Alert.alert('오류', '단어를 찾을 수 없습니다.');
+                Alert.alert(Strings.common.error, Strings.itemForm.alerts.notFound);
                 router.back();
             }
         }
@@ -40,12 +41,12 @@ export default function EditItemScreen() {
 
     const handleUpdate = async () => {
         if (!question.trim() || !answer.trim()) {
-            Alert.alert('오류', '문제와 정답을 모두 입력해주세요.');
+            Alert.alert(Strings.common.error, Strings.itemForm.alerts.enterAll);
             return;
         }
 
         if (!itemUuid) {
-            Alert.alert('오류', '잘못된 접근입니다.');
+            Alert.alert(Strings.common.error, Strings.itemForm.alerts.invalidAccess);
             return;
         }
 
@@ -58,16 +59,16 @@ export default function EditItemScreen() {
             });
 
             if (Platform.OS === 'web') {
-                window.alert('수정되었습니다.');
+                window.alert(Strings.itemForm.alerts.editSuccess);
             } else {
-                Alert.alert('성공', '수정되었습니다.');
+                Alert.alert(Strings.common.success, Strings.itemForm.alerts.editSuccess);
             }
             router.back();
         } catch (error: any) {
             if (Platform.OS === 'web') {
-                window.alert(`수정 실패: ${error.message}`);
+                window.alert(`${Strings.itemForm.alerts.editFail}: ${error.message}`);
             } else {
-                Alert.alert('수정 실패', error.message);
+                Alert.alert(Strings.itemForm.alerts.editFail, error.message);
             }
         } finally {
             setSaving(false);
@@ -89,16 +90,16 @@ export default function EditItemScreen() {
         >
             <Stack.Screen
                 options={{
-                    title: '단어 수정',
+                    title: Strings.itemForm.editTitle,
                     headerTintColor: colors.text,
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>문제 (단어) *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.itemForm.labelQuestion}</Text>
                     <TextInput
                         style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예: Ambiguous"
+                        placeholder={Strings.itemForm.placeholderQuestion}
                         value={question}
                         onChangeText={setQuestion}
                         placeholderTextColor={colors.textSecondary}
@@ -106,10 +107,10 @@ export default function EditItemScreen() {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>정답 (뜻) *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.itemForm.labelAnswer}</Text>
                     <TextInput
                         style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예: 애매모호한, 불분명한"
+                        placeholder={Strings.itemForm.placeholderAnswer}
                         value={answer}
                         onChangeText={setAnswer}
                         placeholderTextColor={colors.textSecondary}
@@ -117,10 +118,10 @@ export default function EditItemScreen() {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>메모</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.itemForm.labelMemo}</Text>
                     <TextInput
                         style={[styles.input, styles.textArea, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예문이나 팁을 적어보세요."
+                        placeholder={Strings.itemForm.placeholderMemo}
                         value={memo}
                         onChangeText={setMemo}
                         multiline
@@ -135,7 +136,7 @@ export default function EditItemScreen() {
                     disabled={saving}
                 >
                     <Text style={styles.submitButtonText}>
-                        {saving ? '저장 중...' : '저장하기'}
+                        {saving ? Strings.itemForm.submitSaving : Strings.itemForm.submitSave}
                     </Text>
                 </TouchableOpacity>
             </ScrollView>

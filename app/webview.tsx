@@ -8,6 +8,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Strings } from '@/constants/Strings';
 
 export default function WebViewScreen() {
     const { url, title } = useLocalSearchParams<{ url: string; title?: string }>();
@@ -19,9 +20,9 @@ export default function WebViewScreen() {
     if (!url) {
         return (
             <View style={[styles.container, styles.center, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-                <Text>올바르지 않은 주소입니다.</Text>
+                <Text>{Strings.webview.invalidUrl}</Text>
                 <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
-                    <Text style={{ color: colors.tint }}>닫기</Text>
+                    <Text style={{ color: colors.tint }}>{Strings.common.close}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -34,7 +35,7 @@ export default function WebViewScreen() {
             <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.background }]}>
                 <View style={[styles.headerTitleContainer]}>
                     <Text style={styles.headerTitle} numberOfLines={1}>
-                        {title || '웹 페이지'}
+                        {title || Strings.webview.screenTitle}
                     </Text>
                 </View>
                 <TouchableOpacity

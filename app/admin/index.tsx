@@ -13,6 +13,8 @@ const { width } = Dimensions.get('window');
 
 import { useAdminStats } from '@/hooks/useAdminStats';
 
+import { Strings } from '@/constants/Strings';
+
 export default function AdminDashboardScreen() {
     const {
         stats,
@@ -29,11 +31,11 @@ export default function AdminDashboardScreen() {
         <Card style={styles.webStatCard} onPress={onPress}>
             <View variant="transparent" style={styles.statHeaderRow}>
                 <View style={[styles.statIconContainer, { backgroundColor: color + '15' }]}>
-                    <FontAwesome name={icon} size={20} color={color} />
+                    <FontAwesome name={icon as any} size={20} color={color} />
                 </View>
                 {trend !== undefined && (
                     <View style={[styles.trendBadge, { backgroundColor: (trend >= 0 ? colors.success : colors.error) + '15' }]}>
-                        <FontAwesome name={trend >= 0 ? "line-chart" : "arrow-down"} size={10} color={trend >= 0 ? colors.success : colors.error} />
+                        <FontAwesome name={(trend >= 0 ? "line-chart" : "arrow-down") as any} size={10} color={trend >= 0 ? colors.success : colors.error} />
                         <Text style={[styles.trendText, { color: trend >= 0 ? colors.success : colors.error }]}>
                             {trend >= 0 ? `+${trend}` : `${trend}`}
                         </Text>
@@ -46,7 +48,7 @@ export default function AdminDashboardScreen() {
             </Text>
             <View variant="transparent" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={[styles.statSubtext, { color: colors.textSecondary }]}>{trendLabel}</Text>
-                <FontAwesome name="chevron-right" size={12} color={colors.textSecondary + '60'} />
+                <FontAwesome name={Strings.admin.icons.arrowRight as any} size={12} color={colors.textSecondary + '60'} />
             </View>
         </Card>
     );
@@ -56,20 +58,20 @@ export default function AdminDashboardScreen() {
             <View variant="transparent" style={styles.header}>
                 <View variant="transparent" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View variant="transparent">
-                        <Text style={styles.welcomeText}>관리자 개요</Text>
-                        <Text style={[styles.subText, { color: colors.textSecondary }]}>시스템 통계 및 운영 현황</Text>
+                        <Text style={styles.welcomeText}>{Strings.admin.welcome}</Text>
+                        <Text style={[styles.subText, { color: colors.textSecondary }]}>{Strings.admin.subWelcome}</Text>
                     </View>
                     <TouchableOpacity
                         style={[styles.addBtn, { backgroundColor: colors.tint }]}
                         onPress={() => router.push('/admin/analysis')}
                     >
-                        <FontAwesome name="bar-chart" size={16} color="#fff" style={{ marginRight: 8 }} />
-                        <Text style={styles.addBtnText}>상세 분석 보기</Text>
+                        <FontAwesome name={Strings.admin.icons.analysis as any} size={16} color="#fff" style={{ marginRight: 8 }} />
+                        <Text style={styles.addBtnText}>{Strings.admin.viewAnalysis}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
 
-            <Text style={[styles.cardTitle, { marginBottom: 16 }]}>필수 운영 지표</Text>
+            <Text style={[styles.cardTitle, { marginBottom: 16 }]}>{Strings.admin.essentialStats}</Text>
             <View variant="transparent" style={styles.webStatsGrid}>
                 {loading ? (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
@@ -78,63 +80,63 @@ export default function AdminDashboardScreen() {
                 ) : (
                     <>
                         <StatGridCard
-                            title="오늘 활성 사용자 (DAU)"
+                            title={Strings.admin.stats.dau}
                             value={advancedStats?.dau || 0}
-                            icon="bolt"
+                            icon={Strings.admin.icons.dau}
                             color="#F59E0B"
-                            trendLabel={`전체 MAU: ${advancedStats?.mau || 0}`}
+                            trendLabel={Strings.admin.subLabels.mau(advancedStats?.mau || 0)}
                             onPress={() => router.push('/admin/stats/dau')}
                         />
                         <StatGridCard
-                            title="신규 가입자"
+                            title={Strings.admin.stats.newUsers}
                             value={advancedStats?.newUsersToday || 0}
-                            icon="user-plus"
+                            icon={Strings.admin.icons.newUsers}
                             color="#10B981"
                             trend={advancedStats?.newUsersToday - advancedStats?.newUsersYesterday}
-                            trendLabel="어제 대비 변동"
+                            trendLabel={Strings.admin.subLabels.trend}
                             onPress={() => router.push('/admin/stats/new_users')}
                         />
                         <StatGridCard
-                            title="예상 광고 수익"
+                            title={Strings.admin.stats.revenue}
                             value={advancedStats?.estRevenue || 0}
-                            icon="money"
+                            icon={Strings.admin.icons.revenue}
                             color="#4F46E5"
                             isCurrency
-                            trendLabel={`오늘 광고 시청: ${advancedStats?.adViews || 0}회`}
+                            trendLabel={Strings.admin.subLabels.adViews(advancedStats?.adViews || 0)}
                             onPress={() => router.push('/admin/stats/revenue')}
                         />
                         <StatGridCard
-                            title="시스템 에러"
+                            title={Strings.admin.stats.error}
                             value={advancedStats?.errorCount || 0}
-                            icon="exclamation-triangle"
+                            icon={Strings.admin.icons.error}
                             color={advancedStats?.errorCount > 0 ? colors.error : "#6B7280"}
-                            trendLabel="최근 24시간 발생 건수"
+                            trendLabel={Strings.admin.subLabels.error24h}
                             onPress={() => router.push('/admin/stats/errors')}
                         />
                     </>
                 )}
             </View>
 
-            <Text style={[styles.cardTitle, { marginBottom: 16, marginTop: 16 }]}>누적 데이터 요약</Text>
+            <Text style={[styles.cardTitle, { marginBottom: 16, marginTop: 16 }]}>{Strings.admin.cumulativeStats}</Text>
             <View variant="transparent" style={styles.webStatsGrid}>
                 {loading ? null : (
                     <>
-                        <StatGridCard title="총 사용자" value={stats?.userCount || 0} icon="users" color="#6366F1" trendLabel="전체 회원 수" onPress={() => router.push('/admin/users')} />
-                        <StatGridCard title="전체 암기장" value={stats?.libraryCount || 0} icon="book" color="#8B5CF6" trendLabel="사용자 생성 암기장" onPress={() => router.push('/admin/shared-manager')} />
-                        <StatGridCard title="평균 학습 시간" value={advancedStats?.avgStudyTimeMinutes || 0} icon="clock-o" color="#EC4899" trendLabel="회당 평균 학습 (분)" onPress={() => router.push('/admin/analysis')} />
-                        <StatGridCard title="총 다운로드" value={stats?.totalDownloads || 0} icon="download" color="#06B6D4" trendLabel="자료실 이용 횟수" onPress={() => router.push('/admin/analysis')} />
+                        <StatGridCard title={Strings.admin.stats.totalUsers} value={stats?.userCount || 0} icon={Strings.admin.icons.users} color="#6366F1" trendLabel={Strings.admin.subLabels.userTotal} onPress={() => router.push('/admin/users')} />
+                        <StatGridCard title={Strings.admin.stats.totalLibraries} value={stats?.libraryCount || 0} icon={Strings.admin.icons.libraries} color="#8B5CF6" trendLabel={Strings.admin.subLabels.libTotal} onPress={() => router.push('/admin/shared-manager')} />
+                        <StatGridCard title={Strings.admin.stats.avgStudy} value={advancedStats?.avgStudyTimeMinutes || 0} icon={Strings.admin.icons.study} color="#EC4899" trendLabel={Strings.admin.subLabels.avgMinute} onPress={() => router.push('/admin/analysis')} />
+                        <StatGridCard title={Strings.admin.stats.totalDownloads} value={stats?.totalDownloads || 0} icon={Strings.admin.icons.download} color="#06B6D4" trendLabel={Strings.admin.subLabels.downTotal} onPress={() => router.push('/admin/analysis')} />
                     </>
                 )}
             </View>
 
             <View variant="transparent" style={styles.mainGrid}>
                 <Card style={[styles.recentActivityCard, { flex: 1 }]}>
-                    <Text style={styles.cardTitle}>최근 활동 로그</Text>
-                    <Text style={[styles.cardSub, { color: colors.textSecondary, marginBottom: 20 }]}>플랫폼 내 주요 발생 이벤트입니다.</Text>
+                    <Text style={styles.cardTitle}>{Strings.admin.recentActivity}</Text>
+                    <Text style={[styles.cardSub, { color: colors.textSecondary, marginBottom: 20 }]}>{Strings.admin.recentActivitySub}</Text>
 
                     {(!stats?.activities || stats.activities.length === 0) ? (
                         <View style={{ padding: 20, alignItems: 'center' }}>
-                            <Text style={{ color: colors.textSecondary }}>최근 활동 내역이 없습니다.</Text>
+                            <Text style={{ color: colors.textSecondary }}>{Strings.admin.noActivity}</Text>
                         </View>
                     ) : (
                         stats.activities.map((activity: any, idx: number) => (

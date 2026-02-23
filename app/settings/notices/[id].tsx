@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
-import { Notice } from '@/types';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeIn } from 'react-native-reanimated';
-
 import { useNotices } from '@/hooks/useNotices';
+import { Strings } from '@/constants/Strings';
 
 export default function NoticeDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,7 +32,7 @@ export default function NoticeDetailScreen() {
                         style={[styles.contentText, styles.linkText, { color: colors.tint }]}
                         onPress={() => router.push({
                             pathname: '/webview',
-                            params: { url: part, title: notice?.title || '공지사항' }
+                            params: { url: part, title: notice?.title || Strings.notices.screenTitle }
                         })}
                     >
                         {part}
@@ -55,7 +54,7 @@ export default function NoticeDetailScreen() {
     if (!notice) {
         return (
             <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-                <Text style={{ color: colors.textSecondary }}>공지사항을 찾을 수 없습니다.</Text>
+                <Text style={{ color: colors.textSecondary }}>{Strings.notices.notFound}</Text>
             </View>
         );
     }
@@ -64,7 +63,7 @@ export default function NoticeDetailScreen() {
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: '공지사항 상세',
+                    title: Strings.notices.detailTitle,
                     headerShown: true,
                     headerTintColor: colors.text,
                 }}
@@ -74,12 +73,12 @@ export default function NoticeDetailScreen() {
                 <View variant="transparent" style={styles.header}>
                     {notice.is_important && (
                         <View style={[styles.importantBadge, { backgroundColor: colors.tint }]}>
-                            <Text style={styles.importantText}>중요</Text>
+                            <Text style={styles.importantText}>{Strings.notices.badgeImportant}</Text>
                         </View>
                     )}
                     <Text style={styles.title}>{notice.title}</Text>
                     <Text style={[styles.date, { color: colors.textSecondary }]}>
-                        등록일: {new Date(notice.created_at).toLocaleString()}
+                        {Strings.notices.createdAt(new Date(notice.created_at).toLocaleString())}
                     </Text>
                 </View>
 

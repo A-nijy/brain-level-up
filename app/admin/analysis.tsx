@@ -8,6 +8,8 @@ import { SimpleBarChart } from '@/components/stats/SimpleBarChart';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack } from 'expo-router';
 
+import { Strings } from '@/constants/Strings';
+
 export default function AdminAnalysisScreen() {
     const [loading, setLoading] = useState(true);
     const [distribution, setDistribution] = useState<number[]>([]);
@@ -45,40 +47,40 @@ export default function AdminAnalysisScreen() {
         );
     }
 
-    const labels = distribution.map((_, i) => i % 4 === 0 ? `${i}시` : '');
+    const labels = distribution.map((_, i) => i % 4 === 0 ? Strings.adminAnalysis.unitHour(i) : '');
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
-            <Stack.Screen options={{ title: '사용자 행태 분석' }} />
+            <Stack.Screen options={{ title: Strings.adminAnalysis.title }} />
 
             <View variant="transparent" style={styles.grid}>
                 {/* 1. 시간대별 접속 분포 */}
                 <Card style={styles.fullCard}>
-                    <Text style={styles.cardTitle}>접속 시간대 분포 (최근 7일)</Text>
-                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>사용자들이 주로 어떤 시간에 학습을 시작하는지 확인합니다.</Text>
+                    <Text style={styles.cardTitle}>{Strings.adminAnalysis.distributionTitle}</Text>
+                    <Text style={[styles.cardSub, { color: colors.textSecondary }]}>{Strings.adminAnalysis.distributionSub}</Text>
                     <SimpleBarChart data={distribution} labels={labels} height={180} color="#6366F1" />
                 </Card>
 
                 {/* 2. 학습 퍼널 (Funnel) */}
                 <Card style={styles.card}>
-                    <Text style={styles.cardTitle}>학습 전환 퍼널</Text>
+                    <Text style={styles.cardTitle}>{Strings.adminAnalysis.funnelTitle}</Text>
                     <View variant="transparent" style={styles.funnelContainer}>
-                        <FunnelRow label="단어장 생성" count={funnel?.stage1} percent={100} color="#10B981" />
-                        <FunnelRow label="단어 추가" count={funnel?.stage2} percent={funnel?.stage1 ? Math.round((funnel.stage2 / funnel.stage1) * 100) : 0} color="#F59E0B" />
-                        <FunnelRow label="학습 실천 (30일내)" count={funnel?.stage3} percent={funnel?.stage2 ? Math.round((funnel.stage3 / funnel.stage2) * 100) : 0} color="#EF4444" />
+                        <FunnelRow label={Strings.adminAnalysis.stages.create} count={funnel?.stage1} percent={100} color="#10B981" />
+                        <FunnelRow label={Strings.adminAnalysis.stages.add} count={funnel?.stage2} percent={funnel?.stage1 ? Math.round((funnel.stage2 / funnel.stage1) * 100) : 0} color="#F59E0B" />
+                        <FunnelRow label={Strings.adminAnalysis.stages.study} count={funnel?.stage3} percent={funnel?.stage2 ? Math.round((funnel.stage3 / funnel.stage2) * 100) : 0} color="#EF4444" />
                     </View>
                 </Card>
 
                 {/* 3. 인기 주제 랭킹 */}
                 <Card style={styles.card}>
-                    <Text style={styles.cardTitle}>인기 단어장/주제 랭킹</Text>
+                    <Text style={styles.cardTitle}>{Strings.adminAnalysis.popularTitle}</Text>
                     <View variant="transparent" style={{ marginTop: 16 }}>
                         {popular.map((item, idx) => (
                             <View key={idx} variant="transparent" style={styles.rankItem}>
                                 <Text style={styles.rankNum}>{idx + 1}</Text>
                                 <View variant="transparent" style={{ flex: 1 }}>
                                     <Text style={styles.rankTitle}>{item.shared_library_categories?.title || '기타'}</Text>
-                                    <Text style={[styles.rankSub, { color: colors.textSecondary }]}>다운로드 {item.download_count}회</Text>
+                                    <Text style={[styles.rankSub, { color: colors.textSecondary }]}>{Strings.adminAnalysis.unitDownload(item.download_count)}</Text>
                                 </View>
                             </View>
                         ))}
@@ -94,7 +96,7 @@ function FunnelRow({ label, count, percent, color }: any) {
         <View variant="transparent" style={styles.funnelRow}>
             <View variant="transparent" style={{ flex: 1 }}>
                 <Text style={styles.funnelLabel}>{label}</Text>
-                <Text style={styles.funnelCount}>{count}명</Text>
+                <Text style={styles.funnelCount}>{Strings.adminAnalysis.unitPerson(count)}</Text>
             </View>
             <View variant="transparent" style={[styles.funnelBarBase, { backgroundColor: color + '20' }]}>
                 <View style={[styles.funnelBarFill, { width: `${percent}%`, backgroundColor: color }]} />

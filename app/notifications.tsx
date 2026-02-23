@@ -7,7 +7,8 @@ import { Notification } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Stack, useRouter, Link } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
+import { Strings } from '@/constants/Strings';
 
 export default function NotificationsScreen() {
     const { profile } = useAuth();
@@ -71,13 +72,13 @@ export default function NotificationsScreen() {
         };
 
         if (Platform.OS === 'web') {
-            if (window.confirm('알림을 삭제하시겠습니까?')) {
+            if (window.confirm(Strings.notifications.deleteConfirm)) {
                 confirmDelete();
             }
         } else {
-            Alert.alert('알림 삭제', '알림을 삭제하시겠습니까?', [
-                { text: '취소', style: 'cancel' },
-                { text: '삭제', style: 'destructive', onPress: confirmDelete }
+            Alert.alert(Strings.notifications.deleteTitle, Strings.notifications.deleteConfirm, [
+                { text: Strings.common.cancel, style: 'cancel' },
+                { text: Strings.common.delete, style: 'destructive', onPress: confirmDelete }
             ]);
         }
     };
@@ -122,10 +123,10 @@ export default function NotificationsScreen() {
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{
-                title: '알림',
+                title: Strings.notifications.screenTitle,
                 headerRight: () => (
                     <TouchableOpacity onPress={handleMarkAllAsRead} style={{ marginRight: 15 }}>
-                        <Text style={{ color: colors.tint, fontWeight: 'bold' }}>모두 읽음</Text>
+                        <Text style={{ color: colors.tint, fontWeight: 'bold' }}>{Strings.notifications.markAllRead}</Text>
                     </TouchableOpacity>
                 )
             }} />
@@ -144,7 +145,7 @@ export default function NotificationsScreen() {
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
                             <FontAwesome name="bell-slash-o" size={50} color={colors.border} />
-                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>새로운 알림이 없습니다.</Text>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.notifications.empty}</Text>
                         </View>
                     }
                 />

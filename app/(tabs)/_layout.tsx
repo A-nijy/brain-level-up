@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Alert } from 'react-native';
+import { Strings } from '@/constants/Strings';
 
 import { MembershipService } from '@/services/MembershipService';
 import { NotificationService } from '@/services/NotificationService';
@@ -67,11 +68,11 @@ export default function TabLayout() {
 
     if (access.status === 'LIMIT_REACHED') {
       Alert.alert(
-        'Limit Reached',
-        access.message || 'You have reached the limit for your current plan.',
+        Strings.membership.alerts.limitReachedTitle,
+        access.message || Strings.membership.alerts.limitReachedMsg,
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Upgrade Now', onPress: () => router.push('/membership') }
+          { text: Strings.common.cancel, style: 'cancel' },
+          { text: Strings.membership.upgrade, onPress: () => router.push('/membership') }
         ]
       );
       return;
@@ -119,8 +120,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: '나의 암기장',
-          tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
+          title: Strings.tabs.home,
+          tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.home as any} color={color} />,
           headerRight: () => (
             <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
               <Pressable onPress={() => router.push('/notifications')}>
@@ -171,22 +172,22 @@ export default function TabLayout() {
       <Tabs.Screen
         name="shared"
         options={{
-          title: '자료실',
-          tabBarIcon: ({ color }) => <TabBarIcon name="globe" color={color} />,
+          title: Strings.tabs.shared,
+          tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.shared as any} color={color} />,
         }}
       />
       <Tabs.Screen
         name="stats"
         options={{
-          title: '통계',
-          tabBarIcon: ({ color }) => <TabBarIcon name="bar-chart" color={color} />,
+          title: Strings.tabs.stats,
+          tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.stats as any} color={color} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: '설정',
-          tabBarIcon: ({ color }) => <TabBarIcon name="gear" color={color} />,
+          title: Strings.tabs.settings,
+          tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.settings as any} color={color} />,
         }}
       />
     </Tabs>

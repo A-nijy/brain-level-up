@@ -11,6 +11,8 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+import { Strings } from '@/constants/Strings';
+
 export default function LibraryDetailScreen() {
     const { id } = useLocalSearchParams();
     const router = useRouter();
@@ -42,7 +44,7 @@ export default function LibraryDetailScreen() {
 
     const handleCreateSection = async () => {
         if (!newSectionTitle.trim()) {
-            Alert.alert('오류', '이름을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.libraryDetail.alerts.enterName);
             return;
         }
 
@@ -52,7 +54,7 @@ export default function LibraryDetailScreen() {
             setNewSectionTitle('');
             setCreateModalVisible(false);
         } catch (error: any) {
-            Alert.alert('오류', '섹션 생성 실패: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.libraryDetail.alerts.createFail}: ${error.message}`);
         } finally {
             setCreating(false);
         }
@@ -60,7 +62,7 @@ export default function LibraryDetailScreen() {
 
     const handleEditSection = async () => {
         if (!editingSection || !editSectionTitle.trim()) {
-            Alert.alert('오류', '이름을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.libraryDetail.alerts.enterName);
             return;
         }
 
@@ -71,7 +73,7 @@ export default function LibraryDetailScreen() {
             setEditingSection(null);
             setEditModalVisible(false);
         } catch (error: any) {
-            Alert.alert('오류', '섹션 수정 실패: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.libraryDetail.alerts.editFail}: ${error.message}`);
         } finally {
             setUpdating(false);
         }
@@ -85,18 +87,18 @@ export default function LibraryDetailScreen() {
 
     const handleDeleteSection = async (section: Section) => {
         Alert.alert(
-            '섹션 삭제',
-            `'${section.title}' 섹션을 삭제하시겠습니까? 내부의 모든 단어도 삭제됩니다.`,
+            Strings.common.deleteConfirmTitle,
+            Strings.libraryDetail.alerts.deleteConfirm(section.title),
             [
-                { text: '취소', style: 'cancel' },
+                { text: Strings.common.cancel, style: 'cancel' },
                 {
-                    text: '삭제',
+                    text: Strings.common.delete,
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await deleteSection(section.id);
                         } catch (error: any) {
-                            Alert.alert('오류', '삭제 실패: ' + error.message);
+                            Alert.alert(Strings.common.error, `${Strings.libraryDetail.alerts.deleteFail}: ${error.message}`);
                         }
                     }
                 }
@@ -141,14 +143,14 @@ export default function LibraryDetailScreen() {
                             onPress={() => handleMoveUp(index)}
                             disabled={index === 0}
                         >
-                            <FontAwesome name="arrow-up" size={16} color={colors.tint} />
+                            <FontAwesome name={Strings.settings.icons.down as any} size={16} color={colors.tint} style={{ transform: [{ rotate: '180deg' }] }} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.reorderButton, index === sections.length - 1 && { opacity: 0.3 }]}
                             onPress={() => handleMoveDown(index)}
                             disabled={index === sections.length - 1}
                         >
-                            <FontAwesome name="arrow-down" size={16} color={colors.tint} />
+                            <FontAwesome name={Strings.settings.icons.down as any} size={16} color={colors.tint} />
                         </TouchableOpacity>
                     </View>
                 ) : (
@@ -157,15 +159,15 @@ export default function LibraryDetailScreen() {
                             onPress={() => openEditModal(item)}
                             style={styles.editIconButton}
                         >
-                            <FontAwesome name="pencil" size={18} color={colors.tint} />
+                            <FontAwesome name={Strings.settings.icons.pencil as any} size={18} color={colors.tint} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => handleDeleteSection(item)}
                             style={styles.deleteIconButton}
                         >
-                            <FontAwesome name="trash-o" size={18} color={colors.textSecondary} />
+                            <FontAwesome name={Strings.common.icons.delete as any} size={18} color={colors.textSecondary} />
                         </TouchableOpacity>
-                        <FontAwesome name="angle-right" size={20} color={colors.border} />
+                        <FontAwesome name={Strings.home.icons.arrowRight as any} size={20} color={colors.border} />
                     </View>
                 )}
             </Card>
@@ -184,7 +186,7 @@ export default function LibraryDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background, paddingHorizontal: Platform.OS === 'web' ? 24 : 0 }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: library?.title || '암기장',
+                    headerTitle: library?.title || Strings.libraryDetail.title,
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: Platform.OS === 'web' ? 24 : 0 }}>
@@ -192,13 +194,13 @@ export default function LibraryDetailScreen() {
                                 onPress={() => setCreateModalVisible(true)}
                                 style={styles.headerIconButton}
                             >
-                                <FontAwesome name="plus" size={18} color={colors.tint} />
+                                <FontAwesome name={Strings.shared.icons.plus as any} size={18} color={colors.tint} />
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => setReorderMode(!reorderMode)}
                                 style={[styles.headerIconButton, { marginRight: 0 }]}
                             >
-                                <FontAwesome name="sort" size={20} color={reorderMode ? colors.tint : colors.textSecondary} />
+                                <FontAwesome name={Strings.settings.icons.refresh as any} size={20} color={reorderMode ? colors.tint : colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
                     )
@@ -220,18 +222,18 @@ export default function LibraryDetailScreen() {
                                 {library.description}
                             </Text>
                         )}
-                        <Text style={styles.subHeaderTitle}>항목 목록 (Day, Chapter 등)</Text>
+                        <Text style={styles.subHeaderTitle}>{Strings.libraryDetail.sectionListHeader}</Text>
                     </View>
                 }
                 ListEmptyComponent={
                     <View variant="transparent" style={styles.emptyContainer}>
-                        <FontAwesome name="folder-open-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>생성된 항목이 없습니다.</Text>
+                        <FontAwesome name={Strings.tabs.icons.libraries as any} size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.libraryDetail.empty}</Text>
                         <TouchableOpacity
                             style={[styles.addButton, { backgroundColor: colors.tint }]}
                             onPress={() => setCreateModalVisible(true)}
                         >
-                            <Text style={styles.addButtonText}>첫 번째 항목 추가하기</Text>
+                            <Text style={styles.addButtonText}>{Strings.libraryDetail.addFirst}</Text>
                         </TouchableOpacity>
                     </View>
                 }
@@ -247,11 +249,11 @@ export default function LibraryDetailScreen() {
                     <View style={styles.modalOverlay}>
                         <TouchableWithoutFeedback>
                             <Card style={styles.modalContent}>
-                                <Text style={styles.modalTitle}>새 항목 추가</Text>
-                                <Text style={styles.modalSubtitle}>예: Day 1, Chapter 1, 업무용 단어 등</Text>
+                                <Text style={styles.modalTitle}>{Strings.libraryDetail.modal.createTitle}</Text>
+                                <Text style={styles.modalSubtitle}>{Strings.libraryDetail.modal.subtitle}</Text>
                                 <TextInput
                                     style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-                                    placeholder="항목 이름을 입력하세요"
+                                    placeholder={Strings.libraryDetail.modal.placeholder}
                                     placeholderTextColor={colors.textSecondary}
                                     value={newSectionTitle}
                                     onChangeText={setNewSectionTitle}
@@ -262,7 +264,7 @@ export default function LibraryDetailScreen() {
                                         style={[styles.modalButton, { backgroundColor: colors.border + '30' }]}
                                         onPress={() => setCreateModalVisible(false)}
                                     >
-                                        <Text style={{ fontWeight: '700' }}>취소</Text>
+                                        <Text style={{ fontWeight: '700' }}>{Strings.common.cancel}</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.modalButton, { backgroundColor: colors.tint }]}
@@ -270,7 +272,7 @@ export default function LibraryDetailScreen() {
                                         disabled={creating}
                                     >
                                         {creating ? <ActivityIndicator size="small" color="#fff" /> : (
-                                            <Text style={{ color: '#fff', fontWeight: '800' }}>추가하기</Text>
+                                            <Text style={{ color: '#fff', fontWeight: '800' }}>{Strings.libraryDetail.modal.btnAdd}</Text>
                                         )}
                                     </TouchableOpacity>
                                 </View>
@@ -291,10 +293,10 @@ export default function LibraryDetailScreen() {
                     <View style={styles.modalOverlay}>
                         <TouchableWithoutFeedback>
                             <Card style={styles.modalContent}>
-                                <Text style={styles.modalTitle}>항목 이름 수정</Text>
+                                <Text style={styles.modalTitle}>{Strings.libraryDetail.modal.editTitle}</Text>
                                 <TextInput
                                     style={[styles.input, { borderColor: colors.border, color: colors.text }]}
-                                    placeholder="항목 이름을 입력하세요"
+                                    placeholder={Strings.libraryDetail.modal.placeholder}
                                     placeholderTextColor={colors.textSecondary}
                                     value={editSectionTitle}
                                     onChangeText={setEditSectionTitle}
@@ -305,7 +307,7 @@ export default function LibraryDetailScreen() {
                                         style={[styles.modalButton, { backgroundColor: colors.border + '30' }]}
                                         onPress={() => setEditModalVisible(false)}
                                     >
-                                        <Text style={{ fontWeight: '700' }}>취소</Text>
+                                        <Text style={{ fontWeight: '700' }}>{Strings.common.cancel}</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.modalButton, { backgroundColor: colors.tint }]}
@@ -313,7 +315,7 @@ export default function LibraryDetailScreen() {
                                         disabled={updating}
                                     >
                                         {updating ? <ActivityIndicator size="small" color="#fff" /> : (
-                                            <Text style={{ color: '#fff', fontWeight: '800' }}>수정하기</Text>
+                                            <Text style={{ color: '#fff', fontWeight: '800' }}>{Strings.libraryDetail.modal.btnEdit}</Text>
                                         )}
                                     </TouchableOpacity>
                                 </View>

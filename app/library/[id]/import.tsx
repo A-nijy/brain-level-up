@@ -10,6 +10,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Strings } from '@/constants/Strings';
 
 export default function ImportItemsScreen() {
     const { id } = useLocalSearchParams(); // library_id
@@ -66,26 +67,26 @@ export default function ImportItemsScreen() {
                 }
 
                 if (json.length === 0) {
-                    Alert.alert('알림', '파일에 데이터가 없거나 형식이 올바르지 않습니다.');
+                    Alert.alert(Strings.common.info, Strings.userImport.alerts.emptyFile);
                 }
                 setParsedData(json);
             } catch (error) {
                 console.error('File parsing error:', error);
-                Alert.alert('오류', '파일을 분석하는 중 오류가 발생했습니다. 파일 형식을 확인해주세요.');
+                Alert.alert(Strings.common.error, Strings.userImport.alerts.parseError);
             } finally {
                 setLoading(false);
             }
 
         } catch (error) {
             console.error('Document picking error:', error);
-            Alert.alert('오류', '파일을 선택하는 중 오류가 발생했습니다.');
+            Alert.alert(Strings.common.error, Strings.userImport.alerts.pickError);
             setLoading(false);
         }
     };
 
     const handleImport = async () => {
         if (parsedData.length === 0) {
-            Alert.alert('알림', '가져올 데이터가 없습니다.');
+            Alert.alert(Strings.common.info, Strings.userImport.alerts.noData);
             return;
         }
 
@@ -104,23 +105,24 @@ export default function ImportItemsScreen() {
                     question: row[qKey],
                     answer: row[aKey],
                     memo: mKey ? row[mKey] : null,
+                    study_status: 'undecided', // DB 필수값 대응
                 };
             }).filter(item => item !== null);
 
             if (itemsToInsert.length === 0) {
-                throw new Error('유효한 데이터 컬럼(문제/정답)을 찾지 못했습니다.');
+                throw new Error(Strings.userImport.alerts.noColumns);
             }
 
             const { error } = await supabase.from('items').insert(itemsToInsert);
 
             if (error) throw error;
 
-            Alert.alert('성공', `${itemsToInsert.length}개의 항목을 가져왔습니다.`, [
-                { text: '확인', onPress: () => router.back() }
+            Alert.alert(Strings.common.success, Strings.userImport.alerts.importSuccess(itemsToInsert.length), [
+                { text: Strings.common.confirm, onPress: () => router.back() }
             ]);
 
         } catch (error: any) {
-            Alert.alert('가져오기 실패', error.message);
+            Alert.alert(Strings.userImport.alerts.importFail, error.message);
         } finally {
             setLoading(false);
         }
@@ -130,7 +132,7 @@ export default function ImportItemsScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: '데이터 가져오기',
+                    title: Strings.userImport.title,
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
                     headerShadowVisible: false,
@@ -141,12 +143,12 @@ export default function ImportItemsScreen() {
                 <Card style={styles.guideCard}>
                     <View style={[styles.guideHeader, { borderBottomColor: colors.border }]}>
                         <FontAwesome name="info-circle" size={18} color={colors.tint} />
-                        <Text style={[styles.guideTitle, { color: colors.text }]}>사용 가이드</Text>
+                        <Text style={[styles.guideTitle, { color: colors.text }]}>{Strings.userImport.guide.title}</Text>
                     </View>
                     <View style={styles.guideBody}>
-                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>1. 엑셀(xlsx) 또는 CSV 파일을 준비하세요.</Text>
-                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>2. 헤더에 '문제', '정답' 컬럼이 포함되어야 합니다.</Text>
-                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>3. 아래 버튼을 눌러 파일을 선택하세요.</Text>
+                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>{Strings.userImport.guide.step1}</Text>
+                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>{Strings.userImport.guide.step2}</Text>
+                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>{Strings.userImport.guide.step3}</Text>
                     </View>
                 </Card>
 
@@ -160,19 +162,19 @@ export default function ImportItemsScreen() {
                         style={StyleSheet.absoluteFill}
                     />
                     <FontAwesome
-                        name={fileName ? "file-excel-o" : "cloud-upload"}
+                        name={(fileName ? Strings.userImport.icons.excel : Strings.userImport.icons.upload) as any}
                         size={48}
                         color={fileName ? colors.tint : colors.border}
                     />
                     <Text style={[styles.uploadText, { color: fileName ? colors.text : colors.textSecondary }]}>
-                        {fileName ? fileName : '파일 선택하기'}
+                        {fileName ? fileName : Strings.userImport.fileSelect}
                     </Text>
-                    {fileName && <Text style={[styles.changeText, { color: colors.tint }]}>파일 변경</Text>}
+                    {fileName && <Text style={[styles.changeText, { color: colors.tint }]}>{Strings.userImport.fileChange}</Text>}
                 </TouchableOpacity>
 
                 {parsedData.length > 0 && (
                     <View style={styles.previewSection}>
-                        <Text style={[styles.previewTitle, { color: colors.text }]}>미리보기 ({parsedData.length}개 항목)</Text>
+                        <Text style={[styles.previewTitle, { color: colors.text }]}>{Strings.userImport.preview(parsedData.length)}</Text>
                         <Card style={styles.previewCard}>
                             {parsedData.slice(0, 3).map((row, idx) => (
                                 <View key={idx} style={[styles.previewItem, idx < 2 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
@@ -183,7 +185,7 @@ export default function ImportItemsScreen() {
                             ))}
                             {parsedData.length > 3 && (
                                 <View style={styles.moreItems}>
-                                    <Text style={[styles.moreText, { color: colors.textSecondary }]}>외 {parsedData.length - 3}개의 항목...</Text>
+                                    <Text style={[styles.moreText, { color: colors.textSecondary }]}>{Strings.userImport.more(parsedData.length - 3)}</Text>
                                 </View>
                             )}
                         </Card>
@@ -205,7 +207,7 @@ export default function ImportItemsScreen() {
                     ) : (
                         <>
                             <FontAwesome name="download" size={18} color="#fff" style={{ marginRight: 10 }} />
-                            <Text style={styles.importButtonText}>데이터 가져오기</Text>
+                            <Text style={styles.importButtonText}>{Strings.userImport.btnImport}</Text>
                         </>
                     )}
                 </TouchableOpacity>

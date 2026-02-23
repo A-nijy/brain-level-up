@@ -4,10 +4,9 @@ import { Text, View } from '@/components/Themed';
 import { LibraryService } from '@/services/LibraryService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
-import { Library } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Strings } from '@/constants/Strings';
 
 export default function EditLibraryScreen() {
     const { session } = useAuth();
@@ -36,7 +35,7 @@ export default function EditLibraryScreen() {
                 }
             } catch (error) {
                 console.error(error);
-                Alert.alert('오류', '정보를 불러오지 못했습니다.');
+                Alert.alert(Strings.common.error, Strings.libraryForm.fetchError);
                 router.back();
             } finally {
                 setLoading(false);
@@ -47,12 +46,12 @@ export default function EditLibraryScreen() {
 
     const handleUpdate = async () => {
         if (!title.trim()) {
-            Alert.alert('오류', '제목을 입력해주세요.');
+            Alert.alert(Strings.common.error, Strings.libraryForm.validationTitle);
             return;
         }
 
         if (!session?.user || !libraryId) {
-            Alert.alert('오류', '잘못된 접근입니다.');
+            Alert.alert(Strings.common.error, Strings.itemForm.alerts.invalidAccess);
             return;
         }
 
@@ -65,16 +64,16 @@ export default function EditLibraryScreen() {
             });
 
             if (Platform.OS === 'web') {
-                window.alert('수정되었습니다.');
+                window.alert(Strings.itemForm.alerts.editSuccess);
             } else {
-                Alert.alert('성공', '수정되었습니다.');
+                Alert.alert(Strings.common.success, Strings.itemForm.alerts.editSuccess);
             }
             router.back();
         } catch (error: any) {
             if (Platform.OS === 'web') {
-                window.alert(`수정 실패: ${error.message}`);
+                window.alert(`${Strings.itemForm.alerts.editFail}: ${error.message}`);
             } else {
-                Alert.alert('수정 실패', error.message);
+                Alert.alert(Strings.itemForm.alerts.editFail, error.message);
             }
         } finally {
             setSaving(false);
@@ -84,15 +83,15 @@ export default function EditLibraryScreen() {
     const handleDelete = async () => {
         if (!libraryId) return;
 
-        const confirmMessage = '정말 이 암기장을 삭제하시겠습니까?\n포함된 모든 단어가 함께 삭제됩니다.';
+        const confirmMessage = Strings.libraryForm.deleteConfirm;
 
         if (Platform.OS === 'web') {
             if (!window.confirm(confirmMessage)) return;
         } else {
-            Alert.alert('삭제 확인', confirmMessage, [
-                { text: '취소', style: 'cancel' },
+            Alert.alert(Strings.libraryForm.deleteConfirmTitle, confirmMessage, [
+                { text: Strings.common.cancel, style: 'cancel' },
                 {
-                    text: '삭제',
+                    text: Strings.common.delete,
                     style: 'destructive',
                     onPress: async () => {
                         await deleteLibraryLogic();
@@ -108,14 +107,14 @@ export default function EditLibraryScreen() {
         setSaving(true);
         try {
             await LibraryService.deleteLibrary(libraryId);
-            if (Platform.OS === 'web') window.alert('암기장이 삭제되었습니다.');
-            else Alert.alert('성공', '암기장이 삭제되었습니다.');
+            if (Platform.OS === 'web') window.alert(Strings.libraryForm.deleteSuccess);
+            else Alert.alert(Strings.common.success, Strings.libraryForm.deleteSuccess);
 
             router.replace('/(tabs)');
         } catch (error: any) {
             console.error(error);
-            if (Platform.OS === 'web') window.alert(`삭제 실패: ${error.message}`);
-            else Alert.alert('오류', error.message);
+            if (Platform.OS === 'web') window.alert(`${Strings.libraryForm.deleteFail}: ${error.message}`);
+            else Alert.alert(Strings.common.error, error.message);
         } finally {
             setSaving(false);
         }
@@ -136,16 +135,16 @@ export default function EditLibraryScreen() {
         >
             <Stack.Screen
                 options={{
-                    title: '암기장 수정',
+                    title: Strings.libraryDetail.modal.editTitle,
                     headerTintColor: colors.text,
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>제목 *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.common.title} *</Text>
                     <TextInput
                         style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예: 토익 보카 2024"
+                        placeholder={Strings.libraryForm.placeholderTitle}
                         value={title}
                         onChangeText={setTitle}
                         placeholderTextColor={colors.textSecondary}
@@ -153,10 +152,10 @@ export default function EditLibraryScreen() {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>설명</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.common.description}</Text>
                     <TextInput
                         style={[styles.input, styles.textArea, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="이 암기장에 대한 설명 (선택)"
+                        placeholder={Strings.libraryForm.placeholderDesc}
                         value={description}
                         onChangeText={setDescription}
                         multiline
@@ -166,10 +165,10 @@ export default function EditLibraryScreen() {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>카테고리</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.common.category}</Text>
                     <TextInput
                         style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예: 영어, 자격증, IT"
+                        placeholder={Strings.libraryForm.placeholderCategory}
                         value={category}
                         onChangeText={setCategory}
                         placeholderTextColor={colors.textSecondary}
@@ -182,7 +181,7 @@ export default function EditLibraryScreen() {
                     disabled={saving}
                 >
                     <Text style={styles.submitButtonText}>
-                        {saving ? '저장 중...' : '저장하기'}
+                        {saving ? Strings.common.saving : Strings.common.save}
                     </Text>
                 </TouchableOpacity>
 
@@ -191,7 +190,7 @@ export default function EditLibraryScreen() {
                     onPress={handleDelete}
                     disabled={saving}
                 >
-                    <Text style={[styles.deleteButtonText, { color: colors.error }]}>암기장 삭제</Text>
+                    <Text style={[styles.deleteButtonText, { color: colors.error }]}>{Strings.libraryForm.deleteBtn}</Text>
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>

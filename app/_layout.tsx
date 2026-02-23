@@ -1,5 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { Strings } from '@/constants/Strings';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -126,7 +128,7 @@ function InitialLayout() {
       <Stack.Screen name="admin" options={{ headerShown: false }} />
       <Stack.Screen name="auth/login" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="statistics_detail" options={{ headerTitle: '세부 학습 상태도' }} />
+      <Stack.Screen name="statistics_detail" options={{ headerTitle: Strings.stats.detailTitle }} />
       <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
     </Stack>

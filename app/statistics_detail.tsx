@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, ActivityIndicator, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import Colors from '@/constants/Colors';
+import { Strings } from '@/constants/Strings';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -35,7 +36,8 @@ export default function StatsDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: '세부 학습 상태도',
+                    headerTitle: Strings.stats.detailTitle,
+                    headerTintColor: colors.text,
                 }}
             />
 
@@ -79,11 +81,11 @@ export default function StatsDetailScreen() {
 
                                                 <View variant="transparent" style={styles.indicatorList}>
                                                     <View variant="transparent" style={styles.indicatorItem}>
-                                                        <View style={[styles.dot, { backgroundColor: colors.success || '#10B981' }]} />
+                                                        <Text style={[styles.statusTag, { backgroundColor: '#E7F9F0', color: '#10B981' }]}>{Strings.librarySection.statusModal.learned}</Text>
                                                         <Text style={styles.indicatorText}>{lib.learned}개 ({learnedPct}%)</Text>
                                                     </View>
                                                     <View variant="transparent" style={styles.indicatorItem}>
-                                                        <View style={[styles.dot, { backgroundColor: '#F59E0B' }]} />
+                                                        <Text style={[styles.statusTag, { backgroundColor: '#FFFEEB', color: '#F59E0B' }]}>{Strings.librarySection.statusModal.confused}</Text>
                                                         <Text style={styles.indicatorText}>{lib.confused}개 ({confusedPct}%)</Text>
                                                     </View>
                                                     <View variant="transparent" style={styles.indicatorItem}>
@@ -183,5 +185,13 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 16,
         fontWeight: '600',
-    }
+    },
+    statusTag: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 8,
+        marginRight: 6,
+    },
 });

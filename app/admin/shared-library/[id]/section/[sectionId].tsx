@@ -10,6 +10,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { supabase } from '@/lib/supabase';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+import { Strings } from '@/constants/Strings';
+
 export default function SharedLibrarySectionDetailScreen() {
     const { id, sectionId } = useLocalSearchParams();
     const router = useRouter();
@@ -47,7 +49,7 @@ export default function SharedLibrarySectionDetailScreen() {
             setItems(itemsData);
         } catch (error) {
             console.error(error);
-            window.alert('데이터를 가져오는데 실패했습니다.');
+            Alert.alert(Strings.common.error, Strings.adminSharedSection.alerts.fetchFail);
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -65,7 +67,7 @@ export default function SharedLibrarySectionDetailScreen() {
 
     const handleAddItem = async () => {
         if (!addForm.question.trim() || !addForm.answer.trim()) {
-            window.alert('질문과 답변을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.adminSharedSection.alerts.enterQA);
             return;
         }
 
@@ -98,9 +100,8 @@ export default function SharedLibrarySectionDetailScreen() {
             setAddModalVisible(false);
             fetchData();
         } catch (error: any) {
-            window.alert('단어 추가 실패: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.adminSharedSection.alerts.addFail}: ${error.message}`);
         } finally {
-            setAdding(true); // Should be false, wait I will fix in next chunk
             setAdding(false);
         }
     };
@@ -113,7 +114,7 @@ export default function SharedLibrarySectionDetailScreen() {
 
     const handleEditItem = async () => {
         if (!editingItem || !editForm.question.trim() || !editForm.answer.trim()) {
-            window.alert('질문과 답변을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.adminSharedSection.alerts.enterQA);
             return;
         }
 
@@ -134,7 +135,7 @@ export default function SharedLibrarySectionDetailScreen() {
             setEditingItem(null);
             fetchData();
         } catch (error: any) {
-            window.alert('단어 수정 실패: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.adminSharedSection.alerts.editFail}: ${error.message}`);
         } finally {
             setUpdating(false);
         }
@@ -150,7 +151,7 @@ export default function SharedLibrarySectionDetailScreen() {
             if (error) throw error;
             fetchData();
         } catch (error: any) {
-            window.alert('삭제 실패: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.common.delete} ${Strings.common.error}: ${error.message}`);
         }
     };
 
@@ -172,7 +173,7 @@ export default function SharedLibrarySectionDetailScreen() {
         try {
             await SharedLibraryService.reorderSharedItems(updates);
         } catch (error: any) {
-            window.alert('순서 변경 실패: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.adminSharedDetail.alerts.reorderFail}: ${error.message}`);
             fetchData();
         }
     };
@@ -194,30 +195,35 @@ export default function SharedLibrarySectionDetailScreen() {
                         onPress={() => handleMoveItem(index, 'up')}
                         disabled={index === 0}
                     >
-                        <FontAwesome name="chevron-up" size={14} color={colors.textSecondary} />
+                        <FontAwesome name={Strings.settings.icons.down as any} size={14} color={colors.textSecondary} style={{ transform: [{ rotate: '180deg' }] }} />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.moveButton, { opacity: index === items.length - 1 ? 0.3 : 1 }]}
                         onPress={() => handleMoveItem(index, 'down')}
                         disabled={index === items.length - 1}
                     >
-                        <FontAwesome name="chevron-down" size={14} color={colors.textSecondary} />
+                        <FontAwesome name={Strings.settings.icons.down as any} size={14} color={colors.textSecondary} />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.miniButton, { backgroundColor: '#F59E0B' }]}
                         onPress={() => openEditModal(item)}
                     >
-                        <FontAwesome name="edit" size={14} color="#fff" />
+                        <FontAwesome name={Strings.settings.icons.pencil as any} size={14} color="#fff" />
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.miniButton, { backgroundColor: colors.error }]}
                         onPress={() => {
-                            if (window.confirm(`'${item.question}' 단어를 삭제하시겠습니까?`)) {
-                                handleDeleteItem(item.id);
-                            }
+                            Alert.alert(
+                                Strings.common.deleteConfirmTitle,
+                                Strings.adminSharedSection.alerts.deleteConfirm(item.question),
+                                [
+                                    { text: Strings.common.cancel, style: 'cancel' },
+                                    { text: Strings.common.delete, style: 'destructive', onPress: () => handleDeleteItem(item.id) }
+                                ]
+                            );
                         }}
                     >
-                        <FontAwesome name="trash" size={14} color="#fff" />
+                        <FontAwesome name={Strings.common.delete as any === '삭제' ? 'trash' : 'trash' as any} size={14} color="#fff" />
                     </TouchableOpacity>
                 </View>
             </Card>
@@ -236,7 +242,7 @@ export default function SharedLibrarySectionDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: section?.title || '단어 목록',
+                    headerTitle: section?.title || Strings.adminSharedSection.title,
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
@@ -247,10 +253,10 @@ export default function SharedLibrarySectionDetailScreen() {
                                 })}
                                 style={{ marginRight: 15 }}
                             >
-                                <FontAwesome name="file-excel-o" size={18} color={colors.tint} />
+                                <FontAwesome name={Strings.userImport.icons.excel as any} size={18} color={colors.tint} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => setAddModalVisible(true)}>
-                                <FontAwesome name="plus" size={20} color={colors.tint} />
+                                <FontAwesome name={Strings.shared.icons.plus as any} size={20} color={colors.tint} />
                             </TouchableOpacity>
                         </View>
                     )
@@ -266,11 +272,11 @@ export default function SharedLibrarySectionDetailScreen() {
                             params: { id: draftId }
                         })}
                     >
-                        <FontAwesome name="chevron-left" size={18} color={colors.text} />
+                        <FontAwesome name={Strings.tabs.icons.shared as any} size={18} color={colors.text} style={{ transform: [{ rotate: '180deg' }] }} />
                     </TouchableOpacity>
                     <View variant="transparent">
-                        <Text style={styles.titleText}>{section?.title || '단어 목록'}</Text>
-                        <Text style={[styles.countText, { color: colors.textSecondary }]}>총 {items.length}개의 단어</Text>
+                        <Text style={styles.titleText}>{section?.title || Strings.adminSharedSection.title}</Text>
+                        <Text style={[styles.countText, { color: colors.textSecondary }]}>{Strings.adminSharedSection.count(items.length)}</Text>
                     </View>
                 </View>
                 <View variant="transparent" style={styles.topActionGroup}>
@@ -281,15 +287,15 @@ export default function SharedLibrarySectionDetailScreen() {
                             params: { id: draftId, sectionId: sid }
                         })}
                     >
-                        <FontAwesome name="file-excel-o" size={14} color={colors.tint} style={{ marginRight: 8 }} />
-                        <Text style={[styles.outlineButtonText, { color: colors.tint }]}>CSV 가져오기</Text>
+                        <FontAwesome name={Strings.userImport.icons.excel as any} size={14} color={colors.tint} style={{ marginRight: 8 }} />
+                        <Text style={[styles.outlineButtonText, { color: colors.tint }]}>{Strings.adminSharedSection.importCsv}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={[styles.headerAddButton, { backgroundColor: colors.tint }]}
                         onPress={() => setAddModalVisible(true)}
                     >
-                        <FontAwesome name="plus" size={14} color="#fff" style={{ marginRight: 8 }} />
-                        <Text style={styles.headerAddButtonText}>단어 추가</Text>
+                        <FontAwesome name={Strings.shared.icons.plus as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                        <Text style={styles.headerAddButtonText}>{Strings.adminSharedSection.addItem}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -305,13 +311,13 @@ export default function SharedLibrarySectionDetailScreen() {
                 ListHeaderComponent={null}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <FontAwesome name="file-text-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 단어가 없습니다.</Text>
+                        <FontAwesome name={Strings.shared.icons.globe as any} size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminSharedSection.empty}</Text>
                         <TouchableOpacity
                             style={[styles.addButton, { backgroundColor: colors.tint }]}
                             onPress={() => setAddModalVisible(true)}
                         >
-                            <Text style={styles.addButtonText}>첫 번째 단어 추가하기</Text>
+                            <Text style={styles.addButtonText}>{Strings.adminSharedSection.addFirstItem}</Text>
                         </TouchableOpacity>
                     </View>
                 }
@@ -323,29 +329,29 @@ export default function SharedLibrarySectionDetailScreen() {
                     <View style={styles.modalOverlay}>
                         <TouchableWithoutFeedback>
                             <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                                <Text style={styles.modalTitle}>단어 추가</Text>
-                                <Text style={styles.label}>질문 *</Text>
+                                <Text style={styles.modalTitle}>{Strings.adminSharedSection.modal.createTitle}</Text>
+                                <Text style={styles.label}>{Strings.adminSharedSection.labelQuestion}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                                     value={addForm.question}
                                     onChangeText={(t) => setAddForm(p => ({ ...p, question: t }))}
-                                    placeholder="질문 (앞면)"
+                                    placeholder={Strings.adminSharedSection.placeholderQuestion}
                                     placeholderTextColor={colors.textSecondary}
                                 />
-                                <Text style={styles.label}>답변 *</Text>
+                                <Text style={styles.label}>{Strings.adminSharedSection.labelAnswer}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                                     value={addForm.answer}
                                     onChangeText={(t) => setAddForm(p => ({ ...p, answer: t }))}
-                                    placeholder="답변 (뒷면)"
+                                    placeholder={Strings.adminSharedSection.placeholderAnswer}
                                     placeholderTextColor={colors.textSecondary}
                                 />
-                                <Text style={styles.label}>메모 (선택)</Text>
+                                <Text style={styles.label}>{Strings.adminSharedSection.labelMemo}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                                     value={addForm.memo}
                                     onChangeText={(t) => setAddForm(p => ({ ...p, memo: t }))}
-                                    placeholder="추가 설명이나 예문"
+                                    placeholder={Strings.adminSharedSection.placeholderMemo}
                                     placeholderTextColor={colors.textSecondary}
                                 />
                                 <View variant="transparent" style={styles.modalButtons}>
@@ -353,14 +359,14 @@ export default function SharedLibrarySectionDetailScreen() {
                                         style={[styles.modalButton, { backgroundColor: colors.border }]}
                                         onPress={() => { setAddModalVisible(false); setAddForm({ question: '', answer: '', memo: '' }); }}
                                     >
-                                        <Text style={[styles.modalButtonText, { color: colors.text }]}>취소</Text>
+                                        <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.modalButton, { backgroundColor: colors.tint }]}
                                         onPress={handleAddItem}
                                         disabled={adding}
                                     >
-                                        <Text style={styles.modalButtonText}>{adding ? '추가 중...' : '추가'}</Text>
+                                        <Text style={styles.modalButtonText}>{adding ? Strings.common.creating : Strings.adminSharedSection.addItem}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -375,29 +381,29 @@ export default function SharedLibrarySectionDetailScreen() {
                     <View style={styles.modalOverlay}>
                         <TouchableWithoutFeedback>
                             <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                                <Text style={styles.modalTitle}>단어 수정</Text>
-                                <Text style={styles.label}>질문 *</Text>
+                                <Text style={styles.modalTitle}>{Strings.adminSharedSection.modal.editTitle}</Text>
+                                <Text style={styles.label}>{Strings.adminSharedSection.labelQuestion}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                                     value={editForm.question}
                                     onChangeText={(t) => setEditForm(p => ({ ...p, question: t }))}
-                                    placeholder="질문 (앞면)"
+                                    placeholder={Strings.adminSharedSection.placeholderQuestion}
                                     placeholderTextColor={colors.textSecondary}
                                 />
-                                <Text style={styles.label}>답변 *</Text>
+                                <Text style={styles.label}>{Strings.adminSharedSection.labelAnswer}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                                     value={editForm.answer}
                                     onChangeText={(t) => setEditForm(p => ({ ...p, answer: t }))}
-                                    placeholder="답변 (뒷면)"
+                                    placeholder={Strings.adminSharedSection.placeholderAnswer}
                                     placeholderTextColor={colors.textSecondary}
                                 />
-                                <Text style={styles.label}>메모 (선택)</Text>
+                                <Text style={styles.label}>{Strings.adminSharedSection.labelMemo}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
                                     value={editForm.memo}
                                     onChangeText={(t) => setEditForm(p => ({ ...p, memo: t }))}
-                                    placeholder="추가 설명이나 예문"
+                                    placeholder={Strings.adminSharedSection.placeholderMemo}
                                     placeholderTextColor={colors.textSecondary}
                                 />
                                 <View variant="transparent" style={styles.modalButtons}>
@@ -405,14 +411,14 @@ export default function SharedLibrarySectionDetailScreen() {
                                         style={[styles.modalButton, { backgroundColor: colors.border }]}
                                         onPress={() => setEditModalVisible(false)}
                                     >
-                                        <Text style={[styles.modalButtonText, { color: colors.text }]}>취소</Text>
+                                        <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={[styles.modalButton, { backgroundColor: colors.tint }]}
                                         onPress={handleEditItem}
                                         disabled={updating}
                                     >
-                                        <Text style={styles.modalButtonText}>{updating ? '수정 중...' : '수정'}</Text>
+                                        <Text style={styles.modalButtonText}>{updating ? Strings.common.saving : Strings.common.save}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>

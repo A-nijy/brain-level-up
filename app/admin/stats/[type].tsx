@@ -6,6 +6,7 @@ import { AdminService } from '@/services/AdminService';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Strings } from '@/constants/Strings';
 
 export default function AdminStatsDetailScreen() {
     const { type } = useLocalSearchParams();
@@ -24,23 +25,23 @@ export default function AdminStatsDetailScreen() {
                 let result: any[] = [];
                 switch (type) {
                     case 'dau':
-                        setTitle('오늘 활성 사용자 (DAU) 상세');
+                        setTitle(Strings.adminStatsDetail.titleDau);
                         result = await AdminService.getDauDetails();
                         break;
                     case 'new_users':
-                        setTitle('신규 가입자 상세 (최근 7일)');
+                        setTitle(Strings.adminStatsDetail.titleNewUsers);
                         result = await AdminService.getSignupDetails();
                         break;
                     case 'errors':
-                        setTitle('시스템 에러 로그 상세');
+                        setTitle(Strings.adminStatsDetail.titleErrors);
                         result = await AdminService.getErrorDetails();
                         break;
                     case 'revenue':
-                        setTitle('광고 수익 발생 상세 (최근 50건)');
+                        setTitle(Strings.adminStatsDetail.titleRevenue);
                         result = await AdminService.getAdViewDetails();
                         break;
                     default:
-                        setTitle('상세 정보');
+                        setTitle(Strings.adminStatsDetail.titleDefault);
                 }
                 setData(result);
             } catch (e) {
@@ -57,34 +58,34 @@ export default function AdminStatsDetailScreen() {
             case 'dau':
                 return (
                     <View variant="transparent" style={styles.tableHeader}>
-                        <Text style={[styles.headerCol, { flex: 2 }]}>사용자 (Email)</Text>
-                        <Text style={[styles.headerCol, { flex: 1 }]}>멤버십</Text>
-                        <Text style={[styles.headerCol, { flex: 1.5 }]}>마지막 접속</Text>
+                        <Text style={[styles.headerCol, { flex: 2 }]}>{Strings.adminStatsDetail.headers.userEmail}</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminStatsDetail.headers.membership}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5 }]}>{Strings.adminStatsDetail.headers.lastAccess}</Text>
                     </View>
                 );
             case 'new_users':
                 return (
                     <View variant="transparent" style={styles.tableHeader}>
-                        <Text style={[styles.headerCol, { flex: 2 }]}>사용자 (Email)</Text>
-                        <Text style={[styles.headerCol, { flex: 1 }]}>멤버십</Text>
-                        <Text style={[styles.headerCol, { flex: 1.5 }]}>가입 일시</Text>
+                        <Text style={[styles.headerCol, { flex: 2 }]}>{Strings.adminStatsDetail.headers.userEmail}</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminStatsDetail.headers.membership}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5 }]}>{Strings.adminStatsDetail.headers.joinDate}</Text>
                     </View>
                 );
             case 'errors':
                 return (
                     <View variant="transparent" style={styles.tableHeader}>
-                        <Text style={[styles.headerCol, { flex: 1.5 }]}>발생 시간</Text>
-                        <Text style={[styles.headerCol, { flex: 2.5 }]}>에러 메시지</Text>
-                        <Text style={[styles.headerCol, { flex: 1 }]}>사용자</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5 }]}>{Strings.adminStatsDetail.headers.occurTime}</Text>
+                        <Text style={[styles.headerCol, { flex: 2.5 }]}>{Strings.adminStatsDetail.headers.errorMessage}</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminStatsDetail.headers.user}</Text>
                     </View>
                 );
             case 'revenue':
                 return (
                     <View variant="transparent" style={styles.tableHeader}>
-                        <Text style={[styles.headerCol, { flex: 1.5 }]}>시청 시간</Text>
-                        <Text style={[styles.headerCol, { flex: 1 }]}>유형</Text>
-                        <Text style={[styles.headerCol, { flex: 1.5 }]}>위치</Text>
-                        <Text style={[styles.headerCol, { flex: 1 }]}>사용자</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5 }]}>{Strings.adminStatsDetail.headers.watchTime}</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminStatsDetail.headers.type}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5 }]}>{Strings.adminStatsDetail.headers.location}</Text>
+                        <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminStatsDetail.headers.user}</Text>
                     </View>
                 );
             default:
@@ -175,7 +176,7 @@ export default function AdminStatsDetailScreen() {
                         keyExtractor={(item) => item.id}
                         ListEmptyComponent={
                             <View style={styles.emptyContainer}>
-                                <Text style={{ color: colors.textSecondary }}>데이터가 없습니다.</Text>
+                                <Text style={{ color: colors.textSecondary }}>{Strings.adminStatsDetail.empty}</Text>
                             </View>
                         }
                     />

@@ -13,6 +13,8 @@ import { Library, Section } from '@/types';
 
 import { usePushSettings } from '@/hooks/usePushSettings';
 
+import { Strings } from '@/constants/Strings';
+
 export default function SettingsScreen() {
   const { signOut, profile } = useAuth();
   const { themeMode, setThemeMode } = useTheme();
@@ -59,7 +61,7 @@ export default function SettingsScreen() {
       }
 
       if (!granted) {
-        Alert.alert('권한 필요', '푸시 알림을 위해 알림 권한이 필요합니다. 브라우저나 기기 설정에서 권한을 허용해주세요.');
+        Alert.alert(Strings.pushModal.alerts.permissionNeeded);
         return;
       }
       setTempSettings({ ...notificationSettings, enabled: true });
@@ -89,7 +91,7 @@ export default function SettingsScreen() {
     if (!tempSettings) return;
 
     if (!tempSettings.libraryId) {
-      Alert.alert('암기장 선택 필요', '학습할 암기장을 선택해주세요.');
+      Alert.alert(Strings.common.info, Strings.pushModal.alerts.selectLibrary);
       return;
     }
 
@@ -110,25 +112,25 @@ export default function SettingsScreen() {
 
       setShowNotificationModal(false);
     } catch (error: any) {
-      Alert.alert('저장 실패', error.message);
+      Alert.alert(Strings.common.error, error.message);
     }
   };
 
   const handleResetProgress = async () => {
     Alert.alert(
-      '진행도 초기화',
-      '학습 진행도를 초기화하시겠습니까? 처음부터 다시 시작됩니다.',
+      Strings.pushModal.alerts.resetTitle,
+      Strings.pushModal.alerts.resetMsg,
       [
-        { text: '취소', style: 'cancel' },
+        { text: Strings.common.cancel, style: 'cancel' },
         {
-          text: '초기화',
+          text: Strings.common.confirm,
           style: 'destructive',
           onPress: async () => {
             try {
               await resetProgress();
-              Alert.alert('완료', '학습 진행도가 초기화되었습니다.');
+              Alert.alert(Strings.common.success, Strings.pushModal.alerts.resetSuccess);
             } catch (error) {
-              Alert.alert('오류', '초기화에 실패했습니다.');
+              Alert.alert(Strings.common.error, Strings.pushModal.alerts.resetFail);
             }
           },
         },
@@ -140,7 +142,7 @@ export default function SettingsScreen() {
     try {
       await signOut();
     } catch (error: any) {
-      Alert.alert('로그아웃 실패', error.message);
+      Alert.alert(Strings.common.error, error.message);
     }
   };
 
@@ -152,13 +154,13 @@ export default function SettingsScreen() {
       setThemeMode(options[nextIndex]);
     } else {
       Alert.alert(
-        '테마 설정',
-        '앱의 테마를 선택해주세요.',
+        Strings.settings.themeTitle,
+        Strings.settings.themeSubtitle,
         [
-          { text: '라이트 모드', onPress: () => setThemeMode('light') },
-          { text: '다크 모드', onPress: () => setThemeMode('dark') },
-          { text: '시스템 설정 따르기', onPress: () => setThemeMode('system') },
-          { text: '취소', style: 'cancel' }
+          { text: Strings.settings.themeModes.light, onPress: () => setThemeMode('light') },
+          { text: Strings.settings.themeModes.dark, onPress: () => setThemeMode('dark') },
+          { text: Strings.settings.themeModes.system, onPress: () => setThemeMode('system') },
+          { text: Strings.common.cancel, style: 'cancel' }
         ]
       );
     }
@@ -166,15 +168,13 @@ export default function SettingsScreen() {
 
   const getThemeText = (mode: ThemeMode) => {
     switch (mode) {
-      case 'light': return '라이트 모드';
-      case 'dark': return '다크 모드';
-      case 'system': return '시스템 설정';
+      case 'light': return Strings.settings.themeModes.light;
+      case 'dark': return Strings.settings.themeModes.dark;
+      case 'system': return Strings.settings.themeModes.system;
     }
   };
 
   const isWeb = Platform.OS === 'web' && width > 768;
-
-  console.log('[Settings] Modal State:', { showNotificationModal, hasSettings: !!notificationSettings, librariesCount: libraries.length });
 
   return (
     <ScrollView
@@ -189,34 +189,20 @@ export default function SettingsScreen() {
           onPress={() => router.push('/settings/profile')}
           activeOpacity={0.7}
         >
-          <FontAwesome name="user-circle-o" size={80} color={colors.tint} />
+          <FontAwesome name={Strings.settings.icons.userCircle as any} size={80} color={colors.tint} />
           <View variant="transparent" style={styles.editBadge}>
-            <FontAwesome name="pencil" size={12} color="#fff" />
+            <FontAwesome name={Strings.settings.icons.pencil as any} size={12} color="#fff" />
           </View>
         </TouchableOpacity>
-        <Text style={styles.email}>{profile?.nickname || '게스트 사용자'}</Text>
+        <Text style={styles.email}>{profile?.nickname || Strings.settings.guestName}</Text>
         <Text style={[styles.userIdBadge, { color: colors.textSecondary }]}>
-          ID: #{profile?.user_id_number || '-----'}
+          {Strings.settings.idLabel(profile?.user_id_number || '-----')}
         </Text>
       </Animated.View>
 
       <View variant="transparent" style={styles.content}>
-        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>계정 서비스</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{Strings.settings.sectionAccount}</Text>
         <Card style={styles.menuCard}>
-          {/* 멤버십 기능 일시 비활성화
-          <TouchableOpacity style={styles.item} onPress={() => router.push('/membership')} activeOpacity={0.7}>
-            <View variant="transparent" style={styles.itemLeft}>
-              <View variant="transparent" style={styles.iconWrapper}>
-                <FontAwesome name="star" size={18} color="#F59E0B" />
-              </View>
-              <Text style={styles.itemText}>멤버십 관리</Text>
-            </View>
-            <FontAwesome name="angle-right" size={18} color={colors.border} />
-          </TouchableOpacity>
-
-          <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
-          */}
-
           <TouchableOpacity
             style={styles.item}
             onPress={() => router.push('/settings/profile')}
@@ -224,9 +210,9 @@ export default function SettingsScreen() {
           >
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
-                <FontAwesome name="user-o" size={18} color={colors.textSecondary} />
+                <FontAwesome name={Strings.settings.icons.user as any} size={18} color={colors.textSecondary} />
               </View>
-              <Text style={styles.itemText}>프로필 관리</Text>
+              <Text style={styles.itemText}>{Strings.settings.menuProfile}</Text>
             </View>
             <FontAwesome name="angle-right" size={18} color={colors.border} />
           </TouchableOpacity>
@@ -240,9 +226,9 @@ export default function SettingsScreen() {
           >
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
-                <FontAwesome name="bullhorn" size={18} color={colors.textSecondary} />
+                <FontAwesome name={Strings.settings.icons.bullhorn as any} size={18} color={colors.textSecondary} />
               </View>
-              <Text style={styles.itemText}>공지사항</Text>
+              <Text style={styles.itemText}>{Strings.settings.menuNotice}</Text>
             </View>
             <FontAwesome name="angle-right" size={18} color={colors.border} />
           </TouchableOpacity>
@@ -256,9 +242,9 @@ export default function SettingsScreen() {
           >
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
-                <FontAwesome name="question-circle-o" size={18} color={colors.textSecondary} />
+                <FontAwesome name={Strings.settings.icons.question as any} size={18} color={colors.textSecondary} />
               </View>
-              <Text style={styles.itemText}>Q&A 및 건의사항</Text>
+              <Text style={styles.itemText}>{Strings.settings.menuSupport}</Text>
             </View>
             <FontAwesome name="angle-right" size={18} color={colors.border} />
           </TouchableOpacity>
@@ -268,22 +254,22 @@ export default function SettingsScreen() {
           <TouchableOpacity style={styles.item} onPress={handleSignOut} activeOpacity={0.7}>
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
-                <FontAwesome name="sign-out" size={18} color={colors.error} />
+                <FontAwesome name={Strings.settings.icons.signOut as any} size={18} color={colors.error} />
               </View>
-              <Text style={[styles.itemText, { color: colors.error }]}>로그아웃</Text>
+              <Text style={[styles.itemText, { color: colors.error }]}>{Strings.settings.menuSignOut}</Text>
             </View>
             <FontAwesome name="angle-right" size={18} color={colors.border} />
           </TouchableOpacity>
         </Card>
 
-        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>앱 환경 설정</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{Strings.settings.sectionApp}</Text>
         <Card style={styles.menuCard}>
           <TouchableOpacity style={styles.item} onPress={handleThemeChange} activeOpacity={0.7}>
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
-                <FontAwesome name={colorScheme === 'dark' ? "moon-o" : "sun-o"} size={18} color={colors.tint} />
+                <FontAwesome name={(colorScheme === 'dark' ? Strings.settings.icons.themeMoon : Strings.settings.icons.themeSun) as any} size={18} color={colors.tint} />
               </View>
-              <Text style={styles.itemText}>테마 설정</Text>
+              <Text style={styles.itemText}>{Strings.settings.menuTheme}</Text>
             </View>
             <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={[styles.valueText, { color: colors.textSecondary, marginRight: 8 }]}>{getThemeText(themeMode)}</Text>
@@ -293,13 +279,12 @@ export default function SettingsScreen() {
 
           <View style={[styles.divider, { backgroundColor: colors.border, opacity: 0.3 }]} />
 
-          {/* 푸시 단어 암기 알림 */}
           <View variant="transparent" style={styles.item}>
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
                 <FontAwesome name="bell-o" size={18} color={colors.tint} />
               </View>
-              <Text style={styles.itemText}>푸시 단어 암기 알림</Text>
+              <Text style={styles.itemText}>{Strings.settings.menuPush}</Text>
             </View>
             <Switch
               value={notificationSettings?.enabled}
@@ -317,20 +302,20 @@ export default function SettingsScreen() {
                 activeOpacity={0.7}
               >
                 <View variant="transparent" style={[styles.itemLeft, { marginLeft: 48 }]}>
-                  <Text style={[styles.valueText, { color: colors.textSecondary }]}>상세 설정 변경하기</Text>
+                  <Text style={[styles.valueText, { color: colors.textSecondary }]}>{Strings.settings.menuPushDetail}</Text>
                 </View>
-                <FontAwesome name="cog" size={18} color={colors.textSecondary} />
+                <FontAwesome name={Strings.settings.icons.cog as any} size={18} color={colors.textSecondary} />
               </TouchableOpacity>
 
               {progress && (
                 <View variant="transparent" style={[styles.item, { paddingTop: 0 }]}>
                   <View variant="transparent" style={[styles.itemLeft, { marginLeft: 48 }]}>
                     <Text style={[styles.valueText, { color: colors.textSecondary }]}>
-                      학습 진행도: {progress.current}/{progress.total}
+                      {Strings.settings.studyProgress}: {progress.current}/{progress.total}
                     </Text>
                   </View>
                   <TouchableOpacity onPress={handleResetProgress}>
-                    <FontAwesome name="refresh" size={18} color={colors.textSecondary} />
+                    <FontAwesome name={Strings.settings.icons.refresh as any} size={18} color={colors.textSecondary} />
                   </TouchableOpacity>
                 </View>
               )}
@@ -342,26 +327,23 @@ export default function SettingsScreen() {
           <View variant="transparent" style={styles.item}>
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
-                <FontAwesome name="info-circle" size={18} color={colors.textSecondary} />
+                <FontAwesome name={Strings.settings.icons.info as any} size={18} color={colors.textSecondary} />
               </View>
-              <Text style={styles.itemText}>버전 정보</Text>
+              <Text style={styles.itemText}>{Strings.settings.menuVersion}</Text>
             </View>
             <Text style={[styles.valueText, { color: colors.textSecondary }]}>v1.4.3</Text>
           </View>
         </Card>
 
-        {/* 회원 탈퇴는 프로필 관리 내부로 이동했으나, 하단 버튼 그대로 유지하거나 숨김 처리 가능.
-            여기서는 프로필 관리 화면 강조를 위해 숨기거나 유지. 일단 유지하되 디자인 수정 */}
         <TouchableOpacity
           style={styles.deleteAccount}
           onPress={() => router.push('/settings/profile')}
           activeOpacity={0.6}
         >
-          <Text style={[styles.deleteText, { color: colors.textSecondary }]}>계정 관리 및 탈퇴</Text>
+          <Text style={[styles.deleteText, { color: colors.textSecondary }]}>{Strings.settings.menuAccountManage}</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 푸시 알림 상세 설정 모달 */}
       <Modal
         visible={showNotificationModal}
         transparent={true}
@@ -373,9 +355,9 @@ export default function SettingsScreen() {
         >
           <View style={[styles.modalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>알림 상세 설정</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>{Strings.pushModal.title}</Text>
               <TouchableOpacity onPress={() => setShowNotificationModal(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <FontAwesome name="close" size={24} color={colors.text} />
+                <FontAwesome name={Strings.settings.icons.close as any} size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
 
@@ -385,24 +367,22 @@ export default function SettingsScreen() {
                 contentContainerStyle={{ paddingBottom: 20 }}
                 showsVerticalScrollIndicator={false}
               >
-                {/* 1단계: 암기장 선택 */}
-                <Text style={[styles.modalLabel, { color: colors.text }]}>1. 학습할 암기장 선택</Text>
+                <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.step1}</Text>
                 <TouchableOpacity
                   style={[styles.selectBox, { borderColor: colors.border }]}
                   onPress={() => setShowLibraryList(true)}
                 >
                   <Text style={[styles.selectBoxText, { color: tempSettings?.libraryId ? colors.text : colors.textSecondary }]}>
                     {tempSettings?.libraryId
-                      ? libraries.find(l => l.id === tempSettings.libraryId)?.title || '암기장 선택됨'
-                      : '암기장을 선택해주세요'}
+                      ? libraries.find(l => l.id === tempSettings.libraryId)?.title || Strings.pushModal.librarySelected
+                      : Strings.pushModal.libraryPlaceholder}
                   </Text>
-                  <FontAwesome name="chevron-down" size={12} color={colors.textSecondary} />
+                  <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} />
                 </TouchableOpacity>
 
-                {/* 2단계: 세부 항목(섹션) 선택 */}
                 {tempSettings?.libraryId && (
                   <>
-                    <Text style={[styles.modalLabel, { color: colors.text }]}>2. 세부 항목 선택 (소분)</Text>
+                    <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.step2}</Text>
                     <TouchableOpacity
                       style={[styles.selectBox, { borderColor: colors.border }]}
                       onPress={() => !loadingSections && setShowSectionList(true)}
@@ -413,22 +393,21 @@ export default function SettingsScreen() {
                       ) : (
                         <Text style={[styles.selectBoxText, { color: colors.text }]}>
                           {tempSettings.sectionId === 'all' || !tempSettings.sectionId
-                            ? '전체'
-                            : sections.find(s => s.id === tempSettings.sectionId)?.title || '섹션 선택됨'}
+                            ? Strings.pushModal.sectionAll
+                            : sections.find(s => s.id === tempSettings.sectionId)?.title || Strings.pushModal.sectionSelected}
                         </Text>
                       )}
-                      <FontAwesome name="chevron-down" size={12} color={colors.textSecondary} />
+                      <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} />
                     </TouchableOpacity>
                   </>
                 )}
 
-                {/* 단어 범위 */}
-                <Text style={[styles.modalLabel, { color: colors.text }]}>단어 범위</Text>
+                <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelRange}</Text>
                 <View style={styles.chipContainer}>
                   {[
-                    { label: '전체', value: 'all' },
-                    { label: '외움만', value: 'learned' },
-                    { label: '헷갈림만', value: 'confused' },
+                    { label: Strings.pushModal.ranges.all, value: 'all' },
+                    { label: Strings.pushModal.ranges.learned, value: 'learned' },
+                    { label: Strings.pushModal.ranges.confused, value: 'confused' },
                   ].map((opt) => (
                     <TouchableOpacity
                       key={opt.value}
@@ -455,13 +434,12 @@ export default function SettingsScreen() {
                   ))}
                 </View>
 
-                {/* 노출 형식 */}
-                <Text style={[styles.modalLabel, { color: colors.text }]}>노출 형식</Text>
+                <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelFormat}</Text>
                 <View style={styles.chipContainer}>
                   {[
-                    { label: '단어+뜻', value: 'both' },
-                    { label: '단어만', value: 'word_only' },
-                    { label: '뜻만', value: 'meaning_only' },
+                    { label: Strings.pushModal.formats.both, value: 'both' },
+                    { label: Strings.pushModal.formats.word_only, value: 'word_only' },
+                    { label: Strings.pushModal.formats.meaning_only, value: 'meaning_only' },
                   ].map((opt) => (
                     <TouchableOpacity
                       key={opt.value}
@@ -488,12 +466,11 @@ export default function SettingsScreen() {
                   ))}
                 </View>
 
-                {/* 출력 순서 */}
-                <Text style={[styles.modalLabel, { color: colors.text }]}>출력 순서</Text>
+                <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelOrder}</Text>
                 <View style={styles.chipContainer}>
                   {[
-                    { label: '순차적', value: 'sequential' },
-                    { label: '랜덤', value: 'random' },
+                    { label: Strings.pushModal.orders.sequential, value: 'sequential' },
+                    { label: Strings.pushModal.orders.random, value: 'random' },
                   ].map((opt) => (
                     <TouchableOpacity
                       key={opt.value}
@@ -520,8 +497,7 @@ export default function SettingsScreen() {
                   ))}
                 </View>
 
-                {/* 알림 간격 */}
-                <Text style={[styles.modalLabel, { color: colors.text }]}>알림 간격 (분)</Text>
+                <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelInterval}</Text>
                 <View style={styles.intervalContainer}>
                   <TextInput
                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
@@ -532,14 +508,14 @@ export default function SettingsScreen() {
                     }
                   />
                   <Text style={{ marginLeft: 12, color: colors.text, fontWeight: '700' }}>
-                    분 마다 알림
+                    {Strings.pushModal.unitInterval}
                   </Text>
                 </View>
               </ScrollView>
             ) : (
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" color={colors.tint} />
-                <Text style={{ marginTop: 16, color: colors.textSecondary }}>설정을 불러오는 중...</Text>
+                <Text style={{ marginTop: 16, color: colors.textSecondary }}>{Strings.pushModal.loading}</Text>
               </View>
             )}
 
@@ -547,13 +523,12 @@ export default function SettingsScreen() {
               style={[styles.confirmButton, { backgroundColor: colors.tint }]}
               onPress={handleSaveSettings}
             >
-              <Text style={styles.confirmButtonText}>설정 완료</Text>
+              <Text style={styles.confirmButtonText}>{Strings.pushModal.submit}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* 암기장 선택 모달 */}
       <Modal
         visible={showLibraryList}
         transparent={true}
@@ -563,7 +538,7 @@ export default function SettingsScreen() {
         <TouchableWithoutFeedback onPress={() => setShowLibraryList(false)}>
           <View style={styles.subModalOverlay}>
             <View style={[styles.subModalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
-              <Text style={[styles.subModalTitle, { color: colors.text }]}>암기장 선택</Text>
+              <Text style={[styles.subModalTitle, { color: colors.text }]}>{Strings.pushModal.libraryPlaceholder}</Text>
               <ScrollView style={{ maxHeight: 300 }}>
                 {libraries.map((lib) => (
                   <TouchableOpacity
@@ -584,7 +559,7 @@ export default function SettingsScreen() {
                     ]}>
                       {lib.title}
                     </Text>
-                    {tempSettings?.libraryId === lib.id && <FontAwesome name="check" size={14} color={colors.tint} />}
+                    {tempSettings?.libraryId === lib.id && <FontAwesome name={Strings.settings.icons.check as any} size={14} color={colors.tint} />}
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -593,7 +568,6 @@ export default function SettingsScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* 섹션 선택 모달 */}
       <Modal
         visible={showSectionList}
         transparent={true}
@@ -603,7 +577,7 @@ export default function SettingsScreen() {
         <TouchableWithoutFeedback onPress={() => setShowSectionList(false)}>
           <View style={styles.subModalOverlay}>
             <View style={[styles.subModalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
-              <Text style={[styles.subModalTitle, { color: colors.text }]}>세부 항목 선택</Text>
+              <Text style={[styles.subModalTitle, { color: colors.text }]}>{Strings.pushModal.step2}</Text>
               <ScrollView style={{ maxHeight: 300 }}>
                 <TouchableOpacity
                   style={[
@@ -620,9 +594,9 @@ export default function SettingsScreen() {
                     { color: colors.text },
                     (tempSettings?.sectionId === 'all' || !tempSettings?.sectionId) && { color: colors.tint, fontWeight: '800' }
                   ]}>
-                    전체
+                    {Strings.pushModal.sectionAll}
                   </Text>
-                  {(tempSettings?.sectionId === 'all' || !tempSettings?.sectionId) && <FontAwesome name="check" size={14} color={colors.tint} />}
+                  {(tempSettings?.sectionId === 'all' || !tempSettings?.sectionId) && <FontAwesome name={Strings.settings.icons.check as any} size={14} color={colors.tint} />}
                 </TouchableOpacity>
                 {sections.map((section) => (
                   <TouchableOpacity
@@ -643,7 +617,7 @@ export default function SettingsScreen() {
                     ]}>
                       {section.title}
                     </Text>
-                    {tempSettings?.sectionId === section.id && <FontAwesome name="check" size={14} color={colors.tint} />}
+                    {tempSettings?.sectionId === section.id && <FontAwesome name={Strings.settings.icons.check as any} size={14} color={colors.tint} />}
                   </TouchableOpacity>
                 ))}
               </ScrollView>

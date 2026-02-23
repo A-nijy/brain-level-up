@@ -12,6 +12,8 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ExportModal, ExportOptions as PDFExportOptions } from '@/components/ExportModal';
 import { PdfService } from '@/services/PdfService';
 
+import { Strings } from '@/constants/Strings';
+
 export default function SectionDetailScreen() {
     const { id, sectionId } = useLocalSearchParams();
     const router = useRouter();
@@ -60,7 +62,7 @@ export default function SectionDetailScreen() {
             await deleteItem(itemId);
         } catch (error: any) {
             console.error(error);
-            Alert.alert('오류', '삭제 실패: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.librarySection.alerts.deleteFail}: ${error.message}`);
         }
     };
 
@@ -68,7 +70,7 @@ export default function SectionDetailScreen() {
         if (Platform.OS === 'ios') {
             ActionSheetIOS.showActionSheetWithOptions(
                 {
-                    options: ['취소', '수정', '삭제'],
+                    options: [Strings.common.cancel, Strings.librarySection.itemOptions.edit, Strings.librarySection.itemOptions.delete],
                     destructiveButtonIndex: 2,
                     cancelButtonIndex: 0,
                 },
@@ -78,21 +80,21 @@ export default function SectionDetailScreen() {
                 }
             );
         } else if (Platform.OS === 'web') {
-            if (window.confirm(`${item.question}\n\n이 단어를 수정하시겠습니까?\n(취소를 누르면 삭제를 선택할 수 있습니다)`)) {
+            if (window.confirm(`${item.question}\n\n${Strings.librarySection.itemOptions.edit}${item.answer ? ' (' + item.answer + ')' : ''}?\n(${Strings.librarySection.itemOptions.delete}를 원하시면 취소 클릭)`)) {
                 handleEditItem(item);
             } else {
-                if (window.confirm('정말 삭제하시겠습니까?')) {
+                if (window.confirm(Strings.common.deleteConfirmMsg)) {
                     handleDeleteItem(item.id);
                 }
             }
         } else {
             Alert.alert(
                 item.question,
-                '작업 선택',
+                Strings.librarySection.itemOptions.title,
                 [
-                    { text: '취소', style: 'cancel' },
-                    { text: '삭제', style: 'destructive', onPress: () => handleDeleteItem(item.id) },
-                    { text: '수정', onPress: () => handleEditItem(item) },
+                    { text: Strings.common.cancel, style: 'cancel' },
+                    { text: Strings.librarySection.itemOptions.delete, style: 'destructive', onPress: () => handleDeleteItem(item.id) },
+                    { text: Strings.librarySection.itemOptions.edit, onPress: () => handleEditItem(item) },
                 ]
             );
         }
@@ -122,11 +124,11 @@ export default function SectionDetailScreen() {
             await PdfService.generateAndShare(exportItems, {
                 mode: options.mode,
                 order: options.order,
-                title: section?.title || '단어장',
+                title: section?.title || Strings.librarySection.title,
                 action: options.action
             });
         } catch (error: any) {
-            Alert.alert('오류', 'PDF 생성 중 문제가 발생했습니다: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.librarySection.alerts.exportError} ${error.message}`);
         }
     };
 
@@ -156,14 +158,14 @@ export default function SectionDetailScreen() {
                         }}
                     >
                         {item.study_status === 'learned' ? (
-                            <FontAwesome name="check-circle" size={24} color={colors.success} />
+                            <FontAwesome name={Strings.settings.icons.check as any} size={24} color={colors.success} />
                         ) : item.study_status === 'confused' ? (
                             <FontAwesome name="exclamation-circle" size={24} color={colors.error} />
                         ) : (
-                            <FontAwesome name="circle-o" size={24} color={colors.textSecondary} />
+                            <FontAwesome name={Strings.settings.icons.circle as any} size={24} color={colors.textSecondary} />
                         )}
                     </TouchableOpacity>
-                    <FontAwesome name="angle-right" size={20} color={colors.border} />
+                    <FontAwesome name={Strings.home.icons.arrowRight as any} size={20} color={colors.border} />
                 </View>
 
                 {reorderMode && (
@@ -173,14 +175,14 @@ export default function SectionDetailScreen() {
                             onPress={() => handleMoveUp(index)}
                             disabled={index === 0}
                         >
-                            <FontAwesome name="arrow-up" size={16} color={colors.tint} />
+                            <FontAwesome name={Strings.home.icons.up as any} size={16} color={colors.tint} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.reorderButton, index === items.length - 1 && { opacity: 0.3 }]}
                             onPress={() => handleMoveDown(index)}
                             disabled={index === items.length - 1}
                         >
-                            <FontAwesome name="arrow-down" size={16} color={colors.tint} />
+                            <FontAwesome name={Strings.home.icons.down as any} size={16} color={colors.tint} />
                         </TouchableOpacity>
                     </View>
                 )}
@@ -200,7 +202,7 @@ export default function SectionDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: section?.title || '단어 목록',
+                    headerTitle: section?.title || Strings.librarySection.title,
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -211,7 +213,7 @@ export default function SectionDetailScreen() {
                                 })}
                                 style={styles.headerIconButton}
                             >
-                                <FontAwesome name="plus" size={18} color={colors.tint} />
+                                <FontAwesome name={Strings.home.icons.plus as any} size={18} color={colors.tint} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={toggleMenu} style={[styles.headerIconButton, { marginRight: 0 }]}>
                                 <FontAwesome name="bars" size={20} color={colors.textSecondary} />
@@ -236,8 +238,8 @@ export default function SectionDetailScreen() {
                                     style={styles.menuOption}
                                     onPress={() => handleMenuOption(() => setReorderMode(!reorderMode))}
                                 >
-                                    <FontAwesome name="sort" size={16} color={colors.tint} style={styles.menuIcon} />
-                                    <Text style={styles.menuOptionText}>{reorderMode ? '순서 변경 종료' : '순서 변경'}</Text>
+                                    <FontAwesome name={Strings.settings.icons.refresh as any} size={16} color={colors.tint} style={styles.menuIcon} />
+                                    <Text style={styles.menuOptionText}>{reorderMode ? Strings.librarySection.menu.reorderEnd : Strings.librarySection.menu.reorderStart}</Text>
                                 </TouchableOpacity>
 
                                 <View variant="transparent" style={styles.menuDivider} />
@@ -247,7 +249,7 @@ export default function SectionDetailScreen() {
                                     onPress={() => handleMenuOption(() => setExportModalVisible(true))}
                                 >
                                     <FontAwesome name="print" size={16} color={colors.tint} style={styles.menuIcon} />
-                                    <Text style={styles.menuOptionText}>PDF 내보내기</Text>
+                                    <Text style={styles.menuOptionText}>{Strings.librarySection.menu.exportPdf}</Text>
                                 </TouchableOpacity>
 
                                 <View variant="transparent" style={styles.menuDivider} />
@@ -257,7 +259,7 @@ export default function SectionDetailScreen() {
                                     onPress={() => handleMenuOption(() => router.push(`/library/${libraryId}/section/${sid}/import`))}
                                 >
                                     <FontAwesome name="upload" size={16} color={colors.tint} style={styles.menuIcon} />
-                                    <Text style={styles.menuOptionText}>단어 가져오기</Text>
+                                    <Text style={styles.menuOptionText}>{Strings.librarySection.menu.importWords}</Text>
                                 </TouchableOpacity>
                             </Card>
                         </View>
@@ -282,14 +284,14 @@ export default function SectionDetailScreen() {
                 ListHeaderComponent={
                     <View variant="transparent" style={styles.listHeader}>
                         <View variant="transparent" style={styles.headerStats}>
-                            <Text style={styles.countText}>총 {items.length}개의 단어</Text>
+                            <Text style={styles.countText}>{Strings.librarySection.count(items.length)}</Text>
                         </View>
                     </View>
                 }
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        <FontAwesome name="file-text-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 단어가 없습니다.</Text>
+                        <FontAwesome name={Strings.home.icons.items as any} size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.librarySection.empty}</Text>
                         <TouchableOpacity
                             style={[styles.addButton, { backgroundColor: colors.tint }]}
                             onPress={() => router.push({
@@ -297,7 +299,7 @@ export default function SectionDetailScreen() {
                                 params: { id: libraryId, sectionId: sid }
                             })}
                         >
-                            <Text style={styles.addButtonText}>첫 번째 단어 추가하기</Text>
+                            <Text style={styles.addButtonText}>{Strings.librarySection.addFirst}</Text>
                         </TouchableOpacity>
                     </View>
                 }
@@ -317,7 +319,7 @@ export default function SectionDetailScreen() {
                             style={styles.playButtonGradient}
                         >
                             <FontAwesome name="play" size={18} color="#fff" style={{ marginRight: 12 }} />
-                            <Text style={styles.playButtonText}>이 항목 학습하기</Text>
+                            <Text style={styles.playButtonText}>{Strings.librarySection.playBtn}</Text>
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>
@@ -341,7 +343,7 @@ export default function SectionDetailScreen() {
                     <View style={styles.modalOverlay}>
                         <View variant="transparent" style={styles.statusModalContainer}>
                             <Card style={styles.statusModalContent}>
-                                <Text style={styles.statusModalTitle}>상태 변경</Text>
+                                <Text style={styles.statusModalTitle}>{Strings.librarySection.statusModal.title}</Text>
                                 <TouchableOpacity
                                     style={styles.statusOption}
                                     onPress={async () => {
@@ -349,14 +351,14 @@ export default function SectionDetailScreen() {
                                             try {
                                                 await updateItem(selectedItemForStatus.id, { study_status: 'learned' });
                                             } catch (error: any) {
-                                                Alert.alert('변경 실패', '오류 발생');
+                                                Alert.alert(Strings.librarySection.alerts.changeFail, Strings.librarySection.alerts.changeError);
                                             }
                                         }
                                         setStatusModalVisible(false);
                                     }}
                                 >
-                                    <FontAwesome name="check-circle" size={20} color={colors.success} style={styles.menuIcon} />
-                                    <Text style={styles.statusOptionText}>외움</Text>
+                                    <FontAwesome name={Strings.settings.icons.check as any} size={20} color={colors.success} style={styles.menuIcon} />
+                                    <Text style={styles.statusOptionText}>{Strings.librarySection.statusModal.learned}</Text>
                                     {selectedItemForStatus?.study_status === 'learned' && (
                                         <FontAwesome name="check" size={14} color={colors.tint} style={{ marginLeft: 'auto' }} />
                                     )}
@@ -371,14 +373,14 @@ export default function SectionDetailScreen() {
                                             try {
                                                 await updateItem(selectedItemForStatus.id, { study_status: 'confused' });
                                             } catch (error: any) {
-                                                Alert.alert('변경 실패', '오류 발생');
+                                                Alert.alert(Strings.librarySection.alerts.changeFail, Strings.librarySection.alerts.changeError);
                                             }
                                         }
                                         setStatusModalVisible(false);
                                     }}
                                 >
                                     <FontAwesome name="exclamation-circle" size={20} color={colors.error} style={styles.menuIcon} />
-                                    <Text style={styles.statusOptionText}>헷갈림</Text>
+                                    <Text style={styles.statusOptionText}>{Strings.librarySection.statusModal.confused}</Text>
                                     {selectedItemForStatus?.study_status === 'confused' && (
                                         <FontAwesome name="check" size={14} color={colors.tint} style={{ marginLeft: 'auto' }} />
                                     )}
@@ -393,14 +395,14 @@ export default function SectionDetailScreen() {
                                             try {
                                                 await updateItem(selectedItemForStatus.id, { study_status: 'undecided' });
                                             } catch (error: any) {
-                                                Alert.alert('변경 실패', '오류 발생');
+                                                Alert.alert(Strings.librarySection.alerts.changeFail, Strings.librarySection.alerts.changeError);
                                             }
                                         }
                                         setStatusModalVisible(false);
                                     }}
                                 >
-                                    <FontAwesome name="circle-o" size={20} color={colors.textSecondary} style={styles.menuIcon} />
-                                    <Text style={styles.statusOptionText}>미정</Text>
+                                    <FontAwesome name={Strings.settings.icons.circle as any} size={20} color={colors.textSecondary} style={styles.menuIcon} />
+                                    <Text style={styles.statusOptionText}>{Strings.librarySection.statusModal.undecided}</Text>
                                     {(selectedItemForStatus?.study_status === 'undecided' || !selectedItemForStatus?.study_status) && (
                                         <FontAwesome name="check" size={14} color={colors.tint} style={{ marginLeft: 'auto' }} />
                                     )}

@@ -7,6 +7,8 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+import { Strings } from '@/constants/Strings';
+
 export default function UserDetailScreen() {
     const { id } = useLocalSearchParams();
     const [loading, setLoading] = useState(true);
@@ -24,9 +26,10 @@ export default function UserDetailScreen() {
                 setUserData(data);
             } catch (e) {
                 console.error(e);
-                Alert.alert('오류', '사용자 정보를 불러올 수 없습니다.');
+                Alert.alert(Strings.common.error, Strings.adminUserDetail.fetchError);
                 router.back();
-            } finally {
+            }
+            finally {
                 setLoading(false);
             }
         }
@@ -45,7 +48,7 @@ export default function UserDetailScreen() {
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
-            <Stack.Screen options={{ title: '사용자 상세 정보' }} />
+            <Stack.Screen options={{ title: Strings.adminUserDetail.title }} />
 
             {/* 프로필 요약 카드 */}
             <Card style={styles.profileCard}>
@@ -69,24 +72,24 @@ export default function UserDetailScreen() {
                 <View variant="transparent" style={styles.statsRow}>
                     <View variant="transparent" style={styles.statBox}>
                         <Text style={styles.statVal}>{libraryCount}</Text>
-                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>암기장</Text>
+                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statLibrary}</Text>
                     </View>
                     <View variant="transparent" style={styles.statBox}>
                         <Text style={styles.statVal}>{recentLogs.length}</Text>
-                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>최근 학습</Text>
+                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statRecent}</Text>
                     </View>
                     <View variant="transparent" style={styles.statBox}>
                         <Text style={styles.statVal}>{new Date(profile.created_at).toLocaleDateString()}</Text>
-                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>가입일</Text>
+                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statJoin}</Text>
                     </View>
                 </View>
             </Card>
 
             {/* 최근 학습 타임라인 */}
-            <Text style={styles.sectionTitle}>최근 학습 활동 (최근 10개)</Text>
+            <Text style={styles.sectionTitle}>{Strings.adminUserDetail.sectionActivity}</Text>
             {recentLogs.length === 0 ? (
                 <Card style={styles.emptyCard}>
-                    <Text style={{ color: colors.textSecondary }}>학습 기록이 없습니다.</Text>
+                    <Text style={{ color: colors.textSecondary }}>{Strings.adminUserDetail.emptyActivity}</Text>
                 </Card>
             ) : (
                 recentLogs.map((log: any, idx: number) => (
@@ -94,12 +97,12 @@ export default function UserDetailScreen() {
                         <View variant="transparent" style={styles.logHeader}>
                             <Text style={styles.logDate}>{new Date(log.study_date).toLocaleDateString()}</Text>
                             <View variant="transparent" style={styles.logStats}>
-                                <Text style={[styles.logStat, { color: colors.success }]}>맞춤 {log.correct_count}</Text>
-                                <Text style={[styles.logStat, { color: colors.error }]}>틀림 {log.items_count - log.correct_count}</Text>
+                                <Text style={[styles.logStat, { color: colors.success }]}>{Strings.adminUserDetail.correct} {log.correct_count}</Text>
+                                <Text style={[styles.logStat, { color: colors.error }]}>{Strings.adminUserDetail.wrong} {log.items_count - log.correct_count}</Text>
                             </View>
                         </View>
                         <Text style={[styles.logTime, { color: colors.textSecondary }]}>
-                            학습 시간: {Math.floor(log.study_time_seconds / 60)}분 {log.study_time_seconds % 60}초
+                            {Strings.adminUserDetail.studyTime(Math.floor(log.study_time_seconds / 60), log.study_time_seconds % 60)}
                         </Text>
                     </Card>
                 ))
@@ -109,7 +112,7 @@ export default function UserDetailScreen() {
                 style={[styles.backBtn, { borderColor: colors.border }]}
                 onPress={() => router.back()}
             >
-                <Text style={[styles.backBtnText, { color: colors.text }]}>목록으로 돌아가기</Text>
+                <Text style={[styles.backBtnText, { color: colors.text }]}>{Strings.adminUserDetail.backBtn}</Text>
             </TouchableOpacity>
         </ScrollView>
     );

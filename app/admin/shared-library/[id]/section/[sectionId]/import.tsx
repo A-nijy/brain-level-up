@@ -12,6 +12,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { SharedLibraryService } from '@/services/SharedLibraryService';
 
+import { Strings } from '@/constants/Strings';
+
 export default function AdminImportItemsScreen() {
     const { id, sectionId } = useLocalSearchParams();
     const draftId = Array.isArray(id) ? id[0] : id;
@@ -68,31 +70,31 @@ export default function AdminImportItemsScreen() {
                 }
 
                 if (json.length === 0) {
-                    Alert.alert('알림', '파일에 데이터가 없거나 형식이 올바르지 않습니다.');
+                    Alert.alert(Strings.common.warning, Strings.adminImport.alerts.emptyFile);
                 }
                 setParsedData(json);
             } catch (error) {
                 console.error('File parsing error:', error);
-                Alert.alert('오류', '파일을 분석하는 중 오류가 발생했습니다. 파일 형식을 확인해주세요.');
+                Alert.alert(Strings.common.error, Strings.adminImport.alerts.parseError);
             } finally {
                 setLoading(false);
             }
 
         } catch (error) {
             console.error('Document picking error:', error);
-            Alert.alert('오류', '파일을 선택하는 중 오류가 발생했습니다.');
+            Alert.alert(Strings.common.error, Strings.adminImport.alerts.pickError);
             setLoading(false);
         }
     };
 
     const handleImport = async () => {
         if (parsedData.length === 0) {
-            Alert.alert('알림', '가져올 데이터가 없습니다.');
+            Alert.alert(Strings.common.warning, Strings.adminImport.alerts.noData);
             return;
         }
 
         if (!draftId || !sid) {
-            Alert.alert('오류', '잘못된 접근입니다.');
+            Alert.alert(Strings.common.error, Strings.adminImport.alerts.invalidAccess);
             return;
         }
 
@@ -122,17 +124,17 @@ export default function AdminImportItemsScreen() {
             }).filter(item => item !== null) as any[];
 
             if (itemsToInsert.length === 0) {
-                throw new Error('유효한 데이터 컬럼(문제/정답)을 찾지 못했습니다.');
+                throw new Error(Strings.adminImport.alerts.noColumns);
             }
 
             await SharedLibraryService.createSharedItems(itemsToInsert);
 
-            Alert.alert('성공', `${itemsToInsert.length}개의 항목을 가져왔습니다.`, [
-                { text: '확인', onPress: () => router.back() }
+            Alert.alert(Strings.common.confirmTitle, Strings.adminImport.alerts.importSuccess(itemsToInsert.length), [
+                { text: Strings.common.confirm, onPress: () => router.back() }
             ]);
 
         } catch (error: any) {
-            Alert.alert('가져오기 실패', error.message);
+            Alert.alert(Strings.adminImport.alerts.importFail, error.message);
         } finally {
             setLoading(false);
         }
@@ -142,7 +144,7 @@ export default function AdminImportItemsScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: '데이터 대량 등록 (관리자)',
+                    title: Strings.adminImport.title,
                     headerTintColor: colors.text,
                 }}
             />
@@ -150,13 +152,13 @@ export default function AdminImportItemsScreen() {
             <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: 100 }}>
                 <Card style={styles.guideCard}>
                     <View style={[styles.guideHeader, { borderBottomColor: colors.border }]}>
-                        <FontAwesome name="info-circle" size={18} color={colors.tint} />
-                        <Text style={[styles.guideTitle, { color: colors.text }]}>관리자 업로드 가이드</Text>
+                        <FontAwesome name={Strings.shared.icons.globe as any} size={18} color={colors.tint} />
+                        <Text style={[styles.guideTitle, { color: colors.text }]}>{Strings.adminImport.guide.title}</Text>
                     </View>
                     <View style={styles.guideBody}>
-                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>1. 엑셀(xlsx) 또는 CSV 파일을 준비하세요.</Text>
-                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>2. 헤더에 '문제', '정답' (또는 'question', 'answer') 컬럼이 필수입니다.</Text>
-                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>3. '메모' 컬럼은 선택 사항입니다.</Text>
+                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>{Strings.adminImport.guide.step1}</Text>
+                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>{Strings.adminImport.guide.step2}</Text>
+                        <Text style={[styles.guideText, { color: colors.textSecondary }]}>{Strings.adminImport.guide.step3}</Text>
                     </View>
                 </Card>
 
@@ -170,19 +172,19 @@ export default function AdminImportItemsScreen() {
                         style={StyleSheet.absoluteFill}
                     />
                     <FontAwesome
-                        name={fileName ? "file-excel-o" : "cloud-upload"}
+                        name={(fileName ? Strings.userImport.icons.excel : Strings.userImport.icons.upload) as any}
                         size={48}
                         color={fileName ? colors.tint : colors.border}
                     />
                     <Text style={[styles.uploadText, { color: fileName ? colors.text : colors.textSecondary }]}>
-                        {fileName ? fileName : '파일 선택하기'}
+                        {fileName ? fileName : Strings.adminImport.fileSelect}
                     </Text>
-                    {fileName && <Text style={[styles.changeText, { color: colors.tint }]}>파일 변경</Text>}
+                    {fileName && <Text style={[styles.changeText, { color: colors.tint }]}>{Strings.adminImport.fileChange}</Text>}
                 </TouchableOpacity>
 
                 {parsedData.length > 0 && (
                     <View style={styles.previewSection}>
-                        <Text style={[styles.previewTitle, { color: colors.text }]}>미리보기 ({parsedData.length}개 항목)</Text>
+                        <Text style={[styles.previewTitle, { color: colors.text }]}>{Strings.adminImport.preview(parsedData.length)}</Text>
                         <Card style={styles.previewCard}>
                             {parsedData.slice(0, 5).map((row, idx) => (
                                 <View key={idx} style={[styles.previewItem, idx < 4 && parsedData.length > idx + 1 && { borderBottomWidth: 1, borderBottomColor: colors.border }]}>
@@ -193,7 +195,7 @@ export default function AdminImportItemsScreen() {
                             ))}
                             {parsedData.length > 5 && (
                                 <View style={styles.moreItems}>
-                                    <Text style={[styles.moreText, { color: colors.textSecondary }]}>외 {parsedData.length - 5}개의 항목...</Text>
+                                    <Text style={[styles.moreText, { color: colors.textSecondary }]}>{Strings.adminImport.more(parsedData.length - 5)}</Text>
                                 </View>
                             )}
                         </Card>
@@ -214,8 +216,8 @@ export default function AdminImportItemsScreen() {
                         <ActivityIndicator color="#fff" />
                     ) : (
                         <>
-                            <FontAwesome name="download" size={18} color="#fff" style={{ marginRight: 10 }} />
-                            <Text style={styles.importButtonText}>공유 자료실에 등록하기</Text>
+                            <FontAwesome name={Strings.shared.icons.globe as any} size={18} color="#fff" style={{ marginRight: 10 }} />
+                            <Text style={styles.importButtonText}>{Strings.adminImport.btnImport}</Text>
                         </>
                     )}
                 </TouchableOpacity>

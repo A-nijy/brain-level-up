@@ -11,6 +11,8 @@ import { useStudyStats } from '@/hooks/useStudyStats';
 import ActivityCalendar from '@/components/stats/ActivityCalendar';
 import DonutChart from '@/components/stats/DonutChart';
 
+import { Strings } from '@/constants/Strings';
+
 export default function StatsScreen() {
     const {
         loading,
@@ -53,7 +55,7 @@ export default function StatsScreen() {
             {/* Streak Section */}
             <Animated.View entering={FadeInUp.delay(100)} style={styles.streakContainer}>
                 <Text style={styles.streakText}>
-                    🔥 현재 <Text style={[styles.streakCount, { color: colors.tint }]}>{streak}일</Text> 연속 학습 중 🔥
+                    {Strings.statsTab.streakMsg(streak)}
                 </Text>
             </Animated.View>
 
@@ -64,7 +66,7 @@ export default function StatsScreen() {
 
             {/* Overall Distribution Section Header */}
             <View variant="transparent" style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>전체 학습 상태도</Text>
+                <Text style={styles.sectionTitle}>{Strings.statsTab.chartTitle}</Text>
             </View>
 
             <Animated.View entering={FadeInUp.delay(300)} style={{ zIndex: 10 }}>
@@ -92,23 +94,23 @@ export default function StatsScreen() {
                             <View variant="transparent" style={styles.indicatorList}>
                                 <View variant="transparent" style={styles.indicatorItem}>
                                     <View style={[styles.dot, { backgroundColor: colors.success || '#10B981' }]} />
-                                    <Text style={styles.indicatorText}>{learned}개 / {learnedPct}%</Text>
+                                    <Text style={styles.indicatorText}>{learned}{Strings.statsTab.unitWord} / {learnedPct}%</Text>
                                 </View>
                                 <View variant="transparent" style={styles.indicatorItem}>
                                     <View style={[styles.dot, { backgroundColor: '#F59E0B' }]} />
-                                    <Text style={styles.indicatorText}>{confused}개 / {confusedPct}%</Text>
+                                    <Text style={styles.indicatorText}>{confused}{Strings.statsTab.unitWord} / {confusedPct}%</Text>
                                 </View>
                                 <View variant="transparent" style={styles.indicatorItem}>
                                     <View style={[styles.dot, { backgroundColor: colorScheme === 'dark' ? '#334155' : '#E2E8F0' }]} />
-                                    <Text style={styles.indicatorText}>{undecided}개 / {undecidedPct}%</Text>
+                                    <Text style={styles.indicatorText}>{undecided}{Strings.statsTab.unitWord} / {undecidedPct}%</Text>
                                 </View>
                             </View>
                         </View>
                     </View>
 
                     <View style={[styles.detailLink, { borderTopColor: colors.border + '50' }]} pointerEvents="none">
-                        <Text style={[styles.detailLinkText, { color: colors.tint }]}>암기장별 상세 분석 보기</Text>
-                        <FontAwesome name="chevron-right" size={10} color={colors.tint} />
+                        <Text style={[styles.detailLinkText, { color: colors.tint }]}>{Strings.statsTab.detailLink}</Text>
+                        <FontAwesome name={Strings.admin.icons.arrowRight as any} size={10} color={colors.tint} />
                     </View>
                 </Pressable>
             </Animated.View>

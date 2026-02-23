@@ -8,6 +8,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
+import { Strings } from '@/constants/Strings';
 
 export default function NotificationDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,18 +37,18 @@ export default function NotificationDetailScreen() {
                 }
             } else {
                 if (Platform.OS === 'web') {
-                    window.alert('알림을 찾을 수 없습니다.');
+                    window.alert(Strings.notifications.notFound);
                 } else {
-                    Alert.alert('오류', '알림을 찾을 수 없습니다.');
+                    Alert.alert(Strings.common.error, Strings.notifications.notFound);
                 }
                 router.back();
             }
         } catch (error) {
             console.error('Failed to load notification detail:', error);
             if (Platform.OS === 'web') {
-                window.alert('알림을 불러오는 데 실패했습니다.');
+                window.alert(Strings.notifications.fetchFail);
             } else {
-                Alert.alert('오류', '알림을 불러오는 데 실패했습니다.');
+                Alert.alert(Strings.common.error, Strings.notifications.fetchFail);
             }
             router.back();
         } finally {
@@ -65,21 +66,21 @@ export default function NotificationDetailScreen() {
             } catch (error) {
                 console.error('Failed to delete notification:', error);
                 if (Platform.OS === 'web') {
-                    window.alert('알림 삭제에 실패했습니다.');
+                    window.alert(Strings.notifications.deleteFail);
                 } else {
-                    Alert.alert('오류', '알림 삭제에 실패했습니다.');
+                    Alert.alert(Strings.common.error, Strings.notifications.deleteFail);
                 }
             }
         };
 
         if (Platform.OS === 'web') {
-            if (window.confirm('이 알림을 삭제하시겠습니까?')) {
+            if (window.confirm(Strings.notifications.deleteConfirmDetail)) {
                 confirmDelete();
             }
         } else {
-            Alert.alert('알림 삭제', '이 알림을 삭제하시겠습니까?', [
-                { text: '취소', style: 'cancel' },
-                { text: '삭제', style: 'destructive', onPress: confirmDelete }
+            Alert.alert(Strings.notifications.deleteTitle, Strings.notifications.deleteConfirmDetail, [
+                { text: Strings.common.cancel, style: 'cancel' },
+                { text: Strings.common.delete, style: 'destructive', onPress: confirmDelete }
             ]);
         }
     };
@@ -87,7 +88,7 @@ export default function NotificationDetailScreen() {
     if (loading) {
         return (
             <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-                <Stack.Screen options={{ title: '알림 상세' }} />
+                <Stack.Screen options={{ title: Strings.notifications.detailTitle }} />
                 <ActivityIndicator size="large" color={colors.tint} />
             </View>
         );
@@ -96,8 +97,8 @@ export default function NotificationDetailScreen() {
     if (!notification) {
         return (
             <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-                <Stack.Screen options={{ title: '알림 상세' }} />
-                <Text style={{ color: colors.textSecondary }}>데이터가 없습니다.</Text>
+                <Stack.Screen options={{ title: Strings.notifications.detailTitle }} />
+                <Text style={{ color: colors.textSecondary }}>{Strings.notifications.noData}</Text>
             </View>
         );
     }
@@ -105,7 +106,7 @@ export default function NotificationDetailScreen() {
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
             <Stack.Screen options={{
-                title: '알림 상세',
+                title: Strings.notifications.detailTitle,
                 headerRight: () => (
                     <TouchableOpacity onPress={handleDelete} style={{ marginRight: 15 }}>
                         <FontAwesome name="trash-o" size={20} color={colors.error} />
@@ -123,7 +124,7 @@ export default function NotificationDetailScreen() {
                             style={{ marginRight: 6 }}
                         />
                         <Text style={[styles.typeText, { color: colors.tint }]}>
-                            {notification.type === 'STUDY_REMINDER' ? '학습 알림' : '시스템 알림'}
+                            {notification.type === 'STUDY_REMINDER' ? Strings.notifications.types.study : Strings.notifications.types.system}
                         </Text>
                     </View>
                     <Text style={styles.date}>{new Date(notification.created_at).toLocaleString()}</Text>

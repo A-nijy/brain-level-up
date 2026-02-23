@@ -1,114 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Alert, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import React from 'react';
+import { StyleSheet, Alert, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, useWindowDimensions } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
-import { useAuth } from '@/contexts/AuthContext';
-import { UserService } from '@/services/UserService';
+import { useProfile } from '@/hooks/useProfile';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Stack, useRouter } from 'expo-router';
-import Animated, { FadeInUp } from 'react-native-reanimated';
-import { useProfile } from '@/hooks/useProfile';
+
+import { Strings } from '@/constants/Strings';
 
 export default function ProfileScreen() {
     const {
-        user,
         profile,
         nickname,
         setNickname,
-        isEditing,
-        setIsEditing,
         loading,
         error,
-        setError,
         updateNickname,
-        withdraw,
-        cancelEditing
+        withdraw
     } = useProfile();
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { width } = useWindowDimensions();
+    const router = useRouter();
+
+    const isWeb = Platform.OS === 'web' && width > 768;
+
+    const handleSave = async () => {
+        if (nickname.length < 2 || nickname.length > 8) {
+            Alert.alert(Strings.common.warning, Strings.settings.profile.hintNickname);
+            return;
+        }
+        await updateNickname();
+    };
+
+    const handleWithdraw = () => {
+        Alert.alert(
+            Strings.settings.profile.withdraw,
+            Strings.profile.deleteConfirm,
+            [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.confirm,
+                    style: 'destructive',
+                    onPress: async () => {
+                        await withdraw();
+                    }
+                }
+            ]
+        );
+    };
 
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={[styles.container, { backgroundColor: colors.background }]}
         >
-            <Stack.Screen
-                options={{
-                    title: '프로필 관리',
-                    headerShown: true,
-                    headerShadowVisible: false,
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.text,
-                }}
-            />
+            <Stack.Screen options={{ title: Strings.settings.profile.editTitle }} />
 
             <ScrollView contentContainerStyle={styles.content}>
-                <Animated.View entering={FadeInUp.duration(600)} style={styles.headerSection}>
-                    <View variant="transparent" style={styles.avatarWrapper}>
-                        <FontAwesome name="user-circle-o" size={100} color={colors.tint} />
+                <View style={styles.avatarSection}>
+                    <FontAwesome name={Strings.settings.icons.userCircle as any} size={100} color={colors.tint} />
+                    <Text style={[styles.emailLabel, { color: colors.textSecondary }]}>{profile?.email}</Text>
+                </View>
+
+                <Card style={styles.formCard}>
+                    <View variant="transparent" style={styles.inputGroup}>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>{Strings.settings.profile.labelNickname}</Text>
+                        <TextInput
+                            style={[styles.input, { color: colors.text, borderColor: error ? colors.error : colors.border }]}
+                            value={nickname}
+                            onChangeText={setNickname}
+                            placeholder={Strings.settings.profile.placeholderNickname}
+                            placeholderTextColor={colors.textSecondary + '80'}
+                            maxLength={8}
+                        />
+                        {error && <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>}
+                        <Text style={[styles.hint, { color: colors.textSecondary }]}>
+                            {Strings.settings.profile.hintNickname}
+                        </Text>
                     </View>
-                    <Text style={styles.userIdNumber}>ID: #{profile?.user_id_number || '-----'}</Text>
-                </Animated.View>
 
-                <View variant="transparent" style={styles.section}>
-                    <Text style={[styles.label, { color: colors.textSecondary }]}>닉네임</Text>
-                    <Card style={styles.infoCard}>
-                        {isEditing ? (
-                            <View variant="transparent" style={styles.editRow}>
-                                <TextInput
-                                    style={[styles.input, { color: colors.text, borderColor: error ? colors.error : colors.border }]}
-                                    value={nickname}
-                                    onChangeText={(text) => {
-                                        setNickname(text);
-                                        setError(null);
-                                    }}
-                                    autoFocus
-                                    maxLength={8}
-                                    placeholder="2~8자 입력"
-                                />
-                                <View variant="transparent" style={styles.editButtons}>
-                                    <TouchableOpacity
-                                        style={[styles.smallButton, { backgroundColor: colors.tint }]}
-                                        onPress={updateNickname}
-                                        disabled={loading}
-                                    >
-                                        {loading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.smallButtonText}>저장</Text>}
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[styles.smallButton, styles.cancelButton]}
-                                        onPress={cancelEditing}
-                                    >
-                                        <Text style={styles.smallButtonText}>취소</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        ) : (
-                            <View variant="transparent" style={styles.displayRow}>
-                                <Text style={styles.valueText}>{profile?.nickname || '닉네임 없음'}</Text>
-                                <TouchableOpacity onPress={() => setIsEditing(true)}>
-                                    <FontAwesome name="pencil" size={18} color={colors.tint} />
-                                </TouchableOpacity>
-                            </View>
-                        )}
-                    </Card>
-                    {error && <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>}
-                    <Text style={[styles.hint, { color: colors.textSecondary }]}>닉네임은 2자에서 8자까지 설정 가능합니다.</Text>
-                </View>
-
-                <View variant="transparent" style={styles.section}>
-                    <Text style={[styles.label, { color: colors.textSecondary }]}>로그인 계정 (이메일)</Text>
-                    <Card style={[styles.infoCard, { borderStyle: 'dashed' }]}>
-                        <View variant="transparent" style={styles.displayRow}>
-                            <Text style={[styles.valueText, { color: colors.textSecondary }]}>{user?.email}</Text>
-                            <FontAwesome name="lock" size={18} color={colors.border} />
+                    <View variant="transparent" style={styles.inputGroup}>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>{Strings.settings.profile.labelAccount}</Text>
+                        <View style={[styles.disabledInput, { backgroundColor: colors.border + '20', borderColor: colors.border }]}>
+                            <Text style={{ color: colors.textSecondary }}>{profile?.email || 'Guest Session'}</Text>
+                            <FontAwesome name={Strings.settings.icons.lock as any} size={14} color={colors.textSecondary} />
                         </View>
-                    </Card>
-                </View>
+                    </View>
 
-                <TouchableOpacity style={styles.withdrawButton} onPress={withdraw}>
-                    <Text style={styles.withdrawText}>회원 탈퇴</Text>
+                    <TouchableOpacity
+                        style={[styles.saveButton, { backgroundColor: colors.tint }]}
+                        onPress={handleSave}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.saveButtonText}>{Strings.common.save}</Text>
+                        )}
+                    </TouchableOpacity>
+                </Card>
+
+                <TouchableOpacity style={styles.withdrawButton} onPress={handleWithdraw}>
+                    <Text style={styles.withdrawText}>{Strings.settings.profile.withdraw}</Text>
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>
@@ -122,19 +118,20 @@ const styles = StyleSheet.create({
     content: {
         padding: 20,
     },
-    headerSection: {
+    avatarSection: {
         alignItems: 'center',
         marginVertical: 40,
     },
-    avatarWrapper: {
-        marginBottom: 16,
-    },
-    userIdNumber: {
+    emailLabel: {
+        marginTop: 12,
         fontSize: 16,
-        fontWeight: 'bold',
-        opacity: 0.5,
+        fontWeight: '600',
     },
-    section: {
+    formCard: {
+        padding: 24,
+        borderRadius: 24,
+    },
+    inputGroup: {
         marginBottom: 24,
     },
     label: {
@@ -143,61 +140,46 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         marginLeft: 4,
     },
-    infoCard: {
-        padding: 16,
-        borderRadius: 16,
-        borderWidth: 1.5,
-    },
-    displayRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    editRow: {
-        flexDirection: 'column',
-    },
-    valueText: {
-        fontSize: 18,
-        fontWeight: '700',
-    },
     input: {
-        height: 50,
+        height: 56,
         borderWidth: 1.5,
-        borderRadius: 12,
+        borderRadius: 16,
         paddingHorizontal: 16,
         fontSize: 16,
         fontWeight: '600',
-        marginBottom: 12,
     },
-    editButtons: {
+    disabledInput: {
+        height: 56,
+        borderWidth: 1.5,
+        borderRadius: 16,
+        paddingHorizontal: 16,
         flexDirection: 'row',
-        gap: 10,
-        justifyContent: 'flex-end',
-    },
-    smallButton: {
-        paddingVertical: 8,
-        paddingHorizontal: 20,
-        borderRadius: 8,
-        minWidth: 70,
+        justifyContent: 'space-between',
         alignItems: 'center',
-    },
-    cancelButton: {
-        backgroundColor: '#999',
-    },
-    smallButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    errorText: {
-        fontSize: 12,
-        marginTop: 6,
-        marginLeft: 4,
     },
     hint: {
         fontSize: 12,
         marginTop: 8,
         marginLeft: 4,
         opacity: 0.7,
+    },
+    errorText: {
+        fontSize: 12,
+        color: '#ff4444',
+        marginTop: 4,
+        marginLeft: 4,
+    },
+    saveButton: {
+        height: 56,
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 12,
+    },
+    saveButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '800',
     },
     withdrawButton: {
         marginTop: 40,

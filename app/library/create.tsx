@@ -7,6 +7,8 @@ import { useRouter, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
+import { Strings } from '@/constants/Strings';
+
 export default function CreateLibraryScreen() {
     const { session } = useAuth();
     const [title, setTitle] = useState('');
@@ -19,12 +21,12 @@ export default function CreateLibraryScreen() {
 
     const handleCreate = async () => {
         if (!title.trim()) {
-            Alert.alert('오류', '제목을 입력해주세요.');
+            Alert.alert(Strings.common.warning, Strings.libraryForm.validationTitle);
             return;
         }
 
         if (!session?.user) {
-            Alert.alert('오류', '로그인이 필요합니다.');
+            Alert.alert(Strings.common.error, Strings.common.loginRequired);
             return;
         }
 
@@ -39,7 +41,7 @@ export default function CreateLibraryScreen() {
 
             router.back();
         } catch (error: any) {
-            Alert.alert('생성 실패', error.message);
+            Alert.alert(Strings.common.error, error.message);
         } finally {
             setLoading(false);
         }
@@ -52,16 +54,16 @@ export default function CreateLibraryScreen() {
         >
             <Stack.Screen
                 options={{
-                    title: '새 암기장 만들기',
+                    title: Strings.libraryForm.createTitle,
                     headerTintColor: colors.text,
                 }}
             />
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>제목 *</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.libraryForm.labelTitle}</Text>
                     <TextInput
                         style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예: 토익 보카 2024"
+                        placeholder={Strings.libraryForm.placeholderTitle}
                         value={title}
                         onChangeText={setTitle}
                         placeholderTextColor={colors.textSecondary}
@@ -69,10 +71,10 @@ export default function CreateLibraryScreen() {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>설명</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.libraryForm.labelDesc}</Text>
                     <TextInput
                         style={[styles.input, styles.textArea, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="이 암기장에 대한 설명 (선택)"
+                        placeholder={Strings.libraryForm.placeholderDesc}
                         value={description}
                         onChangeText={setDescription}
                         multiline
@@ -82,10 +84,10 @@ export default function CreateLibraryScreen() {
                 </View>
 
                 <View style={styles.formGroup}>
-                    <Text style={[styles.label, { color: colors.text }]}>카테고리</Text>
+                    <Text style={[styles.label, { color: colors.text }]}>{Strings.libraryForm.labelCategory}</Text>
                     <TextInput
                         style={[styles.input, { backgroundColor: colors.cardBackground, color: colors.text, borderColor: colors.border }]}
-                        placeholder="예: 영어, 자격증, IT"
+                        placeholder={Strings.libraryForm.placeholderCategory}
                         value={category}
                         onChangeText={setCategory}
                         placeholderTextColor={colors.textSecondary}
@@ -98,7 +100,7 @@ export default function CreateLibraryScreen() {
                     disabled={loading}
                 >
                     <Text style={styles.submitButtonText}>
-                        {loading ? '생성 중...' : '만들기'}
+                        {loading ? Strings.common.creating : Strings.libraryForm.submitCreate}
                     </Text>
                 </TouchableOpacity>
             </ScrollView>

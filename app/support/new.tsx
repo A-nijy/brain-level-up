@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 import { StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, View, Card } from '@/components/Themed';
-import { SupportService } from '@/services/SupportService';
+import { Text, View } from '@/components/Themed';
 import { InquiryCategory } from '@/types';
-import { useAuth } from '@/contexts/AuthContext';
 import { Stack, useRouter } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-
-const CATEGORIES: InquiryCategory[] = ['Q&A', '건의사항', '버그'];
-
 import { useSupport } from '@/hooks/useSupport';
+import { Strings } from '@/constants/Strings';
+
+const CATEGORIES: InquiryCategory[] = [
+    Strings.support.categories.qa as InquiryCategory,
+    Strings.support.categories.suggestion as InquiryCategory,
+    Strings.support.categories.bug as InquiryCategory
+];
 
 export default function NewSupportScreen() {
     const { submitInquiry } = useSupport();
-    const [category, setCategory] = useState<InquiryCategory>('Q&A');
+    const [category, setCategory] = useState<InquiryCategory>(Strings.support.categories.qa as InquiryCategory);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [loading, setLoading] = useState(false);
@@ -27,19 +28,19 @@ export default function NewSupportScreen() {
 
     const handleSubmit = async () => {
         if (!title.trim() || !content.trim()) {
-            Alert.alert('알림', '제목과 내용을 모두 입력해주세요.');
+            Alert.alert(Strings.common.info, Strings.support.alerts.enterAll);
             return;
         }
 
         setLoading(true);
         try {
             await submitInquiry(category, title.trim(), content.trim());
-            Alert.alert('성공', '소중한 의견이 제출되었습니다. 확인 후 처리해 드리겠습니다.', [
-                { text: '확인', onPress: () => router.back() }
+            Alert.alert(Strings.common.success, Strings.support.alerts.submitSuccess, [
+                { text: Strings.common.confirm, onPress: () => router.back() }
             ]);
         } catch (error: any) {
             console.error(error);
-            Alert.alert('오류', '제출 중 문제가 발생했습니다: ' + error.message);
+            Alert.alert(Strings.common.error, `${Strings.support.alerts.submitError} ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -52,7 +53,7 @@ export default function NewSupportScreen() {
         >
             <Stack.Screen
                 options={{
-                    title: 'Q&A 및 건의사항',
+                    title: Strings.support.screenTitle,
                     headerShown: true,
                     headerTintColor: colors.text,
                 }}
@@ -61,10 +62,10 @@ export default function NewSupportScreen() {
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <Animated.View entering={FadeInUp.duration(600)}>
                     <Text style={[styles.description, { color: colors.textSecondary }]}>
-                        앱 사용 중 궁금한 점이나 개선이 필요한 점, 발견하신 버그를 알려주세요. 관리자가 확인 후 답변 드리거나 반영하겠습니다.
+                        {Strings.support.description}
                     </Text>
 
-                    <Text style={styles.label}>카테고리</Text>
+                    <Text style={styles.label}>{Strings.support.labelCategory}</Text>
                     <View variant="transparent" style={styles.categoryRow}>
                         {CATEGORIES.map((cat) => (
                             <TouchableOpacity
@@ -86,21 +87,21 @@ export default function NewSupportScreen() {
                         ))}
                     </View>
 
-                    <Text style={styles.label}>제목</Text>
+                    <Text style={styles.label}>{Strings.support.labelTitle}</Text>
                     <TextInput
                         style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.cardBackground }]}
                         value={title}
                         onChangeText={setTitle}
-                        placeholder="제목을 입력하세요"
+                        placeholder={Strings.support.placeholderTitle}
                         placeholderTextColor={colors.textSecondary + '80'}
                     />
 
-                    <Text style={styles.label}>내용</Text>
+                    <Text style={styles.label}>{Strings.support.labelContent}</Text>
                     <TextInput
                         style={[styles.textArea, { color: colors.text, borderColor: colors.border, backgroundColor: colors.cardBackground }]}
                         value={content}
                         onChangeText={setContent}
-                        placeholder="내용을 입력하세요 (버그 제보 시 발생 상황을 상세히 적어주시면 큰 도움이 됩니다)"
+                        placeholder={Strings.support.placeholderContent}
                         placeholderTextColor={colors.textSecondary + '80'}
                         multiline
                         numberOfLines={10}
@@ -112,7 +113,7 @@ export default function NewSupportScreen() {
                         onPress={handleSubmit}
                         disabled={loading}
                     >
-                        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitButtonText}>제출하기</Text>}
+                        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitButtonText}>{Strings.support.submitBtn}</Text>}
                     </TouchableOpacity>
                 </Animated.View>
             </ScrollView>

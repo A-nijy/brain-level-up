@@ -13,6 +13,7 @@ import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Strings } from '@/constants/Strings';
 
 export default function SharedLibraryPreviewScreen() {
     const { id } = useLocalSearchParams();
@@ -30,7 +31,7 @@ export default function SharedLibraryPreviewScreen() {
 
     const handleDownloadRequest = () => {
         if (!user) {
-            Alert.alert('로그인 필요', '자료를 다운로드하려면 로그인이 필요합니다.');
+            Alert.alert(Strings.common.loginRequired, Strings.sharedDetail.alerts.loginRequired);
             return;
         }
 
@@ -50,12 +51,12 @@ export default function SharedLibraryPreviewScreen() {
         try {
             const newLib = await downloadLibrary(user.id);
 
-            Alert.alert('성공', '내 암기장에 추가되었습니다.', [
-                { text: '바로가기', onPress: () => router.push(`/library/${newLib.id}`) },
-                { text: '확인' }
+            Alert.alert(Strings.common.success, Strings.sharedDetail.alerts.downloadSuccess, [
+                { text: Strings.sharedDetail.alerts.goToLibrary, onPress: () => router.push(`/library/${newLib.id}`) },
+                { text: Strings.common.confirm }
             ]);
         } catch (e: any) {
-            Alert.alert('다운로드 실패', e.message);
+            Alert.alert(Strings.sharedDetail.alerts.downloadFail, e.message);
         } finally {
             setDownloading(false);
             setModalVisible(false);
@@ -97,7 +98,7 @@ export default function SharedLibraryPreviewScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: library?.title || '상세 보기',
+                    headerTitle: library?.title || Strings.sharedDetail.screenTitle,
                     headerShadowVisible: false,
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
@@ -117,17 +118,17 @@ export default function SharedLibraryPreviewScreen() {
                             </Text>
                         )}
                         <View variant="transparent" style={styles.headerStats}>
-                            <Text style={styles.countText}>총 {sections.length}개의 항목</Text>
+                            <Text style={styles.countText}>{Strings.adminSharedSection.count(sections.length)}</Text>
                         </View>
                         <View variant="transparent" style={styles.subHeaderTitle}>
-                            <Text style={[styles.subHeaderTitleText, { color: colors.textSecondary }]}>학습 항목 목록</Text>
+                            <Text style={[styles.subHeaderTitleText, { color: colors.textSecondary }]}>{Strings.libraryDetail.sectionListHeader}</Text>
                         </View>
                     </View>
                 }
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <FontAwesome name="folder-open-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 항목이 없습니다.</Text>
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.libraryDetail.empty}</Text>
                     </View>
                 }
             />
@@ -150,7 +151,7 @@ export default function SharedLibraryPreviewScreen() {
                         ) : (
                             <>
                                 <FontAwesome name="plus" size={18} color="#fff" style={{ marginRight: 12 }} />
-                                <Text style={styles.downloadButtonText}>내 단어장으로 가져오기</Text>
+                                <Text style={styles.downloadButtonText}>{Strings.sharedDetail.downloadBtn}</Text>
                             </>
                         )}
                     </LinearGradient>
@@ -161,8 +162,8 @@ export default function SharedLibraryPreviewScreen() {
                 isVisible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 onWatchAd={handleWatchAd}
-                title="자료 받기"
-                description="광고를 시청하시면 이 암기장을 무료로 내 보관함에 추가할 수 있습니다."
+                title={Strings.sharedDetail.downloadBtn}
+                description={Strings.sharedDetail.downloadGuide}
             />
         </View>
     );

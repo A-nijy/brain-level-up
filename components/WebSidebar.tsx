@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, Pressable, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, Pressable, Platform, Image } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter, useSegments } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
+import { Strings } from '@/constants/Strings';
 
 export default function WebSidebar() {
     const router = useRouter();
@@ -71,10 +72,12 @@ export default function WebSidebar() {
     return (
         <View style={[styles.sidebar, { borderRightColor: colors.border, backgroundColor: colors.cardBackground }]}>
             <View variant="transparent" style={styles.header}>
-                <View style={[styles.logoCircle, { backgroundColor: colors.tint }]}>
-                    <FontAwesome name="graduation-cap" size={20} color="#fff" />
-                </View>
-                <Text style={styles.logoText}>FlashMaster</Text>
+                <Image
+                    source={require('@/assets/images/logo-bg.png')}
+                    style={styles.logoImage}
+                    resizeMode="contain"
+                />
+                <Text style={styles.logoText}>{Strings.auth.appName}</Text>
             </View>
 
             {isInAdminMode ? (
@@ -129,13 +132,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 40,
     },
-    logoCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
+    logoImage: {
+        width: 44,
+        height: 44,
+        borderRadius: 10,
+        marginRight: 10,
     },
     logoText: {
         fontSize: 20,

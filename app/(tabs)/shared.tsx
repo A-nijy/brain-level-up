@@ -15,6 +15,8 @@ import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 import { SharedLibraryCategory } from '@/types';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
 
+import { Strings } from '@/constants/Strings';
+
 export default function SharedLibraryScreen() {
     const { user, profile } = useAuth();
     const {
@@ -42,7 +44,7 @@ export default function SharedLibraryScreen() {
 
     const handleDownloadRequest = (item: SharedLibrary) => {
         if (!user) {
-            Alert.alert('로그인 필요', '자료를 다운로드하려면 로그인이 필요합니다.');
+            Alert.alert(Strings.common.loginRequired, Strings.sharedDetail.alerts.loginRequired);
             return;
         }
 
@@ -63,13 +65,13 @@ export default function SharedLibraryScreen() {
         try {
             const newLib = await downloadLibrary(user.id, item);
 
-            Alert.alert('성공', '내 암기장에 추가되었습니다.', [
-                { text: '바로가기', onPress: () => router.push(`/library/${newLib.id}`) },
-                { text: '확인' }
+            Alert.alert(Strings.common.success, Strings.shared.alerts.downloadSuccess, [
+                { text: Strings.shared.alerts.goLibrary, onPress: () => router.push(`/library/${newLib.id}`) },
+                { text: Strings.common.confirm }
             ]);
             refresh();
         } catch (e: any) {
-            Alert.alert('다운로드 실패', e.message);
+            Alert.alert(Strings.shared.alerts.downloadFail, e.message);
         } finally {
             setDownloading(null);
             setModalVisible(false);
@@ -97,7 +99,7 @@ export default function SharedLibraryScreen() {
             >
                 <View variant="transparent" style={styles.cardHeader}>
                     <View style={styles.iconContainer}>
-                        <FontAwesome name="globe" size={20} color={colors.tint} />
+                        <FontAwesome name={Strings.tabs.icons.shared as any} size={20} color={colors.tint} />
                     </View>
                     <View variant="transparent" style={styles.titleContainer}>
                         <Text type="title" style={styles.cardTitle}>{item.title}</Text>
@@ -105,7 +107,7 @@ export default function SharedLibraryScreen() {
                             <Text style={[styles.categoryText, { color: colors.tint }]}>{item.category}</Text>
                         )}
                     </View>
-                    <FontAwesome name="angle-right" size={18} color={colors.border} />
+                    <FontAwesome name={Strings.home.icons.arrowRight as any} size={18} color={colors.border} />
                 </View>
 
                 {item.description && (
@@ -116,8 +118,8 @@ export default function SharedLibraryScreen() {
 
                 <View variant="transparent" style={styles.cardFooter}>
                     <View variant="transparent" style={styles.statItem}>
-                        <FontAwesome name="download" size={12} color={colors.textSecondary} style={{ marginRight: 6 }} />
-                        <Text style={styles.statText}>{item.download_count}회</Text>
+                        <FontAwesome name={Strings.admin.icons.download as any} size={12} color={colors.textSecondary} style={{ marginRight: 6 }} />
+                        <Text style={styles.statText}>{Strings.shared.downloadCount(item.download_count)}</Text>
                     </View>
 
                     <TouchableOpacity
@@ -129,8 +131,8 @@ export default function SharedLibraryScreen() {
                             <ActivityIndicator size="small" color={colors.tint} />
                         ) : (
                             <>
-                                <FontAwesome name="plus" size={12} color={colors.tint} style={{ marginRight: 6 }} />
-                                <Text style={[styles.downloadButtonText, { color: colors.tint }]}>가져오기</Text>
+                                <FontAwesome name={Strings.home.icons.plus as any} size={12} color={colors.tint} style={{ marginRight: 6 }} />
+                                <Text style={[styles.downloadButtonText, { color: colors.tint }]}>{Strings.shared.import}</Text>
                             </>
                         )}
                     </TouchableOpacity>
@@ -156,8 +158,8 @@ export default function SharedLibraryScreen() {
                 }
                 ListHeaderComponent={
                     <View variant="transparent" style={styles.header}>
-                        <Text style={styles.headerTitle}>공유 자료실</Text>
-                        <Text style={styles.headerSubtitle}>다른 사람들이 공유한 유용한 암기장을 확인해 보세요.</Text>
+                        <Text style={styles.headerTitle}>{Strings.shared.title}</Text>
+                        <Text style={styles.headerSubtitle}>{Strings.shared.subtitle}</Text>
 
                         <Animated.ScrollView
                             horizontal
@@ -172,7 +174,7 @@ export default function SharedLibraryScreen() {
                                 ]}
                                 onPress={() => setSelectedCategoryId('all')}
                             >
-                                <Text style={[styles.chipText, selectedCategoryId === 'all' && { color: '#fff' }]}>전체</Text>
+                                <Text style={[styles.chipText, selectedCategoryId === 'all' && { color: '#fff' }]}>{Strings.shared.categoryAll}</Text>
                             </TouchableOpacity>
                             {categories.map((cat) => (
                                 <TouchableOpacity
@@ -193,8 +195,8 @@ export default function SharedLibraryScreen() {
                     <View style={styles.emptyContainer}>
                         {loading ? <ActivityIndicator size="large" color={colors.tint} /> : (
                             <>
-                                <FontAwesome name="search" size={40} color={colors.textSecondary} style={{ opacity: 0.3 }} />
-                                <Text style={styles.emptyText}>공유된 자료가 없습니다.</Text>
+                                <FontAwesome name={Strings.adminUsers.icons.search as any} size={40} color={colors.textSecondary} style={{ opacity: 0.3 }} />
+                                <Text style={styles.emptyText}>{Strings.shared.empty}</Text>
                             </>
                         )}
                     </View>
@@ -204,8 +206,8 @@ export default function SharedLibraryScreen() {
                 isVisible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 onWatchAd={handleWatchAd}
-                title="자료 받기"
-                description="광고를 시청하시면 이 암기장을 무료로 내 보관함에 추가할 수 있습니다."
+                title={Strings.shared.adModal.title}
+                description={Strings.shared.adModal.description}
             />
         </View>
     );
