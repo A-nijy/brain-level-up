@@ -8,7 +8,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import { View, ActivityIndicator, Platform, TouchableOpacity, DeviceEventEmitter } from 'react-native';
+import { View, ActivityIndicator, Platform, TouchableOpacity, DeviceEventEmitter, AppState } from 'react-native';
 import { PushNotificationService } from '@/services/PushNotificationService';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -51,11 +51,32 @@ function InitialLayout() {
     ...FontAwesome.font,
   });
 
+  // 3. 앱 상태 변화(포그라운드 복귀) 및 초기 기동 시 버퍼 체크
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+
+    const handleAppStateChange = async (nextAppState: string) => {
+      if (nextAppState === 'active') {
+        console.log('[Layout] App became active. Checking notification buffer...');
+        await PushNotificationService.scheduleNextNotification();
+      }
+    };
+
+    // 초기 기동 시 실행
+    PushNotificationService.scheduleNextNotification();
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   // 푸시 알림 클릭 및 수신 핸들러
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
-    // 1. 알림 응답(클릭) 리스너 - 클릭 시에만 다음 알림 예약
+    // 1. 알림 응답(클릭) 리스너 - 클릭 시 버퍼 다시 채움
     const responseSubscription = Notifications.addNotificationResponseReceivedListener(async response => {
       try {
         const data = response.notification.request.content.data;
@@ -63,28 +84,22 @@ function InitialLayout() {
 
         console.log('[Layout] Notification response received:', data.type);
 
-        // 학습 알림 클릭 시 처리
         if (data.itemId) {
-          console.log('[Layout] Processing click for item:', data.itemId);
           await PushNotificationService.addShownId(data.itemId as string);
 
-          // 완료 알림이 아니면 해당 단어장으로 이동
           if (data.type !== 'completion' && data.libraryId) {
             router.push(`/library/${data.libraryId as string}`);
           }
         }
 
-        // 실시간 UI 갱신 이벤트 발생
         DeviceEventEmitter.emit('push-progress-updated');
-
-        // [핵심] 클릭 시점에 다음 알림 예약 (릴레이)
         await PushNotificationService.scheduleNextNotification();
       } catch (err) {
         console.error('[Layout] Error handling notification response:', err);
       }
     });
 
-    // 2. 알림 수신 리스너 - 수신 시에는 다음 예약을 하지 않음 (이미 PushNotificationService.addShownId에서 처리)
+    // 2. 알림 수신 리스너 - 수신 시에도 조용히 버퍼 채움
     const notificationSubscription = Notifications.addNotificationReceivedListener(async notification => {
       try {
         const data = notification.request.content.data;
@@ -92,6 +107,9 @@ function InitialLayout() {
           console.log('[Layout] Foreground notification arrived:', data.itemId);
           await PushNotificationService.addShownId(data.itemId as string);
           DeviceEventEmitter.emit('push-progress-updated');
+
+          // 알림이 도착할 때마다 미래의 50개를 다시 갱신 (릴레이 가속)
+          await PushNotificationService.scheduleNextNotification();
         }
       } catch (err) {
         console.error('[Layout] Error handling foreground notification:', err);
