@@ -93,13 +93,15 @@ function InitialLayout() {
         }
 
         DeviceEventEmitter.emit('push-progress-updated');
+
+        // 워터마크 기반으로 다음 부족한 알림들을 채움
         await PushNotificationService.scheduleNextNotification();
       } catch (err) {
         console.error('[Layout] Error handling notification response:', err);
       }
     });
 
-    // 2. 알림 수신 리스너 - 수신 시에도 조용히 버퍼 채움
+    // 2. 알림 수신 리스너 - 수신 시에도 조용히 버퍼 체크
     const notificationSubscription = Notifications.addNotificationReceivedListener(async notification => {
       try {
         const data = notification.request.content.data;
@@ -108,7 +110,7 @@ function InitialLayout() {
           await PushNotificationService.addShownId(data.itemId as string);
           DeviceEventEmitter.emit('push-progress-updated');
 
-          // 알림이 도착할 때마다 미래의 50개를 다시 갱신 (릴레이 가속)
+          // 알림이 도착했을 때 미래의 버퍼가 부족하면 보충 (워터마크가 있어 뭉치지 않음)
           await PushNotificationService.scheduleNextNotification();
         }
       } catch (err) {

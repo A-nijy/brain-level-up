@@ -23,8 +23,10 @@ const SETTINGS_KEY = '@push_notification_settings';
 const LAST_INDEX_KEY = '@push_notification_last_index';
 const SHOWN_IDS_KEY = '@push_notification_shown_ids';
 const SCHEDULED_LIST_KEY = '@push_notification_scheduled_list';
-const COMPLETION_SENT_KEY = '@push_completion_sent'; // 완료 알림 중복 가드
-const BUFFER_SIZE = 50; // 미래 예약 버퍼 크기 상향
+const COMPLETION_SENT_KEY = '@push_completion_sent';
+const WATERMARK_INDEX_KEY = '@push_watermark_index'; // 마지막으로 예약된 아이템 인덱스
+const WATERMARK_TIME_KEY = '@push_watermark_time'; // 마지막으로 예약된 시간 (ISO String)
+const BUFFER_SIZE = 50;
 
 // 알림 핸들러 설정 (앱 포그라운드에서도 알림 표시)
 try {
@@ -196,11 +198,13 @@ export const PushNotificationService = {
         await AsyncStorage.removeItem(SHOWN_IDS_KEY);
         await AsyncStorage.removeItem(SCHEDULED_LIST_KEY);
         await AsyncStorage.removeItem(COMPLETION_SENT_KEY);
-        console.log('[PushNotificationService] Progress and completion state have been reset');
+        await AsyncStorage.removeItem(WATERMARK_INDEX_KEY);
+        await AsyncStorage.removeItem(WATERMARK_TIME_KEY);
+        console.log('[PushNotificationService] All progress and watermark states have been reset');
     },
 
     /**
-     * 50개 고유 ID 기반 버퍼 예약 (릴레이 방식)
+     * 워터마크 기반 연속 예약 (사라짐, 뭉침, 중복 해결 핵심 로직)
      */
     async scheduleNextNotification(userId?: string): Promise<void> {
         if (Platform.OS === 'web') return;
@@ -211,7 +215,7 @@ export const PushNotificationService = {
             const settings = await this.getSettings();
             if (!settings || !settings.enabled || !settings.libraryId) return;
 
-            // 1. 대상 아이템 로드 및 필터링
+            // 1. 전체 대상 아이템 로드 및 정렬
             let allItems: Item[] = [];
             if (settings.sectionId && settings.sectionId !== 'all') {
                 allItems = await ItemService.getItems(settings.sectionId);
@@ -228,72 +232,145 @@ export const PushNotificationService = {
                 filteredItems = allItems.slice(settings.rangeStart, settings.rangeEnd + 1);
             }
 
-            const shownIds = await this.getShownIds();
-            const remainingItems = filteredItems.filter(item => !shownIds.includes(item.id));
-
-            if (remainingItems.length === 0) {
-                await this.showCompletionNotification();
-                return;
-            }
-
-            // 2. 예약할 목록 생성 (최대 50개)
-            let targetItems = [...remainingItems];
             if (settings.order === 'random') {
-                for (let i = targetItems.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [targetItems[i], targetItems[j]] = [targetItems[j], targetItems[i]];
+                // 랜덤 모드일 때는 shownIds를 제외한 나머지를 섞어서 사용
+                const shownIds = await this.getShownIds();
+                const available = filteredItems.filter(item => !shownIds.includes(item.id));
+                if (available.length === 0) {
+                    await this.showCompletionNotification();
+                    return;
+                }
+                // 랜덤 모드에서는 워터마크 관리가 어려우므로, 이미 예약되지 않은 것들 중 BUFFER 만큼만 예약
+                const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+                const scheduledIds = scheduled.map(n => n.content.data?.itemId).filter(Boolean);
+
+                const toSchedule = available.filter(item => !scheduledIds.includes(item.id)).slice(0, BUFFER_SIZE);
+                if (toSchedule.length === 0 && scheduledIds.length === 0) {
+                    await this.showCompletionNotification();
+                    return;
+                }
+
+                const now = new Date();
+                for (let i = 0; i < toSchedule.length; i++) {
+                    const item = toSchedule[i];
+                    // 예약되지 않은 슬롯을 찾아야 함. 단순히 now + i 로 하면 뭉칠 수 있음.
+                    // 실제 예약된 알림 중 가장 마지막 시간을 찾음
+                    const lastTime = scheduled.reduce((max, n) => {
+                        const t = new Date(n.trigger && (n.trigger as any).date ? (n.trigger as any).date : 0).getTime();
+                        return t > max ? t : max;
+                    }, now.getTime());
+
+                    const triggerDate = new Date(Math.max(lastTime, now.getTime()) + settings.interval * 60 * 1000);
+                    await this.performSchedule(item, triggerDate, settings);
                 }
             } else {
-                targetItems.sort((a, b) => a.display_order - b.display_order);
+                // 순차 모드: 워터마크(인덱스) 기반으로 '딱 한 줄'의 기차를 만듦
+                filteredItems.sort((a, b) => a.display_order - b.display_order);
+                const shownIds = await this.getShownIds();
+
+                // 아직 '표시'되지 않은 첫 번째 아이템의 인덱스 찾기
+                const firstRemainingIndex = filteredItems.findIndex(item => !shownIds.includes(item.id));
+                if (firstRemainingIndex === -1) {
+                    await this.showCompletionNotification();
+                    return;
+                }
+
+                // 현재 예약된 알림 목록 확인
+                const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+                const scheduledIds = new Set(scheduled.map(n => n.content.data?.itemId).filter(Boolean));
+
+                // 마지막 예약된 시점 확인
+                const lastIdxStr = await AsyncStorage.getItem(WATERMARK_INDEX_KEY);
+                const lastTimeStr = await AsyncStorage.getItem(WATERMARK_TIME_KEY);
+
+                let currentIdx = lastIdxStr ? parseInt(lastIdxStr, 10) : firstRemainingIndex - 1;
+                let currentTime = lastTimeStr ? new Date(lastTimeStr) : new Date();
+
+                // 버퍼가 꽉 찰 때까지(또는 단어가 끝날 때까지) 예약
+                let scheduledCount = scheduled.filter(n => n.content.data?.type === 'learning').length;
+
+                while (scheduledCount < BUFFER_SIZE && currentIdx < filteredItems.length - 1) {
+                    currentIdx++;
+                    const item = filteredItems[currentIdx];
+
+                    // 이미 예약된 아이템은 건너뜀
+                    if (scheduledIds.has(item.id)) continue;
+
+                    // 시간 계산: 마지막 예약 시점 + 간격 (밀림 방지)
+                    currentTime = new Date(Math.max(currentTime.getTime(), Date.now()) + settings.interval * 60 * 1000);
+
+                    await this.performSchedule(item, currentTime, settings);
+                    scheduledCount++;
+
+                    // 워터마크 업데이트
+                    await AsyncStorage.setItem(WATERMARK_INDEX_KEY, currentIdx.toString());
+                    await AsyncStorage.setItem(WATERMARK_TIME_KEY, currentTime.toISOString());
+                }
+
+                // 마지막 단어까지 예약했는데도 버퍼가 남는다면 완료 알림 예약
+                if (currentIdx === filteredItems.length - 1 && scheduledCount < BUFFER_SIZE) {
+                    const completionTime = new Date(currentTime.getTime() + settings.interval * 60 * 1000);
+                    await this.scheduleCompletionFuture(completionTime);
+                }
             }
-
-            const BATCH_SIZE = Math.min(targetItems.length, BUFFER_SIZE);
-            const now = new Date();
-            const scheduledListForCounting = [];
-
-            console.log(`[PushNotificationService] Syncing 50-buffer slots. New Batch Size: ${BATCH_SIZE}`);
-
-            // 3. 고유 ID (word-relay-0 ~ word-relay-49)를 활용한 덮어쓰기 예약
-            // 이렇게 하면 기존 예약이 있어도 중복되지 않고 '업데이트'되어 뭉침 현상이 해결됩니다.
-            for (let i = 0; i < BATCH_SIZE; i++) {
-                const item = targetItems[i];
-                const triggerDate = new Date(now.getTime() + settings.interval * 60 * 1000 * (i + 1));
-                const identifier = `word-relay-${i}`;
-
-                await Notifications.scheduleNotificationAsync({
-                    identifier, // 고유 ID 부여 (덮어쓰기용)
-                    content: {
-                        title: settings.format === 'meaning_only' ? '단어 퀴즈' : item.question,
-                        body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' : item.answer,
-                        data: {
-                            libraryId: settings.libraryId,
-                            itemId: item.id,
-                            type: 'learning',
-                            slotIndex: i,
-                        },
-                        sound: true,
-                        priority: Notifications.AndroidNotificationPriority.HIGH,
-                    },
-                    trigger: {
-                        type: Notifications.SchedulableTriggerInputTypes.DATE,
-                        date: triggerDate,
-                    },
-                });
-
-                scheduledListForCounting.push({
-                    id: item.id,
-                    triggerAt: triggerDate.toISOString()
-                });
-            }
-
-            // 4. 진행도 카운팅용 메타데이터 저장
-            await AsyncStorage.setItem(SCHEDULED_LIST_KEY, JSON.stringify(scheduledListForCounting));
 
         } catch (error) {
-            console.error('[PushNotificationService] Relay error:', error);
+            console.error('[PushNotificationService] Watermark scheduling error:', error);
         } finally {
             isProcessing = false;
         }
+    },
+
+    /**
+     * 실제 예약 실행 (공통 로직)
+     * 고유 식별자 word-${id}를 사용하여 알림 사라짐 방지
+     */
+    async performSchedule(item: Item, date: Date, settings: PushNotificationSettings): Promise<void> {
+        const identifier = `word-${item.id}`; // 고유 ID 사용 (UI에서 차례로 쌓이게 함)
+        await Notifications.scheduleNotificationAsync({
+            identifier,
+            content: {
+                title: settings.format === 'meaning_only' ? '단어 퀴즈' : item.question,
+                body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' : item.answer,
+                data: {
+                    libraryId: settings.libraryId,
+                    itemId: item.id,
+                    type: 'learning',
+                    scheduledAt: date.toISOString(),
+                },
+                sound: true,
+                priority: Notifications.AndroidNotificationPriority.HIGH,
+            },
+            trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: date,
+            },
+        });
+        console.log(`[PushNotificationService] Scheduled: ${item.question} at ${date.toLocaleTimeString()} (ID: ${identifier})`);
+    },
+
+    /**
+     * 미래 시점의 완료 알림 예약 (워터마크용)
+     */
+    async scheduleCompletionFuture(date: Date): Promise<void> {
+        const sent = await AsyncStorage.getItem(COMPLETION_SENT_KEY);
+        if (sent === 'true') return;
+
+        await Notifications.scheduleNotificationAsync({
+            identifier: 'learning-completion',
+            content: {
+                title: '🎉 학습 완료!',
+                body: '선택한 단어장의 모든 단어를 학습했습니다. 수고하셨습니다!',
+                data: { type: 'completion' },
+                sound: true,
+                priority: Notifications.AndroidNotificationPriority.HIGH,
+            },
+            trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: date,
+            },
+        });
+        console.log(`[PushNotificationService] Completion scheduled at ${date.toLocaleTimeString()}`);
     },
 
     /**
