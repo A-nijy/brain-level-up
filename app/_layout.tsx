@@ -101,7 +101,7 @@ function InitialLayout() {
       }
     });
 
-    // 2. 알림 수신 리스너 - 수신 시에도 조용히 버퍼 체크
+    // 2. 알림 수신 리스너 - 수신 시에는 진행도 반영만 수행 (재예약 X)
     const notificationSubscription = Notifications.addNotificationReceivedListener(async notification => {
       try {
         const data = notification.request.content.data;
@@ -110,8 +110,8 @@ function InitialLayout() {
           await PushNotificationService.addShownId(data.itemId as string);
           DeviceEventEmitter.emit('push-progress-updated');
 
-          // 알림이 도착했을 때 미래의 버퍼가 부족하면 보충 (워터마크가 있어 뭉치지 않음)
-          await PushNotificationService.scheduleNextNotification();
+          // 알림이 올 때마다 전체를 재예약하면 성능 저하 및 알림 뭉침의 원인이 될 수 있으므로 제거함.
+          // 대신 앱을 열거나 알림을 클릭할 때만 보충함.
         }
       } catch (err) {
         console.error('[Layout] Error handling foreground notification:', err);
