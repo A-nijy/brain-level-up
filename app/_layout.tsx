@@ -57,7 +57,21 @@ function InitialLayout() {
 
     const handleAppStateChange = async (nextAppState: string) => {
       if (nextAppState === 'active') {
-        console.log('[Layout] App became active. Checking notification buffer...');
+        console.log('[Layout] App became active. Checking progress and buffer...');
+
+        // 1. 진행도 체크 및 완료 처리 (100% 도달 시 알림 비활성화)
+        const progress = await PushNotificationService.getProgress();
+        if (progress && progress.total > 0 && progress.current >= progress.total) {
+          const settings = await PushNotificationService.getSettings();
+          if (settings && settings.enabled) {
+            console.log('[Layout] Learning complete! Disabling notifications.');
+            await PushNotificationService.saveSettings({ ...settings, enabled: false });
+            // 이미 완료 알림이 예약되어 있겠지만, 즉시 한 번 더 보여줄 수도 있음
+            await PushNotificationService.showCompletionNotification();
+          }
+        }
+
+        // 2. 고정 슬롯 예약 갱신
         await PushNotificationService.scheduleNextNotification();
       }
     };
@@ -94,8 +108,8 @@ function InitialLayout() {
 
         DeviceEventEmitter.emit('push-progress-updated');
 
-        // 워터마크 기반으로 다음 부족한 알림들을 채움
-        await PushNotificationService.scheduleNextNotification();
+        // 사용자 요청: 알림 클릭 시의 재예약 로직 완전 삭제 (중복 방지)
+        // 예약은 오직 앱 활성화(active) 시점에만 일괄 처리함.
       } catch (err) {
         console.error('[Layout] Error handling notification response:', err);
       }

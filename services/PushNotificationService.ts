@@ -141,9 +141,9 @@ export const PushNotificationService = {
         }
 
         console.log('[PushNotificationService] Showing completion notification...');
-        const settings = await this.getSettings();
 
         await Notifications.scheduleNotificationAsync({
+            identifier: 'learning-completion',
             content: {
                 title: '🎉 학습 완료!',
                 body: '선택한 단어장의 모든 단어를 학습했습니다. 수고하셨습니다!',
@@ -154,17 +154,13 @@ export const PushNotificationService = {
             trigger: null, // 즉시 표시
         });
 
-        // 완료 상태 저장
+        // 완료 상태 저장 (알림이 나갔음을 기록)
         await AsyncStorage.setItem(COMPLETION_SENT_KEY, 'true');
 
-        if (settings) {
-            console.log('[PushNotificationService] Disabling notifications as learning is complete');
-            await this.saveSettings({ ...settings, enabled: false });
-
-            // 실시간 UI 갱신 이벤트 발생
-            const { DeviceEventEmitter } = require('react-native');
-            DeviceEventEmitter.emit('push-progress-updated');
-        }
+        // 주의: 여기서 직접 enabled: false를 호출하지 않음. 
+        // 대신 사용자가 앱에 들어왔을 때 진행도를 확인하고 처리하도록 app/_layout 등에서 유도.
+        const { DeviceEventEmitter } = require('react-native');
+        DeviceEventEmitter.emit('push-progress-updated');
     },
 
     /**
@@ -250,18 +246,19 @@ export const PushNotificationService = {
                 targetItems.sort((a, b) => a.display_order - b.display_order);
             }
 
-            // 4. 최대 50개 일괄 예약
+            // 4. 최대 50개 고정 슬롯 일괄 예약 (Upsert 방식)
             const batchCount = Math.min(targetItems.length, BUFFER_SIZE);
             const now = Date.now();
 
-            console.log(`[PushNotificationService] Clean & Fill 50: Scheduling ${batchCount} items...`);
+            console.log(`[PushNotificationService] Fixed Slot Batch: Scheduling ${batchCount} items...`);
 
             for (let i = 0; i < batchCount; i++) {
                 const item = targetItems[i];
                 const triggerDate = new Date(now + (i + 1) * settings.interval * 60 * 1000);
+                const identifier = `reminder_${i}`; // 고정 슬롯 ID 부여 (덮어쓰기 보장)
 
                 await Notifications.scheduleNotificationAsync({
-                    identifier: `word-${item.id}`, // 고유 ID로 알림창에 쌓이게 함
+                    identifier,
                     content: {
                         title: settings.format === 'meaning_only' ? '단어 퀴즈' : item.question,
                         body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' : item.answer,
@@ -269,6 +266,7 @@ export const PushNotificationService = {
                             libraryId: settings.libraryId,
                             itemId: item.id,
                             type: 'learning',
+                            slotIndex: i,
                         },
                         sound: true,
                         priority: Notifications.AndroidNotificationPriority.HIGH,
@@ -280,11 +278,11 @@ export const PushNotificationService = {
                 });
             }
 
-            // 마지막에 완료 알림 스케줄 (남은 단어가 50개 미만일 때만)
+            // 마지막에 완료 알림 스케줄 (고정 ID로 덮어쓰기)
             if (targetItems.length <= BUFFER_SIZE) {
                 const completionTime = new Date(now + (targetItems.length + 1) * settings.interval * 60 * 1000);
                 await Notifications.scheduleNotificationAsync({
-                    identifier: 'learning-completion',
+                    identifier: 'learning-completion', // 고정 ID
                     content: {
                         title: '🎉 학습 완료!',
                         body: '선택한 단어장의 모든 단어를 학습했습니다. 수고하셨습니다!',
