@@ -31,11 +31,11 @@ try {
     console.log('[PushNotificationService] Setting notification handler...');
     Notifications.setNotificationHandler({
         handleNotification: async () => ({
-            shouldShowAlert: true,
+            shouldShowAlert: false, // Deprecated 경고 해결을 위해 false 처리하고 명시적 옵션 사용
             shouldPlaySound: true,
             shouldSetBadge: false,
-            shouldShowBanner: true,
-            shouldShowList: true,
+            shouldShowBanner: true, // 포그라운드 배너 표시
+            shouldShowList: true,   // 알림 센터 목록 표시
         }),
     });
     console.log('[PushNotificationService] Notification handler set successfully');
@@ -93,15 +93,23 @@ export const PushNotificationService = {
      * 설정 저장
      */
     async saveSettings(settings: PushNotificationSettings, userId?: string): Promise<void> {
-        console.log('[PushNotificationService] Saving settings:', JSON.stringify(settings));
+        // [중요] 상태 비교 가드: 현재 상태와 동일한 요청이면 무시하여 루프 차단
+        const currentSettings = await this.getSettings();
+        if (currentSettings && currentSettings.enabled === settings.enabled &&
+            currentSettings.libraryId === settings.libraryId &&
+            currentSettings.sectionId === settings.sectionId &&
+            currentSettings.interval === settings.interval) {
+            console.warn(`⏭️ [PushNotificationService] saveSettings SKIPPED - Same settings already exist.`);
+            return;
+        }
+
+        console.warn(`⚠️ [PushNotificationService] saveSettings called. enabled: ${settings.enabled}`);
         await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 
         if (settings.enabled) {
-            // 알림이 활성화되면 진행도 초기화 및 배지 알림 예약
             await this.resetProgress();
-            await this.scheduleNotificationBatch(userId);
+            await this.scheduleNextNotification(userId);
         } else {
-            // 알림이 비활성화되면 모든 알림 취소
             await this.cancelAllNotifications();
         }
     },
@@ -200,15 +208,28 @@ export const PushNotificationService = {
      */
     async scheduleNextNotification(userId?: string): Promise<void> {
         if (Platform.OS === 'web') return;
-        if (isProcessing) return;
+        if (isProcessing) {
+            console.warn('🚨 [PushNotificationService] scheduleNextNotification BLOCKED - Already processing!');
+            return;
+        }
 
         try {
             isProcessing = true;
-            const settings = await this.getSettings();
-            if (!settings || !settings.enabled || !settings.libraryId) return;
+            console.warn('🟡 [PushNotificationService] >>> START scheduleNextNotification');
 
-            // 1. 미래에 예약된 모든 알림 취소 (이미 온 알림에는 영향 없음)
+            const settings = await this.getSettings();
+            if (!settings || !settings.enabled || !settings.libraryId) {
+                console.warn('🟡 [PushNotificationService] Aborting: settings invalid or disabled');
+                return;
+            }
+
+            // 1. 미래 예약 전체 취소 및 대기
+            console.warn('🟡 [PushNotificationService] Calling cancelAllScheduledNotificationsAsync...');
             await Notifications.cancelAllScheduledNotificationsAsync();
+
+            // [중요] OS가 내부 스케줄러를 청소할 시간을 확보 (300ms)
+            console.warn('🟡 [PushNotificationService] Waiting 300ms for OS scheduler cleanup...');
+            await new Promise(resolve => setTimeout(resolve, 300));
 
             // 2. 대상 아이템 로드 및 필터링
             let allItems: Item[] = [];
@@ -297,40 +318,14 @@ export const PushNotificationService = {
                 });
             }
 
+            console.warn('🟡 [PushNotificationService] <<< END scheduleNextNotification SUCCESSFULLY');
         } catch (error) {
-            console.error('[PushNotificationService] Simple schedule error:', error);
+            console.error('🔴 [PushNotificationService] !!! FATAL ERROR during scheduling:', error);
         } finally {
             isProcessing = false;
         }
     },
 
-    /**
-     * 실제 예약 실행 (공통 로직)
-     * 고유 식별자 word-${id}를 사용하여 알림 사라짐 방지
-     */
-    async performSchedule(item: Item, date: Date, settings: PushNotificationSettings): Promise<void> {
-        const identifier = `word-${item.id}`; // 고유 ID 사용 (UI에서 차례로 쌓이게 함)
-        await Notifications.scheduleNotificationAsync({
-            identifier,
-            content: {
-                title: settings.format === 'meaning_only' ? '단어 퀴즈' : item.question,
-                body: settings.format === 'word_only' ? '뜻을 맞춰보세요!' : item.answer,
-                data: {
-                    libraryId: settings.libraryId,
-                    itemId: item.id,
-                    type: 'learning',
-                    scheduledAt: date.toISOString(),
-                },
-                sound: true,
-                priority: Notifications.AndroidNotificationPriority.HIGH,
-            },
-            trigger: {
-                type: Notifications.SchedulableTriggerInputTypes.DATE,
-                date: date,
-            },
-        });
-        console.log(`[PushNotificationService] Scheduled: ${item.question} at ${date.toLocaleTimeString()} (ID: ${identifier})`);
-    },
 
     /**
      * 구 버전 호환용 (이제 relay 방식을 사용하지만 이름 유지를 위해 래핑)
@@ -344,6 +339,7 @@ export const PushNotificationService = {
      */
     async cancelAllNotifications(): Promise<void> {
         if (Platform.OS === 'web') return;
+        console.warn('🟡 [PushNotificationService] EMERGENCY CANCEL ALL NOTIFICATIONS');
         await Notifications.cancelAllScheduledNotificationsAsync();
         console.log('[PushNotificationService] All notifications cancelled');
     },

@@ -8,7 +8,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
-import { PushNotificationSettings } from '@/services/PushNotificationService';
+import { PushNotificationService, PushNotificationSettings } from '@/services/PushNotificationService';
 import { Library, Section } from '@/types';
 
 import { usePushSettings } from '@/hooks/usePushSettings';
@@ -53,6 +53,26 @@ export default function SettingsScreen() {
       fetchSections(tempSettings.libraryId);
     }
   }, [tempSettings?.libraryId, fetchSections]);
+
+  // 진행도 100% 도달 시 알림 설정 자동 비활성화 (가드 강화)
+  useEffect(() => {
+    if (notificationSettings?.enabled && progress && progress.total > 0 && progress.current >= progress.total) {
+      console.warn('🎯 [Settings] Progress 100% detected. Preparing to disable notifications.');
+
+      const updateSettings = async () => {
+        // 이미 꺼진 상태라면 중복 호출 방지
+        const currentSettings = await PushNotificationService.getSettings();
+        if (currentSettings && currentSettings.enabled) {
+          console.warn('🎯 [Settings] Disabling notifications now.');
+          await saveSettings({ ...currentSettings, enabled: false });
+          Alert.alert(Strings.common.info, '모든 단어를 학습하여 알림이 종료되었습니다.');
+        } else {
+          console.warn('🎯 [Settings] Notifications already disabled. Skipping.');
+        }
+      };
+      updateSettings();
+    }
+  }, [progress, notificationSettings?.enabled]);
 
   const handleToggleNotification = async (value: boolean) => {
     if (!notificationSettings) return;

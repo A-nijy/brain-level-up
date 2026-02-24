@@ -73,8 +73,16 @@ export function usePushSettings() {
     const saveSettings = async (newSettings: PushNotificationSettings) => {
         try {
             await PushNotificationService.saveSettings(newSettings, session?.user?.id);
-            setNotificationSettings(newSettings);
-            const prog = await PushNotificationService.getProgress();
+
+            // 데이터 무결성을 위해 최신 설정과 진행도를 다시 가져와서 상태에 확실히 반영
+            const [updatedSettings, prog] = await Promise.all([
+                PushNotificationService.getSettings(),
+                PushNotificationService.getProgress()
+            ]);
+
+            if (updatedSettings) {
+                setNotificationSettings(updatedSettings);
+            }
             setProgress(prog);
         } catch (error: any) {
             console.error('[usePushSettings] Save error:', error);

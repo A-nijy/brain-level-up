@@ -61,13 +61,16 @@ function InitialLayout() {
 
         // 1. 진행도 체크 및 완료 처리 (100% 도달 시 알림 비활성화)
         const progress = await PushNotificationService.getProgress();
+        console.log('📊 [Layout] Current Progress:', progress);
+
         if (progress && progress.total > 0 && progress.current >= progress.total) {
           const settings = await PushNotificationService.getSettings();
           if (settings && settings.enabled) {
-            console.log('[Layout] Learning complete! Disabling notifications.');
+            console.warn('🎉 [Layout] 100% Reached! DISABLING NOTIFICATIONS NOW.');
+            // 중복 루프 방지를 위해 saveSettings 호출 전 한 번 더 체크 (서비스 내부 가드도 동일하게 동작)
             await PushNotificationService.saveSettings({ ...settings, enabled: false });
-            // 이미 완료 알림이 예약되어 있겠지만, 즉시 한 번 더 보여줄 수도 있음
             await PushNotificationService.showCompletionNotification();
+            return; // 100% 상태면 예약 건너뜀
           }
         }
 
