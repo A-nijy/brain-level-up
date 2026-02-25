@@ -46,7 +46,7 @@ export default function NoticesScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: Strings.notices.screenTitle,
+                    headerTitle: Strings.notices.screenTitle,
                     headerShown: true,
                 }}
             />

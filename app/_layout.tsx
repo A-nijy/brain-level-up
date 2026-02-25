@@ -240,6 +240,9 @@ function InitialLayout() {
       <Stack.Screen name="admin" options={{ headerShown: false }} />
       <Stack.Screen name="auth/login" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="settings/notices" options={{ headerTitle: Strings.notices.screenTitle }} />
+      <Stack.Screen name="settings/notices/index" options={{ headerTitle: Strings.notices.screenTitle }} />
+      <Stack.Screen name="settings/notices/[id]" options={{ headerTitle: Strings.notices.screenTitle }} />
       <Stack.Screen name="statistics_detail" options={{ headerTitle: Strings.stats.detailTitle }} />
       <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />

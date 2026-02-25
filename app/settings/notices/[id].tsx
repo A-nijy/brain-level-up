@@ -63,7 +63,7 @@ export default function NoticeDetailScreen() {
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: Strings.notices.screenTitle,
+                    headerTitle: Strings.notices.screenTitle,
                     headerShown: true,
                 }}
             />
