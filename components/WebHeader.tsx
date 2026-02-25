@@ -16,31 +16,6 @@ export default function WebHeader() {
     const router = useRouter();
     const [showNotifications, setShowNotifications] = React.useState(false);
 
-    // segment를 기반으로 breadcrumb 생성
-    const getBreadcrumb = () => {
-        const seg0 = segments[0] as string;
-        const seg1 = segments[segments.length - 1] as string;
-
-        if (seg0 === 'admin') {
-            const adminMap: Record<string, string> = {
-                'index': '대시보드',
-                'users': '사용자 관리',
-                'shared-manager': '콘텐츠 관리',
-                'notices': '시스템 공지',
-                'categories': '카테고리 관리',
-                'inquiries': '문의 및 건의사항'
-            };
-            return adminMap[seg1] || seg1;
-        }
-
-        const userMap: Record<string, string> = {
-            'index': '나의 암기장',
-            'shared': '자료실',
-            'stats': '학습 통계',
-            'settings': '환경 설정'
-        };
-        return userMap[seg1] || seg1;
-    };
 
     const getPageTitle = () => {
         const seg0 = segments[0] as string;
@@ -73,7 +48,6 @@ export default function WebHeader() {
     return (
         <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border, paddingRight: 48 }]}>
             <View variant="transparent" style={styles.breadcrumbArea}>
-                <Text style={[styles.breadcrumb, { color: colors.textSecondary }]}>{getBreadcrumb()}</Text>
                 <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text style={styles.pageTitle}>{getPageTitle()}</Text>
                 </View>
@@ -125,10 +99,6 @@ const styles = StyleSheet.create({
     },
     breadcrumbArea: {
         flex: 1,
-    },
-    breadcrumb: {
-        fontSize: 13,
-        marginBottom: 4,
     },
     pageTitle: {
         fontSize: 26,
