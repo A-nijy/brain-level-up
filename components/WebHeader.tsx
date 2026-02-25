@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, TextInput, Image, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, TextInput, Image, TouchableOpacity, Platform, DeviceEventEmitter } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { Strings } from '@/constants/Strings';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSegments, useRouter } from 'expo-router';
+import { useSegments, useRouter, useLocalSearchParams } from 'expo-router';
 
 export default function WebHeader() {
     const colorScheme = useColorScheme();
@@ -18,6 +18,7 @@ export default function WebHeader() {
 
 
     const getPageTitle = () => {
+
         const seg0 = segments[0] as string;
         const seg1 = segments[segments.length - 1] as string;
 

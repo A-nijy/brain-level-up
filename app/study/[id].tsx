@@ -122,10 +122,26 @@ export default function StudyScreen() {
         );
     }
 
+    if (items.length === 0 && !loading) {
+        return (
+            <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+                <Stack.Screen options={{ headerTitle: "학습", headerTransparent: true, headerTintColor: colors.text }} />
+                <FontAwesome name="book" size={64} color={colors.textSecondary} style={{ opacity: 0.3, marginBottom: 20 }} />
+                <Text style={{ fontSize: 18, color: colors.textSecondary, fontWeight: '600' }}>학습할 내용이 없습니다.</Text>
+                <TouchableOpacity
+                    style={[styles.finishButton, { backgroundColor: colors.tint, marginTop: 32, width: 200 }]}
+                    onPress={() => router.back()}
+                >
+                    <Text style={styles.finishButtonText}>돌아가기</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
     if (loading) {
         return (
             <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
-                <Stack.Screen options={{ title: paramTitle || Strings.study.screenTitle(1, 10) }} />
+                <Stack.Screen options={{ headerTitle: "학습", headerTransparent: true, headerTintColor: colors.text }} />
                 <ActivityIndicator size="large" color={colors.tint} />
             </View>
         );
@@ -134,18 +150,24 @@ export default function StudyScreen() {
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{
-                title: paramTitle && currentIndex === 0 ? paramTitle : Strings.study.screenTitle(currentIndex + 1, items.length),
+                headerTitle: "학습",
                 headerTransparent: true,
                 headerTintColor: colors.text,
                 headerTitleStyle: { fontWeight: '800' }
             }} />
+
+            <View variant="transparent" style={[styles.progressHeader, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
+                <Text style={[styles.progressText, { color: colors.textSecondary }]}>
+                    {Strings.study.screenTitle(currentIndex + 1, items.length)}
+                </Text>
+            </View>
 
             <View variant="transparent" style={[styles.cardContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
                 {/* Front Card */}
                 <Animated.View style={[styles.cardWrapper, frontAnimatedStyle]}>
                     <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={[styles.cardFace, { borderColor: colors.border }]}>
                         <Text style={[styles.cardTag, { color: colors.textSecondary }]}>{Strings.study.questionTag}</Text>
-                        <Text style={styles.cardMainText}>{currentItem.question}</Text>
+                        <Text style={styles.cardMainText}>{currentItem?.question}</Text>
                         <View variant="transparent" style={styles.hintContainer}>
                             <FontAwesome name="mouse-pointer" size={12} color={colors.textSecondary} style={{ marginRight: 6, opacity: 0.5 }} />
                             <Text style={[styles.hintText, { color: colors.textSecondary }]}>{Strings.study.hintText}</Text>
@@ -157,8 +179,8 @@ export default function StudyScreen() {
                 <Animated.View style={[styles.cardWrapper, backAnimatedStyle]}>
                     <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={[styles.cardFace, { borderColor: colors.tint }]}>
                         <Text style={[styles.cardTag, { color: colors.tint }]}>{Strings.study.answerTag}</Text>
-                        <Text style={styles.cardMainText}>{currentItem.answer}</Text>
-                        {currentItem.memo && (
+                        <Text style={styles.cardMainText}>{currentItem?.answer}</Text>
+                        {currentItem?.memo && (
                             <Text style={[styles.memoText, { color: colors.textSecondary }]}>{currentItem.memo}</Text>
                         )}
                     </TouchableOpacity>
@@ -199,11 +221,21 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    progressHeader: {
+        alignItems: 'center',
+        marginTop: Platform.OS === 'ios' ? 100 : 80,
+        marginBottom: 20,
+    },
+    progressText: {
+        fontSize: 18,
+        fontWeight: '800',
+        letterSpacing: 1,
+        opacity: 0.6,
+    },
     cardContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 60,
     },
     cardWrapper: {
         position: 'absolute',

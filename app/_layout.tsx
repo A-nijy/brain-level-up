@@ -256,9 +256,7 @@ function InitialLayout() {
       <Stack.Screen name="library/[id]/section/[sectionId]" options={({ route }) => ({
         headerTitle: (route.params as any)?.title || "학습 섹션"
       })} />
-      <Stack.Screen name="study/[id]" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || Strings.study.finishTitle
-      })} />
+      <Stack.Screen name="study/[id]" options={{ headerShown: !isWeb }} />
       <Stack.Screen name="library/[id]/section/[sectionId]/create-item" options={({ route }) => ({
         headerTitle: (route.params as any)?.title || Strings.itemForm.createTitle
       })} />
