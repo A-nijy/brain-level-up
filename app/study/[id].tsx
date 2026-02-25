@@ -18,7 +18,7 @@ import { useStudySession } from '@/hooks/useStudySession';
 import { Strings } from '@/constants/Strings';
 
 export default function StudyScreen() {
-    const { id } = useLocalSearchParams();
+    const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
     const router = useRouter();
     const {
         currentItem,
@@ -125,6 +125,7 @@ export default function StudyScreen() {
     if (loading) {
         return (
             <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+                <Stack.Screen options={{ title: paramTitle || Strings.study.screenTitle(1, 10) }} />
                 <ActivityIndicator size="large" color={colors.tint} />
             </View>
         );
@@ -133,7 +134,7 @@ export default function StudyScreen() {
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{
-                title: Strings.study.screenTitle(currentIndex + 1, items.length),
+                title: paramTitle && currentIndex === 0 ? paramTitle : Strings.study.screenTitle(currentIndex + 1, items.length),
                 headerTransparent: true,
                 headerTintColor: colors.text,
                 headerTitleStyle: { fontWeight: '800' }

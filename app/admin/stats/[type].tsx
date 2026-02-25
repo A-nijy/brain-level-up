@@ -9,10 +9,10 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Strings } from '@/constants/Strings';
 
 export default function AdminStatsDetailScreen() {
-    const { type } = useLocalSearchParams();
+    const { type, title: paramTitle } = useLocalSearchParams<{ type: string; title?: string }>();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any[]>([]);
-    const [title, setTitle] = useState('');
+    const [title, setTitle] = useState(paramTitle || '');
 
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
@@ -154,13 +154,13 @@ export default function AdminStatsDetailScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <Stack.Screen options={{ title: title }} />
+            <Stack.Screen options={{ title: title || paramTitle }} />
 
             <View variant="transparent" style={styles.headerRow}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
                     <FontAwesome name="chevron-left" size={16} color={colors.text} />
                 </TouchableOpacity>
-                <Text style={styles.title}>{title}</Text>
+                <Text style={styles.title}>{title || paramTitle}</Text>
             </View>
 
             <Card style={styles.tableCard}>

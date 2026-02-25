@@ -254,6 +254,18 @@ function InitialLayout() {
       <Stack.Screen name="library/[id]/section/[sectionId]" options={({ route }) => ({
         headerTitle: (route.params as any)?.title || "학습 섹션"
       })} />
+      <Stack.Screen name="study/[id]" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || Strings.study.finishTitle
+      })} />
+      <Stack.Screen name="library/[id]/section/[sectionId]/create-item" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || Strings.itemForm.createTitle
+      })} />
+      <Stack.Screen name="library/[id]/section/[sectionId]/edit-item" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || Strings.itemForm.editTitle
+      })} />
+      <Stack.Screen name="library/[id]/section/[sectionId]/import" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || Strings.librarySection.menu.importWords
+      })} />
       <Stack.Screen name="shared/[id]" options={({ route }) => ({
         headerTitle: (route.params as any)?.title || Strings.sharedDetail.screenTitle
       })} />

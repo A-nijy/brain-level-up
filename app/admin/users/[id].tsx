@@ -10,7 +10,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Strings } from '@/constants/Strings';
 
 export default function UserDetailScreen() {
-    const { id } = useLocalSearchParams();
+    const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
     const [loading, setLoading] = useState(true);
     const [userData, setUserData] = useState<any>(null);
 
@@ -39,6 +39,7 @@ export default function UserDetailScreen() {
     if (loading || !userData) {
         return (
             <View style={styles.center}>
+                <Stack.Screen options={{ title: paramTitle || Strings.adminUserDetail.title }} />
                 <ActivityIndicator size="large" color={colors.tint} />
             </View>
         );
@@ -48,7 +49,11 @@ export default function UserDetailScreen() {
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
-            <Stack.Screen options={{ title: Strings.adminUserDetail.title }} />
+            <Stack.Screen
+                options={{
+                    title: profile.email || paramTitle || Strings.adminUserDetail.title,
+                }}
+            />
 
             {/* 프로필 요약 카드 */}
             <Card style={styles.profileCard}>

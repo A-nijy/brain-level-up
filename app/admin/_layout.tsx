@@ -39,7 +39,19 @@ export default function AdminLayout() {
         }}>
             <Stack.Screen name="index" options={{ title: '관리자 대시보드' }} />
             <Stack.Screen name="users" options={{ title: '사용자 관리' }} />
+            <Stack.Screen name="users/[id]" options={({ route }) => ({
+                headerTitle: (route.params as any)?.title || "사용자 상세"
+            })} />
             <Stack.Screen name="shared-manager" options={{ title: '공유 단어장 관리' }} />
+            <Stack.Screen name="shared-library/[id]" options={({ route }) => ({
+                headerTitle: (route.params as any)?.title || "공유 암기장 상세"
+            })} />
+            <Stack.Screen name="shared-library/[id]/section/[sectionId]" options={({ route }) => ({
+                headerTitle: (route.params as any)?.title || "섹션 상세"
+            })} />
+            <Stack.Screen name="stats/[type]" options={({ route }) => ({
+                headerTitle: (route.params as any)?.title || "통계 상세"
+            })} />
             <Stack.Screen name="notices" options={{ title: '공지사항 관리' }} />
             <Stack.Screen name="inquiries" options={{ title: '문의 및 건의사항' }} />
         </Stack>

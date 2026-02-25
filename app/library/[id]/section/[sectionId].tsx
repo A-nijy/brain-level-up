@@ -54,7 +54,7 @@ export default function SectionDetailScreen() {
         router.push({
             pathname: "/library/[id]/section/[sectionId]/edit-item",
             params: { id: libraryId, sectionId: sid, itemId: item.id }
-        });
+        } as any);
     };
 
     const handleDeleteItem = async (itemId: string) => {
@@ -209,8 +209,8 @@ export default function SectionDetailScreen() {
                             <TouchableOpacity
                                 onPress={() => router.push({
                                     pathname: "/library/[id]/section/[sectionId]/create-item",
-                                    params: { id: libraryId, sectionId: sid }
-                                })}
+                                    params: { id: libraryId, sectionId: sid, title: Strings.itemForm.createTitle }
+                                } as any)}
                                 style={styles.headerIconButton}
                             >
                                 <FontAwesome name={Strings.common.icons.add as any} size={18} color={colors.tint} />
@@ -256,7 +256,10 @@ export default function SectionDetailScreen() {
 
                                 <TouchableOpacity
                                     style={styles.menuOption}
-                                    onPress={() => handleMenuOption(() => router.push(`/library/${libraryId}/section/${sid}/import`))}
+                                    onPress={() => handleMenuOption(() => router.push({
+                                        pathname: `/library/${libraryId}/section/${sid}/import`,
+                                        params: { title: Strings.librarySection.menu.importWords }
+                                    } as any))}
                                 >
                                     <FontAwesome name="upload" size={16} color={colors.tint} style={styles.menuIcon} />
                                     <Text style={styles.menuOptionText}>{Strings.librarySection.menu.importWords}</Text>
@@ -296,8 +299,8 @@ export default function SectionDetailScreen() {
                             style={[styles.addButton, { backgroundColor: colors.tint }]}
                             onPress={() => router.push({
                                 pathname: "/library/[id]/section/[sectionId]/create-item",
-                                params: { id: libraryId, sectionId: sid }
-                            })}
+                                params: { id: libraryId, sectionId: sid, title: Strings.itemForm.createTitle }
+                            } as any)}
                         >
                             <Text style={styles.addButtonText}>{Strings.librarySection.addFirst}</Text>
                         </TouchableOpacity>
@@ -309,7 +312,10 @@ export default function SectionDetailScreen() {
                 <View variant="transparent" style={styles.footer}>
                     <TouchableOpacity
                         style={[styles.playButton, isWeb && { maxWidth: 400, alignSelf: 'center' }]}
-                        onPress={() => router.push(`/study/${libraryId}?sectionId=${sid}`)}
+                        onPress={() => router.push({
+                            pathname: `/study/${libraryId}`,
+                            params: { sectionId: sid, title: "학습" }
+                        } as any)}
                         activeOpacity={0.9}
                     >
                         <LinearGradient

@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, ActivityIndicator, Alert, TouchableOpacity, ScrollView, Modal, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { SharedLibrary, SharedSection } from '@/types';
+import { SharedSection } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { useSharedDetail } from '@/hooks/useSharedDetail';
-
 import { Strings } from '@/constants/Strings';
 
 export default function SharedLibraryDetailScreen() {
-    const { id } = useLocalSearchParams();
+    const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
     const router = useRouter();
-    const draftId = Array.isArray(id) ? id[0] : id;
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
@@ -28,7 +26,7 @@ export default function SharedLibraryDetailScreen() {
         updateSharedSection,
         deleteSharedSection,
         reorderSharedSections
-    } = useSharedDetail(draftId || '');
+    } = useSharedDetail(id as string || '');
 
     // Section creation modal
     const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -125,7 +123,6 @@ export default function SharedLibraryDetailScreen() {
         }
     };
 
-
     const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (
         <Animated.View entering={FadeInUp.delay(index * 40).duration(400)}>
             <Card style={styles.sectionCard}>
@@ -151,7 +148,7 @@ export default function SharedLibraryDetailScreen() {
                         style={[styles.miniButton, { backgroundColor: colors.tint }]}
                         onPress={() => router.push({
                             pathname: "/admin/shared-library/[id]/section/[sectionId]" as any,
-                            params: { id: draftId, sectionId: item.id }
+                            params: { id: id, sectionId: item.id }
                         })}
                     >
                         <FontAwesome name={Strings.shared.icons.globe as any} size={14} color="#fff" />
@@ -166,7 +163,7 @@ export default function SharedLibraryDetailScreen() {
                         style={[styles.miniButton, { backgroundColor: colors.error }]}
                         onPress={() => handleDeleteSection(item)}
                     >
-                        <FontAwesome name={Strings.common.delete as any === '삭제' ? 'trash' : 'trash' as any} size={14} color="#fff" />
+                        <FontAwesome name="trash" size={14} color="#fff" />
                     </TouchableOpacity>
                 </View>
             </Card>
@@ -176,6 +173,7 @@ export default function SharedLibraryDetailScreen() {
     if (loading) {
         return (
             <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+                <Stack.Screen options={{ headerTitle: paramTitle || Strings.adminSharedDetail.title }} />
                 <ActivityIndicator size="large" color={colors.tint} />
             </View>
         );
@@ -185,7 +183,7 @@ export default function SharedLibraryDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: library?.title || Strings.adminSharedDetail.title,
+                    headerTitle: library?.title || paramTitle || Strings.adminSharedDetail.title,
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <TouchableOpacity onPress={() => setCreateModalVisible(true)} style={{ marginRight: 16 }}>
@@ -202,7 +200,7 @@ export default function SharedLibraryDetailScreen() {
                             style={styles.backButton}
                             onPress={() => router.push('/admin/shared-manager')}
                         >
-                            <FontAwesome name={Strings.tabs.icons.shared as any} size={18} color={colors.text} style={{ transform: [{ rotate: '180deg' }] }} />
+                            <FontAwesome name="chevron-left" size={18} color={colors.text} />
                         </TouchableOpacity>
                         <View variant="transparent">
                             <Text style={styles.titleText}>{library?.title || Strings.adminSharedDetail.title}</Text>
@@ -242,7 +240,6 @@ export default function SharedLibraryDetailScreen() {
                         </View>
                     )}
                 </View>
-
             </ScrollView>
 
             {/* Create Section Modal */}
@@ -250,7 +247,7 @@ export default function SharedLibraryDetailScreen() {
                 <TouchableWithoutFeedback onPress={() => setCreateModalVisible(false)}>
                     <View style={styles.modalOverlay}>
                         <TouchableWithoutFeedback>
-                            <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+                            <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
                                 <Text style={styles.modalTitle}>{Strings.adminSharedDetail.modal.createTitle}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}
@@ -286,7 +283,7 @@ export default function SharedLibraryDetailScreen() {
                 <TouchableWithoutFeedback onPress={() => setEditModalVisible(false)}>
                     <View style={styles.modalOverlay}>
                         <TouchableWithoutFeedback>
-                            <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+                            <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
                                 <Text style={styles.modalTitle}>{Strings.adminSharedDetail.modal.editTitle}</Text>
                                 <TextInput
                                     style={[styles.input, { color: colors.text, borderColor: colors.border }]}

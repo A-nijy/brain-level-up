@@ -85,7 +85,10 @@ export default function AdminDashboardScreen() {
                             icon={Strings.admin.icons.dau}
                             color="#F59E0B"
                             trendLabel={Strings.admin.subLabels.mau(advancedStats?.mau || 0)}
-                            onPress={() => router.push('/admin/stats/dau')}
+                            onPress={() => router.push({
+                                pathname: '/admin/stats/dau',
+                                params: { title: Strings.adminStatsDetail.titleDau }
+                            } as any)}
                         />
                         <StatGridCard
                             title={Strings.admin.stats.newUsers}
@@ -94,7 +97,10 @@ export default function AdminDashboardScreen() {
                             color="#10B981"
                             trend={advancedStats?.newUsersToday - advancedStats?.newUsersYesterday}
                             trendLabel={Strings.admin.subLabels.trend}
-                            onPress={() => router.push('/admin/stats/new_users')}
+                            onPress={() => router.push({
+                                pathname: '/admin/stats/new_users',
+                                params: { title: Strings.adminStatsDetail.titleNewUsers }
+                            } as any)}
                         />
                         <StatGridCard
                             title={Strings.admin.stats.revenue}
@@ -103,7 +109,10 @@ export default function AdminDashboardScreen() {
                             color="#4F46E5"
                             isCurrency
                             trendLabel={Strings.admin.subLabels.adViews(advancedStats?.adViews || 0)}
-                            onPress={() => router.push('/admin/stats/revenue')}
+                            onPress={() => router.push({
+                                pathname: '/admin/stats/revenue',
+                                params: { title: Strings.adminStatsDetail.titleRevenue }
+                            } as any)}
                         />
                         <StatGridCard
                             title={Strings.admin.stats.error}
@@ -111,7 +120,10 @@ export default function AdminDashboardScreen() {
                             icon={Strings.admin.icons.error}
                             color={advancedStats?.errorCount > 0 ? colors.error : "#6B7280"}
                             trendLabel={Strings.admin.subLabels.error24h}
-                            onPress={() => router.push('/admin/stats/errors')}
+                            onPress={() => router.push({
+                                pathname: '/admin/stats/errors',
+                                params: { title: Strings.adminStatsDetail.titleErrors }
+                            } as any)}
                         />
                     </>
                 )}
