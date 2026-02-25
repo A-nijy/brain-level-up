@@ -48,9 +48,6 @@ export default function NoticesScreen() {
                 options={{
                     title: Strings.notices.screenTitle,
                     headerShown: true,
-                    headerShadowVisible: false,
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.text,
                 }}
             />
 

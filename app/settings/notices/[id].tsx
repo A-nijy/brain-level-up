@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -63,9 +63,8 @@ export default function NoticeDetailScreen() {
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    title: Strings.notices.detailTitle,
+                    title: Strings.notices.screenTitle,
                     headerShown: true,
-                    headerTintColor: colors.text,
                 }}
             />
 
