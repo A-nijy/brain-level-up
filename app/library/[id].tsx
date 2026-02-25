@@ -14,9 +14,9 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Strings } from '@/constants/Strings';
 
 export default function LibraryDetailScreen() {
-    const { id } = useLocalSearchParams();
+    const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
     const router = useRouter();
-    const libraryId = Array.isArray(id) ? id[0] : id;
+    const libraryId = id;
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
@@ -129,7 +129,7 @@ export default function LibraryDetailScreen() {
                 style={styles.sectionCard}
                 onPress={reorderMode ? undefined : () => router.push({
                     pathname: "/library/[id]/section/[sectionId]",
-                    params: { id: libraryId, sectionId: item.id }
+                    params: { id: libraryId, sectionId: item.id, title: item.title }
                 })}
             >
                 <View variant="transparent" style={styles.sectionInfo}>
@@ -186,7 +186,7 @@ export default function LibraryDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background, paddingHorizontal: Platform.OS === 'web' ? 24 : 0 }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: library?.title || Strings.libraryDetail.title,
+                    headerTitle: library?.title || paramTitle || Strings.libraryDetail.title,
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: Platform.OS === 'web' ? 24 : 0 }}>

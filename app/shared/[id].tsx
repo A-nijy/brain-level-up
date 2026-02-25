@@ -16,9 +16,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
 
 export default function SharedLibraryPreviewScreen() {
-    const { id } = useLocalSearchParams();
+    const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
     const router = useRouter();
-    const sharedLibraryId = Array.isArray(id) ? id[0] : id;
+    const sharedLibraryId = id;
     const { user, profile } = useAuth();
 
     const colorScheme = useColorScheme() ?? 'light';
@@ -75,7 +75,7 @@ export default function SharedLibraryPreviewScreen() {
                 style={styles.sectionCard}
                 onPress={() => router.push({
                     pathname: "/shared/[id]/section/[sectionId]",
-                    params: { id: sharedLibraryId, sectionId: item.id }
+                    params: { id: sharedLibraryId, sectionId: item.id, title: item.title }
                 })}
             >
                 <View variant="transparent" style={styles.sectionInfo}>
@@ -98,7 +98,7 @@ export default function SharedLibraryPreviewScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: library?.title || Strings.sharedDetail.screenTitle,
+                    headerTitle: library?.title || paramTitle || Strings.sharedDetail.screenTitle,
                     headerShadowVisible: false,
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,

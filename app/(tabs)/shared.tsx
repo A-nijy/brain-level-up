@@ -95,7 +95,10 @@ export default function SharedLibraryScreen() {
         >
             <Card
                 style={styles.card}
-                onPress={() => router.push({ pathname: '/shared/[id]', params: { id: item.id } })}
+                onPress={() => router.push({
+                    pathname: '/shared/[id]',
+                    params: { id: item.id, title: item.title }
+                })}
             >
                 <View variant="transparent" style={styles.cardHeader}>
                     <View style={styles.iconContainer}>

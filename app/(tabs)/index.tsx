@@ -46,10 +46,10 @@ export default function LibraryListScreen() {
     await reorderLibraries(newLibs);
   };
 
-  const handleEditLibrary = (libraryId: string) => {
+  const handleEditLibrary = (libraryId: string, title: string) => {
     router.push({
       pathname: "/library/edit",
-      params: { id: libraryId }
+      params: { id: libraryId, title: title }
     });
   };
 
@@ -81,7 +81,7 @@ export default function LibraryListScreen() {
           title: library.title,
         },
         (buttonIndex) => {
-          if (buttonIndex === 1) handleEditLibrary(library.id);
+          if (buttonIndex === 1) handleEditLibrary(library.id, library.title);
           else if (buttonIndex === 2) handleDeleteLibrary(library.id);
         }
       );
@@ -99,7 +99,7 @@ export default function LibraryListScreen() {
               ]);
             }
           },
-          { text: Strings.common.edit, onPress: () => handleEditLibrary(library.id) },
+          { text: Strings.common.edit, onPress: () => handleEditLibrary(library.id, library.title) },
         ]
       );
     }
@@ -115,7 +115,10 @@ export default function LibraryListScreen() {
     >
       <Card
         style={styles.card}
-        onPress={reorderMode ? undefined : () => router.push(`/library/${item.id}`)}
+        onPress={reorderMode ? undefined : () => router.push({
+          pathname: "/library/[id]",
+          params: { id: item.id, title: item.title }
+        })}
         activeOpacity={reorderMode ? 1 : 0.7}
       >
         <View variant="transparent" style={styles.cardHeader}>
@@ -296,7 +299,7 @@ export default function LibraryListScreen() {
               <TouchableOpacity
                 style={styles.menuItem}
                 onPress={() => {
-                  handleEditLibrary(selectedLibraryForMenu.id);
+                  handleEditLibrary(selectedLibraryForMenu.id, selectedLibraryForMenu.title);
                   setSelectedLibraryForMenu(null);
                 }}
               >

@@ -10,10 +10,10 @@ import { Strings } from '@/constants/Strings';
 
 export default function EditLibraryScreen() {
     const { session } = useAuth();
-    const { id } = useLocalSearchParams();
+    const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
     const libraryId = Array.isArray(id) ? id[0] : id;
 
-    const [title, setTitle] = useState('');
+    const [title, setTitle] = useState(paramTitle || '');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
     const [loading, setLoading] = useState(true);

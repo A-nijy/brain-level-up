@@ -15,10 +15,10 @@ import { PdfService } from '@/services/PdfService';
 import { Strings } from '@/constants/Strings';
 
 export default function SectionDetailScreen() {
-    const { id, sectionId } = useLocalSearchParams();
+    const { id, sectionId, title: paramTitle } = useLocalSearchParams<{ id: string; sectionId: string; title?: string }>();
     const router = useRouter();
-    const libraryId = Array.isArray(id) ? id[0] : id;
-    const sid = Array.isArray(sectionId) ? sectionId[0] : sectionId;
+    const libraryId = id;
+    const sid = sectionId;
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
@@ -202,7 +202,7 @@ export default function SectionDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: section?.title || Strings.librarySection.title,
+                    headerTitle: section?.title || paramTitle || Strings.librarySection.title,
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center' }}>

@@ -243,6 +243,25 @@ function InitialLayout() {
       <Stack.Screen name="settings/notices" options={{ headerTitle: Strings.notices.screenTitle }} />
       <Stack.Screen name="settings/notices/index" options={{ headerTitle: Strings.notices.screenTitle }} />
       <Stack.Screen name="settings/notices/[id]" options={{ headerTitle: Strings.notices.screenTitle }} />
+      <Stack.Screen name="settings/profile" options={{ headerTitle: Strings.settings.profile.editTitle }} />
+      <Stack.Screen name="library/create" options={{ headerTitle: Strings.libraryForm.createTitle }} />
+      <Stack.Screen name="library/edit" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || Strings.libraryForm.editTitle
+      })} />
+      <Stack.Screen name="library/[id]" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || "암기장"
+      })} />
+      <Stack.Screen name="library/[id]/section/[sectionId]" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || "학습 섹션"
+      })} />
+      <Stack.Screen name="shared/[id]" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || Strings.sharedDetail.screenTitle
+      })} />
+      <Stack.Screen name="shared/[id]/section/[sectionId]" options={({ route }) => ({
+        headerTitle: (route.params as any)?.title || Strings.sharedDetail.screenTitle
+      })} />
+      <Stack.Screen name="support/new" options={{ headerTitle: Strings.support.screenTitle }} />
+      <Stack.Screen name="notifications" options={{ headerTitle: Strings.notifications.screenTitle }} />
       <Stack.Screen name="statistics_detail" options={{ headerTitle: Strings.stats.detailTitle }} />
       <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />
       <Stack.Screen name="modal" options={{ presentation: 'modal' }} />

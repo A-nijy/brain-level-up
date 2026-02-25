@@ -11,7 +11,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 export default function SharedSectionDetailScreen() {
-    const { id, sectionId } = useLocalSearchParams();
+    const { id, sectionId, title: paramTitle } = useLocalSearchParams<{ id: string; sectionId: string; title?: string }>();
     const sharedSectionId = Array.isArray(sectionId) ? sectionId[0] : sectionId;
 
     const colorScheme = useColorScheme() ?? 'light';
@@ -45,7 +45,7 @@ export default function SharedSectionDetailScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen
                 options={{
-                    headerTitle: section?.title || Strings.sharedDetail.screenTitle,
+                    headerTitle: section?.title || paramTitle || Strings.sharedDetail.screenTitle,
                     headerShadowVisible: false,
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.text,
