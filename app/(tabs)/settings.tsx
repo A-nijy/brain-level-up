@@ -121,6 +121,12 @@ export default function SettingsScreen() {
       return;
     }
 
+    // 최소 10분 유효성 검사
+    if (!tempSettings.interval || tempSettings.interval < 10) {
+      Alert.alert(Strings.common.info, Strings.pushModal.alerts.intervalTooShort);
+      return;
+    }
+
     const finalSettings: PushNotificationSettings = {
       ...tempSettings,
       enabled: true,
@@ -502,17 +508,31 @@ export default function SettingsScreen() {
                 <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelInterval}</Text>
                 <View style={styles.intervalContainer}>
                   <TextInput
-                    style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+                    style={[
+                      styles.input,
+                      { color: colors.text, borderColor: colors.border },
+                      tempSettings?.interval > 0 && tempSettings.interval < 10 && { borderColor: colors.error },
+                    ]}
                     keyboardType="numeric"
-                    value={tempSettings?.interval.toString()}
+                    value={tempSettings?.interval === 0 ? '' : tempSettings?.interval.toString()}
                     onChangeText={(text) =>
-                      handleUpdateTempSettings({ interval: parseInt(text) || 1 })
+                      handleUpdateTempSettings({ interval: text === '' ? 0 : (parseInt(text) || 0) })
                     }
                   />
                   <Text style={{ marginLeft: 12, color: colors.text, fontWeight: '700' }}>
                     {Strings.pushModal.unitInterval}
                   </Text>
                 </View>
+                {/* 안내 문구: 항상 표시 힘트 + 10분 미만 시 붉은 경고 문구 */}
+                {tempSettings?.interval > 0 && tempSettings.interval < 10 ? (
+                  <Text style={[styles.intervalHint, { color: colors.error }]}>
+                    ⚠️ {Strings.pushModal.alerts.intervalTooShort}
+                  </Text>
+                ) : (
+                  <Text style={[styles.intervalHint, { color: colors.textSecondary }]}>
+                    {Strings.pushModal.hintInterval}
+                  </Text>
+                )}
               </ScrollView>
             ) : (
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -861,6 +881,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 16,
     fontWeight: '700',
+  },
+  intervalHint: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 6,
+    marginLeft: 2,
   },
   confirmButton: {
     height: 56,
