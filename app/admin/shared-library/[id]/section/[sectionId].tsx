@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ActivityIndicator, Alert, TouchableOpacity, FlatList, RefreshControl, Platform, Modal, TextInput, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, ActivityIndicator, TouchableOpacity, FlatList, RefreshControl, Platform, Modal, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function SharedLibrarySectionDetailScreen() {
     const { id, sectionId } = useLocalSearchParams();
@@ -20,6 +21,7 @@ export default function SharedLibrarySectionDetailScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const [section, setSection] = useState<any>(null);
     const [items, setItems] = useState<SharedItem[]>([]);
@@ -49,7 +51,7 @@ export default function SharedLibrarySectionDetailScreen() {
             setItems(itemsData);
         } catch (error) {
             console.error(error);
-            Alert.alert(Strings.common.error, Strings.adminSharedSection.alerts.fetchFail);
+            showAlert({ title: Strings.common.error, message: Strings.adminSharedSection.alerts.fetchFail });
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -67,7 +69,7 @@ export default function SharedLibrarySectionDetailScreen() {
 
     const handleAddItem = async () => {
         if (!addForm.question.trim() || !addForm.answer.trim()) {
-            Alert.alert(Strings.common.warning, Strings.adminSharedSection.alerts.enterQA);
+            showAlert({ title: Strings.common.warning, message: Strings.adminSharedSection.alerts.enterQA });
             return;
         }
 
@@ -100,7 +102,7 @@ export default function SharedLibrarySectionDetailScreen() {
             setAddModalVisible(false);
             fetchData();
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.adminSharedSection.alerts.addFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.adminSharedSection.alerts.addFail}: ${error.message}` });
         } finally {
             setAdding(false);
         }
@@ -114,7 +116,7 @@ export default function SharedLibrarySectionDetailScreen() {
 
     const handleEditItem = async () => {
         if (!editingItem || !editForm.question.trim() || !editForm.answer.trim()) {
-            Alert.alert(Strings.common.warning, Strings.adminSharedSection.alerts.enterQA);
+            showAlert({ title: Strings.common.warning, message: Strings.adminSharedSection.alerts.enterQA });
             return;
         }
 
@@ -135,7 +137,7 @@ export default function SharedLibrarySectionDetailScreen() {
             setEditingItem(null);
             fetchData();
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.adminSharedSection.alerts.editFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.adminSharedSection.alerts.editFail}: ${error.message}` });
         } finally {
             setUpdating(false);
         }
@@ -151,7 +153,7 @@ export default function SharedLibrarySectionDetailScreen() {
             if (error) throw error;
             fetchData();
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.common.delete} ${Strings.common.error}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.common.delete} ${Strings.common.error}: ${error.message}` });
         }
     };
 
@@ -173,7 +175,7 @@ export default function SharedLibrarySectionDetailScreen() {
         try {
             await SharedLibraryService.reorderSharedItems(updates);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.adminSharedDetail.alerts.reorderFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.adminSharedDetail.alerts.reorderFail}: ${error.message}` });
             fetchData();
         }
     };
@@ -213,14 +215,14 @@ export default function SharedLibrarySectionDetailScreen() {
                     <TouchableOpacity
                         style={[styles.miniButton, { backgroundColor: colors.error }]}
                         onPress={() => {
-                            Alert.alert(
-                                Strings.common.deleteConfirmTitle,
-                                Strings.adminSharedSection.alerts.deleteConfirm(item.question),
-                                [
+                            showAlert({
+                                title: Strings.common.deleteConfirmTitle,
+                                message: Strings.adminSharedSection.alerts.deleteConfirm(item.question),
+                                buttons: [
                                     { text: Strings.common.cancel, style: 'cancel' },
                                     { text: Strings.common.delete, style: 'destructive', onPress: () => handleDeleteItem(item.id) }
                                 ]
-                            );
+                            });
                         }}
                     >
                         <FontAwesome name={Strings.common.delete as any === '삭제' ? 'trash' : 'trash' as any} size={14} color="#fff" />

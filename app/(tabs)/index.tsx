@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Alert, ActionSheetIOS, Modal, TextInput, Pressable, View as RNView } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Modal, TextInput, Pressable, View as RNView } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLibraries } from '@/hooks/useLibraries';
 import { Library } from '@/types';
@@ -11,6 +11,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStudyStats } from '@/hooks/useStudyStats';
+import { useAlert } from '@/contexts/AlertContext';
 
 import { Strings } from '@/constants/Strings';
 
@@ -23,6 +24,7 @@ export default function LibraryListScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const { width, height } = useWindowDimensions();
+  const { showAlert } = useAlert();
 
   const [selectedLibraryForMenu, setSelectedLibraryForMenu] = useState<Library | null>(null);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -56,12 +58,10 @@ export default function LibraryListScreen() {
   const handleDeleteLibrary = async (libraryId: string) => {
     try {
       await deleteLibrary(libraryId);
-      if (Platform.OS === 'web') window.alert(Strings.libraryForm.deleteSuccess);
-      else Alert.alert(Strings.common.success, Strings.libraryForm.deleteSuccess);
+      showAlert({ title: Strings.common.success, message: Strings.libraryForm.deleteSuccess });
     } catch (error: any) {
       console.error(error);
-      if (Platform.OS === 'web') window.alert(`${Strings.common.delete} 실패: ${error.message}`);
-      else Alert.alert(Strings.common.error, error.message);
+      showAlert({ title: Strings.common.error, message: `${Strings.common.delete} 실패: ${error.message}` });
     }
   };
 
@@ -72,36 +72,29 @@ export default function LibraryListScreen() {
       const { pageX, pageY } = event.nativeEvent;
       setMenuPosition({ x: pageX, y: pageY });
       setSelectedLibraryForMenu(library);
-    } else if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: [Strings.common.cancel, Strings.common.edit, Strings.common.delete],
-          destructiveButtonIndex: 2,
-          cancelButtonIndex: 0,
-          title: library.title,
-        },
-        (buttonIndex) => {
-          if (buttonIndex === 1) handleEditLibrary(library.id, library.title);
-          else if (buttonIndex === 2) handleDeleteLibrary(library.id);
-        }
-      );
     } else {
-      Alert.alert(
-        '암기장 설정',
-        library.title,
-        [
-          { text: Strings.common.cancel, style: 'cancel' },
+      showAlert({
+        title: library.title,
+        message: '암기장 설정',
+        buttons: [
+          { text: Strings.common.edit, onPress: () => handleEditLibrary(library.id, library.title) },
           {
-            text: Strings.common.delete, style: 'destructive', onPress: () => {
-              Alert.alert(Strings.common.deleteConfirmTitle, Strings.common.deleteConfirmMsg, [
-                { text: Strings.common.cancel, style: 'cancel' },
-                { text: Strings.common.delete, style: 'destructive', onPress: () => handleDeleteLibrary(library.id) }
-              ]);
+            text: Strings.common.delete,
+            style: 'destructive',
+            onPress: () => {
+              showAlert({
+                title: Strings.common.deleteConfirmTitle,
+                message: Strings.common.deleteConfirmMsg,
+                buttons: [
+                  { text: Strings.common.cancel, style: 'cancel' },
+                  { text: Strings.common.delete, style: 'destructive', onPress: () => handleDeleteLibrary(library.id) }
+                ]
+              });
             }
           },
-          { text: Strings.common.edit, onPress: () => handleEditLibrary(library.id, library.title) },
+          { text: Strings.common.cancel, style: 'cancel' },
         ]
-      );
+      });
     }
   };
 
@@ -310,9 +303,18 @@ export default function LibraryListScreen() {
               <TouchableOpacity
                 style={styles.menuItem}
                 onPress={() => {
-                  if (window.confirm(Strings.common.deleteConfirmMsg)) {
-                    handleDeleteLibrary(selectedLibraryForMenu.id);
-                  }
+                  showAlert({
+                    title: Strings.common.deleteConfirmTitle,
+                    message: Strings.common.deleteConfirmMsg,
+                    buttons: [
+                      { text: Strings.common.cancel, style: 'cancel' },
+                      {
+                        text: Strings.common.delete,
+                        style: 'destructive',
+                        onPress: () => handleDeleteLibrary(selectedLibraryForMenu.id)
+                      }
+                    ]
+                  });
                   setSelectedLibraryForMenu(null);
                 }}
               >

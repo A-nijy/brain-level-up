@@ -12,6 +12,8 @@ import { View, ActivityIndicator, Platform, TouchableOpacity, DeviceEventEmitter
 import { PushNotificationService } from '@/services/PushNotificationService';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AlertProvider } from '@/contexts/AlertContext';
+import CustomAlert from '@/components/CustomAlert';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ThemeProvider as AppThemeProvider } from '@/contexts/ThemeContext';
 import { LogService } from '@/services/LogService';
@@ -309,9 +311,12 @@ function InitialLayout() {
 export default function RootLayout() {
   return (
     <AppThemeProvider>
-      <AuthProvider>
-        <InitialLayout />
-      </AuthProvider>
+      <AlertProvider>
+        <AuthProvider>
+          <InitialLayout />
+          <CustomAlert />
+        </AuthProvider>
+      </AlertProvider>
     </AppThemeProvider>
   );
 }

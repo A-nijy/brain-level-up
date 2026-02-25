@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useSectionDetail } from '@/hooks/useSectionDetail';
+import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
 
 export default function CreateItemScreen() {
@@ -20,16 +21,17 @@ export default function CreateItemScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
     const { createItem } = useSectionDetail(sid);
 
     const handleCreate = async () => {
         if (!question.trim() || !answer.trim()) {
-            Alert.alert(Strings.common.error, Strings.itemForm.alerts.enterAll);
+            showAlert({ title: Strings.common.error, message: Strings.itemForm.alerts.enterAll });
             return;
         }
 
         if (!libraryId || !sid) {
-            Alert.alert(Strings.common.error, Strings.itemForm.alerts.invalidAccess);
+            showAlert({ title: Strings.common.error, message: Strings.itemForm.alerts.invalidAccess });
             return;
         }
 
@@ -43,17 +45,10 @@ export default function CreateItemScreen() {
                 memo,
             });
 
-            if (Platform.OS === 'web') {
-                const more = window.confirm(`${Strings.common.success}! ${Strings.itemForm.alerts.saveSuccess}`);
-                if (more) {
-                    setQuestion('');
-                    setAnswer('');
-                    setMemo('');
-                } else {
-                    router.back();
-                }
-            } else {
-                Alert.alert(Strings.common.success, Strings.itemForm.alerts.saveSuccess, [
+            showAlert({
+                title: Strings.common.success,
+                message: Strings.itemForm.alerts.saveSuccess,
+                buttons: [
                     {
                         text: Strings.common.no,
                         onPress: () => router.back(),
@@ -67,14 +62,10 @@ export default function CreateItemScreen() {
                             setMemo('');
                         },
                     },
-                ]);
-            }
+                ]
+            });
         } catch (error: any) {
-            if (Platform.OS === 'web') {
-                window.alert(`${Strings.itemForm.alerts.saveFail}: ${error.message}`);
-            } else {
-                Alert.alert(Strings.itemForm.alerts.saveFail, error.message);
-            }
+            showAlert({ title: Strings.itemForm.alerts.saveFail, message: error.message });
         } finally {
             setLoading(false);
         }

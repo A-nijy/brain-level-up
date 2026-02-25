@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Alert, useWindowDimensions, Platform } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -14,6 +14,7 @@ import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 import { SharedLibraryCategory } from '@/types';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
+import { useAlert } from '@/contexts/AlertContext';
 
 import { Strings } from '@/constants/Strings';
 
@@ -33,6 +34,7 @@ export default function SharedLibraryScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
+    const { showAlert } = useAlert();
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedLib, setSelectedLib] = useState<SharedLibrary | null>(null);
@@ -44,7 +46,7 @@ export default function SharedLibraryScreen() {
 
     const handleDownloadRequest = (item: SharedLibrary) => {
         if (!user) {
-            Alert.alert(Strings.common.loginRequired, Strings.sharedDetail.alerts.loginRequired);
+            showAlert({ title: Strings.common.loginRequired, message: Strings.sharedDetail.alerts.loginRequired });
             return;
         }
 
@@ -65,13 +67,17 @@ export default function SharedLibraryScreen() {
         try {
             const newLib = await downloadLibrary(user.id, item);
 
-            Alert.alert(Strings.common.success, Strings.shared.alerts.downloadSuccess, [
-                { text: Strings.shared.alerts.goLibrary, onPress: () => router.push(`/library/${newLib.id}`) },
-                { text: Strings.common.confirm }
-            ]);
+            showAlert({
+                title: Strings.common.success,
+                message: Strings.shared.alerts.downloadSuccess,
+                buttons: [
+                    { text: Strings.shared.alerts.goLibrary, onPress: () => router.push(`/library/${newLib.id}`) },
+                    { text: Strings.common.confirm }
+                ]
+            });
             refresh();
         } catch (e: any) {
-            Alert.alert(Strings.shared.alerts.downloadFail, e.message);
+            showAlert({ title: Strings.shared.alerts.downloadFail, message: e.message });
         } finally {
             setDownloading(null);
             setModalVisible(false);
@@ -81,7 +87,7 @@ export default function SharedLibraryScreen() {
     const handleWatchAd = () => {
         AdService.showRewardedAd(() => {
             if (selectedLib) performDownload(selectedLib);
-        });
+        }, showAlert);
     };
 
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, View as RNView, TextInput } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, View as RNView, TextInput } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { Profile } from '@/types';
 import Colors from '@/constants/Colors';
@@ -8,8 +8,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter, Link } from 'expo-router';
 
 import { useAdminUsers } from '@/hooks/useAdminUsers';
-
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 // 사용자 목록의 개별 행 컴포넌트
 const UserRow = ({ item, index, colors, handleUpdateRole, handleUpdateMembership }: {
@@ -78,36 +78,54 @@ export default function UserManagementScreen() {
 
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const handleUpdateRole = (user: Profile) => {
         const newRole = user.role === 'admin' ? 'user' : 'admin';
         const roleName = newRole === 'admin' ? Strings.adminUsers.roles.admin : Strings.adminUsers.roles.user;
-        if (window.confirm(Strings.adminUsers.prompts.roleChange(user.email, roleName))) {
-            const performUpdate = async () => {
-                try {
-                    await updateUserProfile(user.id, { role: newRole as any });
-                } catch (error: any) {
-                    Alert.alert(Strings.common.error, error.message);
+
+        showAlert({
+            title: Strings.common.confirm,
+            message: Strings.adminUsers.prompts.roleChange(user.email, roleName),
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.confirm,
+                    onPress: async () => {
+                        try {
+                            await updateUserProfile(user.id, { role: newRole as any });
+                        } catch (error: any) {
+                            showAlert({ title: Strings.common.error, message: error.message });
+                        }
+                    }
                 }
-            };
-            performUpdate();
-        }
+            ]
+        });
     };
 
     const handleUpdateMembership = (user: Profile) => {
-        const membership = window.prompt(Strings.adminUsers.prompts.membershipChange, user.membership_level);
-        if (membership && ['BASIC', 'PREMIUM', 'PRO'].includes(membership.toUpperCase())) {
-            const performUpdate = async () => {
-                try {
-                    await updateUserProfile(user.id, { membership_level: membership.toUpperCase() as any });
-                } catch (error: any) {
-                    Alert.alert(Strings.common.error, error.message);
+        showAlert({
+            title: Strings.adminUsers.prompts.membershipChange,
+            message: `${user.email} (${user.membership_level})`,
+            buttons: [
+                {
+                    text: 'BASIC',
+                    onPress: () => updateUserProfile(user.id, { membership_level: 'BASIC' })
+                },
+                {
+                    text: 'PREMIUM',
+                    onPress: () => updateUserProfile(user.id, { membership_level: 'PREMIUM' })
+                },
+                {
+                    text: 'PRO',
+                    onPress: () => updateUserProfile(user.id, { membership_level: 'PRO' })
+                },
+                {
+                    text: Strings.common.cancel,
+                    style: 'cancel'
                 }
-            };
-            performUpdate();
-        } else if (membership) {
-            Alert.alert(Strings.common.warning, Strings.adminUsers.prompts.invalidMembership);
-        }
+            ]
+        });
     };
 
     const [searchQuery, setSearchQuery] = useState('');

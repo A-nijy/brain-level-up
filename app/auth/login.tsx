@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Alert, Platform, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Platform, useWindowDimensions } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
@@ -12,12 +12,14 @@ import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 WebBrowser.maybeCompleteAuthSession();
 
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function LoginScreen() {
     const [isLoading, setIsLoading] = useState(false);
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
+    const { showAlert } = useAlert();
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
@@ -31,7 +33,7 @@ export default function LoginScreen() {
             }
 
             if (!paramsStr) {
-                Alert.alert(Strings.common.error, Strings.auth.errorNoParams + '\nURL: ' + url.substring(0, 100));
+                showAlert({ title: Strings.common.error, message: Strings.auth.errorNoParams + '\nURL: ' + url.substring(0, 100) });
                 return false;
             }
 
@@ -48,7 +50,7 @@ export default function LoginScreen() {
             const errorDesc = params['error_description'];
 
             if (errorDesc) {
-                Alert.alert(Strings.auth.errorGoogleTitle, errorDesc.replace(/\+/g, ' '));
+                showAlert({ title: Strings.auth.errorGoogleTitle, message: errorDesc.replace(/\+/g, ' ') });
                 return false;
             }
 
@@ -61,11 +63,11 @@ export default function LoginScreen() {
                 return true;
             }
 
-            Alert.alert(Strings.common.error, Strings.auth.errorNoToken + '\n파라미터: ' + JSON.stringify(params));
+            showAlert({ title: Strings.common.error, message: Strings.auth.errorNoToken + '\n파라미터: ' + JSON.stringify(params) });
             return false;
         } catch (e) {
             console.error('Session parsing error:', e);
-            Alert.alert(Strings.common.error, String(e));
+            showAlert({ title: Strings.common.error, message: String(e) });
             return false;
         }
     };
@@ -104,12 +106,12 @@ export default function LoginScreen() {
                 if (result.type === 'success' && result.url) {
                     const success = await extractSessionFromUrl(result.url);
                     if (!success) {
-                        Alert.alert(Strings.common.info, Strings.auth.errorSession);
+                        showAlert({ title: Strings.common.info, message: Strings.auth.errorSession });
                     }
                 }
             }
         } catch (error: any) {
-            Alert.alert(Strings.auth.errorLoginTitle, error.message);
+            showAlert({ title: Strings.auth.errorLoginTitle, message: error.message });
         } finally {
             if (Platform.OS !== 'web') {
                 setIsLoading(false);
@@ -118,13 +120,13 @@ export default function LoginScreen() {
     };
 
     const onSignInWithApple = async () => {
-        Alert.alert(Strings.common.info, Strings.auth.appleComingSoon);
+        showAlert({ title: Strings.common.info, message: Strings.auth.appleComingSoon });
     };
 
     const onDevLogin = async () => {
         setIsLoading(true);
         const { data, error } = await supabase.auth.signInAnonymously();
-        if (error) Alert.alert(Strings.common.error, error.message);
+        if (error) showAlert({ title: Strings.common.error, message: error.message });
         setIsLoading(false);
     }
 

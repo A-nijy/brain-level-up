@@ -10,8 +10,8 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
-import { Alert } from 'react-native';
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 import { MembershipService } from '@/services/MembershipService';
 import { NotificationService } from '@/services/NotificationService';
@@ -30,6 +30,7 @@ export default function TabLayout() {
   const colors = Colors[colorScheme];
   const { profile, user } = useAuth();
   const router = useRouter();
+  const { showAlert } = useAlert();
   const [unreadCount, setUnreadCount] = useState(0);
   const insets = useSafeAreaInsets();
 
@@ -67,14 +68,14 @@ export default function TabLayout() {
     const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
 
     if (access.status === 'LIMIT_REACHED') {
-      Alert.alert(
-        Strings.membership.alerts.limitReachedTitle,
-        access.message || Strings.membership.alerts.limitReachedMsg,
-        [
+      showAlert({
+        title: Strings.membership.alerts.limitReachedTitle,
+        message: access.message || Strings.membership.alerts.limitReachedMsg,
+        buttons: [
           { text: Strings.common.cancel, style: 'cancel' },
           { text: Strings.membership.upgrade, onPress: () => router.push('/membership') }
         ]
-      );
+      });
       return;
     }
 

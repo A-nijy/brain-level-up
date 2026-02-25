@@ -292,6 +292,7 @@ export const Strings = {
             hintNickname: "닉네임은 2자에서 8자까지 설정 가능합니다.",
             withdraw: "회원 탈퇴",
             editTitle: "프로필 관리",
+            changeSuccess: "닉네임이 변경되었습니다.",
         },
 
         icons: {

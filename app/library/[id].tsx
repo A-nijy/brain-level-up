@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, RefreshControl, Platform, Modal, TouchableWithoutFeedback, TextInput } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, Modal, TouchableWithoutFeedback, TextInput } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -12,6 +12,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function LibraryDetailScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -19,6 +20,7 @@ export default function LibraryDetailScreen() {
     const libraryId = id;
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const { library } = useLibraryDetail(libraryId);
     const {
@@ -44,7 +46,7 @@ export default function LibraryDetailScreen() {
 
     const handleCreateSection = async () => {
         if (!newSectionTitle.trim()) {
-            Alert.alert(Strings.common.warning, Strings.libraryDetail.alerts.enterName);
+            showAlert({ title: Strings.common.warning, message: Strings.libraryDetail.alerts.enterName });
             return;
         }
 
@@ -54,7 +56,7 @@ export default function LibraryDetailScreen() {
             setNewSectionTitle('');
             setCreateModalVisible(false);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.libraryDetail.alerts.createFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.libraryDetail.alerts.createFail}: ${error.message}` });
         } finally {
             setCreating(false);
         }
@@ -62,7 +64,7 @@ export default function LibraryDetailScreen() {
 
     const handleEditSection = async () => {
         if (!editingSection || !editSectionTitle.trim()) {
-            Alert.alert(Strings.common.warning, Strings.libraryDetail.alerts.enterName);
+            showAlert({ title: Strings.common.warning, message: Strings.libraryDetail.alerts.enterName });
             return;
         }
 
@@ -73,7 +75,7 @@ export default function LibraryDetailScreen() {
             setEditingSection(null);
             setEditModalVisible(false);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.libraryDetail.alerts.editFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.libraryDetail.alerts.editFail}: ${error.message}` });
         } finally {
             setUpdating(false);
         }
@@ -86,10 +88,10 @@ export default function LibraryDetailScreen() {
     };
 
     const handleDeleteSection = async (section: Section) => {
-        Alert.alert(
-            Strings.common.deleteConfirmTitle,
-            Strings.libraryDetail.alerts.deleteConfirm(section.title),
-            [
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.libraryDetail.alerts.deleteConfirm(section.title),
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.delete,
@@ -98,12 +100,12 @@ export default function LibraryDetailScreen() {
                         try {
                             await deleteSection(section.id);
                         } catch (error: any) {
-                            Alert.alert(Strings.common.error, `${Strings.libraryDetail.alerts.deleteFail}: ${error.message}`);
+                            showAlert({ title: Strings.common.error, message: `${Strings.libraryDetail.alerts.deleteFail}: ${error.message}` });
                         }
                     }
                 }
             ]
-        );
+        });
     };
 
     const handleMoveUp = async (index: number) => {

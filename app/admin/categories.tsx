@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { SharedLibraryCategory } from '@/types';
 import Colors from '@/constants/Colors';
@@ -7,7 +7,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { useAdminCategories } from '@/hooks/useAdminCategories';
-
+import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
 
 export default function CategoryManagerScreen() {
@@ -26,10 +26,11 @@ export default function CategoryManagerScreen() {
 
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const handleSave = async () => {
         if (!title.trim()) {
-            Alert.alert(Strings.common.warning, Strings.adminCategories.alerts.enterName);
+            showAlert({ title: Strings.common.warning, message: Strings.adminCategories.alerts.enterName });
             return;
         }
 
@@ -43,21 +44,29 @@ export default function CategoryManagerScreen() {
             setTitle('');
             setEditingCategory(null);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, error.message);
+            showAlert({ title: Strings.common.error, message: error.message });
         }
     };
 
     const handleDelete = (category: SharedLibraryCategory) => {
-        if (window.confirm(Strings.adminCategories.alerts.deleteConfirm(category.title))) {
-            const performDelete = async () => {
-                try {
-                    await deleteCategory(category.id);
-                } catch (error: any) {
-                    Alert.alert(Strings.common.error, error.message);
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.adminCategories.alerts.deleteConfirm(category.title),
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteCategory(category.id);
+                        } catch (error: any) {
+                            showAlert({ title: Strings.common.error, message: error.message });
+                        }
+                    }
                 }
-            };
-            performDelete();
-        }
+            ]
+        });
     };
 
     const handleMove = async (index: number, direction: 'up' | 'down') => {
@@ -76,7 +85,7 @@ export default function CategoryManagerScreen() {
         try {
             await reorderCategories(updates);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, error.message);
+            showAlert({ title: Strings.common.error, message: error.message });
         }
     };
 

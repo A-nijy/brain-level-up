@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { LibraryService } from '@/services/LibraryService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,6 +8,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function CreateLibraryScreen() {
     const { session } = useAuth();
@@ -18,15 +19,16 @@ export default function CreateLibraryScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const handleCreate = async () => {
         if (!title.trim()) {
-            Alert.alert(Strings.common.warning, Strings.libraryForm.validationTitle);
+            showAlert({ title: Strings.common.warning, message: Strings.libraryForm.validationTitle });
             return;
         }
 
         if (!session?.user) {
-            Alert.alert(Strings.common.error, Strings.common.loginRequired);
+            showAlert({ title: Strings.common.error, message: Strings.common.loginRequired });
             return;
         }
 
@@ -41,7 +43,7 @@ export default function CreateLibraryScreen() {
 
             router.back();
         } catch (error: any) {
-            Alert.alert(Strings.common.error, error.message);
+            showAlert({ title: Strings.common.error, message: error.message });
         } finally {
             setLoading(false);
         }

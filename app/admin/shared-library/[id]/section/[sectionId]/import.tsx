@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
 
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function AdminImportItemsScreen() {
     const { id, sectionId } = useLocalSearchParams();
@@ -26,6 +27,7 @@ export default function AdminImportItemsScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const pickDocument = async () => {
         try {
@@ -70,31 +72,31 @@ export default function AdminImportItemsScreen() {
                 }
 
                 if (json.length === 0) {
-                    Alert.alert(Strings.common.warning, Strings.adminImport.alerts.emptyFile);
+                    showAlert({ title: Strings.common.warning, message: Strings.adminImport.alerts.emptyFile });
                 }
                 setParsedData(json);
             } catch (error) {
                 console.error('File parsing error:', error);
-                Alert.alert(Strings.common.error, Strings.adminImport.alerts.parseError);
+                showAlert({ title: Strings.common.error, message: Strings.adminImport.alerts.parseError });
             } finally {
                 setLoading(false);
             }
 
         } catch (error) {
             console.error('Document picking error:', error);
-            Alert.alert(Strings.common.error, Strings.adminImport.alerts.pickError);
+            showAlert({ title: Strings.common.error, message: Strings.adminImport.alerts.pickError });
             setLoading(false);
         }
     };
 
     const handleImport = async () => {
         if (parsedData.length === 0) {
-            Alert.alert(Strings.common.warning, Strings.adminImport.alerts.noData);
+            showAlert({ title: Strings.common.warning, message: Strings.adminImport.alerts.noData });
             return;
         }
 
         if (!draftId || !sid) {
-            Alert.alert(Strings.common.error, Strings.adminImport.alerts.invalidAccess);
+            showAlert({ title: Strings.common.error, message: Strings.adminImport.alerts.invalidAccess });
             return;
         }
 
@@ -129,12 +131,14 @@ export default function AdminImportItemsScreen() {
 
             await SharedLibraryService.createSharedItems(itemsToInsert);
 
-            Alert.alert(Strings.common.confirmTitle, Strings.adminImport.alerts.importSuccess(itemsToInsert.length), [
-                { text: Strings.common.confirm, onPress: () => router.back() }
-            ]);
+            showAlert({
+                title: Strings.common.confirmTitle,
+                message: Strings.adminImport.alerts.importSuccess(itemsToInsert.length),
+                buttons: [{ text: Strings.common.confirm, onPress: () => router.back() }]
+            });
 
         } catch (error: any) {
-            Alert.alert(Strings.adminImport.alerts.importFail, error.message);
+            showAlert({ title: Strings.adminImport.alerts.importFail, message: error.message });
         } finally {
             setLoading(false);
         }

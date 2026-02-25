@@ -1,4 +1,4 @@
-import { StyleSheet, Alert, TouchableOpacity, useWindowDimensions, ScrollView, Platform, Switch, Modal, Pressable, TextInput, ActivityIndicator, KeyboardAvoidingView, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, TouchableOpacity, useWindowDimensions, ScrollView, Platform, Switch, Modal, Pressable, TextInput, ActivityIndicator, KeyboardAvoidingView, TouchableWithoutFeedback } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -12,7 +12,7 @@ import { PushNotificationService, PushNotificationSettings } from '@/services/Pu
 import { Library, Section } from '@/types';
 
 import { usePushSettings } from '@/hooks/usePushSettings';
-
+import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
 
 export default function SettingsScreen() {
@@ -22,6 +22,7 @@ export default function SettingsScreen() {
   const colors = Colors[colorScheme];
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const { showAlert } = useAlert();
 
   const {
     notificationSettings,
@@ -65,7 +66,7 @@ export default function SettingsScreen() {
         if (currentSettings && currentSettings.enabled) {
           console.warn('🎯 [Settings] Disabling notifications now.');
           await saveSettings({ ...currentSettings, enabled: false });
-          Alert.alert(Strings.common.info, '모든 단어를 학습하여 알림이 종료되었습니다.');
+          showAlert({ title: Strings.common.info, message: '모든 단어를 학습하여 알림이 종료되었습니다.' });
         } else {
           console.warn('🎯 [Settings] Notifications already disabled. Skipping.');
         }
@@ -87,7 +88,7 @@ export default function SettingsScreen() {
       }
 
       if (!granted) {
-        Alert.alert(Strings.pushModal.alerts.permissionNeeded);
+        showAlert({ title: Strings.common.warning, message: Strings.pushModal.alerts.permissionNeeded });
         return;
       }
       setTempSettings({ ...notificationSettings, enabled: true });
@@ -117,13 +118,13 @@ export default function SettingsScreen() {
     if (!tempSettings) return;
 
     if (!tempSettings.libraryId) {
-      Alert.alert(Strings.common.info, Strings.pushModal.alerts.selectLibrary);
+      showAlert({ title: Strings.common.info, message: Strings.pushModal.alerts.selectLibrary });
       return;
     }
 
     // 최소 10분 유효성 검사
     if (!tempSettings.interval || tempSettings.interval < 10) {
-      Alert.alert(Strings.common.info, Strings.pushModal.alerts.intervalTooShort);
+      showAlert({ title: Strings.common.info, message: Strings.pushModal.alerts.intervalTooShort });
       return;
     }
 
@@ -144,7 +145,7 @@ export default function SettingsScreen() {
 
       setShowNotificationModal(false);
     } catch (error: any) {
-      Alert.alert(Strings.common.error, error.message);
+      showAlert({ title: Strings.common.error, message: error.message });
     }
   };
 
@@ -153,7 +154,7 @@ export default function SettingsScreen() {
     try {
       await signOut();
     } catch (error: any) {
-      Alert.alert(Strings.common.error, error.message);
+      showAlert({ title: Strings.common.error, message: error.message });
     }
   };
 
@@ -164,16 +165,16 @@ export default function SettingsScreen() {
       const nextIndex = (currentIndex + 1) % options.length;
       setThemeMode(options[nextIndex]);
     } else {
-      Alert.alert(
-        Strings.settings.themeTitle,
-        Strings.settings.themeSubtitle,
-        [
+      showAlert({
+        title: Strings.settings.themeTitle,
+        message: Strings.settings.themeSubtitle,
+        buttons: [
           { text: Strings.settings.themeModes.light, onPress: () => setThemeMode('light') },
           { text: Strings.settings.themeModes.dark, onPress: () => setThemeMode('dark') },
           { text: Strings.settings.themeModes.system, onPress: () => setThemeMode('system') },
           { text: Strings.common.cancel, style: 'cancel' }
         ]
-      );
+      });
     }
   };
 

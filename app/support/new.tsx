@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { InquiryCategory } from '@/types';
 import { Stack, useRouter } from 'expo-router';
@@ -8,6 +8,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useSupport } from '@/hooks/useSupport';
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 const CATEGORIES: InquiryCategory[] = [
     Strings.support.categories.qa as InquiryCategory,
@@ -25,22 +26,27 @@ export default function NewSupportScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const handleSubmit = async () => {
         if (!title.trim() || !content.trim()) {
-            Alert.alert(Strings.common.info, Strings.support.alerts.enterAll);
+            showAlert({ title: Strings.common.info, message: Strings.support.alerts.enterAll });
             return;
         }
 
         setLoading(true);
         try {
             await submitInquiry(category, title.trim(), content.trim());
-            Alert.alert(Strings.common.success, Strings.support.alerts.submitSuccess, [
-                { text: Strings.common.confirm, onPress: () => router.back() }
-            ]);
+            showAlert({
+                title: Strings.common.success,
+                message: Strings.support.alerts.submitSuccess,
+                buttons: [
+                    { text: Strings.common.confirm, onPress: () => router.back() }
+                ]
+            });
         } catch (error: any) {
             console.error(error);
-            Alert.alert(Strings.common.error, `${Strings.support.alerts.submitError} ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.support.alerts.submitError} ${error.message}` });
         } finally {
             setLoading(false);
         }

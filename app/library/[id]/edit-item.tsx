@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { ItemService } from '@/services/ItemService';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
 
 export default function EditItemScreen() {
@@ -21,6 +22,7 @@ export default function EditItemScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     useEffect(() => {
         if (!libraryId || !itemUuid) return;
@@ -35,12 +37,12 @@ export default function EditItemScreen() {
                     setAnswer(target.answer);
                     setMemo(target.memo || '');
                 } else {
-                    Alert.alert(Strings.common.error, Strings.itemForm.alerts.notFound);
+                    showAlert({ title: Strings.common.error, message: Strings.itemForm.alerts.notFound });
                     router.back();
                 }
             } catch (error) {
                 console.error(error);
-                Alert.alert(Strings.common.error, Strings.libraryForm.fetchError);
+                showAlert({ title: Strings.common.error, message: Strings.libraryForm.fetchError });
                 router.back();
             } finally {
                 setLoading(false);
@@ -51,12 +53,12 @@ export default function EditItemScreen() {
 
     const handleUpdate = async () => {
         if (!question.trim() || !answer.trim()) {
-            Alert.alert(Strings.common.error, Strings.itemForm.alerts.enterAll);
+            showAlert({ title: Strings.common.error, message: Strings.itemForm.alerts.enterAll });
             return;
         }
 
         if (!itemUuid) {
-            Alert.alert(Strings.common.error, Strings.itemForm.alerts.invalidAccess);
+            showAlert({ title: Strings.common.error, message: Strings.itemForm.alerts.invalidAccess });
             return;
         }
 
@@ -68,18 +70,10 @@ export default function EditItemScreen() {
                 memo,
             });
 
-            if (Platform.OS === 'web') {
-                window.alert(Strings.itemForm.alerts.editSuccess);
-            } else {
-                Alert.alert(Strings.common.success, Strings.itemForm.alerts.editSuccess);
-            }
+            showAlert({ title: Strings.common.success, message: Strings.itemForm.alerts.editSuccess });
             router.back();
         } catch (error: any) {
-            if (Platform.OS === 'web') {
-                window.alert(`${Strings.itemForm.alerts.editFail}: ${error.message}`);
-            } else {
-                Alert.alert(Strings.itemForm.alerts.editFail, error.message);
-            }
+            showAlert({ title: Strings.itemForm.alerts.editFail, message: error.message });
         } finally {
             setSaving(false);
         }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, Alert } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationService } from '@/services/NotificationService';
@@ -9,6 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack, useRouter } from 'expo-router';
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function NotificationsScreen() {
     const { profile } = useAuth();
@@ -19,6 +20,7 @@ export default function NotificationsScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     useEffect(() => {
         loadNotifications();
@@ -62,7 +64,7 @@ export default function NotificationsScreen() {
     };
 
     const handleDelete = async (id: string) => {
-        const confirmDelete = async () => {
+        const confirmDeleteLogic = async () => {
             try {
                 await NotificationService.deleteNotification(id);
                 setNotifications(prev => prev.filter(n => n.id !== id));
@@ -71,16 +73,14 @@ export default function NotificationsScreen() {
             }
         };
 
-        if (Platform.OS === 'web') {
-            if (window.confirm(Strings.notifications.deleteConfirm)) {
-                confirmDelete();
-            }
-        } else {
-            Alert.alert(Strings.notifications.deleteTitle, Strings.notifications.deleteConfirm, [
+        showAlert({
+            title: Strings.notifications.deleteTitle,
+            message: Strings.notifications.deleteConfirm,
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
-                { text: Strings.common.delete, style: 'destructive', onPress: confirmDelete }
-            ]);
-        }
+                { text: Strings.common.delete, style: 'destructive', onPress: confirmDeleteLogic }
+            ]
+        });
     };
 
     const renderItem = ({ item }: { item: Notification }) => (

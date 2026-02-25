@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TextInput, Alert, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, TextInput, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { LibraryService } from '@/services/LibraryService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,6 +7,7 @@ import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function EditLibraryScreen() {
     const { session } = useAuth();
@@ -22,6 +23,7 @@ export default function EditLibraryScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     useEffect(() => {
         if (!libraryId) return;
@@ -35,7 +37,7 @@ export default function EditLibraryScreen() {
                 }
             } catch (error) {
                 console.error(error);
-                Alert.alert(Strings.common.error, Strings.libraryForm.fetchError);
+                showAlert({ title: Strings.common.error, message: Strings.libraryForm.fetchError });
                 router.back();
             } finally {
                 setLoading(false);
@@ -46,12 +48,12 @@ export default function EditLibraryScreen() {
 
     const handleUpdate = async () => {
         if (!title.trim()) {
-            Alert.alert(Strings.common.error, Strings.libraryForm.validationTitle);
+            showAlert({ title: Strings.common.error, message: Strings.libraryForm.validationTitle });
             return;
         }
 
         if (!session?.user || !libraryId) {
-            Alert.alert(Strings.common.error, Strings.itemForm.alerts.invalidAccess);
+            showAlert({ title: Strings.common.error, message: Strings.itemForm.alerts.invalidAccess });
             return;
         }
 
@@ -63,18 +65,10 @@ export default function EditLibraryScreen() {
                 category,
             });
 
-            if (Platform.OS === 'web') {
-                window.alert(Strings.itemForm.alerts.editSuccess);
-            } else {
-                Alert.alert(Strings.common.success, Strings.itemForm.alerts.editSuccess);
-            }
+            showAlert({ title: Strings.common.success, message: Strings.itemForm.alerts.editSuccess });
             router.back();
         } catch (error: any) {
-            if (Platform.OS === 'web') {
-                window.alert(`${Strings.itemForm.alerts.editFail}: ${error.message}`);
-            } else {
-                Alert.alert(Strings.itemForm.alerts.editFail, error.message);
-            }
+            showAlert({ title: Strings.itemForm.alerts.editFail, message: error.message });
         } finally {
             setSaving(false);
         }
@@ -85,10 +79,10 @@ export default function EditLibraryScreen() {
 
         const confirmMessage = Strings.libraryForm.deleteConfirm;
 
-        if (Platform.OS === 'web') {
-            if (!window.confirm(confirmMessage)) return;
-        } else {
-            Alert.alert(Strings.common.deleteConfirmTitle, confirmMessage, [
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: confirmMessage,
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.delete,
@@ -97,24 +91,20 @@ export default function EditLibraryScreen() {
                         await deleteLibraryLogic();
                     }
                 }
-            ]);
-            return;
-        }
-        await deleteLibraryLogic();
+            ]
+        });
     };
 
     const deleteLibraryLogic = async () => {
         setSaving(true);
         try {
             await LibraryService.deleteLibrary(libraryId);
-            if (Platform.OS === 'web') window.alert(Strings.libraryForm.deleteSuccess);
-            else Alert.alert(Strings.common.success, Strings.libraryForm.deleteSuccess);
+            showAlert({ title: Strings.common.success, message: Strings.libraryForm.deleteSuccess });
 
             router.replace('/(tabs)');
         } catch (error: any) {
             console.error(error);
-            if (Platform.OS === 'web') window.alert(`${Strings.libraryForm.deleteFail}: ${error.message}`);
-            else Alert.alert(Strings.common.error, error.message);
+            showAlert({ title: Strings.libraryForm.deleteFail, message: error.message });
         } finally {
             setSaving(false);
         }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { AdminService } from '@/services/AdminService';
@@ -8,6 +8,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function UserDetailScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -17,6 +18,7 @@ export default function UserDetailScreen() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
     const router = useRouter();
+    const { showAlert } = useAlert();
 
     useEffect(() => {
         async function loadUser() {
@@ -24,9 +26,9 @@ export default function UserDetailScreen() {
             try {
                 const data = await AdminService.getUserDetail(id);
                 setUserData(data);
-            } catch (e) {
+            } catch (e: any) {
                 console.error(e);
-                Alert.alert(Strings.common.error, Strings.adminUserDetail.fetchError);
+                showAlert({ title: Strings.common.error, message: Strings.adminUserDetail.fetchError });
                 router.back();
             }
             finally {

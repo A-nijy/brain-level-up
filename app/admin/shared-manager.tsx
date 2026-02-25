@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, ScrollView, Modal, TextInput } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, ScrollView, Modal, TextInput } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
 import { SharedLibrary, SharedLibraryCategory } from '@/types';
@@ -10,8 +10,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRouter } from 'expo-router';
 
 import { useAdminShared } from '@/hooks/useAdminShared';
-
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function SharedManagerScreen() {
     const {
@@ -38,6 +38,7 @@ export default function SharedManagerScreen() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
     const router = useRouter();
+    const { showAlert } = useAlert();
 
     const [editingLib, setEditingLib] = useState<SharedLibrary | null>(null);
     const [editForm, setEditForm] = useState({ title: '', description: '', category_id: '' as string | null });
@@ -62,10 +63,10 @@ export default function SharedManagerScreen() {
                 description: editDraftForm.description,
                 category_id: editDraftForm.category_id
             });
-            Alert.alert(Strings.common.success, Strings.adminSharedManager.alerts.updated);
+            showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.updated });
             setEditingDraft(null);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, error.message);
+            showAlert({ title: Strings.common.error, message: error.message });
         }
     };
 
@@ -73,34 +74,34 @@ export default function SharedManagerScreen() {
         try {
             const sections = await SharedLibraryService.getSharedSections(lib.id);
             if (sections.length === 0) {
-                Alert.alert(Strings.common.warning, Strings.adminSharedManager.alerts.noSections);
+                showAlert({ title: Strings.common.warning, message: Strings.adminSharedManager.alerts.noSections });
                 return;
             }
 
-            Alert.alert(
-                Strings.common.info,
-                Strings.adminSharedManager.alerts.publishConfirm(lib.title),
-                [
+            showAlert({
+                title: Strings.common.info,
+                message: Strings.adminSharedManager.alerts.publishConfirm(lib.title),
+                buttons: [
                     { text: Strings.common.cancel, style: 'cancel' },
                     {
                         text: Strings.common.confirm,
                         onPress: async () => {
                             await publishDraft(lib.id);
-                            Alert.alert(Strings.common.success, Strings.adminSharedManager.alerts.publishSuccess);
+                            showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.publishSuccess });
                         }
                     }
                 ]
-            );
+            });
         } catch (error: any) {
-            Alert.alert(Strings.common.error, error.message);
+            showAlert({ title: Strings.common.error, message: error.message });
         }
     };
 
     const handleDeleteDraft = async (lib: SharedLibrary) => {
-        Alert.alert(
-            Strings.common.deleteConfirmTitle,
-            Strings.adminSharedManager.alerts.deleteConfirm(lib.title),
-            [
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.adminSharedManager.alerts.deleteConfirm(lib.title),
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.delete,
@@ -109,12 +110,12 @@ export default function SharedManagerScreen() {
                         try {
                             await deleteDraft(lib.id);
                         } catch (error: any) {
-                            Alert.alert(Strings.common.error, error.message);
+                            showAlert({ title: Strings.common.error, message: error.message });
                         }
                     }
                 }
             ]
-        );
+        });
     };
 
     const handleUpdate = async () => {
@@ -125,18 +126,18 @@ export default function SharedManagerScreen() {
                 description: editForm.description,
                 category_id: editForm.category_id
             });
-            Alert.alert(Strings.common.success, Strings.adminSharedManager.alerts.updated);
+            showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.updated });
             setEditingLib(null);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, error.message);
+            showAlert({ title: Strings.common.error, message: error.message });
         }
     };
 
     const handleDeleteShared = async (item: SharedLibrary) => {
-        Alert.alert(
-            Strings.common.deleteConfirmTitle,
-            Strings.adminSharedManager.alerts.deleteSharedConfirm(item.title),
-            [
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.adminSharedManager.alerts.deleteSharedConfirm(item.title),
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.delete,
@@ -145,19 +146,19 @@ export default function SharedManagerScreen() {
                         try {
                             await deleteShared(item.id);
                         } catch (error: any) {
-                            Alert.alert(Strings.common.error, error.message);
+                            showAlert({ title: Strings.common.error, message: error.message });
                         }
                     }
                 }
             ]
-        );
+        });
     };
 
     const handleUnpublishShared = async (item: SharedLibrary) => {
-        Alert.alert(
-            Strings.common.info,
-            Strings.adminSharedManager.alerts.unpublishConfirm(item.title),
-            [
+        showAlert({
+            title: Strings.common.info,
+            message: Strings.adminSharedManager.alerts.unpublishConfirm(item.title),
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.confirm,
@@ -165,17 +166,17 @@ export default function SharedManagerScreen() {
                         try {
                             await unpublishShared(item.id);
                         } catch (error: any) {
-                            Alert.alert(Strings.common.error, error.message);
+                            showAlert({ title: Strings.common.error, message: error.message });
                         }
                     }
                 }
             ]
-        );
+        });
     };
 
     const handleCreateDraft = async () => {
         if (!directForm.title.trim()) {
-            Alert.alert(Strings.common.warning, Strings.adminSharedManager.alerts.enterTitle);
+            showAlert({ title: Strings.common.warning, message: Strings.adminSharedManager.alerts.enterTitle });
             return;
         }
 
@@ -188,7 +189,7 @@ export default function SharedManagerScreen() {
                 adminId: data.user.id
             });
 
-            Alert.alert(Strings.common.success, Strings.adminSharedManager.alerts.saveSuccess);
+            showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.saveSuccess });
             setIsDirectModalVisible(false);
             setDirectForm({
                 title: '',
@@ -196,7 +197,7 @@ export default function SharedManagerScreen() {
                 category_id: null
             });
         } catch (error: any) {
-            Alert.alert(Strings.common.error, error.message);
+            showAlert({ title: Strings.common.error, message: error.message });
         }
     };
 

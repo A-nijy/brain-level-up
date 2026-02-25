@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, ActivityIndicator, Alert, TouchableOpacity, ScrollView, Modal, TextInput, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, Modal, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -10,6 +10,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { useSharedDetail } from '@/hooks/useSharedDetail';
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function SharedLibraryDetailScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -17,6 +18,7 @@ export default function SharedLibraryDetailScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const {
         library,
@@ -41,7 +43,7 @@ export default function SharedLibraryDetailScreen() {
 
     const handleCreateSection = async () => {
         if (!newSectionTitle.trim()) {
-            Alert.alert(Strings.common.warning, Strings.adminSharedDetail.alerts.enterName);
+            showAlert({ title: Strings.common.warning, message: Strings.adminSharedDetail.alerts.enterName });
             return;
         }
 
@@ -51,7 +53,7 @@ export default function SharedLibraryDetailScreen() {
             setNewSectionTitle('');
             setCreateModalVisible(false);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.adminSharedDetail.alerts.createFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.adminSharedDetail.alerts.createFail}: ${error.message}` });
         } finally {
             setCreating(false);
         }
@@ -59,7 +61,7 @@ export default function SharedLibraryDetailScreen() {
 
     const handleEditSection = async () => {
         if (!editingSection || !editSectionTitle.trim()) {
-            Alert.alert(Strings.common.warning, Strings.adminSharedDetail.alerts.enterName);
+            showAlert({ title: Strings.common.warning, message: Strings.adminSharedDetail.alerts.enterName });
             return;
         }
 
@@ -70,7 +72,7 @@ export default function SharedLibraryDetailScreen() {
             setEditingSection(null);
             setEditModalVisible(false);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.adminSharedDetail.alerts.editFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.adminSharedDetail.alerts.editFail}: ${error.message}` });
         } finally {
             setUpdating(false);
         }
@@ -83,10 +85,10 @@ export default function SharedLibraryDetailScreen() {
     };
 
     const handleDeleteSection = async (section: SharedSection) => {
-        Alert.alert(
-            Strings.common.deleteConfirmTitle,
-            Strings.adminSharedDetail.alerts.deleteConfirm(section.title),
-            [
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.adminSharedDetail.alerts.deleteConfirm(section.title),
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.delete,
@@ -95,12 +97,12 @@ export default function SharedLibraryDetailScreen() {
                         try {
                             await deleteSharedSection(section.id);
                         } catch (error: any) {
-                            Alert.alert(Strings.common.error, `${Strings.common.delete} ${Strings.common.error}: ${error.message}`);
+                            showAlert({ title: Strings.common.error, message: `${Strings.common.delete} ${Strings.common.error}: ${error.message}` });
                         }
                     }
                 }
             ]
-        );
+        });
     };
 
     const handleMoveSection = async (index: number, direction: 'up' | 'down') => {
@@ -119,7 +121,7 @@ export default function SharedLibraryDetailScreen() {
         try {
             await reorderSharedSections(updates);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.adminSharedDetail.alerts.reorderFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.adminSharedDetail.alerts.reorderFail}: ${error.message}` });
         }
     };
 

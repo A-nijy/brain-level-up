@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, Platform, Alert } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, useWindowDimensions, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import Colors from '@/constants/Colors';
@@ -9,12 +9,14 @@ import Animated, { FadeInUp, FadeIn } from 'react-native-reanimated';
 import { MembershipService } from '@/services/MembershipService';
 
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function MembershipScreen() {
     const { profile, refreshProfile } = useAuth();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
+    const { showAlert } = useAlert();
 
     const isWeb = Platform.OS === 'web' && width > 768;
     const currentLevel = profile?.membership_level || 'BASIC';
@@ -38,13 +40,13 @@ export default function MembershipScreen() {
     ];
 
     const handleUpgrade = async (level: string) => {
-        Alert.alert(Strings.common.info, Strings.membership.checkMaintenance);
+        showAlert({ title: Strings.common.info, message: Strings.membership.checkMaintenance });
         return;
 
         /* 기존 결제 로직 보존
         if (!profile) return;
         if (level === currentLevel) {
-            Alert.alert(Strings.common.info, Strings.membership.alerts.alreadySubscribed);
+            showAlert({ title: Strings.common.info, message: Strings.membership.alerts.alreadySubscribed });
             return;
         }
 

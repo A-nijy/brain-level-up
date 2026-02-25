@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, ScrollView } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { SupportService } from '@/services/SupportService';
 import { Inquiry, InquiryCategory } from '@/types';
@@ -13,7 +13,7 @@ type SortOrder = 'newest' | 'oldest';
 type StatusFilter = 'all' | 'resolved' | 'unresolved';
 
 import { useSupport } from '@/hooks/useSupport';
-
+import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
 
 export default function AdminInquiriesScreen() {
@@ -38,6 +38,7 @@ export default function AdminInquiriesScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     useEffect(() => {
         fetchAllInquiries();
@@ -62,7 +63,7 @@ export default function AdminInquiriesScreen() {
             const newStatus = !item.is_resolved;
             await toggleInquiryResolved(item.id, newStatus);
         } catch (error) {
-            Alert.alert(Strings.common.error, Strings.adminInquiries.alerts.statusFail);
+            showAlert({ title: Strings.common.error, message: Strings.adminInquiries.alerts.statusFail });
         }
     };
 

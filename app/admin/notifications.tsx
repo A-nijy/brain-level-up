@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Stack, useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useAdminStats } from '@/hooks/useAdminStats';
-
+import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
 
 export default function AdminNotificationScreen() {
@@ -14,6 +14,7 @@ export default function AdminNotificationScreen() {
     const colors = Colors[colorScheme];
     const { broadcastNotification, sendDirectNotification } = useAdminStats();
     const router = useRouter();
+    const { showAlert } = useAlert();
 
     const [notifyTarget, setNotifyTarget] = useState<'ALL' | 'SINGLE'>('ALL');
     const [targetEmail, setTargetEmail] = useState('');
@@ -23,12 +24,12 @@ export default function AdminNotificationScreen() {
 
     const handleSendNotification = async () => {
         if (!notifyTitle || !notifyMessage) {
-            Alert.alert(Strings.common.warning, Strings.adminNotifications.alerts.enterAll);
+            showAlert({ title: Strings.common.warning, message: Strings.adminNotifications.alerts.enterAll });
             return;
         }
 
         if (notifyTarget === 'SINGLE' && !targetEmail) {
-            Alert.alert(Strings.common.warning, Strings.adminNotifications.alerts.enterEmail);
+            showAlert({ title: Strings.common.warning, message: Strings.adminNotifications.alerts.enterEmail });
             return;
         }
 
@@ -36,17 +37,17 @@ export default function AdminNotificationScreen() {
         try {
             if (notifyTarget === 'ALL') {
                 await broadcastNotification(notifyTitle, notifyMessage);
-                Alert.alert(Strings.common.success, Strings.adminNotifications.alerts.sendSuccess);
+                showAlert({ title: Strings.common.success, message: Strings.adminNotifications.alerts.sendSuccess });
             } else {
                 await sendDirectNotification(targetEmail.trim(), notifyTitle, notifyMessage);
-                Alert.alert(Strings.common.success, `${targetEmail} ${Strings.adminNotifications.alerts.sendSuccess}`);
+                showAlert({ title: Strings.common.success, message: `${targetEmail} ${Strings.adminNotifications.alerts.sendSuccess}` });
                 setTargetEmail('');
             }
             setNotifyTitle('');
             setNotifyMessage('');
         } catch (error: any) {
             console.error('[AdminUI] Notification error:', error);
-            Alert.alert(Strings.common.error, `${Strings.adminNotifications.alerts.sendError}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.adminNotifications.alerts.sendError}: ${error.message}` });
         } finally {
             setIsSending(false);
         }

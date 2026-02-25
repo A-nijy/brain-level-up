@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, RefreshControl, Platform, ActionSheetIOS, useWindowDimensions, Modal, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, ScrollView, DeviceEventEmitter, Modal, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -12,6 +12,9 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ExportModal, ExportOptions as PDFExportOptions } from '@/components/ExportModal';
 import { PdfService } from '@/services/PdfService';
 
+import { useAuth } from '@/contexts/AuthContext';
+import { useAlert } from '@/contexts/AlertContext';
+
 import { Strings } from '@/constants/Strings';
 
 export default function SectionDetailScreen() {
@@ -22,7 +25,10 @@ export default function SectionDetailScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
     const { width } = useWindowDimensions();
+    const isWeb = Platform.OS === 'web' && width > 768;
+    // const { width } = useWindowDimensions(); // Removed as per instruction
 
     const {
         section,
@@ -41,7 +47,7 @@ export default function SectionDetailScreen() {
     const [statusModalVisible, setStatusModalVisible] = useState(false);
     const [selectedItemForStatus, setSelectedItemForStatus] = useState<Item | null>(null);
 
-    const isWeb = Platform.OS === 'web' && width > 768;
+    // const isWeb = Platform.OS === 'web' && width > 768; // Removed as useWindowDimensions is removed
 
     const toggleMenu = () => setMenuVisible(!menuVisible);
 
@@ -62,42 +68,48 @@ export default function SectionDetailScreen() {
             await deleteItem(itemId);
         } catch (error: any) {
             console.error(error);
-            Alert.alert(Strings.common.error, `${Strings.librarySection.alerts.deleteFail}: ${error.message}`);
+            showAlert({ title: Strings.common.error, message: `${Strings.librarySection.alerts.deleteFail}: ${error.message}` });
         }
     };
 
-    const showItemOptions = (item: Item) => {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
+    const showItemOptions = (item: any) => {
+        showAlert({
+            title: item.question,
+            message: Strings.librarySection.itemOptions.title,
+            buttons: [
                 {
-                    options: [Strings.common.cancel, Strings.librarySection.itemOptions.edit, Strings.librarySection.itemOptions.delete],
-                    destructiveButtonIndex: 2,
-                    cancelButtonIndex: 0,
+                    text: Strings.librarySection.itemOptions.edit,
+                    onPress: () => router.push({
+                        pathname: `/library/${id}/section/${sectionId}/edit-item`,
+                        params: { itemId: item.id, title: Strings.itemForm.editTitle }
+                    } as any)
                 },
-                (buttonIndex) => {
-                    if (buttonIndex === 1) handleEditItem(item);
-                    if (buttonIndex === 2) handleDeleteItem(item.id);
+                {
+                    text: Strings.librarySection.itemOptions.delete,
+                    style: 'destructive',
+                    onPress: () => confirmDelete(item.id)
+                },
+                {
+                    text: Strings.common.cancel,
+                    style: 'cancel'
                 }
-            );
-        } else if (Platform.OS === 'web') {
-            if (window.confirm(`${item.question}\n\n${Strings.librarySection.itemOptions.edit}${item.answer ? ' (' + item.answer + ')' : ''}?\n(${Strings.librarySection.itemOptions.delete}를 원하시면 취소 클릭)`)) {
-                handleEditItem(item);
-            } else {
-                if (window.confirm(Strings.common.deleteConfirmMsg)) {
-                    handleDeleteItem(item.id);
+            ]
+        });
+    };
+
+    const confirmDelete = (itemId: string) => {
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.common.deleteConfirmMsg,
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: () => handleDeleteItem(itemId)
                 }
-            }
-        } else {
-            Alert.alert(
-                item.question,
-                Strings.librarySection.itemOptions.title,
-                [
-                    { text: Strings.common.cancel, style: 'cancel' },
-                    { text: Strings.librarySection.itemOptions.delete, style: 'destructive', onPress: () => handleDeleteItem(item.id) },
-                    { text: Strings.librarySection.itemOptions.edit, onPress: () => handleEditItem(item) },
-                ]
-            );
-        }
+            ]
+        });
     };
 
     const handleMoveUp = async (index: number) => {
@@ -126,9 +138,9 @@ export default function SectionDetailScreen() {
                 order: options.order,
                 title: section?.title || Strings.librarySection.title,
                 action: options.action
-            });
+            }, showAlert);
         } catch (error: any) {
-            Alert.alert(Strings.common.error, `${Strings.librarySection.alerts.exportError} ${error.message}`);
+            showAlert({ title: Strings.librarySection.alerts.exportError, message: error.message });
         }
     };
 
@@ -357,7 +369,7 @@ export default function SectionDetailScreen() {
                                             try {
                                                 await updateItem(selectedItemForStatus.id, { study_status: 'learned' });
                                             } catch (error: any) {
-                                                Alert.alert(Strings.librarySection.alerts.changeFail, Strings.librarySection.alerts.changeError);
+                                                showAlert({ title: Strings.librarySection.alerts.changeFail, message: Strings.librarySection.alerts.changeError });
                                             }
                                         }
                                         setStatusModalVisible(false);
@@ -379,7 +391,7 @@ export default function SectionDetailScreen() {
                                             try {
                                                 await updateItem(selectedItemForStatus.id, { study_status: 'confused' });
                                             } catch (error: any) {
-                                                Alert.alert(Strings.librarySection.alerts.changeFail, Strings.librarySection.alerts.changeError);
+                                                showAlert({ title: Strings.librarySection.alerts.changeFail, message: Strings.librarySection.alerts.changeError });
                                             }
                                         }
                                         setStatusModalVisible(false);
@@ -401,7 +413,7 @@ export default function SectionDetailScreen() {
                                             try {
                                                 await updateItem(selectedItemForStatus.id, { study_status: 'undecided' });
                                             } catch (error: any) {
-                                                Alert.alert(Strings.librarySection.alerts.changeFail, Strings.librarySection.alerts.changeError);
+                                                showAlert({ title: Strings.librarySection.alerts.changeFail, message: Strings.librarySection.alerts.changeError });
                                             }
                                         }
                                         setStatusModalVisible(false);

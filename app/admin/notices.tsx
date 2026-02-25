@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput, Switch, ActivityIndicator } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Switch, ActivityIndicator } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { NoticeService } from '@/services/NoticeService';
 import { Notice } from '@/types';
@@ -10,7 +10,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 import { useNotices } from '@/hooks/useNotices';
-
+import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
 
 export default function AdminNoticesScreen() {
@@ -34,10 +34,11 @@ export default function AdminNoticesScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const handleSave = async () => {
         if (!title.trim() || !content.trim()) {
-            Alert.alert(Strings.common.warning, Strings.adminNotices.alerts.enterAll);
+            showAlert({ title: Strings.common.warning, message: Strings.adminNotices.alerts.enterAll });
             return;
         }
 
@@ -49,36 +50,44 @@ export default function AdminNoticesScreen() {
                     content: content.trim(),
                     is_important: isImportant
                 });
-                Alert.alert(Strings.common.success, Strings.adminNotices.alerts.updSuccess);
+                showAlert({ title: Strings.common.success, message: Strings.adminNotices.alerts.updSuccess });
             } else {
                 await createNotice({
                     title: title.trim(),
                     content: content.trim(),
                     is_important: isImportant
                 });
-                Alert.alert(Strings.common.success, Strings.adminNotices.alerts.saveSuccess);
+                showAlert({ title: Strings.common.success, message: Strings.adminNotices.alerts.saveSuccess });
             }
             setModalVisible(false);
         } catch (error) {
             console.error(error);
-            Alert.alert(Strings.common.error, Strings.adminNotices.alerts.saveError);
+            showAlert({ title: Strings.common.error, message: Strings.adminNotices.alerts.saveError });
         } finally {
             setSaving(false);
         }
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm(Strings.adminNotices.alerts.delConfirm)) {
-            const performDelete = async () => {
-                try {
-                    await deleteNotice(id);
-                    if (viewingNotice?.id === id) setViewModalVisible(false);
-                } catch (error) {
-                    Alert.alert(Strings.common.error, Strings.adminNotices.alerts.delError);
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.adminNotices.alerts.delConfirm,
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteNotice(id);
+                            if (viewingNotice?.id === id) setViewModalVisible(false);
+                        } catch (error) {
+                            showAlert({ title: Strings.common.error, message: Strings.adminNotices.alerts.delError });
+                        }
+                    }
                 }
-            };
-            performDelete();
-        }
+            ]
+        });
     };
 
     const openEditModal = (notice?: Notice) => {

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Alert } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserService } from '@/services/UserService';
 import { useRouter } from 'expo-router';
+import { useAlert } from '@/contexts/AlertContext';
+import { Strings } from '@/constants/Strings';
 
 export function useProfile() {
     const { user, profile, refreshProfile } = useAuth();
     const router = useRouter();
+    const { showAlert } = useAlert();
 
     const [nickname, setNickname] = useState(profile?.nickname || '');
     const [isEditing, setIsEditing] = useState(false);
@@ -43,7 +45,7 @@ export function useProfile() {
             await UserService.updateNickname(user.id, nickname);
             await refreshProfile();
             setIsEditing(false);
-            Alert.alert('성공', '닉네임이 변경되었습니다.');
+            showAlert({ title: Strings.common.success, message: Strings.settings.profile.changeSuccess || '닉네임이 변경되었습니다.' });
         } catch (e: any) {
             console.error(e);
             setError('닉네임 변경 중 오류가 발생했습니다.');
@@ -53,33 +55,20 @@ export function useProfile() {
     };
 
     /**
-     * 회원 탈퇴 핸들러
+     * 회원 탈퇴 핸들러 - 실제 로직만 수행하도록 변경 (확인은 UI layer에서 수행)
      */
-    const withdraw = () => {
-        Alert.alert(
-            '회원 탈퇴',
-            '정말로 탈퇴하시겠습니까? 모든 학습 데이터와 단어장이 영구적으로 삭제되며 복구할 수 없습니다.',
-            [
-                { text: '취소', style: 'cancel' },
-                {
-                    text: '탈퇴하기',
-                    style: 'destructive',
-                    onPress: async () => {
-                        if (user) {
-                            setLoading(true);
-                            try {
-                                await UserService.withdrawAccount(user.id);
-                                router.replace('/auth/login');
-                            } catch (e: any) {
-                                Alert.alert('오류', '탈퇴 처리 중 문제가 발생했습니다.');
-                            } finally {
-                                setLoading(false);
-                            }
-                        }
-                    }
-                }
-            ]
-        );
+    const withdraw = async () => {
+        if (user) {
+            setLoading(true);
+            try {
+                await UserService.withdrawAccount(user.id);
+                router.replace('/auth/login');
+            } catch (e: any) {
+                showAlert({ title: Strings.common.error, message: '탈퇴 처리 중 문제가 발생했습니다.' });
+            } finally {
+                setLoading(false);
+            }
+        }
     };
 
     const cancelEditing = () => {

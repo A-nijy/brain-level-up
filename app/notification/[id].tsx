@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Platform, Alert } from 'react-native';
+import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationService } from '@/services/NotificationService';
@@ -9,6 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function NotificationDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -16,6 +17,7 @@ export default function NotificationDetailScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const [notification, setNotification] = useState<Notification | null>(null);
     const [loading, setLoading] = useState(true);
@@ -36,20 +38,12 @@ export default function NotificationDetailScreen() {
                     await NotificationService.markAsRead(found.id);
                 }
             } else {
-                if (Platform.OS === 'web') {
-                    window.alert(Strings.notifications.notFound);
-                } else {
-                    Alert.alert(Strings.common.error, Strings.notifications.notFound);
-                }
+                showAlert({ title: Strings.common.error, message: Strings.notifications.notFound });
                 router.back();
             }
         } catch (error) {
             console.error('Failed to load notification detail:', error);
-            if (Platform.OS === 'web') {
-                window.alert(Strings.notifications.fetchFail);
-            } else {
-                Alert.alert(Strings.common.error, Strings.notifications.fetchFail);
-            }
+            showAlert({ title: Strings.common.error, message: Strings.notifications.fetchFail });
             router.back();
         } finally {
             setLoading(false);
@@ -65,24 +59,18 @@ export default function NotificationDetailScreen() {
                 router.back();
             } catch (error) {
                 console.error('Failed to delete notification:', error);
-                if (Platform.OS === 'web') {
-                    window.alert(Strings.notifications.deleteFail);
-                } else {
-                    Alert.alert(Strings.common.error, Strings.notifications.deleteFail);
-                }
+                showAlert({ title: Strings.common.error, message: Strings.notifications.deleteFail });
             }
         };
 
-        if (Platform.OS === 'web') {
-            if (window.confirm(Strings.notifications.deleteConfirmDetail)) {
-                confirmDelete();
-            }
-        } else {
-            Alert.alert(Strings.notifications.deleteTitle, Strings.notifications.deleteConfirmDetail, [
+        showAlert({
+            title: Strings.notifications.deleteTitle,
+            message: Strings.notifications.deleteConfirmDetail,
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 { text: Strings.common.delete, style: 'destructive', onPress: confirmDelete }
-            ]);
-        }
+            ]
+        });
     };
 
     if (loading) {

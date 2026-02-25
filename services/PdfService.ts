@@ -1,7 +1,7 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import { Platform, Alert } from 'react-native';
+import { Platform } from 'react-native';
 import { Item } from '@/types';
 
 // StorageAccessFramework 및 EncodingType에 대한 타입 오류 방지를 위해 any 캐스팅 활용
@@ -16,7 +16,7 @@ export interface ExportOptions {
 }
 
 export const PdfService = {
-  async generateAndShare(items: Item[], options: ExportOptions) {
+  async generateAndShare(items: Item[], options: ExportOptions, showAlert?: (params: any) => void) {
     let processedItems = [...items];
 
     // 1. 순서 정렬
@@ -66,7 +66,10 @@ export const PdfService = {
               const fileUri = await SAF.createFileAsync(permissions.directoryUri, fileName, 'application/pdf');
               await FileSystem.writeAsStringAsync(fileUri, base64, { encoding: EncType?.Base64 || 'base64' });
               console.log('File saved via SAF at:', fileUri);
-              Alert.alert('저장 완료', '기기에 PDF 파일이 저장되었습니다.');
+
+              if (showAlert) {
+                showAlert({ title: '저장 완료', message: '기기에 PDF 파일이 저장되었습니다.' });
+              }
             } else {
               console.log('SAF permission denied, falling back to share');
               await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });

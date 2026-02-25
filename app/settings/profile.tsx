@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Alert, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, useWindowDimensions } from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, useWindowDimensions } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useProfile } from '@/hooks/useProfile';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -8,6 +8,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { Stack, useRouter } from 'expo-router';
 
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function ProfileScreen() {
     const {
@@ -24,22 +25,23 @@ export default function ProfileScreen() {
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
     const router = useRouter();
+    const { showAlert } = useAlert();
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
     const handleSave = async () => {
         if (nickname.length < 2 || nickname.length > 8) {
-            Alert.alert(Strings.common.warning, Strings.settings.profile.hintNickname);
+            showAlert({ title: Strings.common.warning, message: Strings.settings.profile.hintNickname });
             return;
         }
         await updateNickname();
     };
 
     const handleWithdraw = () => {
-        Alert.alert(
-            Strings.settings.profile.withdraw,
-            Strings.profile.deleteConfirm,
-            [
+        showAlert({
+            title: Strings.settings.profile.withdraw,
+            message: Strings.profile.deleteConfirm,
+            buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.confirm,
@@ -49,7 +51,7 @@ export default function ProfileScreen() {
                     }
                 }
             ]
-        );
+        });
     };
 
     return (

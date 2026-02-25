@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity, View as DefaultView, SectionList } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, View as DefaultView, SectionList } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -14,6 +14,7 @@ import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function SharedLibraryPreviewScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -23,6 +24,7 @@ export default function SharedLibraryPreviewScreen() {
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const { library, sections, loading, refreshing, refresh, downloadLibrary } = useSharedDetail(sharedLibraryId);
 
@@ -31,7 +33,7 @@ export default function SharedLibraryPreviewScreen() {
 
     const handleDownloadRequest = () => {
         if (!user) {
-            Alert.alert(Strings.common.loginRequired, Strings.sharedDetail.alerts.loginRequired);
+            showAlert({ title: Strings.common.loginRequired, message: Strings.sharedDetail.alerts.loginRequired });
             return;
         }
 
@@ -51,12 +53,16 @@ export default function SharedLibraryPreviewScreen() {
         try {
             const newLib = await downloadLibrary(user.id);
 
-            Alert.alert(Strings.common.success, Strings.sharedDetail.alerts.downloadSuccess, [
-                { text: Strings.sharedDetail.alerts.goToLibrary, onPress: () => router.push(`/library/${newLib.id}`) },
-                { text: Strings.common.confirm }
-            ]);
+            showAlert({
+                title: Strings.common.success,
+                message: Strings.sharedDetail.alerts.downloadSuccess,
+                buttons: [
+                    { text: Strings.sharedDetail.alerts.goToLibrary, onPress: () => router.push(`/library/${newLib.id}`) },
+                    { text: Strings.common.confirm }
+                ]
+            });
         } catch (e: any) {
-            Alert.alert(Strings.sharedDetail.alerts.downloadFail, e.message);
+            showAlert({ title: Strings.sharedDetail.alerts.downloadFail, message: e.message });
         } finally {
             setDownloading(false);
             setModalVisible(false);
@@ -66,7 +72,7 @@ export default function SharedLibraryPreviewScreen() {
     const handleWatchAd = () => {
         AdService.showRewardedAd(() => {
             performDownload();
-        });
+        }, showAlert);
     };
 
     const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (
