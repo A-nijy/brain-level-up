@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform, Alert } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, {
     useSharedValue,
@@ -35,6 +36,7 @@ export default function StudyScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
+    const insets = useSafeAreaInsets();
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
@@ -90,7 +92,11 @@ export default function StudyScreen() {
                     entering={ZoomIn.springify()}
                     style={[
                         styles.resultCard,
-                        { borderColor: colors.tint, borderWidth: 2 },
+                        {
+                            borderColor: colors.tint,
+                            borderWidth: 2,
+                            marginTop: Math.max(insets.top + 40, 60)
+                        },
                         isWeb && { maxWidth: 500, alignSelf: 'center' }
                     ]}
                 >
@@ -156,7 +162,11 @@ export default function StudyScreen() {
                 headerTitleStyle: { fontWeight: '800' }
             }} />
 
-            <View variant="transparent" style={[styles.progressHeader, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
+            <View variant="transparent" style={[
+                styles.progressHeader,
+                { marginTop: Math.max(insets.top + 20, 40) },
+                isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }
+            ]}>
                 <Text style={[styles.progressText, { color: colors.textSecondary }]}>
                     {Strings.study.screenTitle(currentIndex + 1, items.length)}
                 </Text>
@@ -223,7 +233,7 @@ const styles = StyleSheet.create({
     },
     progressHeader: {
         alignItems: 'center',
-        marginTop: Platform.OS === 'ios' ? 100 : 80,
+        marginTop: 20,
         marginBottom: 20,
     },
     progressText: {
@@ -310,7 +320,6 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         padding: 48,
         alignItems: 'center',
-        marginTop: 100,
     },
     resultTitle: {
         fontSize: 32,

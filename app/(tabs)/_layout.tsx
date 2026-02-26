@@ -83,8 +83,8 @@ export default function TabLayout() {
   };
 
   // 플랫폼과 안전 영역에 따른 하단 패딩 및 높이 계산
-  const tabPaddingBottom = Math.max(insets.bottom, Platform.OS === 'ios' ? 30 : 10);
-  const tabHeight = 54 + tabPaddingBottom;
+  const tabPaddingBottom = Math.max(insets.bottom, 4); // 최소 패딩 보장
+  const tabHeight = Platform.OS === 'ios' ? 50 + insets.bottom : 64 + insets.bottom;
 
   return (
     <Tabs

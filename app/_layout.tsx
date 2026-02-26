@@ -1,6 +1,8 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Strings } from '@/constants/Strings';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
@@ -308,13 +310,16 @@ function InitialLayout() {
 
 export default function RootLayout() {
   return (
-    <AppThemeProvider>
-      <AlertProvider>
-        <AuthProvider>
-          <InitialLayout />
-          <CustomAlert />
-        </AuthProvider>
-      </AlertProvider>
-    </AppThemeProvider>
+    <SafeAreaProvider>
+      <AppThemeProvider>
+        <AlertProvider>
+          <AuthProvider>
+            <InitialLayout />
+            <CustomAlert />
+            <StatusBar style="auto" />
+          </AuthProvider>
+        </AlertProvider>
+      </AppThemeProvider>
+    </SafeAreaProvider>
   );
 }
