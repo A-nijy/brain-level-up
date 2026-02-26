@@ -826,5 +826,36 @@ export const AdminService = {
             reward_type: log.metadata?.reward_type || 'General',
             placement: log.metadata?.placement || 'Unknown'
         }));
+    },
+
+    /**
+     * 유저들이 등록한 공유 자료 전체 조회 (관리자 전용)
+     */
+    async getUserSharedLibraries() {
+        const { data, error } = await supabase
+            .from('shared_libraries')
+            .select('*, profiles:created_by(email), shared_library_categories(title)')
+            .eq('is_official', false)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        return (data || []).map(lib => ({
+            ...lib,
+            owner_email: lib.profiles?.email,
+            category: lib.shared_library_categories?.title || lib.category
+        }));
+    },
+
+    /**
+     * 공유 자료 숨김 상태 토글 (관리자 강제 조치)
+     */
+    async toggleSharedLibraryHidden(id: string, isHidden: boolean) {
+        const { error } = await supabase
+            .from('shared_libraries')
+            .update({ is_hidden: isHidden })
+            .eq('id', id);
+
+        if (error) throw error;
     }
 };

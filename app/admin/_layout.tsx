@@ -53,6 +53,7 @@ export default function AdminLayout() {
                 headerTitle: (route.params as any)?.title || "통계 상세"
             })} />
             <Stack.Screen name="notices" options={{ title: '공지사항 관리' }} />
+            <Stack.Screen name="user-shared" options={{ title: '유저 자료실 관리' }} />
             <Stack.Screen name="inquiries" options={{ title: '문의 및 건의사항' }} />
         </Stack>
     );

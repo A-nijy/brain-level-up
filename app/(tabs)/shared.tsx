@@ -5,16 +5,17 @@ import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSharedLibraries } from '@/hooks/useSharedLibraries';
-import { SharedLibrary } from '@/types';
+import { LibraryService } from '@/services/LibraryService';
+import { SharedLibraryService } from '@/services/SharedLibraryService';
+import { Library, SharedLibrary, SharedLibraryCategory } from '@/types';
+import { Modal, TouchableWithoutFeedback, TextInput, ScrollView as RNScrollView } from 'react-native';
+import { useAlert } from '@/contexts/AlertContext';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { MembershipService } from '@/services/MembershipService';
 import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
-import { SharedLibraryCategory } from '@/types';
-import { SharedLibraryService } from '@/services/SharedLibraryService';
-import { useAlert } from '@/contexts/AlertContext';
 
 import { Strings } from '@/constants/Strings';
 
@@ -28,8 +29,14 @@ export default function SharedLibraryScreen() {
         refresh,
         downloadLibrary,
         selectedCategoryId,
-        setSelectedCategoryId
+        setSelectedCategoryId,
+        isOfficial,
+        setIsOfficial
     } = useSharedLibraries();
+
+    // ... (intermediate code omitted if needed, but replace_file_content requires TargetContent)
+    // Actually I'll replace the whole header section including tabs
+
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
@@ -39,6 +46,144 @@ export default function SharedLibraryScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedLib, setSelectedLib] = useState<SharedLibrary | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
+
+    // Share Material Modal State
+    const [shareModalVisible, setShareModalVisible] = useState(false);
+    const [shareStep, setShareStep] = useState(1);
+    const [myLibraries, setMyLibraries] = useState<Library[]>([]);
+    const [loadingMyLibs, setLoadingMyLibs] = useState(false);
+    const [selectedMyLibId, setSelectedMyLibId] = useState<string>('');
+    const [shareCategoryId, setShareCategoryId] = useState<string>('');
+    const [hashtagText, setHashtagText] = useState('');
+    const [sharing, setSharing] = useState(false);
+    const [allCategories, setAllCategories] = useState<SharedLibraryCategory[]>([]);
+    const [isLibPickerOpen, setIsLibPickerOpen] = useState(false);
+    const [isCatPickerOpen, setIsCatPickerOpen] = useState(false);
+
+    // Edit Mode State
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editingSharedLibId, setEditingSharedLibId] = useState<string | null>(null);
+    const [editingTitle, setEditingTitle] = useState('');
+    const [editingDesc, setEditingDesc] = useState('');
+
+    const openShareModal = async (editItem?: SharedLibrary) => {
+        if (!user) {
+            showAlert({ title: Strings.common.loginRequired, message: Strings.sharedDetail.alerts.loginRequired });
+            return;
+        }
+
+        if (editItem) {
+            setIsEditMode(true);
+            setEditingSharedLibId(editItem.id);
+            setSelectedMyLibId('dummy');
+            setShareCategoryId(editItem.category_id || '');
+            setHashtagText(editItem.tags?.join(', ') || '');
+            setShareStep(2);
+        } else {
+            setIsEditMode(false);
+            setEditingSharedLibId(null);
+            setSelectedMyLibId('');
+            setShareCategoryId('');
+            setHashtagText('');
+            setShareStep(1);
+        }
+
+        setShareModalVisible(true);
+        setLoadingMyLibs(true);
+        try {
+            const [libs, cats] = await Promise.all([
+                LibraryService.getLibraries(user.id),
+                SharedLibraryService.getAllSharedCategories()
+            ]);
+            setMyLibraries(libs);
+            setAllCategories(cats);
+            setIsLibPickerOpen(false);
+            setIsCatPickerOpen(false);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoadingMyLibs(false);
+        }
+    };
+
+    const handleShareSubmit = async () => {
+        if (!user || (!isEditMode && !selectedMyLibId) || !shareCategoryId) return;
+
+        setSharing(true);
+        try {
+            const tags = hashtagText.split(',').map(t => t.trim()).filter(t => t.length > 0).slice(0, 5);
+
+            if (isEditMode && editingSharedLibId) {
+                await SharedLibraryService.updateSharedLibrary(editingSharedLibId, {
+                    category_id: shareCategoryId,
+                    tags: tags
+                });
+                showAlert({ title: Strings.common.success, message: Strings.shared.alerts.updateSuccess });
+            } else {
+                await SharedLibraryService.shareLibrary(user.id, selectedMyLibId, shareCategoryId, tags);
+                showAlert({ title: Strings.common.success, message: Strings.userShareModal.alerts.uploadSuccess });
+            }
+
+            setShareModalVisible(false);
+            refresh();
+        } catch (error: any) {
+            showAlert({ title: Strings.common.error, message: `${isEditMode ? '수정 실패' : Strings.userShareModal.alerts.uploadFail}: ${error.message}` });
+        } finally {
+            setSharing(false);
+        }
+    };
+
+    const handleDeleteShared = async (sharedLibId: string) => {
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.shared.alerts.deleteConfirm,
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await SharedLibraryService.deleteSharedLibrary(sharedLibId);
+                            showAlert({ title: Strings.common.success, message: Strings.shared.alerts.deleteSuccess });
+                            refresh();
+                        } catch (e: any) {
+                            showAlert({ title: Strings.common.error, message: e.message });
+                        }
+                    }
+                }
+            ]
+        });
+    };
+
+    const handleReportShared = async (sharedLibId: string) => {
+        if (!user) {
+            showAlert({ title: Strings.common.loginRequired, message: Strings.sharedDetail.alerts.loginRequired });
+            return;
+        }
+
+        showAlert({
+            title: Strings.shared.report,
+            message: Strings.shared.alerts.reportConfirm,
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.shared.report,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const isReported = await SharedLibraryService.reportSharedLibrary(user.id, sharedLibId);
+                            const msg = isReported ? Strings.shared.alerts.reportSuccess : Strings.shared.alerts.reportCancelSuccess;
+                            showAlert({ title: Strings.common.success, message: msg });
+                            refresh();
+                        } catch (e: any) {
+                            showAlert({ title: Strings.common.error, message: Strings.shared.alerts.reportFail });
+                        }
+                    }
+                }
+            ]
+        });
+    };
 
     const isWeb = Platform.OS === 'web';
     const numColumns = isWeb && width > 768 ? 2 : 1;
@@ -90,68 +235,100 @@ export default function SharedLibraryScreen() {
         }, showAlert);
     };
 
+    const renderItem = ({ item, index }: { item: SharedLibrary; index: number }) => {
+        const isOwner = user && item.created_by === user.id;
 
-    const renderItem = ({ item, index }: { item: SharedLibrary; index: number }) => (
-        <Animated.View
-            entering={FadeInDown.delay(index * 50).springify()}
-            style={[
-                styles.cardContainer,
-                numColumns > 1 && { width: '48%', marginHorizontal: '1%' }
-            ]}
-        >
-            <Card
-                style={styles.card}
-                onPress={() => router.push({
-                    pathname: '/shared/[id]',
-                    params: { id: item.id, title: item.title }
-                })}
+        return (
+            <Animated.View
+                entering={FadeInDown.delay(index * 50).springify()}
+                style={[
+                    styles.cardContainer,
+                    numColumns > 1 && { width: '48%', marginHorizontal: '1%' }
+                ]}
             >
-                <View variant="transparent" style={styles.cardHeader}>
-                    <View style={styles.iconContainer}>
-                        <FontAwesome name={Strings.tabs.icons.shared as any} size={20} color={colors.tint} />
-                    </View>
-                    <View variant="transparent" style={styles.titleContainer}>
-                        <Text type="title" style={styles.cardTitle}>{item.title}</Text>
-                        {item.category && (
-                            <Text style={[styles.categoryText, { color: colors.tint }]}>{item.category}</Text>
-                        )}
-                    </View>
-                    <FontAwesome name={Strings.home.icons.arrowRight as any} size={18} color={colors.border} />
-                </View>
-
-                {item.description && (
-                    <Text type="subtitle" numberOfLines={2} style={styles.cardDescription}>
-                        {item.description}
-                    </Text>
-                )}
-
-                <View variant="transparent" style={styles.cardFooter}>
-                    <View variant="transparent" style={styles.statItem}>
-                        <FontAwesome name={Strings.admin.icons.download as any} size={12} color={colors.textSecondary} style={{ marginRight: 6 }} />
-                        <Text style={styles.statText}>{Strings.shared.downloadCount(item.download_count)}</Text>
+                <Card
+                    style={styles.card}
+                    onPress={() => router.push({
+                        pathname: '/shared/[id]',
+                        params: { id: item.id, title: item.title }
+                    })}
+                >
+                    <View variant="transparent" style={styles.cardHeader}>
+                        <View style={styles.iconContainer}>
+                            <FontAwesome name={Strings.tabs.icons.shared as any} size={20} color={colors.tint} />
+                        </View>
+                        <View variant="transparent" style={styles.titleContainer}>
+                            <Text type="title" style={styles.cardTitle}>{item.title}</Text>
+                            {item.category && (
+                                <Text style={[styles.categoryText, { color: colors.tint }]}>{item.category}</Text>
+                            )}
+                        </View>
+                        <FontAwesome name={Strings.home.icons.arrowRight as any} size={18} color={colors.border} />
                     </View>
 
-                    <TouchableOpacity
-                        style={[styles.downloadButton, { backgroundColor: colors.tint + '10', borderColor: colors.tint + '20' }]}
-                        onPress={() => handleDownloadRequest(item)}
-                        disabled={downloading === item.id}
-                    >
-                        {downloading === item.id ? (
-                            <ActivityIndicator size="small" color={colors.tint} />
-                        ) : (
-                            <>
-                                <FontAwesome name={Strings.common.icons.add as any} size={12} color={colors.tint} style={{ marginRight: 6 }} />
-                                <Text style={[styles.downloadButtonText, { color: colors.tint }]}>{Strings.shared.import}</Text>
-                            </>
-                        )}
-                    </TouchableOpacity>
-                </View>
-            </Card>
-        </Animated.View>
-    );
+                    {item.description && (
+                        <Text type="subtitle" numberOfLines={2} style={styles.cardDescription}>
+                            {item.description}
+                        </Text>
+                    )}
+
+                    <View variant="transparent" style={styles.cardFooter}>
+                        <View variant="transparent" style={styles.footerLeft}>
+                            <View variant="transparent" style={styles.statItem}>
+                                <FontAwesome name={Strings.admin.icons.download as any} size={12} color={colors.textSecondary} style={{ marginRight: 6 }} />
+                                <Text style={styles.statText}>{Strings.shared.downloadCount(item.download_count)}</Text>
+                            </View>
+
+                            {isOwner ? (
+                                <View variant="transparent" style={styles.managementButtons}>
+                                    <TouchableOpacity
+                                        style={styles.manageBtn}
+                                        onPress={() => openShareModal(item)}
+                                    >
+                                        <FontAwesome name={Strings.common.icons.edit as any} size={14} color={colors.textSecondary} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.manageBtn}
+                                        onPress={() => handleDeleteShared(item.id)}
+                                    >
+                                        <FontAwesome name={Strings.common.icons.delete as any} size={14} color={colors.error} />
+                                    </TouchableOpacity>
+                                </View>
+                            ) : !item.is_official && (
+                                <View variant="transparent" style={styles.managementButtons}>
+                                    <TouchableOpacity
+                                        style={styles.manageBtn}
+                                        onPress={() => handleReportShared(item.id)}
+                                    >
+                                        <FontAwesome name="flag-o" size={14} color={colors.textSecondary} />
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                        </View>
+
+                        <TouchableOpacity
+                            style={[styles.downloadButton, { backgroundColor: colors.tint + '10', borderColor: colors.tint + '20' }]}
+                            onPress={() => handleDownloadRequest(item)}
+                            disabled={downloading === item.id}
+                        >
+                            {downloading === item.id ? (
+                                <ActivityIndicator size="small" color={colors.tint} />
+                            ) : (
+                                <>
+                                    <FontAwesome name={Strings.common.icons.add as any} size={12} color={colors.tint} style={{ marginRight: 6 }} />
+                                    <Text style={[styles.downloadButtonText, { color: colors.tint }]}>{Strings.shared.import}</Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                </Card>
+            </Animated.View>
+        );
+    };
+
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, { backgroundColor: colors.background }]} >
             <FlatList
                 key={listKey}
                 data={libraries}
@@ -167,8 +344,45 @@ export default function SharedLibraryScreen() {
                 }
                 ListHeaderComponent={
                     <View variant="transparent" style={styles.header}>
-                        <Text style={styles.headerTitle}>{Strings.shared.title}</Text>
-                        <Text style={styles.headerSubtitle}>{Strings.shared.subtitle}</Text>
+                        <View variant="transparent" style={styles.headerTop}>
+                            <View variant="transparent">
+                                <Text style={styles.headerTitle}>{Strings.shared.title}</Text>
+                                <Text style={styles.headerSubtitle}>{Strings.shared.subtitle}</Text>
+                            </View>
+                            {!isOfficial && (
+                                <View variant="transparent" style={styles.shareActionWrapper}>
+                                    <TouchableOpacity
+                                        style={[styles.shareActionBtn, { backgroundColor: colors.tint }]}
+                                        onPress={() => openShareModal()}
+                                    >
+                                        <FontAwesome name="share-alt" size={14} color="#fff" style={{ marginRight: 8 }} />
+                                        <Text style={styles.shareActionBtnText}>{Strings.userShareModal.title}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                        </View>
+
+                        {/* Official / User Tabs */}
+                        <View variant="transparent" style={styles.tabContainer}>
+                            <TouchableOpacity
+                                style={[styles.tab, isOfficial && { backgroundColor: colors.tint }]}
+                                onPress={() => {
+                                    setIsOfficial(true);
+                                    setSelectedCategoryId('all');
+                                }}
+                            >
+                                <Text style={[styles.tabText, isOfficial && { color: '#fff' }]}>{Strings.shared.tabs.official}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.tab, !isOfficial && { backgroundColor: colors.tint }]}
+                                onPress={() => {
+                                    setIsOfficial(false);
+                                    setSelectedCategoryId('all');
+                                }}
+                            >
+                                <Text style={[styles.tabText, !isOfficial && { color: '#fff' }]}>{Strings.shared.tabs.user}</Text>
+                            </TouchableOpacity>
+                        </View>
 
                         <Animated.ScrollView
                             horizontal
@@ -211,6 +425,7 @@ export default function SharedLibraryScreen() {
                     </View>
                 }
             />
+
             <FeatureGatingModal
                 isVisible={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -218,7 +433,166 @@ export default function SharedLibraryScreen() {
                 title={Strings.shared.adModal.title}
                 description={Strings.shared.adModal.description}
             />
-        </View>
+
+            {/* Share Material Modal */}
+            <Modal
+                visible={shareModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShareModalVisible(false)
+                }
+            >
+                <TouchableWithoutFeedback onPress={() => setShareModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <Card style={styles.shareModalContent}>
+                                <View variant="transparent" style={styles.modalHeader}>
+                                    <Text style={styles.modalTitle}>
+                                        {isEditMode ? Strings.shared.edit.title : Strings.userShareModal.title}
+                                    </Text>
+                                    <TouchableOpacity onPress={() => setShareModalVisible(false)}>
+                                        <FontAwesome name="close" size={20} color={colors.textSecondary} />
+                                    </TouchableOpacity>
+                                </View>
+
+                                {shareStep === 1 && (
+                                    <View variant="transparent" style={styles.stepContent}>
+                                        <Text style={styles.stepTitle}>{Strings.userShareModal.step1.title}</Text>
+                                        <Text style={[styles.stepLabel, { color: colors.textSecondary }]}>{Strings.userShareModal.step1.label}</Text>
+                                        {loadingMyLibs ? (
+                                            <ActivityIndicator size="small" color={colors.tint} style={{ marginVertical: 20 }} />
+                                        ) : myLibraries.length === 0 ? (
+                                            <Text style={styles.emptyText}>{Strings.userShareModal.step1.empty}</Text>
+                                        ) : (
+                                            <View variant="transparent" style={styles.pickerContainer}>
+                                                <TouchableOpacity
+                                                    style={[styles.pickerTrigger, { borderColor: colors.border }]}
+                                                    onPress={() => setIsLibPickerOpen(!isLibPickerOpen)}
+                                                >
+                                                    <Text style={[styles.pickerTriggerText, !selectedMyLibId && { color: colors.textSecondary }]}>
+                                                        {myLibraries.find(l => l.id === selectedMyLibId)?.title || Strings.userShareModal.step1.label}
+                                                    </Text>
+                                                    <FontAwesome name={isLibPickerOpen ? "chevron-up" : "chevron-down"} size={14} color={colors.textSecondary} />
+                                                </TouchableOpacity>
+
+                                                {isLibPickerOpen && (
+                                                    <View variant="transparent" style={[styles.pickerDropdown, { borderColor: colors.border }]}>
+                                                        <RNScrollView style={styles.pickerScroll} nestedScrollEnabled>
+                                                            {myLibraries.map(lib => (
+                                                                <TouchableOpacity
+                                                                    key={lib.id}
+                                                                    style={[styles.pickerItem, selectedMyLibId === lib.id && { backgroundColor: colors.tint + '10' }]}
+                                                                    onPress={() => {
+                                                                        setSelectedMyLibId(lib.id);
+                                                                        setIsLibPickerOpen(false);
+                                                                    }}
+                                                                >
+                                                                    <Text style={[styles.pickerItemText, selectedMyLibId === lib.id && { color: colors.tint, fontWeight: '700' }]}>{lib.title}</Text>
+                                                                    {selectedMyLibId === lib.id && <FontAwesome name="check" size={14} color={colors.tint} />}
+                                                                </TouchableOpacity>
+                                                            ))}
+                                                        </RNScrollView>
+                                                    </View>
+                                                )}
+                                            </View>
+                                        )}
+                                    </View>
+                                )}
+
+                                {shareStep === 2 && (
+                                    <View variant="transparent" style={styles.stepContent}>
+                                        <Text style={styles.stepTitle}>{Strings.userShareModal.step2.title}</Text>
+                                        <Text style={[styles.stepLabel, { color: colors.textSecondary }]}>{Strings.userShareModal.step2.label}</Text>
+                                        <View variant="transparent" style={styles.pickerContainer}>
+                                            <TouchableOpacity
+                                                style={[styles.pickerTrigger, { borderColor: colors.border }]}
+                                                onPress={() => setIsCatPickerOpen(!isCatPickerOpen)}
+                                            >
+                                                <Text style={[styles.pickerTriggerText, !shareCategoryId && { color: colors.textSecondary }]}>
+                                                    {allCategories.find(c => c.id === shareCategoryId)?.title || Strings.userShareModal.step2.label}
+                                                </Text>
+                                                <FontAwesome name={isCatPickerOpen ? "chevron-up" : "chevron-down"} size={14} color={colors.textSecondary} />
+                                            </TouchableOpacity>
+
+                                            {isCatPickerOpen && (
+                                                <View variant="transparent" style={[styles.pickerDropdown, { borderColor: colors.border }]}>
+                                                    <RNScrollView style={styles.pickerScroll} nestedScrollEnabled>
+                                                        {allCategories.map(cat => (
+                                                            <TouchableOpacity
+                                                                key={cat.id}
+                                                                style={[styles.pickerItem, shareCategoryId === cat.id && { backgroundColor: colors.tint + '10' }]}
+                                                                onPress={() => {
+                                                                    setShareCategoryId(cat.id);
+                                                                    setIsCatPickerOpen(false);
+                                                                }}
+                                                            >
+                                                                <Text style={[styles.pickerItemText, shareCategoryId === cat.id && { color: colors.tint, fontWeight: '700' }]}>{cat.title}</Text>
+                                                                {shareCategoryId === cat.id && <FontAwesome name="check" size={14} color={colors.tint} />}
+                                                            </TouchableOpacity>
+                                                        ))}
+                                                    </RNScrollView>
+                                                </View>
+                                            )}
+                                        </View>
+                                    </View>
+                                )}
+
+                                {shareStep === 3 && (
+                                    <View variant="transparent" style={styles.stepContent}>
+                                        <Text style={styles.stepTitle}>{Strings.userShareModal.step3.title}</Text>
+                                        <Text style={[styles.stepLabel, { color: colors.textSecondary }]}>{Strings.userShareModal.step3.label}</Text>
+                                        <TextInput
+                                            style={[styles.tagInput, { borderColor: colors.border, color: colors.text }]}
+                                            placeholder={Strings.userShareModal.step3.placeholder}
+                                            placeholderTextColor={colors.textSecondary}
+                                            value={hashtagText}
+                                            onChangeText={setHashtagText}
+                                            autoFocus
+                                        />
+                                        <Text style={[styles.tagHint, { color: colors.textSecondary }]}>{Strings.userShareModal.step3.hint}</Text>
+                                    </View>
+                                )}
+
+                                <View variant="transparent" style={styles.modalFooter}>
+                                    {(shareStep > 1 && !isEditMode) && (
+                                        <TouchableOpacity
+                                            style={[styles.modalBtn, { backgroundColor: colors.border }]}
+                                            onPress={() => setShareStep(prev => prev - 1)}
+                                            disabled={sharing}
+                                        >
+                                            <Text style={styles.modalBtnText}>{Strings.userShareModal.btnPrev}</Text>
+                                        </TouchableOpacity>
+                                    )}
+                                    <TouchableOpacity
+                                        style={[styles.modalBtn, { backgroundColor: colors.tint, flex: 1 }]}
+                                        onPress={() => {
+                                            if (shareStep === 1) {
+                                                if (!selectedMyLibId) return showAlert({ title: Strings.common.info, message: Strings.userShareModal.alerts.selectLibrary });
+                                                setShareStep(2);
+                                            } else if (shareStep === 2) {
+                                                if (!shareCategoryId) return showAlert({ title: Strings.common.info, message: Strings.userShareModal.alerts.selectCategory });
+                                                setShareStep(3);
+                                            } else {
+                                                handleShareSubmit();
+                                            }
+                                        }}
+                                        disabled={sharing}
+                                    >
+                                        {sharing ? (
+                                            <ActivityIndicator size="small" color="#fff" />
+                                        ) : (
+                                            <Text style={styles.modalBtnText}>
+                                                {isEditMode ? Strings.shared.edit.btnSubmit : (shareStep < 3 ? Strings.userShareModal.btnNext : Strings.userShareModal.btnShare)}
+                                            </Text>
+                                        )}
+                                    </TouchableOpacity>
+                                </View>
+                            </Card>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal >
+        </View >
     );
 }
 
@@ -293,6 +667,24 @@ const styles = StyleSheet.create({
         borderTopColor: 'rgba(0,0,0,0.03)',
         paddingTop: 12,
     },
+    footerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    managementButtons: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        borderLeftWidth: 1,
+        borderLeftColor: 'rgba(0,0,0,0.05)',
+        paddingLeft: 12,
+    },
+    manageBtn: {
+        padding: 6,
+        borderRadius: 8,
+        backgroundColor: '#F1F5F9',
+    },
     statItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -329,6 +721,24 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginHorizontal: -20,
     },
+    tabContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#F1F5F9',
+        padding: 4,
+        borderRadius: 12,
+        marginTop: 16,
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 10,
+        alignItems: 'center',
+        borderRadius: 10,
+    },
+    tabText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#64748B',
+    },
     categoryContainer: {
         paddingHorizontal: 20,
         gap: 8,
@@ -345,5 +755,154 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '700',
         color: '#64748B',
+    },
+    headerTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+        width: '100%',
+    },
+    shareActionWrapper: {
+        flexShrink: 0,
+        marginLeft: 10,
+        marginRight: Platform.OS === 'web' ? 20 : 16, // 여백 더욱 확보
+    },
+    shareActionBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 20,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    shareActionBtnText: {
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    shareModalContent: {
+        width: '90%',
+        maxHeight: '80%',
+        borderRadius: 24,
+        padding: 24,
+        borderWidth: 1.5,
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: '800',
+    },
+    stepContent: {
+        marginVertical: 16,
+    },
+    stepTitle: {
+        fontSize: 18,
+        fontWeight: '800',
+        marginBottom: 4,
+    },
+    stepLabel: {
+        fontSize: 13,
+        fontWeight: '500',
+        marginBottom: 16,
+    },
+    pickerContainer: {
+        marginTop: 4,
+    },
+    pickerTrigger: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1.5,
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        height: 54,
+        backgroundColor: '#F8FAFC',
+    },
+    pickerTriggerText: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    pickerDropdown: {
+        marginTop: 8,
+        borderWidth: 1.5,
+        borderRadius: 14,
+        overflow: 'hidden',
+        backgroundColor: '#fff',
+        maxHeight: 250,
+        // Elevation for android, Shadow for iOS
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
+    },
+    pickerScroll: {
+        maxHeight: 250,
+    },
+    pickerItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9',
+    },
+    pickerItemText: {
+        fontSize: 15,
+        fontWeight: '500',
+        flex: 1,
+    },
+    tagInput: {
+        height: 50,
+        borderWidth: 1.5,
+        borderRadius: 12,
+        paddingHorizontal: 16,
+        fontSize: 15,
+        fontWeight: '500',
+    },
+    tagHint: {
+        fontSize: 12,
+        marginTop: 8,
+        marginLeft: 4,
+    },
+    modalFooter: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 16,
+    },
+    modalBtn: {
+        height: 50,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    modalBtnText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '800',
     },
 });

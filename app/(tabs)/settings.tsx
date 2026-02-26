@@ -233,7 +233,7 @@ export default function SettingsScreen() {
 
           <TouchableOpacity
             style={styles.item}
-            onPress={() => router.push('/settings/notices')}
+            onPress={() => router.push('/settings/notices/')}
             activeOpacity={0.7}
           >
             <View variant="transparent" style={styles.itemLeft}>

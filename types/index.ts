@@ -76,6 +76,10 @@ export interface SharedLibrary {
     created_by: string | null;
     created_at: string;
     is_draft: boolean; // added for draft workflow
+    is_official: boolean; // added to distinguish admin vs user content
+    tags: string[] | null; // added for hashtags
+    report_count: number; // 신고 횟수
+    is_hidden: boolean; // 신고 누적으로 인한 숨김 처리 상태
     // Optional join
     shared_library_categories?: SharedLibraryCategory;
 }

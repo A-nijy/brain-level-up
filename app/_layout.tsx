@@ -15,6 +15,7 @@ import { PushNotificationService } from '@/services/PushNotificationService';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AlertProvider } from '@/contexts/AlertContext';
+import { HeaderProvider } from '@/contexts/HeaderContext';
 import CustomAlert from '@/components/CustomAlert';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ThemeProvider as AppThemeProvider } from '@/contexts/ThemeContext';
@@ -312,13 +313,15 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AppThemeProvider>
-        <AlertProvider>
-          <AuthProvider>
-            <InitialLayout />
-            <CustomAlert />
-            <StatusBar style="auto" />
-          </AuthProvider>
-        </AlertProvider>
+        <HeaderProvider>
+          <AlertProvider>
+            <AuthProvider>
+              <InitialLayout />
+              <CustomAlert />
+              <StatusBar style="auto" />
+            </AuthProvider>
+          </AlertProvider>
+        </HeaderProvider>
       </AppThemeProvider>
     </SafeAreaProvider>
   );

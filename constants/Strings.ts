@@ -462,7 +462,11 @@ export const Strings = {
      */
     shared: {
         title: "공유 자료실",
-        subtitle: "다른 사람들이 공유한 유용한 암기장을 확인해 보세요.",
+        subtitle: "최고의 암기 비법을 서로 나누고 함께 성장하세요.",
+        tabs: {
+            official: "공식 자료실",
+            user: "유저 자료실",
+        },
         categoryAll: "전체",
         downloadCount: (count: number) => `${count}회`,
         import: "가져오기",
@@ -479,7 +483,24 @@ export const Strings = {
             downloadFail: "다운로드 실패",
             goLibrary: "바로가기",
             loginRequired: "자료를 다운로드하려면 로그인이 필요합니다.",
+            deleteConfirm: "정말 이 자료를 자료실에서 삭제하시겠습니까?",
+            deleteSuccess: "자료가 삭제되었습니다.",
+            reportConfirm: "정말 이 자료를 부적절한 자료로 신고하시겠습니까?\n신고가 누적되면 해당 자료는 숨김 처리될 수 있습니다.",
+            reportCancelConfirm: "이미 신고하신 자료입니다. 신고를 취소하시겠습니까?",
+            reportSuccess: "신고가 접수되었습니다. 감사합니다.",
+            reportCancelSuccess: "신고가 취소되었습니다.",
+            reportFail: "신고 접수 중 오류가 발생했습니다.",
+            reportCancelFail: "신고 취소 중 오류가 발생했습니다.",
+            updateSuccess: "정보가 수정되었습니다.",
         },
+
+        edit: {
+            title: "공유 자료 수정",
+            btnSubmit: "수정 완료",
+        },
+
+        report: "신고하기",
+        reported: "신고함",
 
         icons: {
             globe: "globe",
@@ -931,6 +952,7 @@ export const Strings = {
         sectionListHeader: "항목 목록 (Day, Chapter 등)",
         empty: "생성된 항목이 없습니다.",
         addFirst: "첫 번째 항목 추가하기",
+        share: "공유하기",
         modal: {
             createTitle: "새 항목 추가",
             editTitle: "항목 이름 수정",
@@ -945,6 +967,9 @@ export const Strings = {
             editFail: "섹션 수정 실패",
             deleteConfirm: (title: string) => `'${title}' 섹션을 삭제하시겠습니까? 내부의 모든 문제도 삭제됩니다.`,
             deleteFail: "삭제 실패",
+            shareConfirm: "이 암기장을 유저 자료실에 공유하시겠습니까?\n공유된 자료는 모든 사용자가 볼 수 있습니다.",
+            shareSuccess: "자료실에 성공적으로 공유되었습니다!",
+            shareFail: "공유 중 오류가 발생했습니다.",
         }
     },
     /**
@@ -1012,5 +1037,67 @@ export const Strings = {
     webview: {
         screenTitle: "웹 페이지",
         invalidUrl: "올바르지 않은 주소입니다.",
+    },
+    userShareModal: {
+        title: "자료 공유하기",
+        btnNext: "다음",
+        btnPrev: "이전",
+        btnShare: "공유하기",
+        step1: {
+            title: "1. 암기장 선택",
+            label: "공유할 암기장을 선택하세요",
+            placeholder: "암기장 선택",
+            empty: "선택할 수 있는 암기장이 없습니다.",
+        },
+        step2: {
+            title: "2. 카테고리 지정",
+            label: "자료의 카테고리를 선택하세요",
+            placeholder: "카테고리 선택",
+        },
+        step3: {
+            title: "3. 해시태그 추가",
+            label: "태그를 입력하세요 (쉼표로 구분)",
+            placeholder: "예: 필수, 기초, 토익",
+            hint: "최대 5개까지 입력 가능합니다.",
+        },
+        alerts: {
+            selectLibrary: "공유할 암기장을 선택해 주세요.",
+            selectCategory: "카테고리를 지정해 주세요.",
+            uploadSuccess: "유저 자료실에 성공적으로 등록되었습니다!",
+            uploadFail: "등록에 실패했습니다.",
+        }
+    },
+    /**
+     * 관리자 유저 자료 관리 화면 텍스트입니다.
+     */
+    adminUserShared: {
+        title: "유저 자료 관리",
+        subtitle: "사용자들이 공유한 자료 모니터링 및 관리",
+        menuTitle: "유저 자료실 관리",
+        menuSub: "신고된 누적 자료 확인 및 노출 제어",
+        table: {
+            title: "자료 제목",
+            owner: "작성자",
+            reports: "신고",
+            status: "상태",
+            manage: "관리",
+        },
+        status: {
+            visible: "노출 중",
+            hidden: "숨김 처리됨",
+        },
+        btns: {
+            hide: "숨기기",
+            show: "노출하기",
+            delete: "완전 삭제",
+        },
+        alerts: {
+            hideConfirm: "이 자료를 자료실에서 숨기시겠습니까?",
+            showConfirm: "이 자료를 다시 자료실에 노출하시겠습니까?",
+            hideSuccess: "숨김 처리되었습니다.",
+            showSuccess: "노출 설정되었습니다.",
+            delConfirm: "이 자료를 완전히 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
+            delSuccess: "자료가 영구 삭제되었습니다.",
+        }
     }
 };

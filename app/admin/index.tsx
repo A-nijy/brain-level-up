@@ -135,6 +135,7 @@ export default function AdminDashboardScreen() {
                     <>
                         <StatGridCard title={Strings.admin.stats.totalUsers} value={stats?.userCount || 0} icon={Strings.admin.icons.users} color="#6366F1" trendLabel={Strings.admin.subLabels.userTotal} onPress={() => router.push('/admin/users')} />
                         <StatGridCard title={Strings.admin.stats.totalLibraries} value={stats?.libraryCount || 0} icon={Strings.admin.icons.libraries} color="#8B5CF6" trendLabel={Strings.admin.subLabels.libTotal} onPress={() => router.push('/admin/shared-manager')} />
+                        <StatGridCard title={Strings.adminUserShared.menuTitle} value={stats?.libraryCount || 0} icon="globe" color="#F59E0B" trendLabel={Strings.adminUserShared.menuSub} onPress={() => router.push('/admin/user-shared')} />
                         <StatGridCard title={Strings.admin.stats.avgStudy} value={advancedStats?.avgStudyTimeMinutes || 0} icon={Strings.admin.icons.study} color="#EC4899" trendLabel={Strings.admin.subLabels.avgMinute} onPress={() => router.push('/admin/analysis')} />
                         <StatGridCard title={Strings.admin.stats.totalDownloads} value={stats?.totalDownloads || 0} icon={Strings.admin.icons.download} color="#06B6D4" trendLabel={Strings.admin.subLabels.downTotal} onPress={() => router.push('/admin/analysis')} />
                     </>

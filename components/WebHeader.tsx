@@ -1,17 +1,19 @@
 import React from 'react';
-import { StyleSheet, TextInput, Image, TouchableOpacity, Platform, DeviceEventEmitter } from 'react-native';
+import { StyleSheet, TextInput, Image, TouchableOpacity, Platform, DeviceEventEmitter, ActivityIndicator } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { Strings } from '@/constants/Strings';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHeader } from '@/contexts/HeaderContext';
 import { useSegments, useRouter, useLocalSearchParams } from 'expo-router';
 
 export default function WebHeader() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
     const { profile } = useAuth();
+    const { actions } = useHeader();
     const segments = useSegments();
     const router = useRouter();
     const [showNotifications, setShowNotifications] = React.useState(false);
@@ -55,6 +57,25 @@ export default function WebHeader() {
             </View>
 
             <View variant="transparent" style={styles.actionArea}>
+                {actions.map((action) => (
+                    <TouchableOpacity
+                        key={action.id}
+                        style={styles.iconButton}
+                        onPress={action.onPress}
+                        disabled={action.disabled || action.loading}
+                    >
+                        {action.loading ? (
+                            <ActivityIndicator size="small" color={action.color || colors.tint} />
+                        ) : (
+                            <FontAwesome
+                                name={action.icon as any}
+                                size={20}
+                                color={action.color || (action.disabled ? colors.textSecondary : colors.tint)}
+                            />
+                        )}
+                    </TouchableOpacity>
+                ))}
+
                 <TouchableOpacity
                     style={styles.iconButton}
                     onPress={() => router.push('/notifications')}

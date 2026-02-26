@@ -10,22 +10,23 @@ export function useSharedLibraries() {
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
+    const [isOfficial, setIsOfficial] = useState(true);
 
     const fetchCategories = useCallback(async () => {
         try {
-            const data = await SharedLibraryService.getSharedCategories();
+            const data = await SharedLibraryService.getSharedCategories(isOfficial);
             setCategories(data);
         } catch (err: any) {
             console.error('[useSharedLibraries] Fetch categories error:', err);
         }
-    }, []);
+    }, [isOfficial]);
 
     const fetchLibraries = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
 
-            const data = await SharedLibraryService.getSharedLibraries(selectedCategoryId);
+            const data = await SharedLibraryService.getSharedLibraries(selectedCategoryId, isOfficial);
             setLibraries(data);
             setError(null);
         } catch (err: any) {
@@ -35,7 +36,7 @@ export function useSharedLibraries() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [selectedCategoryId]);
+    }, [selectedCategoryId, isOfficial]);
 
     useEffect(() => {
         fetchCategories();
@@ -61,6 +62,8 @@ export function useSharedLibraries() {
         refresh,
         selectedCategoryId,
         setSelectedCategoryId,
+        isOfficial,
+        setIsOfficial,
         downloadLibrary: SharedLibraryService.downloadLibrary
     };
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, ScrollView, DeviceEventEmitter, Modal, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
@@ -11,10 +11,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ExportModal, ExportOptions as PDFExportOptions } from '@/components/ExportModal';
 import { PdfService } from '@/services/PdfService';
-
 import { useAuth } from '@/contexts/AuthContext';
 import { useAlert } from '@/contexts/AlertContext';
-
+import { useHeader, useHeaderActions } from '@/contexts/HeaderContext';
 import { Strings } from '@/constants/Strings';
 
 export default function SectionDetailScreen() {
@@ -28,7 +27,6 @@ export default function SectionDetailScreen() {
     const { showAlert } = useAlert();
     const { width } = useWindowDimensions();
     const isWeb = Platform.OS === 'web' && width > 768;
-    // const { width } = useWindowDimensions(); // Removed as per instruction
 
     const {
         section,
@@ -47,7 +45,8 @@ export default function SectionDetailScreen() {
     const [statusModalVisible, setStatusModalVisible] = useState(false);
     const [selectedItemForStatus, setSelectedItemForStatus] = useState<Item | null>(null);
 
-    // const isWeb = Platform.OS === 'web' && width > 768; // Removed as useWindowDimensions is removed
+
+
 
     const toggleMenu = () => setMenuVisible(!menuVisible);
 
@@ -202,6 +201,38 @@ export default function SectionDetailScreen() {
         </Animated.View>
     );
 
+
+    // 웹 헤더 액션 등록 (자동 정리 기능 포함)
+    useHeaderActions([
+        {
+            id: 'add-item',
+            icon: Strings.common.icons.add,
+            onPress: () => router.push({
+                pathname: "/library/[id]/section/[sectionId]/create-item",
+                params: { id: libraryId, sectionId: sid, title: Strings.itemForm.createTitle }
+            } as any)
+        },
+        {
+            id: 'import-items',
+            icon: 'upload',
+            onPress: () => router.push({
+                pathname: `/library/${libraryId}/section/${sid}/import`,
+                params: { title: Strings.librarySection.menu.importWords }
+            } as any)
+        },
+        {
+            id: 'export-pdf',
+            icon: 'print',
+            onPress: () => setExportModalVisible(true)
+        },
+        {
+            id: 'toggle-reorder',
+            icon: Strings.settings.icons.refresh,
+            onPress: () => setReorderMode(prev => !prev),
+            color: reorderMode ? colors.tint : colors.textSecondary
+        }
+    ], [reorderMode, libraryId, sid, items.length]);
+
     if (loading && !refreshing) {
         return (
             <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
@@ -301,6 +332,19 @@ export default function SectionDetailScreen() {
                         <View variant="transparent" style={styles.headerStats}>
                             <Text style={styles.countText}>{Strings.librarySection.count(items.length)}</Text>
                         </View>
+
+                        {Platform.OS === 'web' && (
+                            <TouchableOpacity
+                                style={[styles.webAddButton, { backgroundColor: colors.tint + '10', borderColor: colors.tint + '30' }]}
+                                onPress={() => router.push({
+                                    pathname: "/library/[id]/section/[sectionId]/create-item",
+                                    params: { id: libraryId, sectionId: sid, title: Strings.itemForm.createTitle }
+                                } as any)}
+                            >
+                                <FontAwesome name={Strings.shared.icons.plus as any} size={16} color={colors.tint} style={{ marginRight: 10 }} />
+                                <Text style={[styles.webAddButtonText, { color: colors.tint }]}>{Strings.itemForm.createTitle}</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 }
                 ListEmptyComponent={
@@ -456,6 +500,20 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '700',
         opacity: 0.6,
+    },
+    webAddButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 14,
+        borderRadius: 16,
+        borderWidth: 1.5,
+        marginTop: 20,
+        marginBottom: 8,
+    },
+    webAddButtonText: {
+        fontSize: 16,
+        fontWeight: '800',
     },
     listContent: {
         padding: 20,

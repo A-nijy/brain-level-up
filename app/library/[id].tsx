@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, Modal, TouchableWithoutFeedback, TextInput } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
@@ -10,9 +10,11 @@ import { Section } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-
-import { Strings } from '@/constants/Strings';
+import { SharedLibraryService } from '@/services/SharedLibraryService';
+import { useAuth } from '@/contexts/AuthContext';
+import { useHeader, useHeaderActions } from '@/contexts/HeaderContext';
 import { useAlert } from '@/contexts/AlertContext';
+import { Strings } from '@/constants/Strings';
 
 export default function LibraryDetailScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -21,6 +23,9 @@ export default function LibraryDetailScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { showAlert } = useAlert();
+
+    const { profile } = useAuth();
+    const [sharing, setSharing] = useState(false);
 
     const { library } = useLibraryDetail(libraryId);
     const {
@@ -43,6 +48,39 @@ export default function LibraryDetailScreen() {
     const [editingSection, setEditingSection] = useState<Section | null>(null);
     const [editSectionTitle, setEditSectionTitle] = useState('');
     const [updating, setUpdating] = useState(false);
+
+
+
+    const handleShare = async () => {
+        if (!library) return;
+
+        showAlert({
+            title: Strings.common.info,
+            message: Strings.libraryDetail.alerts.shareConfirm,
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.libraryDetail.share,
+                    onPress: async () => {
+                        setSharing(true);
+                        try {
+                            await SharedLibraryService.shareLibrary(
+                                library.user_id,
+                                library.id,
+                                library.category_id || 'others',
+                                []
+                            );
+                            showAlert({ title: Strings.common.success, message: Strings.libraryDetail.alerts.shareSuccess });
+                        } catch (error: any) {
+                            showAlert({ title: Strings.common.error, message: `${Strings.libraryDetail.alerts.shareFail}: ${error.message}` });
+                        } finally {
+                            setSharing(false);
+                        }
+                    }
+                }
+            ]
+        });
+    };
 
     const handleCreateSection = async () => {
         if (!newSectionTitle.trim()) {
@@ -176,6 +214,28 @@ export default function LibraryDetailScreen() {
         </Animated.View>
     );
 
+
+    // 웹 헤더 액션 등록 (자동 정리 기능 포함)
+    useHeaderActions([
+        {
+            id: 'share',
+            icon: Strings.shared.icons.globe,
+            onPress: handleShare,
+            loading: sharing
+        },
+        {
+            id: 'create-section',
+            icon: Strings.shared.icons.plus,
+            onPress: () => setCreateModalVisible(true)
+        },
+        {
+            id: 'toggle-reorder',
+            icon: Strings.settings.icons.refresh,
+            onPress: () => setReorderMode(prev => !prev),
+            color: reorderMode ? colors.tint : colors.textSecondary
+        }
+    ], [sharing, reorderMode, library]);
+
     if (loading && !refreshing) {
         return (
             <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
@@ -192,6 +252,17 @@ export default function LibraryDetailScreen() {
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: Platform.OS === 'web' ? 24 : 0 }}>
+                            <TouchableOpacity
+                                onPress={handleShare}
+                                style={styles.headerIconButton}
+                                disabled={sharing}
+                            >
+                                {sharing ? (
+                                    <ActivityIndicator size="small" color={colors.tint} />
+                                ) : (
+                                    <FontAwesome name={Strings.shared.icons.globe as any} size={18} color={colors.tint} />
+                                )}
+                            </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => setCreateModalVisible(true)}
                                 style={styles.headerIconButton}
@@ -225,6 +296,16 @@ export default function LibraryDetailScreen() {
                             </Text>
                         )}
                         <Text style={styles.subHeaderTitle}>{Strings.libraryDetail.sectionListHeader}</Text>
+
+                        {Platform.OS === 'web' && (
+                            <TouchableOpacity
+                                style={[styles.webAddButton, { backgroundColor: colors.tint + '10', borderColor: colors.tint + '30' }]}
+                                onPress={() => setCreateModalVisible(true)}
+                            >
+                                <FontAwesome name={Strings.shared.icons.plus as any} size={16} color={colors.tint} style={{ marginRight: 10 }} />
+                                <Text style={[styles.webAddButtonText, { color: colors.tint }]}>{Strings.libraryDetail.modal.createTitle}</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 }
                 ListEmptyComponent={
@@ -356,6 +437,20 @@ const styles = StyleSheet.create({
         opacity: 0.5,
         textTransform: 'uppercase',
         letterSpacing: 1,
+    },
+    webAddButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 14,
+        borderRadius: 16,
+        borderWidth: 1.5,
+        marginTop: 20,
+        marginBottom: 8,
+    },
+    webAddButtonText: {
+        fontSize: 16,
+        fontWeight: '800',
     },
     listContent: {
         padding: 20,
