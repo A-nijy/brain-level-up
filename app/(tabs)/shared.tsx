@@ -16,6 +16,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { MembershipService } from '@/services/MembershipService';
 import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
+import { useHeaderActions } from '@/contexts/HeaderContext';
 
 import { Strings } from '@/constants/Strings';
 
@@ -42,6 +43,16 @@ export default function SharedLibraryScreen() {
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
     const { showAlert } = useAlert();
+
+    // 웹 헤더 액션 등록 (유저 자료실일 때만 공유 버튼 노출)
+    useHeaderActions(!isOfficial ? [
+        {
+            id: 'share-material',
+            icon: 'share-alt',
+            onPress: () => openShareModal(),
+            label: Strings.userShareModal.title
+        }
+    ] : [], [isOfficial]);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedLib, setSelectedLib] = useState<SharedLibrary | null>(null);
@@ -349,17 +360,6 @@ export default function SharedLibraryScreen() {
                                 <Text style={styles.headerTitle}>{Strings.shared.title}</Text>
                                 <Text style={styles.headerSubtitle}>{Strings.shared.subtitle}</Text>
                             </View>
-                            {!isOfficial && (
-                                <View variant="transparent" style={styles.shareActionWrapper}>
-                                    <TouchableOpacity
-                                        style={[styles.shareActionBtn, { backgroundColor: colors.tint }]}
-                                        onPress={() => openShareModal()}
-                                    >
-                                        <FontAwesome name="share-alt" size={14} color="#fff" style={{ marginRight: 8 }} />
-                                        <Text style={styles.shareActionBtnText}>{Strings.userShareModal.title}</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
                         </View>
 
                         {/* Official / User Tabs */}

@@ -219,6 +219,7 @@ function InitialLayout() {
 
   const isWeb = Platform.OS === 'web';
   const showWebLayout = isWeb && session && segments[0] !== 'auth';
+  const HeaderActions = require('@/components/HeaderActions').default;
 
   const LayoutContent = (
     <Stack
@@ -239,6 +240,7 @@ function InitialLayout() {
             <FontAwesome name="chevron-left" size={20} color={colorScheme === 'dark' ? '#fff' : '#000'} />
           </TouchableOpacity>
         ),
+        headerRight: () => <HeaderActions />,
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

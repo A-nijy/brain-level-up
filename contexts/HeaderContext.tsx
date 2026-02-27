@@ -63,9 +63,7 @@ export function useHeaderActions(actions: HeaderAction[], deps: any[] = []) {
 
     useFocusEffect(
         useCallback(() => {
-            if (Platform.OS === 'web') {
-                setActions(actions);
-            }
+            setActions(actions);
             return () => clearActions();
         }, deps)
     );
@@ -79,11 +77,11 @@ export function useWebHeaderTitle(title: string | null, deps: any[] = []) {
 
     useFocusEffect(
         useCallback(() => {
-            if (Platform.OS === 'web' && title) {
+            if (title) {
                 setTitle(title);
             }
             return () => {
-                if (Platform.OS === 'web') setTitle(null);
+                setTitle(null);
             };
         }, [title, ...deps])
     );

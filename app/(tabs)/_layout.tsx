@@ -86,6 +86,8 @@ export default function TabLayout() {
   const tabPaddingBottom = Math.max(insets.bottom, 4); // 최소 패딩 보장
   const tabHeight = Platform.OS === 'ios' ? 50 + insets.bottom : 64 + insets.bottom;
 
+  const HeaderActions = require('@/components/HeaderActions').default;
+
   return (
     <Tabs
       screenOptions={{
@@ -117,6 +119,7 @@ export default function TabLayout() {
           color: colors.text,
         },
         headerTintColor: colors.text,
+        headerRight: () => <HeaderActions />,
       }}>
       <Tabs.Screen
         name="index"
