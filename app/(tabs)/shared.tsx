@@ -345,7 +345,7 @@ export default function SharedLibraryScreen() {
                 ListHeaderComponent={
                     <View variant="transparent" style={styles.header}>
                         <View variant="transparent" style={styles.headerTop}>
-                            <View variant="transparent">
+                            <View variant="transparent" style={{ flex: 1, marginRight: 8 }}>
                                 <Text style={styles.headerTitle}>{Strings.shared.title}</Text>
                                 <Text style={styles.headerSubtitle}>{Strings.shared.subtitle}</Text>
                             </View>
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
         marginTop: 12,
     },
     headerTitle: {
-        fontSize: 32,
+        fontSize: Platform.OS === 'web' ? 32 : 28,
         fontWeight: '800',
         letterSpacing: -0.5,
         marginBottom: 6,
@@ -765,8 +765,6 @@ const styles = StyleSheet.create({
     },
     shareActionWrapper: {
         flexShrink: 0,
-        marginLeft: 10,
-        marginRight: Platform.OS === 'web' ? 20 : 16, // 여백 더욱 확보
     },
     shareActionBtn: {
         flexDirection: 'row',
