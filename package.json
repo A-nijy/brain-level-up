@@ -1,5 +1,5 @@
 {
-  "name": "brain-levelup",
+  "name": "mem-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
