@@ -12,13 +12,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useStudyStats } from '@/hooks/useStudyStats';
 import { useAlert } from '@/contexts/AlertContext';
+import { useLibraryActions } from '@/hooks/useLibraryActions';
 
 import { Strings } from '@/constants/Strings';
 
 export default function LibraryListScreen() {
   const { libraries, loading, refreshing, refresh, reorderLibraries, deleteLibrary } = useLibraries();
   const { stats, totals, streak } = useStudyStats();
-  const [reorderMode, setReorderMode] = useState(false);
   const { profile } = useAuth();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
@@ -26,77 +26,24 @@ export default function LibraryListScreen() {
   const { width, height } = useWindowDimensions();
   const { showAlert } = useAlert();
 
-  const [selectedLibraryForMenu, setSelectedLibraryForMenu] = useState<Library | null>(null);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const {
+    reorderMode,
+    setReorderMode,
+    selectedLibraryForMenu,
+    setSelectedLibraryForMenu,
+    menuPosition,
+    handleMoveUp,
+    handleMoveDown,
+    handleEditLibrary,
+    handleDeleteLibrary,
+    showLibraryOptions
+  } = useLibraryActions(libraries, reorderLibraries, deleteLibrary);
 
   // 웹과 데스크톱 환경을 위한 그리드 설정
   const isWeb = Platform.OS === 'web';
   const numColumns = isWeb && width > 768 ? 2 : 1;
   const key = `list-${numColumns}-${reorderMode}`;
 
-  const handleMoveUp = async (index: number) => {
-    if (index === 0) return;
-    const newLibs = [...libraries];
-    [newLibs[index - 1], newLibs[index]] = [newLibs[index], newLibs[index - 1]];
-    await reorderLibraries(newLibs);
-  };
-
-  const handleMoveDown = async (index: number) => {
-    if (index === libraries.length - 1) return;
-    const newLibs = [...libraries];
-    [newLibs[index + 1], newLibs[index]] = [newLibs[index], newLibs[index + 1]];
-    await reorderLibraries(newLibs);
-  };
-
-  const handleEditLibrary = (libraryId: string, title: string) => {
-    router.push({
-      pathname: "/library/edit",
-      params: { id: libraryId, title: title }
-    });
-  };
-
-  const handleDeleteLibrary = async (libraryId: string) => {
-    try {
-      await deleteLibrary(libraryId);
-      showAlert({ title: Strings.common.success, message: Strings.libraryForm.deleteSuccess });
-    } catch (error: any) {
-      console.error(error);
-      showAlert({ title: Strings.common.error, message: `${Strings.common.delete} 실패: ${error.message}` });
-    }
-  };
-
-  const showLibraryOptions = (library: Library, event: any) => {
-    if (reorderMode) return;
-
-    if (Platform.OS === 'web') {
-      const { pageX, pageY } = event.nativeEvent;
-      setMenuPosition({ x: pageX, y: pageY });
-      setSelectedLibraryForMenu(library);
-    } else {
-      showAlert({
-        title: library.title,
-        message: '암기장 설정',
-        buttons: [
-          { text: Strings.common.edit, onPress: () => handleEditLibrary(library.id, library.title) },
-          {
-            text: Strings.common.delete,
-            style: 'destructive',
-            onPress: () => {
-              showAlert({
-                title: Strings.common.deleteConfirmTitle,
-                message: Strings.common.deleteConfirmMsg,
-                buttons: [
-                  { text: Strings.common.cancel, style: 'cancel' },
-                  { text: Strings.common.delete, style: 'destructive', onPress: () => handleDeleteLibrary(library.id) }
-                ]
-              });
-            }
-          },
-          { text: Strings.common.cancel, style: 'cancel' },
-        ]
-      });
-    }
-  };
 
   const renderItem = ({ item, index }: { item: Library; index: number }) => (
     <Animated.View

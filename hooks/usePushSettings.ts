@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Platform, DeviceEventEmitter } from 'react-native';
-import { PushNotificationService, PushNotificationSettings } from '@/services/PushNotificationService';
+import { PushNotificationService } from '@/services/PushNotificationService';
+import { NotificationSettings } from '@/services/NotificationCommonService';
 import { LibraryService } from '@/services/LibraryService';
 import { Library, Section } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function usePushSettings() {
     const { user, session } = useAuth();
-    const [notificationSettings, setNotificationSettings] = useState<PushNotificationSettings | null>(null);
+    const [notificationSettings, setNotificationSettings] = useState<NotificationSettings | null>(null);
     const [libraries, setLibraries] = useState<Library[]>([]);
     const [sections, setSections] = useState<Section[]>([]);
     const [loadingSections, setLoadingSections] = useState(false);
@@ -70,7 +71,7 @@ export function usePushSettings() {
         }
     }, []);
 
-    const saveSettings = async (newSettings: PushNotificationSettings) => {
+    const saveSettings = async (newSettings: NotificationSettings) => {
         try {
             await PushNotificationService.saveSettings(newSettings, session?.user?.id);
 

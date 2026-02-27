@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { View, ActivityIndicator, Platform, TouchableOpacity, DeviceEventEmitter, AppState } from 'react-native';
 import { PushNotificationService } from '@/services/PushNotificationService';
+import { NotificationCommonService } from '@/services/NotificationCommonService';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AlertProvider } from '@/contexts/AlertContext';
@@ -107,7 +108,7 @@ function InitialLayout() {
         console.log('[Layout] Notification response received:', data.type);
 
         if (data.itemId) {
-          await PushNotificationService.addShownId(data.itemId as string);
+          await NotificationCommonService.addShownId(data.itemId as string);
 
           if (data.type !== 'completion' && data.libraryId) {
             router.push(`/library/${data.libraryId as string}`);
@@ -129,7 +130,7 @@ function InitialLayout() {
         const data = notification.request.content.data;
         if (data?.itemId) {
           console.log('[Layout] Foreground notification arrived:', data.itemId);
-          await PushNotificationService.addShownId(data.itemId as string);
+          await NotificationCommonService.addShownId(data.itemId as string);
           DeviceEventEmitter.emit('push-progress-updated');
 
           // 알림이 올 때마다 전체를 재예약하면 성능 저하 및 알림 뭉침의 원인이 될 수 있으므로 제거함.

@@ -8,7 +8,8 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
-import { PushNotificationService, PushNotificationSettings } from '@/services/PushNotificationService';
+import { PushNotificationService } from '@/services/PushNotificationService';
+import { NotificationSettings } from '@/services/NotificationCommonService';
 import { Library, Section } from '@/types';
 
 import { usePushSettings } from '@/hooks/usePushSettings';
@@ -44,7 +45,7 @@ export default function SettingsScreen() {
   );
 
   // UI State for Modal
-  const [tempSettings, setTempSettings] = useState<PushNotificationSettings | null>(null);
+  const [tempSettings, setTempSettings] = useState<NotificationSettings | null>(null);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [showLibraryList, setShowLibraryList] = useState(false);
   const [showSectionList, setShowSectionList] = useState(false);
@@ -109,7 +110,7 @@ export default function SettingsScreen() {
     setShowNotificationModal(true);
   };
 
-  const handleUpdateTempSettings = (newSettings: Partial<PushNotificationSettings>) => {
+  const handleUpdateTempSettings = (newSettings: Partial<NotificationSettings>) => {
     if (!tempSettings) return;
     setTempSettings({ ...tempSettings, ...newSettings });
   };
@@ -128,7 +129,7 @@ export default function SettingsScreen() {
       return;
     }
 
-    const finalSettings: PushNotificationSettings = {
+    const finalSettings: NotificationSettings = {
       ...tempSettings,
       enabled: true,
       libraryId: tempSettings.libraryId,
