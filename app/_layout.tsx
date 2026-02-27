@@ -225,6 +225,7 @@ function InitialLayout() {
     <Stack
       screenOptions={{
         headerShown: !isWeb, // 웹에서는 WebHeader가 있으므로 Stack 헤더를 숨깁니다.
+        title: "뇌벨업",
         headerShadowVisible: false,
         headerTintColor: colorScheme === 'dark' ? '#fff' : '#000',
         headerLeft: (props) => (
