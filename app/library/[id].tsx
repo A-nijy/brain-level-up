@@ -12,7 +12,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
 import { useAuth } from '@/contexts/AuthContext';
-import { useHeader, useHeaderActions } from '@/contexts/HeaderContext';
+import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/HeaderContext';
 import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
 
@@ -38,6 +38,9 @@ export default function LibraryDetailScreen() {
         updateSection,
         deleteSection
     } = useLibrarySections(libraryId);
+
+    // 웹 헤더 제목 설정
+    useWebHeaderTitle(library?.title || paramTitle || Strings.libraryDetail.title, [library?.title, paramTitle]);
 
     const [reorderMode, setReorderMode] = useState(false);
     const [createModalVisible, setCreateModalVisible] = useState(false);

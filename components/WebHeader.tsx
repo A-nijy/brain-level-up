@@ -13,13 +13,17 @@ export default function WebHeader() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
     const { profile } = useAuth();
-    const { actions } = useHeader();
+    const { actions, title: contextTitle } = useHeader();
     const segments = useSegments();
     const router = useRouter();
     const [showNotifications, setShowNotifications] = React.useState(false);
 
 
+    const { title: paramTitle } = useLocalSearchParams<{ title?: string }>();
+
     const getPageTitle = () => {
+        if (contextTitle) return contextTitle;
+        if (paramTitle) return paramTitle;
 
         const seg0 = segments[0] as string;
         const seg1 = segments[segments.length - 1] as string;

@@ -14,7 +14,9 @@ export interface HeaderAction {
 
 interface HeaderContextType {
     actions: HeaderAction[];
+    title: string | null;
     setActions: (actions: HeaderAction[]) => void;
+    setTitle: (title: string | null) => void;
     clearActions: () => void;
 }
 
@@ -22,17 +24,23 @@ const HeaderContext = createContext<HeaderContextType | undefined>(undefined);
 
 export function HeaderProvider({ children }: { children: ReactNode }) {
     const [actions, setActionsState] = useState<HeaderAction[]>([]);
+    const [title, setTitleState] = useState<string | null>(null);
 
     const setActions = (newActions: HeaderAction[]) => {
         setActionsState(newActions);
     };
 
+    const setTitle = (newTitle: string | null) => {
+        setTitleState(newTitle);
+    };
+
     const clearActions = () => {
         setActionsState([]);
+        setTitleState(null);
     };
 
     return (
-        <HeaderContext.Provider value={{ actions, setActions, clearActions }}>
+        <HeaderContext.Provider value={{ actions, title, setActions, setTitle, clearActions }}>
             {children}
         </HeaderContext.Provider>
     );
@@ -60,5 +68,23 @@ export function useHeaderActions(actions: HeaderAction[], deps: any[] = []) {
             }
             return () => clearActions();
         }, deps)
+    );
+}
+
+/**
+ * 웹 헤더의 제목을 동적으로 설정합니다.
+ */
+export function useWebHeaderTitle(title: string | null, deps: any[] = []) {
+    const { setTitle } = useHeader();
+
+    useFocusEffect(
+        useCallback(() => {
+            if (Platform.OS === 'web' && title) {
+                setTitle(title);
+            }
+            return () => {
+                if (Platform.OS === 'web') setTitle(null);
+            };
+        }, [title, ...deps])
     );
 }

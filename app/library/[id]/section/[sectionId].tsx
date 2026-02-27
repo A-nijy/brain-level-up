@@ -13,7 +13,7 @@ import { ExportModal, ExportOptions as PDFExportOptions } from '@/components/Exp
 import { PdfService } from '@/services/PdfService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAlert } from '@/contexts/AlertContext';
-import { useHeader, useHeaderActions } from '@/contexts/HeaderContext';
+import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/HeaderContext';
 import { Strings } from '@/constants/Strings';
 
 export default function SectionDetailScreen() {
@@ -38,6 +38,9 @@ export default function SectionDetailScreen() {
         deleteItem,
         updateItem
     } = useSectionDetail(sid);
+
+    // 웹 헤더 제목 설정
+    useWebHeaderTitle(section?.title || paramTitle || Strings.librarySection.title, [section?.title, paramTitle]);
 
     const [reorderMode, setReorderMode] = useState(false);
     const [exportModalVisible, setExportModalVisible] = useState(false);

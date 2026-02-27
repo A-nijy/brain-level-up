@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, View as DefaultView, SectionList } from 'react-native';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, View as DefaultView, SectionList, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -15,6 +15,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
+import { useWebHeaderTitle } from '@/contexts/HeaderContext';
 
 export default function SharedLibraryPreviewScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -27,6 +28,9 @@ export default function SharedLibraryPreviewScreen() {
     const { showAlert } = useAlert();
 
     const { library, sections, loading, refreshing, refresh, downloadLibrary } = useSharedDetail(sharedLibraryId);
+
+    // 웹 헤더 제목 설정
+    useWebHeaderTitle(library?.title || paramTitle || Strings.sharedDetail.screenTitle, [library?.title, paramTitle]);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [downloading, setDownloading] = useState(false);
