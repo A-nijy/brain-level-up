@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mem-app",
-    "slug": "mem-app",
+    "name": "뇌벨업",
+    "slug": "brain-levelup",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
