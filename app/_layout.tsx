@@ -209,6 +209,32 @@ function InitialLayout() {
     }
   }, [session, segments, isLoading, loaded]);
 
+  // 웹 브라우저 탭 제목 강제 고정 ("뇌벨업")
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    const appName = "뇌벨업";
+    document.title = appName;
+
+    // 다른 컴포넌트나 내비게이션에 의해 제목이 바뀌는 것을 방지
+    const observer = new MutationObserver(() => {
+      if (document.title !== appName) {
+        document.title = appName;
+      }
+    });
+
+    const titleElement = document.querySelector('title');
+    if (titleElement) {
+      observer.observe(titleElement, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   if (!loaded || isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colorScheme === 'dark' ? '#000' : '#fff' }}>
