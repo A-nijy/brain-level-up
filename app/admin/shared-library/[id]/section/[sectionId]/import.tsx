@@ -4,7 +4,7 @@ import { Text, View, Card } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -50,25 +50,57 @@ export default function AdminImportItemsScreen() {
             setLoading(true);
 
             try {
-                const isCSV = file.name.toLowerCase().endsWith('.csv');
                 let json: any[] = [];
+                const isCSV = file.name.toLowerCase().endsWith('.csv');
 
-                if (isCSV) {
-                    const data = await FileSystem.readAsStringAsync(file.uri, {
-                        encoding: 'utf8',
-                    });
-                    const workbook = XLSX.read(data, { type: 'string' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    json = XLSX.utils.sheet_to_json(sheet);
+                if (Platform.OS === 'web') {
+                    const fileBlob = (file as any).file as File;
+                    const reader = new FileReader();
+
+                    reader.onload = (e) => {
+                        try {
+                            const data = e.target?.result;
+                            const workbook = XLSX.read(data, { type: isCSV ? 'string' : 'binary' });
+                            const sheetName = workbook.SheetNames[0];
+                            const sheet = workbook.Sheets[sheetName];
+                            json = XLSX.utils.sheet_to_json(sheet);
+
+                            if (json.length === 0) {
+                                showAlert({ title: Strings.common.warning, message: Strings.adminImport.alerts.emptyFile });
+                            }
+                            setParsedData(json);
+                            setLoading(false);
+                        } catch (err) {
+                            console.error('Web file parsing error:', err);
+                            showAlert({ title: Strings.common.error, message: Strings.adminImport.alerts.parseError });
+                            setLoading(false);
+                        }
+                    };
+
+                    if (isCSV) {
+                        reader.readAsText(fileBlob);
+                    } else {
+                        reader.readAsBinaryString(fileBlob);
+                    }
+                    return;
                 } else {
-                    const base64 = await FileSystem.readAsStringAsync(file.uri, {
-                        encoding: 'base64',
-                    });
-                    const workbook = XLSX.read(base64, { type: 'base64' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    json = XLSX.utils.sheet_to_json(sheet);
+                    if (isCSV) {
+                        const data = await FileSystem.readAsStringAsync(file.uri, {
+                            encoding: 'utf8',
+                        });
+                        const workbook = XLSX.read(data, { type: 'string' });
+                        const sheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        json = XLSX.utils.sheet_to_json(sheet);
+                    } else {
+                        const base64 = await FileSystem.readAsStringAsync(file.uri, {
+                            encoding: 'base64',
+                        });
+                        const workbook = XLSX.read(base64, { type: 'base64' });
+                        const sheetName = workbook.SheetNames[0];
+                        const sheet = workbook.Sheets[sheetName];
+                        json = XLSX.utils.sheet_to_json(sheet);
+                    }
                 }
 
                 if (json.length === 0) {
@@ -79,7 +111,7 @@ export default function AdminImportItemsScreen() {
                 console.error('File parsing error:', error);
                 showAlert({ title: Strings.common.error, message: Strings.adminImport.alerts.parseError });
             } finally {
-                setLoading(false);
+                if (Platform.OS !== 'web') setLoading(false);
             }
 
         } catch (error) {
