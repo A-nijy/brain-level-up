@@ -76,6 +76,7 @@ export default function SharedLibraryScreen() {
     const [editingSharedLibId, setEditingSharedLibId] = useState<string | null>(null);
     const [editingTitle, setEditingTitle] = useState('');
     const [editingDesc, setEditingDesc] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const openShareModal = async (editItem?: SharedLibrary) => {
         if (!user) {
@@ -199,6 +200,10 @@ export default function SharedLibraryScreen() {
     const isWeb = Platform.OS === 'web';
     const numColumns = isWeb && width > 768 ? 2 : 1;
     const listKey = `shared-${numColumns}`;
+
+    const filteredLibraries = libraries.filter(lib =>
+        lib.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const handleDownloadRequest = (item: SharedLibrary) => {
         if (!user) {
@@ -342,7 +347,7 @@ export default function SharedLibraryScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]} >
             <FlatList
                 key={listKey}
-                data={libraries}
+                data={filteredLibraries}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
                 numColumns={numColumns}
@@ -355,10 +360,25 @@ export default function SharedLibraryScreen() {
                 }
                 ListHeaderComponent={
                     <View variant="transparent" style={styles.header}>
-                        <View variant="transparent" style={styles.headerTop}>
-                            <View variant="transparent" style={{ flex: 1, marginRight: 8 }}>
-                                <Text style={styles.headerTitle}>{Strings.shared.title}</Text>
-                                <Text style={styles.headerSubtitle}>{Strings.shared.subtitle}</Text>
+                        <View variant="transparent" style={styles.headerInfoSection}>
+                            <Text style={styles.headerTitle}>{Strings.shared.title}</Text>
+                            <Text style={styles.headerSubtitle}>{Strings.shared.subtitle}</Text>
+
+                            {/* Search Bar Position Moved Here */}
+                            <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginTop: 20, maxWidth: isWeb ? 400 : undefined }]}>
+                                <FontAwesome name="search" size={14} color={colors.textSecondary} />
+                                <TextInput
+                                    style={[styles.searchInput, { color: colors.text }]}
+                                    placeholder={Strings.shared.searchPlaceholder}
+                                    placeholderTextColor={colors.textSecondary}
+                                    value={searchQuery}
+                                    onChangeText={setSearchQuery}
+                                />
+                                {searchQuery.length > 0 && (
+                                    <TouchableOpacity onPress={() => setSearchQuery('')}>
+                                        <FontAwesome name="times-circle" size={14} color={colors.textSecondary} />
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         </View>
 
@@ -416,12 +436,25 @@ export default function SharedLibraryScreen() {
                 }
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
-                        {loading ? <ActivityIndicator size="large" color={colors.tint} /> : (
-                            <>
-                                <FontAwesome name={Strings.adminUsers.icons.search as any} size={40} color={colors.textSecondary} style={{ opacity: 0.3 }} />
-                                <Text style={styles.emptyText}>{Strings.shared.empty}</Text>
-                            </>
-                        )}
+                        {loading ? <ActivityIndicator size="large" color={colors.tint} /> :
+                            searchQuery.length > 0 ? (
+                                <>
+                                    <FontAwesome name="search" size={40} color={colors.textSecondary} style={{ opacity: 0.2, marginBottom: 16 }} />
+                                    <Text style={[styles.emptyText, { marginBottom: 8 }]}>검색 결과가 없습니다</Text>
+                                    <Text style={[styles.emptyText, { fontSize: 14, marginTop: 0 }]}>'{searchQuery}'와 일치하는 자료를 찾을 수 없습니다.</Text>
+                                    <TouchableOpacity
+                                        style={[styles.downloadButton, { marginTop: 20, backgroundColor: colors.border }]}
+                                        onPress={() => setSearchQuery('')}
+                                    >
+                                        <Text style={[styles.downloadButtonText, { color: colors.text }]}>검색 초기화</Text>
+                                    </TouchableOpacity>
+                                </>
+                            ) : (
+                                <>
+                                    <FontAwesome name={Strings.adminUsers.icons.search as any} size={40} color={colors.textSecondary} style={{ opacity: 0.3 }} />
+                                    <Text style={styles.emptyText}>{Strings.shared.empty}</Text>
+                                </>
+                            )}
                     </View>
                 }
             />
@@ -605,6 +638,21 @@ const styles = StyleSheet.create({
         paddingHorizontal: 4,
         marginTop: 12,
     },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        height: 44,
+        borderRadius: 12,
+        borderWidth: 1,
+    },
+    searchInput: {
+        flex: 1,
+        marginLeft: 10,
+        fontSize: 14,
+        fontWeight: '500',
+        paddingVertical: 8,
+    },
     headerTitle: {
         fontSize: Platform.OS === 'web' ? 32 : 28,
         fontWeight: '800',
@@ -762,6 +810,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 8,
         width: '100%',
+    },
+    headerInfoSection: {
+        marginBottom: 8,
     },
     shareActionWrapper: {
         flexShrink: 0,

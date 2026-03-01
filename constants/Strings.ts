@@ -120,6 +120,7 @@ export const Strings = {
             down: "arrow-down", // 순서 내리기 아이콘
             bell: "bell-o", // 상단 알림 아이콘 ((탭)/index.tsx)
         },
+        searchPlaceholder: "암기장 제목 검색...", // 암기장 검색 플레이스홀더
         images: {
             libraryDefault: "https://cdn-icons-png.flaticon.com/512/3389/3389081.png", // 암기장 기본 아이콘 이미지 URL
         }
@@ -472,6 +473,7 @@ export const Strings = {
         import: "가져오기",
         empty: "공유된 자료가 없습니다.",
         loading: "자료를 불러오는 중...",
+        searchPlaceholder: "자료 제목 검색...",
 
         adModal: {
             title: "자료 받기",

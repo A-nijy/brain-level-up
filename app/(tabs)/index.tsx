@@ -25,6 +25,7 @@ export default function LibraryListScreen() {
   const colors = Colors[colorScheme];
   const { width, height } = useWindowDimensions();
   const { showAlert } = useAlert();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const {
     reorderMode,
@@ -42,6 +43,11 @@ export default function LibraryListScreen() {
   // 웹과 데스크톱 환경을 위한 그리드 설정
   const isWeb = Platform.OS === 'web';
   const numColumns = isWeb && width > 768 ? 2 : 1;
+
+  const filteredLibraries = libraries.filter(lib =>
+    lib.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const key = `list-${numColumns}-${reorderMode}`;
 
 
@@ -141,7 +147,7 @@ export default function LibraryListScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         key={key}
-        data={libraries}
+        data={filteredLibraries}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={numColumns}
@@ -158,16 +164,38 @@ export default function LibraryListScreen() {
               <View variant="transparent" style={styles.greetingRow}>
                 <View variant="transparent">
                   <Text style={styles.webGreeting}>{Strings.home.greeting(profile?.nickname || profile?.email?.split('@')[0] || '사용자')}</Text>
-                  <Text style={[styles.webSubtext, { color: colors.textSecondary }]}>{Strings.home.subGreeting}</Text>
+                  <Text style={[styles.webSubtext, { color: colors.textSecondary, marginBottom: 20 }]}>{Strings.home.subGreeting}</Text>
+
+                  {/* Web Search Bar Position Moved Here */}
+                  <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, maxWidth: 400, marginBottom: 20 }]}>
+                    <FontAwesome name="search" size={14} color={colors.textSecondary} />
+                    <TextInput
+                      style={[styles.searchInput, { color: colors.text }]}
+                      placeholder={Strings.home.searchPlaceholder}
+                      placeholderTextColor={colors.textSecondary}
+                      value={searchQuery}
+                      onChangeText={setSearchQuery}
+                    />
+                    {searchQuery.length > 0 && (
+                      <TouchableOpacity onPress={() => setSearchQuery('')}>
+                        <FontAwesome name="times-circle" size={14} color={colors.textSecondary} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
               </View>
 
               <View variant="transparent" style={styles.sectionHeader}>
-                <View variant="transparent">
-                  <Text style={styles.sectionTitle}>{Strings.home.sectionTitle}</Text>
-                  <View style={[styles.titleUnderline, { backgroundColor: colors.tint }]} />
+                <View variant="transparent" style={{ flex: 1 }}>
+                  <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <View variant="transparent">
+                      <Text style={styles.sectionTitle}>{Strings.home.sectionTitle}</Text>
+                      <View style={[styles.titleUnderline, { backgroundColor: colors.tint }]} />
+                    </View>
+                  </View>
                 </View>
-                <View variant="transparent" style={{ flexDirection: 'row', gap: 12 }}>
+
+                <View variant="transparent" style={{ flexDirection: 'row', gap: 12, marginLeft: 20 }}>
                   <TouchableOpacity
                     style={[
                       styles.reorderToggle,
@@ -192,25 +220,78 @@ export default function LibraryListScreen() {
                 </View>
               </View>
             </View>
-          ) : null
+          ) : (
+            <View variant="transparent" style={styles.mobileHeaderContainer}>
+              <View variant="transparent">
+                <Text style={styles.mobileGreeting}>{Strings.home.greeting(profile?.nickname || profile?.email?.split('@')[0] || '사용자')}</Text>
+                <Text style={[styles.mobileSubtext, { color: colors.textSecondary, marginBottom: 20 }]}>{Strings.home.subGreeting}</Text>
+              </View>
+
+              <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginBottom: 24 }]}>
+                <FontAwesome name="search" size={14} color={colors.textSecondary} />
+                <TextInput
+                  style={[styles.searchInput, { color: colors.text }]}
+                  placeholder={Strings.home.searchPlaceholder}
+                  placeholderTextColor={colors.textSecondary}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+                {searchQuery.length > 0 && (
+                  <TouchableOpacity onPress={() => setSearchQuery('')}>
+                    <FontAwesome name="times-circle" size={14} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <View variant="transparent" style={styles.sectionHeader}>
+                <View variant="transparent">
+                  <Text style={styles.sectionTitle}>{Strings.home.sectionTitle}</Text>
+                  <View style={[styles.titleUnderline, { backgroundColor: colors.tint }]} />
+                </View>
+                <TouchableOpacity
+                  style={[
+                    styles.reorderToggle,
+                    reorderMode && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
+                  ]}
+                  onPress={() => setReorderMode(!reorderMode)}
+                >
+                  <FontAwesome name="sort" size={14} color={reorderMode ? colors.tint : colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )
         }
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Image
-              source={require('@/assets/images/logo.png')}
-              style={styles.emptyLogo}
-              resizeMode="contain"
-            />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>{Strings.home.sectionTitle}</Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>첫 번째 암기장을 만들어 학습을 시작해보세요!</Text>
-            <TouchableOpacity
-              style={[styles.emptyAddBtn, { backgroundColor: colors.tint }]}
-              onPress={() => router.push('/library/create')}
-            >
-              <FontAwesome name={Strings.common.icons.add as any} size={14} color="#fff" style={{ marginRight: 8 }} />
-              <Text style={styles.emptyAddBtnText}>{Strings.home.newLibrary}</Text>
-            </TouchableOpacity>
-          </View>
+          searchQuery.length > 0 ? (
+            <View style={styles.emptyContainer}>
+              <FontAwesome name="search" size={48} color={colors.textSecondary} style={{ opacity: 0.2, marginBottom: 20 }} />
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>검색 결과가 없습니다</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>'{searchQuery}'와 일치하는 암기장을 찾을 수 없습니다.</Text>
+              <TouchableOpacity
+                style={[styles.emptyAddBtn, { backgroundColor: colors.border, marginTop: 10 }]}
+                onPress={() => setSearchQuery('')}
+              >
+                <Text style={[styles.emptyAddBtnText, { color: colors.text }]}>검색 초기화</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Image
+                source={require('@/assets/images/logo.png')}
+                style={styles.emptyLogo}
+                resizeMode="contain"
+              />
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>{Strings.home.sectionTitle}</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>첫 번째 암기장을 만들어 학습을 시작해보세요!</Text>
+              <TouchableOpacity
+                style={[styles.emptyAddBtn, { backgroundColor: colors.tint }]}
+                onPress={() => router.push('/library/create')}
+              >
+                <FontAwesome name={Strings.common.icons.add as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.emptyAddBtnText}>{Strings.home.newLibrary}</Text>
+              </TouchableOpacity>
+            </View>
+          )
         }
       />
 
@@ -301,6 +382,15 @@ const styles = StyleSheet.create({
   webSubtext: {
     fontSize: 16,
   },
+  mobileGreeting: {
+    fontSize: 20,
+    fontWeight: '800',
+    marginBottom: 6,
+  },
+  mobileSubtext: {
+    fontSize: 14,
+    marginBottom: 16,
+  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -316,6 +406,25 @@ const styles = StyleSheet.create({
     height: 4,
     width: 40,
     borderRadius: 2,
+  },
+  mobileHeaderContainer: {
+    marginBottom: 20,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    flex: 1,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 10,
+    fontSize: 14,
+    fontWeight: '500',
+    paddingVertical: 8,
   },
   webAddBtn: {
     borderRadius: 14,
