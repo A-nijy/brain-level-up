@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, Platform } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { Notice } from '@/types';
 import { Stack, useRouter } from 'expo-router';
@@ -47,7 +47,7 @@ export default function NoticesScreen() {
             <Stack.Screen
                 options={{
                     headerTitle: Strings.notices.screenTitle,
-                    headerShown: true,
+                    headerShown: Platform.OS !== 'web',
                 }}
             />
 

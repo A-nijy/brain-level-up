@@ -124,6 +124,7 @@ export default function NotificationsScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{
                 title: Strings.notifications.screenTitle,
+                headerShown: Platform.OS !== 'web',
                 headerRight: () => (
                     <TouchableOpacity onPress={handleMarkAllAsRead} style={{ marginRight: 15 }}>
                         <Text style={{ color: colors.tint, fontWeight: 'bold' }}>{Strings.notifications.markAllRead}</Text>

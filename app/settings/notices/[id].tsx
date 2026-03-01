@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import Colors from '@/constants/Colors';
@@ -64,7 +64,7 @@ export default function NoticeDetailScreen() {
             <Stack.Screen
                 options={{
                     headerTitle: Strings.notices.screenTitle,
-                    headerShown: true,
+                    headerShown: Platform.OS !== 'web',
                 }}
             />
 

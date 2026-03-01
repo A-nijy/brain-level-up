@@ -60,7 +60,7 @@ export default function NewSupportScreen() {
             <Stack.Screen
                 options={{
                     title: Strings.support.screenTitle,
-                    headerShown: true,
+                    headerShown: Platform.OS !== 'web',
                     headerTintColor: colors.text,
                 }}
             />

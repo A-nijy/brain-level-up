@@ -59,7 +59,10 @@ export default function ProfileScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={[styles.container, { backgroundColor: colors.background }]}
         >
-            <Stack.Screen options={{ title: Strings.settings.profile.editTitle }} />
+            <Stack.Screen options={{
+                title: Strings.settings.profile.editTitle,
+                headerShown: Platform.OS !== 'web'
+            }} />
 
             <ScrollView contentContainerStyle={styles.content}>
                 <View style={styles.avatarSection}>

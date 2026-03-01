@@ -47,9 +47,27 @@ export default function WebHeader() {
         const userTitleMap: Record<string, string> = {
             'shared': Strings.tabs.shared,
             'stats': Strings.tabs.stats,
-            'settings': Strings.tabs.settings
+            'settings': Strings.tabs.settings,
+            'profile': Strings.settings.profile.editTitle,
+            'notices': Strings.notices.screenTitle,
+            'support': Strings.support.screenTitle,
+            'new': Strings.support.screenTitle,
+            'notifications': Strings.notifications.screenTitle,
+            'shared-library': Strings.sharedDetail.screenTitle
         };
-        return userTitleMap[seg1] || Strings.common.appName;
+
+        const lastSeg = segments[segments.length - 1] as string;
+        const parentSeg = segments[segments.length - 2] as string;
+
+        // 특별 케이스 처리
+        if (parentSeg === 'notices') return Strings.notices.detailTitle;
+        if (parentSeg === 'shared-library') return Strings.sharedDetail.screenTitle;
+        if (seg0 === 'admin') {
+            if (lastSeg === 'users') return Strings.adminUsers.title;
+            if (lastSeg === 'shared-management') return Strings.adminSharedManager.title;
+        }
+
+        return userTitleMap[lastSeg] || userTitleMap[seg1] || Strings.common.appName;
     };
 
     return (
