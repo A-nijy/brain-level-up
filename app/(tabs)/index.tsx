@@ -161,13 +161,11 @@ export default function LibraryListScreen() {
         ListHeaderComponent={
           isWeb ? (
             <View variant="transparent" style={styles.webHeaderContainer}>
-              <View variant="transparent" style={styles.greetingRow}>
+              {/* Web Header Space Info Removed */}
+              <View variant="transparent" style={[styles.greetingRow, { marginBottom: 10 }]}>
                 <View variant="transparent">
-                  <Text style={styles.webGreeting}>{Strings.home.greeting(profile?.nickname || profile?.email?.split('@')[0] || '사용자')}</Text>
-                  <Text style={[styles.webSubtext, { color: colors.textSecondary, marginBottom: 20 }]}>{Strings.home.subGreeting}</Text>
-
-                  {/* Web Search Bar Position Moved Here */}
-                  <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, maxWidth: 400, marginBottom: 20 }]}>
+                  {/* Web Search Bar Only */}
+                  <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, maxWidth: 400 }]}>
                     <FontAwesome name="search" size={14} color={colors.textSecondary} />
                     <TextInput
                       style={[styles.searchInput, { color: colors.text }]}
@@ -222,12 +220,8 @@ export default function LibraryListScreen() {
             </View>
           ) : (
             <View variant="transparent" style={styles.mobileHeaderContainer}>
-              <View variant="transparent">
-                <Text style={styles.mobileGreeting}>{Strings.home.greeting(profile?.nickname || profile?.email?.split('@')[0] || '사용자')}</Text>
-                <Text style={[styles.mobileSubtext, { color: colors.textSecondary, marginBottom: 20 }]}>{Strings.home.subGreeting}</Text>
-              </View>
-
-              <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginBottom: 24 }]}>
+              {/* Mobile Greeting removed */}
+              <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginBottom: 20 }]}>
                 <FontAwesome name="search" size={14} color={colors.textSecondary} />
                 <TextInput
                   style={[styles.searchInput, { color: colors.text }]}

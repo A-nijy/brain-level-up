@@ -45,9 +45,9 @@ export default function WebHeader() {
         }
 
         const userTitleMap: Record<string, string> = {
-            'shared': '열린 자료실',
-            'stats': '나의 학습 리포트',
-            'settings': '시스템 환경 설정'
+            'shared': Strings.tabs.shared,
+            'stats': Strings.tabs.stats,
+            'settings': Strings.tabs.settings
         };
         return userTitleMap[seg1] || Strings.common.appName;
     };

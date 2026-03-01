@@ -359,13 +359,10 @@ export default function SharedLibraryScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />
                 }
                 ListHeaderComponent={
-                    <View variant="transparent" style={styles.header}>
+                    <View variant="transparent" style={[styles.header, { marginBottom: 12 }]}>
                         <View variant="transparent" style={styles.headerInfoSection}>
-                            <Text style={styles.headerTitle}>{Strings.shared.title}</Text>
-                            <Text style={styles.headerSubtitle}>{Strings.shared.subtitle}</Text>
-
-                            {/* Search Bar Position Moved Here */}
-                            <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginTop: 20, maxWidth: isWeb ? 400 : undefined }]}>
+                            {/* Shared Title/Subtitle info removed */}
+                            <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginTop: 4, maxWidth: isWeb ? 400 : undefined }]}>
                                 <FontAwesome name="search" size={14} color={colors.textSecondary} />
                                 <TextInput
                                     style={[styles.searchInput, { color: colors.text }]}
