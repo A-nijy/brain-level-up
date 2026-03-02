@@ -17,12 +17,8 @@ const AD_EVENTS = {
     ERROR: AdEventType.ERROR
 };
 
-// 보상형 광고 단위 ID (환경 변수 우선 적용, 없을 경우 테스트용 ID 사용)
-const REWARDED_AD_UNIT_ID = process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID || Platform.select({
-    ios: TestIds.REWARDED,
-    android: TestIds.REWARDED,
-    default: TestIds.REWARDED
-}) || 'ca-app-pub-3940256099942544/5224354917';
+// 보상형 광고 단위 ID (환경 변수에서 직접 가져옴)
+const REWARDED_AD_UNIT_ID = process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID;
 
 export const AdService = {
     /**
