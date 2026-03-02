@@ -15,6 +15,7 @@ import { Library, Section } from '@/types';
 import { usePushSettings } from '@/hooks/usePushSettings';
 import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
+import Constants from 'expo-constants';
 
 export default function SettingsScreen() {
   const { signOut, profile } = useAuth();
@@ -341,7 +342,7 @@ export default function SettingsScreen() {
               </View>
               <Text style={styles.itemText}>{Strings.settings.menuVersion}</Text>
             </View>
-            <Text style={[styles.valueText, { color: colors.textSecondary }]}>v1.4.3</Text>
+            <Text style={[styles.valueText, { color: colors.textSecondary }]}>v{Constants.expoConfig?.version || '1.0.0'}</Text>
           </View>
         </Card>
 
