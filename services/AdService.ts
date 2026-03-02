@@ -17,8 +17,8 @@ const AD_EVENTS = {
     ERROR: AdEventType.ERROR
 };
 
-// 보상형 광고 단위 ID (테스트용)
-const REWARDED_AD_UNIT_ID = Platform.select({
+// 보상형 광고 단위 ID (환경 변수 우선 적용, 없을 경우 테스트용 ID 사용)
+const REWARDED_AD_UNIT_ID = process.env.EXPO_PUBLIC_ADMOB_REWARDED_ID || Platform.select({
     ios: TestIds.REWARDED,
     android: TestIds.REWARDED,
     default: TestIds.REWARDED
