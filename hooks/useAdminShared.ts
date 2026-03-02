@@ -93,6 +93,24 @@ export function useAdminShared() {
         }
     };
 
+    const reorderSharedLibraries = async (updates: { id: string; display_order: number }[]) => {
+        try {
+            await AdminService.reorderSharedLibraries(updates);
+            // Local update
+            setSharedLibs(prev => {
+                const newLibs = [...prev];
+                updates.forEach(u => {
+                    const idx = newLibs.findIndex(l => l.id === u.id);
+                    if (idx !== -1) newLibs[idx] = { ...newLibs[idx], display_order: u.display_order };
+                });
+                return newLibs.sort((a, b) => a.display_order - b.display_order);
+            });
+        } catch (err: any) {
+            console.error('[useAdminShared] Reorder error:', err);
+            throw err;
+        }
+    };
+
     const createDraft = async (data: Parameters<typeof AdminService.createDraftSharedLibrary>[0]) => {
         try {
             const newDraft = await AdminService.createDraftSharedLibrary(data);
@@ -117,6 +135,7 @@ export function useAdminShared() {
         deleteDraft,
         deleteShared,
         unpublishShared,
+        reorderSharedLibraries,
         createDraft
     };
 }

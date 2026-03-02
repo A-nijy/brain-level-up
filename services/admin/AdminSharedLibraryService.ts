@@ -97,7 +97,14 @@ export const AdminSharedLibraryService = {
 
         if (itemsError) throw itemsError;
 
-        // 4. shared_libraries 에 추가
+        // 4. shared_libraries 에 추가 (마지막 순서 다음으로)
+        const { data: maxOrder } = await supabase
+            .from('shared_libraries')
+            .select('display_order')
+            .order('display_order', { ascending: false })
+            .limit(1);
+        const nextOrder = (maxOrder?.[0]?.display_order ?? -1) + 1;
+
         const { data: sharedLib, error: sharedLibError } = await supabase
             .from('shared_libraries')
             .insert({
@@ -106,7 +113,8 @@ export const AdminSharedLibraryService = {
                 category: library.category,
                 category_id: library.category_id,
                 created_by: library.user_id,
-                is_official: true, // 관리자가 게시하는 것이므로 공식 자료로 설정
+                is_official: true,
+                display_order: nextOrder
             })
             .select()
             .single();
@@ -188,6 +196,14 @@ export const AdminSharedLibraryService = {
         items: { question: string; answer: string; memo?: string }[];
         adminId: string;
     }) {
+        // 마지막 순서 다음으로
+        const { data: maxOrder } = await supabase
+            .from('shared_libraries')
+            .select('display_order')
+            .order('display_order', { ascending: false })
+            .limit(1);
+        const nextOrder = (maxOrder?.[0]?.display_order ?? -1) + 1;
+
         const { data: sharedLib, error: sharedLibError } = await supabase
             .from('shared_libraries')
             .insert({
@@ -195,7 +211,8 @@ export const AdminSharedLibraryService = {
                 description: data.description,
                 category_id: data.category_id,
                 created_by: data.adminId,
-                is_official: true, // 관리자 직접 게시이므로 공식 자료로 설정
+                is_official: true,
+                display_order: nextOrder
             })
             .select()
             .single();
@@ -322,6 +339,18 @@ export const AdminSharedLibraryService = {
 
         if (error) throw error;
         return data || [];
+    },
+
+    /**
+     * 공유 자료실 순서 대량 업데이트
+     */
+    async reorderSharedLibraries(updates: { id: string; display_order: number }[]) {
+        const promises = updates.map(u =>
+            supabase.from('shared_libraries').update({ display_order: u.display_order }).eq('id', u.id)
+        );
+        const results = await Promise.all(promises);
+        const firstError = results.find(r => r.error)?.error;
+        if (firstError) throw firstError;
     },
 
     /**

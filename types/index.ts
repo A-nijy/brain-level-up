@@ -101,7 +101,7 @@ export interface SharedItem {
     memo: string | null;
     image_url: string | null;
     created_at: string;
-    display_order: number; // added
+    display_order: number; // 추가: 정렬 순서
 }
 
 export interface StudyLog {

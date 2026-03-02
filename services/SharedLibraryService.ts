@@ -14,6 +14,7 @@ export const SharedLibraryService = {
             .eq('is_draft', false)
             .eq('is_hidden', false)
             .eq('is_official', isOfficial)
+            .order('display_order', { ascending: true })
             .order('created_at', { ascending: false });
 
         if (categoryId && categoryId !== 'all') {
