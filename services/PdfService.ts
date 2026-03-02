@@ -4,9 +4,9 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { Item } from '@/types';
 
-// StorageAccessFramework 및 EncodingType에 대한 타입 오류 방지를 위해 any 캐스팅 활용
-const SAF = (FileSystem as any).StorageAccessFramework;
-const EncType = (FileSystem as any).EncodingType;
+// StorageAccessFramework 및 EncodingType 명시적 확인
+const SAF = FileSystem.StorageAccessFramework;
+const EncType = FileSystem.EncodingType;
 
 export interface ExportOptions {
   mode: 'both' | 'word_only' | 'meaning_only';
@@ -58,27 +58,38 @@ export const PdfService = {
 
         if (options.action === 'download' && Platform.OS === 'android' && SAF) {
           try {
-            console.log('Android SAF download requested');
+            console.log('Android SAF: Requesting directory permissions...');
+            // 사용자가 직접 저장할 폴더를 선택하도록 유도 (안드로이드 10 이상 필수 절차)
             const permissions = await SAF.requestDirectoryPermissionsAsync();
+
             if (permissions.granted) {
               const base64 = await FileSystem.readAsStringAsync(uri, { encoding: EncType?.Base64 || 'base64' });
               const fileName = `${options.title.replace(/[\\/:*?"<>|]/g, '_')}_${new Date().getTime()}.pdf`;
+
+              // 선택한 폴더에 파일 생성
               const fileUri = await SAF.createFileAsync(permissions.directoryUri, fileName, 'application/pdf');
               await FileSystem.writeAsStringAsync(fileUri, base64, { encoding: EncType?.Base64 || 'base64' });
-              console.log('File saved via SAF at:', fileUri);
+
+              console.log('Android SAF: File saved successfully at', fileUri);
 
               if (showAlert) {
-                showAlert({ title: '저장 완료', message: '기기에 PDF 파일이 저장되었습니다.' });
+                showAlert({
+                  title: '저장 완료',
+                  message: '선택하신 폴더에 PDF 파일이 안전하게 저장되었습니다.'
+                });
               }
             } else {
-              console.log('SAF permission denied, falling back to share');
+              console.log('Android SAF: Permission denied by user');
+              // 권한 거부 시 공유하기로 전환
               await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
             }
           } catch (safError) {
-            console.error('SAF Error:', safError);
+            console.error('Android SAF Error:', safError);
+            // 오류 발생 시 안전하게 공유하기로 폴백
             await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
           }
         } else {
+          // iOS 또는 공유하기 선택 시
           await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
         }
       }
