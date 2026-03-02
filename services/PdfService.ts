@@ -147,27 +147,27 @@ export const PdfService = {
         </style>
       </head>
       <body>
-        \${pages.map((pageItems, pageIdx) => {
+        ${pages.map((pageItems, pageIdx) => {
       const leftCol = pageItems.slice(0, itemsPerColumn);
       const rightCol = pageItems.slice(itemsPerColumn, itemsPerColumn * 2);
 
-      return \`
+      return `
             <div class="page">
               <div class="header">DATE . .</div>
               <div class="columns-container">
                 <div class="column">
                   <table>
-                    \${this.renderRows(leftCol, pageIdx * rowsPerPage + 1, options)}
+                    ${this.renderRows(leftCol, pageIdx * rowsPerPage + 1, options)}
                   </table>
                 </div>
                 <div class="column">
                   <table>
-                    \${this.renderRows(rightCol, pageIdx * rowsPerPage + itemsPerColumn + 1, options)}
+                    ${this.renderRows(rightCol, pageIdx * rowsPerPage + itemsPerColumn + 1, options)}
                   </table>
                 </div>
               </div>
             </div>
-          \`;
+          `;
     }).join('')}
 
         <script>
@@ -188,7 +188,7 @@ export const PdfService = {
         </script>
       </body>
       </html>
-    \`;
+    `;
   },
 
   renderRows(items: Item[], startNum: number, options: ExportOptions) {
@@ -213,13 +213,13 @@ export const PdfService = {
         }
       }
 
-      rows.push(\`
+      rows.push(`
         <tr>
-          <td class="num-col">\${num}</td>
-          <td class="content-col"><span class="content-text">\${questionContent}</span></td>
-          <td class="content-col"><span class="content-text">\${answerContent}</span></td>
+          <td class="num-col">${num}</td>
+          <td class="content-col"><span class="content-text">${questionContent}</span></td>
+          <td class="content-col"><span class="content-text">${answerContent}</span></td>
         </tr>
-      \`);
+      `);
     }
     return rows.join('');
   }
