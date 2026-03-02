@@ -275,7 +275,6 @@ function InitialLayout() {
       <Stack.Screen name="admin" options={{ headerShown: false }} />
       <Stack.Screen name="auth/login" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="settings/notices" options={{ headerTitle: Strings.notices.screenTitle }} />
       <Stack.Screen name="settings/notices/index" options={{ headerTitle: Strings.notices.screenTitle }} />
       <Stack.Screen name="settings/notices/[id]" options={{ headerTitle: Strings.notices.screenTitle }} />
       <Stack.Screen name="settings/profile" options={{ headerTitle: Strings.settings.profile.editTitle }} />

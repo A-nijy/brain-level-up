@@ -1,6 +1,6 @@
 import { Profile } from '../types';
 
-export type FeatureType = 'DOWNLOAD_SHARED' | 'CREATE_LIBRARY' | 'WEB_ACCESS' | 'ADVANCED_STATS';
+export type FeatureType = 'DOWNLOAD_SHARED' | 'CREATE_LIBRARY' | 'WEB_ACCESS' | 'ADVANCED_STATS' | 'EXPORT_PDF';
 
 export type AccessStatus = 'GRANTED' | 'REQUIRE_AD' | 'LIMIT_REACHED' | 'DENIED';
 
@@ -49,6 +49,14 @@ const strategies: Record<FeatureType, FeatureStrategy> = {
                 return { status: 'GRANTED' };
             }
             return { status: 'DENIED', message: 'Advanced analytics are available for PRO members.' };
+        }
+    },
+    EXPORT_PDF: {
+        check: (profile) => {
+            if (profile?.membership_level === 'PREMIUM' || profile?.membership_level === 'PRO') {
+                return { status: 'GRANTED' };
+            }
+            return { status: 'REQUIRE_AD', message: 'Watch a short ad to export this library as PDF!' };
         }
     }
 };

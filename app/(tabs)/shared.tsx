@@ -282,11 +282,6 @@ export default function SharedLibraryScreen() {
                         <FontAwesome name={Strings.home.icons.arrowRight as any} size={18} color={colors.border} />
                     </View>
 
-                    {item.description && (
-                        <Text type="subtitle" numberOfLines={2} style={styles.cardDescription}>
-                            {item.description}
-                        </Text>
-                    )}
 
                     <View variant="transparent" style={styles.cardFooter}>
                         <View variant="transparent" style={styles.footerLeft}>

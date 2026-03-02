@@ -3,18 +3,41 @@ import { Platform } from 'react-native';
 // 앱 환경일 때만 광고 라이브러리 임포트
 let RewardedAd: any = null;
 let RewardedAdEventType: any = null;
+let AdEventType: any = null;
 let TestIds: any = null;
 
 if (Platform.OS !== 'web') {
     try {
         const adLib = require('react-native-google-mobile-ads');
+
+        // 정적 라이브러리 참조
         RewardedAd = adLib.RewardedAd;
         RewardedAdEventType = adLib.RewardedAdEventType;
+        AdEventType = adLib.AdEventType;
         TestIds = adLib.TestIds;
+
+        console.log('[AdService] AdMob Library loaded. Events:', {
+            RewardedAdEventType: !!RewardedAdEventType,
+            AdEventType: !!AdEventType
+        });
     } catch (e) {
-        console.warn('AdMob library not found or failed to load');
+        console.warn('AdMob library not found or failed to load', e);
     }
 }
+
+/**
+ * AdMob v16.x 기준 공식 이벤트 타입 문자열
+ * RewardedAd는 RewardedAdEventType과 AdEventType을 혼용합니다.
+ */
+const AD_EVENTS = {
+    // RewardedAd 전용 이벤트 (prefix가 붙음)
+    LOADED: RewardedAdEventType?.LOADED || 'rewarded_loaded',
+    EARNED_REWARD: RewardedAdEventType?.EARNED_REWARD || 'rewarded_earned_reward',
+
+    // MobileAd 공통 이벤트 (prefix가 없음)
+    CLOSED: AdEventType?.CLOSED || 'closed',
+    ERROR: AdEventType?.ERROR || 'error'
+};
 
 // 보상형 광고 단위 ID (테스트용)
 const REWARDED_AD_UNIT_ID = Platform.select({
@@ -62,38 +85,49 @@ export const AdService = {
         // 로딩 표시용 가짜 알림 (실제로는 로딩 UI를 따로 두는 것이 좋음)
         // 여기서는 간단하게 처리
         let adLoaded = false;
+        console.log('[AdService] Ad events mapping:', AD_EVENTS);
 
-        const unsubscribeLoaded = rewarded.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        const unsubscribeLoaded = rewarded.addAdEventListener(AD_EVENTS.LOADED, () => {
+            console.log('[AdService] Ad Loaded');
             adLoaded = true;
             rewarded.show();
         });
 
         const unsubscribeEarned = rewarded.addAdEventListener(
-            RewardedAdEventType.EARNED_REWARD,
+            AD_EVENTS.EARNED_REWARD,
             (reward: any) => {
-                console.log('User earned reward of ', reward);
+                console.log('[AdService] User earned reward:', reward);
                 onComplete();
             }
         );
 
-        const unsubscribeClosed = rewarded.addAdEventListener(RewardedAdEventType.CLOSED, () => {
-            // 광고 닫힘 처리
+        const unsubscribeClosed = rewarded.addAdEventListener(AD_EVENTS.CLOSED, () => {
+            console.log('[AdService] Ad Closed');
+            cleanup();
+        });
+
+        const unsubscribeError = rewarded.addAdEventListener(AD_EVENTS.ERROR, (error: any) => {
+            console.error('[AdService] Ad Error:', error);
+            cleanup();
+            showAlert({ title: '알림', message: '광고를 불러올 수 없습니다.' });
+        });
+
+        function cleanup() {
             unsubscribeLoaded();
             unsubscribeEarned();
             unsubscribeClosed();
-        });
+            unsubscribeError();
+        }
 
         // 광고 로드 시작
         rewarded.load();
 
-        // 5초 동안 로드되지 않으면 타임아웃 처리 (간단 예시)
+        // 8초 동안 로드되지 않으면 타임아웃 처리
         setTimeout(() => {
             if (!adLoaded) {
-                unsubscribeLoaded();
-                unsubscribeEarned();
-                unsubscribeClosed();
-                showAlert({ title: '알림', message: '광고를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.' });
+                cleanup();
+                showAlert({ title: '알림', message: '광고 로딩 시간이 초과되었습니다. 다시 시도해주세요.' });
             }
-        }, 8000);
+        }, 10000);
     }
 };

@@ -91,11 +91,6 @@ export default function LibraryListScreen() {
           )}
         </View>
 
-        <View variant="transparent" style={styles.cardBody}>
-          <Text style={[styles.description, { color: colors.textSecondary }]} numberOfLines={2}>
-            {item.description || Strings.home.emptyDescription}
-          </Text>
-        </View>
 
         <View variant="transparent" style={styles.footerRow}>
           <View variant="transparent" style={styles.stat}>
@@ -448,7 +443,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     borderWidth: 1.5,
-    height: 180,
     justifyContent: 'space-between',
   },
   cardHeader: {

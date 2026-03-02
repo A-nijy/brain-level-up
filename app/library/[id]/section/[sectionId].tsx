@@ -15,6 +15,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAlert } from '@/contexts/AlertContext';
 import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/HeaderContext';
 import { Strings } from '@/constants/Strings';
+import { MembershipService } from '@/services/MembershipService';
+import { AdService } from '@/services/AdService';
 
 export default function SectionDetailScreen() {
     const { id, sectionId, title: paramTitle } = useLocalSearchParams<{ id: string; sectionId: string; title?: string }>();
@@ -25,6 +27,7 @@ export default function SectionDetailScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { showAlert } = useAlert();
+    const { profile } = useAuth();
     const { width } = useWindowDimensions();
     const isWeb = Platform.OS === 'web' && width > 768;
 
@@ -134,16 +137,42 @@ export default function SectionDetailScreen() {
             exportItems = items.filter(item => item.study_status === 'confused');
         }
 
-        try {
-            await PdfService.generateAndShare(exportItems, {
-                mode: options.mode,
-                order: options.order,
-                title: section?.title || Strings.librarySection.title,
-                action: options.action
-            }, showAlert);
-        } catch (error: any) {
-            showAlert({ title: Strings.librarySection.alerts.exportError, message: error.message });
+        const proceedWithExport = async () => {
+            try {
+                await PdfService.generateAndShare(exportItems, {
+                    mode: options.mode,
+                    order: options.order,
+                    title: section?.title || Strings.librarySection.title,
+                    action: options.action
+                }, showAlert);
+            } catch (error: any) {
+                showAlert({ title: Strings.librarySection.alerts.exportError, message: error.message });
+            }
+        };
+
+        // 광고 시청 여부 확인
+        if (MembershipService.shouldShowAd('EXPORT_PDF', profile)) {
+            showAlert({
+                title: Strings.librarySection.menu.exportPdf,
+                message: Strings.shared.alerts.adRequiredDownload,
+                buttons: [
+                    {
+                        text: Strings.shared.alerts.watchAd,
+                        onPress: () => {
+                            AdService.showRewardedAd(proceedWithExport, showAlert);
+                        }
+                    },
+                    {
+                        text: Strings.common.cancel,
+                        style: 'cancel'
+                    }
+                ]
+            });
+            return;
         }
+
+        // 광고가 필요 없는 경우(프리미엄 등) 바로 실행
+        await proceedWithExport();
     };
 
     const renderItem = ({ item, index }: { item: Item, index: number }) => (

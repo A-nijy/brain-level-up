@@ -494,6 +494,8 @@ export const Strings = {
             reportFail: "신고 접수 중 오류가 발생했습니다.",
             reportCancelFail: "신고 취소 중 오류가 발생했습니다.",
             updateSuccess: "정보가 수정되었습니다.",
+            adRequiredDownload: "광고를 시청하시면 자료를 이용하실 수 있습니다.",
+            watchAd: "광고 시청하기",
         },
 
         edit: {

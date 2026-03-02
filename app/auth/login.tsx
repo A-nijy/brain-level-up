@@ -161,6 +161,8 @@ export default function LoginScreen() {
                         <Text style={styles.buttonTextBlack}>{Strings.auth.googleLogin}</Text>
                     </TouchableOpacity>
 
+                    {/* 배포 초기에 애플/게스트 로그인은 숨김 처리 (안드로이드 우선 배포) */}
+                    {/* 
                     <TouchableOpacity
                         style={[styles.button, styles.appleButton]}
                         onPress={onSignInWithApple}
@@ -184,7 +186,8 @@ export default function LoginScreen() {
                         activeOpacity={0.8}
                     >
                         <Text style={[styles.buttonTextDev, { color: colors.text }]}>{Strings.auth.guestLogin}</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> 
+                    */}
 
                     {isLoading && (
                         <ActivityIndicator style={{ marginTop: 20 }} size="large" color={colors.tint} />
@@ -213,7 +216,7 @@ const styles = StyleSheet.create({
     },
     header: {
         alignItems: 'center',
-        marginBottom: 60,
+        marginBottom: 100,
     },
     logoImage: {
         width: 160,
@@ -238,6 +241,7 @@ const styles = StyleSheet.create({
     },
     content: {
         width: '100%',
+        marginTop: 20,
     },
     button: {
         height: 64,
