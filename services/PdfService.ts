@@ -14,18 +14,6 @@ export const PdfService = {
   async generateAndShare(items: Item[], options: ExportOptions, showAlert?: (params: any) => void) {
     let processedItems = [...items];
 
-    // [디버깅] 안드로이드에서 파일 시스템 객체 상태 확인
-    if (Platform.OS === 'android') {
-      console.log('[PdfService] FileSystem Keys:', Object.keys(FileSystem));
-    }
-
-    // 1. 순서 정렬
-    if (options.order === 'random') {
-      processedItems.sort(() => Math.random() - 0.5);
-    } else {
-      processedItems.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
-    }
-
     // 1. 순서 정렬
     if (options.order === 'random') {
       processedItems.sort(() => Math.random() - 0.5);
@@ -38,8 +26,8 @@ export const PdfService = {
 
     try {
       if (Platform.OS === 'web') {
-        // 웹에서는 expo-print 대신 더 확실한 iframe 방식 사용
-        console.log('Web printing starting...');
+        // 웹에서는 iframe 방식 사용
+        console.log('[PdfService] Web printing starting...');
         const iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         document.body.appendChild(iframe);
@@ -50,7 +38,6 @@ export const PdfService = {
           iframeDoc.write(html);
           iframeDoc.close();
 
-          // 폰트 크기 조정 스크립트 실행 대기
           setTimeout(() => {
             iframe.contentWindow?.focus();
             iframe.contentWindow?.print();
@@ -61,61 +48,13 @@ export const PdfService = {
         }
       } else {
         const { uri } = await Print.printToFileAsync({ html });
-        console.log('PDF generated at:', uri);
+        console.log('[PdfService] PDF generated at:', uri);
 
-        if (options.action === 'download' && Platform.OS === 'android') {
-          try {
-            console.log('[PdfService] Android Download triggered');
-
-            // 런타임에서 안전하게 SAF 객체 획득
-            const SAF = (FileSystem as any).StorageAccessFramework;
-            const EncType = (FileSystem as any).EncodingType;
-
-            if (!SAF) {
-              console.error('[PdfService] StorageAccessFramework (SAF) is undefined. FileSystem object:', FileSystem);
-              await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-              return;
-            }
-
-            // 광고 직후 시스템 UI 충돌 방지 지연
-            await new Promise(resolve => setTimeout(resolve, 800));
-
-            console.log('[PdfService] Requesting directory permissions...');
-            const permissions = await SAF.requestDirectoryPermissionsAsync();
-
-            if (permissions.granted) {
-              console.log('[PdfService] Permission granted for:', permissions.directoryUri);
-              const base64 = await FileSystem.readAsStringAsync(uri, { encoding: EncType?.Base64 || 'base64' });
-              const fileName = `${options.title.replace(/[\\/:*?"<>|]/g, '_')}_${new Date().getTime()}.pdf`;
-
-              console.log('[PdfService] Creating file:', fileName);
-              const fileUri = await SAF.createFileAsync(permissions.directoryUri, fileName, 'application/pdf');
-              await FileSystem.writeAsStringAsync(fileUri, base64, { encoding: EncType?.Base64 || 'base64' });
-
-              console.log('[PdfService] File save success:', fileUri);
-              if (showAlert) {
-                showAlert({
-                  title: '저장 완료',
-                  message: '선택하신 폴더에 PDF 파일이 저장되었습니다.'
-                });
-              }
-            } else {
-              console.warn('[PdfService] Permission denied or cancelled');
-              // 사용자가 취소했을 때만 공유창을 띄워줌 (보험용)
-              await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-            }
-          } catch (safError: any) {
-            console.error('[PdfService] Critical SAF Error:', safError);
-            // 에러 시 최종 수단으로 공유 시트 소환
-            await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-          }
-        } else {
-          // iOS 또는 '공유하기' 선택 시
-          await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-        }
+        // 플랫폼 공용 공유 시트 호출
+        await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
       }
     } catch (error) {
-      console.error('PDF Generation Error:', error);
+      console.error('[PdfService] PDF Generation Error:', error);
       throw error;
     }
   },
@@ -208,27 +147,27 @@ export const PdfService = {
         </style>
       </head>
       <body>
-        ${pages.map((pageItems, pageIdx) => {
+        \${pages.map((pageItems, pageIdx) => {
       const leftCol = pageItems.slice(0, itemsPerColumn);
       const rightCol = pageItems.slice(itemsPerColumn, itemsPerColumn * 2);
 
-      return `
+      return \`
             <div class="page">
               <div class="header">DATE . .</div>
               <div class="columns-container">
                 <div class="column">
                   <table>
-                    ${this.renderRows(leftCol, pageIdx * rowsPerPage + 1, options)}
+                    \${this.renderRows(leftCol, pageIdx * rowsPerPage + 1, options)}
                   </table>
                 </div>
                 <div class="column">
                   <table>
-                    ${this.renderRows(rightCol, pageIdx * rowsPerPage + itemsPerColumn + 1, options)}
+                    \${this.renderRows(rightCol, pageIdx * rowsPerPage + itemsPerColumn + 1, options)}
                   </table>
                 </div>
               </div>
             </div>
-          `;
+          \`;
     }).join('')}
 
         <script>
@@ -249,7 +188,7 @@ export const PdfService = {
         </script>
       </body>
       </html>
-    `;
+    \`;
   },
 
   renderRows(items: Item[], startNum: number, options: ExportOptions) {
@@ -274,13 +213,13 @@ export const PdfService = {
         }
       }
 
-      rows.push(`
+      rows.push(\`
         <tr>
-          <td class="num-col">${num}</td>
-          <td class="content-col"><span class="content-text">${questionContent}</span></td>
-          <td class="content-col"><span class="content-text">${answerContent}</span></td>
+          <td class="num-col">\${num}</td>
+          <td class="content-col"><span class="content-text">\${questionContent}</span></td>
+          <td class="content-col"><span class="content-text">\${answerContent}</span></td>
         </tr>
-      `);
+      \`);
     }
     return rows.join('');
   }
