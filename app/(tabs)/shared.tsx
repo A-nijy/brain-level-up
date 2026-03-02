@@ -375,24 +375,24 @@ export default function SharedLibraryScreen() {
                         </View>
 
                         {/* Official / User Tabs */}
-                        <View variant="transparent" style={styles.tabContainer}>
+                        <View variant="transparent" style={[styles.tabContainer, { backgroundColor: colors.border + '30' }]}>
                             <TouchableOpacity
-                                style={[styles.tab, isOfficial && { backgroundColor: colors.tint }]}
+                                style={[styles.tab, isOfficial ? { backgroundColor: colors.tint } : { backgroundColor: colors.border + '50' }]}
                                 onPress={() => {
                                     setIsOfficial(true);
                                     setSelectedCategoryId('all');
                                 }}
                             >
-                                <Text style={[styles.tabText, isOfficial && { color: '#fff' }]}>{Strings.shared.tabs.official}</Text>
+                                <Text style={[styles.tabText, isOfficial ? { color: '#fff' } : { color: colors.textSecondary }]}>{Strings.shared.tabs.official}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.tab, !isOfficial && { backgroundColor: colors.tint }]}
+                                style={[styles.tab, !isOfficial ? { backgroundColor: colors.tint } : { backgroundColor: colors.border + '50' }]}
                                 onPress={() => {
                                     setIsOfficial(false);
                                     setSelectedCategoryId('all');
                                 }}
                             >
-                                <Text style={[styles.tabText, !isOfficial && { color: '#fff' }]}>{Strings.shared.tabs.user}</Text>
+                                <Text style={[styles.tabText, !isOfficial ? { color: '#fff' } : { color: colors.textSecondary }]}>{Strings.shared.tabs.user}</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -405,22 +405,24 @@ export default function SharedLibraryScreen() {
                             <TouchableOpacity
                                 style={[
                                     styles.chip,
+                                    { backgroundColor: colors.cardBackground, borderColor: colors.border },
                                     selectedCategoryId === 'all' && { backgroundColor: colors.tint, borderColor: colors.tint }
                                 ]}
                                 onPress={() => setSelectedCategoryId('all')}
                             >
-                                <Text style={[styles.chipText, selectedCategoryId === 'all' && { color: '#fff' }]}>{Strings.shared.categoryAll}</Text>
+                                <Text style={[styles.chipText, { color: colors.textSecondary }, selectedCategoryId === 'all' && { color: '#fff' }]}>{Strings.shared.categoryAll}</Text>
                             </TouchableOpacity>
                             {categories.map((cat) => (
                                 <TouchableOpacity
                                     key={cat.id}
                                     style={[
                                         styles.chip,
+                                        { backgroundColor: colors.cardBackground, borderColor: colors.border },
                                         selectedCategoryId === cat.id && { backgroundColor: colors.tint, borderColor: colors.tint }
                                     ]}
                                     onPress={() => setSelectedCategoryId(cat.id)}
                                 >
-                                    <Text style={[styles.chipText, selectedCategoryId === cat.id && { color: '#fff' }]}>{cat.title}</Text>
+                                    <Text style={[styles.chipText, { color: colors.textSecondary }, selectedCategoryId === cat.id && { color: '#fff' }]}>{cat.title}</Text>
                                 </TouchableOpacity>
                             ))}
                         </Animated.ScrollView>
@@ -653,7 +655,6 @@ const styles = StyleSheet.create({
     },
     headerSubtitle: {
         fontSize: 16,
-        color: '#64748B',
         fontWeight: '500',
     },
     listContent: {
@@ -723,7 +724,7 @@ const styles = StyleSheet.create({
     manageBtn: {
         padding: 6,
         borderRadius: 8,
-        backgroundColor: '#F1F5F9',
+        backgroundColor: 'rgba(0,0,0,0.05)',
     },
     statItem: {
         flexDirection: 'row',
@@ -731,7 +732,6 @@ const styles = StyleSheet.create({
     },
     statText: {
         fontSize: 12,
-        color: '#94A3B8',
         fontWeight: '500',
     },
     downloadButton: {
@@ -763,7 +763,6 @@ const styles = StyleSheet.create({
     },
     tabContainer: {
         flexDirection: 'row',
-        backgroundColor: '#F1F5F9',
         padding: 4,
         borderRadius: 12,
         marginTop: 16,
@@ -777,7 +776,6 @@ const styles = StyleSheet.create({
     tabText: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#64748B',
     },
     categoryContainer: {
         paddingHorizontal: 20,
@@ -788,13 +786,10 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 20,
         borderWidth: 1.5,
-        borderColor: '#F1F5F9',
-        backgroundColor: '#F8FAFC',
     },
     chipText: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#64748B',
     },
     headerTop: {
         flexDirection: 'row',
