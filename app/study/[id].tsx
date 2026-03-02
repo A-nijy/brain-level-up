@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform, Alert } from 'react-native';
+import * as Speech from 'expo-speech';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -197,6 +198,20 @@ export default function StudyScreen() {
                 </Animated.View>
             </View>
 
+            {/* TTS Speaker Button */}
+            <View variant="transparent" style={styles.speakerContainer}>
+                <TouchableOpacity
+                    style={[styles.speakerButton, { backgroundColor: colors.tint + '10' }]}
+                    onPress={() => {
+                        const textToSpeak = isFlipped ? currentItem?.answer : currentItem?.question;
+                        if (textToSpeak) Speech.speak(textToSpeak);
+                    }}
+                    activeOpacity={0.7}
+                >
+                    <FontAwesome name={Strings.common.icons.speaker as any} size={28} color={colors.tint} />
+                </TouchableOpacity>
+            </View>
+
             {/* Action Buttons */}
             <View variant="transparent" style={[styles.buttonContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
                 <TouchableOpacity
@@ -252,6 +267,17 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 400,
         backfaceVisibility: 'hidden',
+    },
+    speakerContainer: {
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    speakerButton: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     cardFace: {
         width: '100%',

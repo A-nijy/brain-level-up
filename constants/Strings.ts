@@ -50,6 +50,7 @@ export const Strings = {
             more: "ellipsis-v", // [전체] 더보기(⋮) 아이콘
             refresh: "refresh", // [전체] 새로고침 아이콘
             sort: "sort", // [전체] 순서 변경 아이콘
+            speaker: "volume-up", // [전체] TTS 스피커 아이콘
         },
     },
 

@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ExportModal, ExportOptions as PDFExportOptions } from '@/components/ExportModal';
 import { PdfService } from '@/services/PdfService';
+import * as Speech from 'expo-speech';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAlert } from '@/contexts/AlertContext';
 import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/HeaderContext';
@@ -193,6 +194,14 @@ export default function SectionDetailScreen() {
                     )}
                 </View>
                 <View variant="transparent" style={styles.rightAction}>
+                    {!reorderMode && (
+                        <TouchableOpacity
+                            style={[styles.statusIconButton, { marginRight: 8 }]}
+                            onPress={() => Speech.speak(item.question)}
+                        >
+                            <FontAwesome name={Strings.common.icons.speaker as any} size={22} color={colors.tint} />
+                        </TouchableOpacity>
+                    )}
                     <TouchableOpacity
                         style={styles.statusIconButton}
                         onPress={() => {
@@ -260,7 +269,7 @@ export default function SectionDetailScreen() {
         {
             id: 'toggle-reorder',
             icon: Strings.common.icons.sort,
-            onPress: () => setReorderMode(prev => !prev),
+            onPress: () => setReorderMode((prev: boolean) => !prev),
             color: reorderMode ? colors.tint : colors.textSecondary
         }
     ], [reorderMode, libraryId, sid, items.length]);
