@@ -271,14 +271,7 @@ export default function LibraryListScreen() {
               </View>
 
               <View variant="transparent" style={styles.sectionHeader}>
-                <View variant="transparent" style={{ flex: 1 }}>
-                  <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <View variant="transparent">
-                      <Text style={styles.sectionTitle}>{Strings.home.sectionTitle}</Text>
-                      <View style={[styles.titleUnderline, { backgroundColor: colors.tint }]} />
-                    </View>
-                  </View>
-                </View>
+                <View variant="transparent" style={{ flex: 1 }} />
 
                 <View variant="transparent" style={{ flexDirection: 'row', gap: 12, marginLeft: 20 }}>
                   <TouchableOpacity style={styles.webAddBtn} onPress={handleCreatePress}>
@@ -311,16 +304,10 @@ export default function LibraryListScreen() {
                 )}
               </View>
 
-              <View variant="transparent" style={styles.sectionHeader}>
-                <View variant="transparent">
-                  <Text style={styles.sectionTitle}>{Strings.home.sectionTitle}</Text>
-                  <View style={[styles.titleUnderline, { backgroundColor: colors.tint }]} />
-                </View>
-                {/* 
-                  [순서 변경 아이콘 이동] 
-                  기존에는 여기에 순서 변경 아이콘이 있었으나, 사용자의 요청으로 상단 헤더(Tabs.Screen)로 이동되었습니다.
-                */}
-              </View>
+              {/* 
+                [중복 타이틀 제거] 
+                상단 헤더와 중복되므로 '나의 암기장' 제목 및 밑줄을 제거했습니다.
+              */}
             </View>
           )
         }

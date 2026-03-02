@@ -41,7 +41,7 @@ export default function WebHeader() {
         }
 
         if (seg1 === 'index' || segments.length === 1) {
-            return `안녕하세요, ${profile?.nickname || profile?.email?.split('@')[0] || '사용자'}님! 👋`;
+            return Strings.tabs.home;
         }
 
         const userTitleMap: Record<string, string> = {
