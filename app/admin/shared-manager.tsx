@@ -14,518 +14,405 @@ import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
 
 export default function SharedManagerScreen() {
-    unpublishShared,
+    const {
+        sharedLibs,
+        draftLibs,
+        categories,
+        loading,
+        refresh,
+        updateSharedLibrary,
+        publishDraft,
+        deleteDraft,
+        deleteShared,
+        unpublishShared,
         reorderSharedLibraries,
         createDraft
-} = useAdminShared();
+    } = useAdminShared();
 
-const [activeTab, setActiveTab] = useState<'draft' | 'published'>('draft');
-const [isDirectModalVisible, setIsDirectModalVisible] = useState(false);
-const [directForm, setDirectForm] = useState({
-    title: '',
-    description: '',
-    category_id: null as string | null
-});
-const colorScheme = useColorScheme();
-const colors = Colors[colorScheme];
-const router = useRouter();
-const { showAlert } = useAlert();
-
-const [editingLib, setEditingLib] = useState<SharedLibrary | null>(null);
-const [editForm, setEditForm] = useState({ title: '', description: '', category_id: '' as string | null });
-
-const [editingDraft, setEditingDraft] = useState<SharedLibrary | null>(null);
-const [editDraftForm, setEditDraftForm] = useState({ title: '', description: '', category_id: null as string | null });
-
-const handleEditOpen = (lib: SharedLibrary) => {
-    setEditingLib(lib);
-    setEditForm({
-        title: lib.title,
-        description: lib.description || '',
-        category_id: lib.category_id
+    const [activeTab, setActiveTab] = useState<'draft' | 'published'>('draft');
+    const [isDirectModalVisible, setIsDirectModalVisible] = useState(false);
+    const [directForm, setDirectForm] = useState({
+        title: '',
+        description: '',
+        category_id: null as string | null
     });
-};
+    const colorScheme = useColorScheme();
+    const colors = Colors[colorScheme];
+    const router = useRouter();
+    const { showAlert } = useAlert();
 
-const handleUpdateDraft = async () => {
-    if (!editingDraft) return;
-    try {
-        await updateSharedLibrary(editingDraft.id, {
-            title: editDraftForm.title,
-            description: editDraftForm.description,
-            category_id: editDraftForm.category_id
+    const [editingLib, setEditingLib] = useState<SharedLibrary | null>(null);
+    const [editForm, setEditForm] = useState({ title: '', description: '', category_id: '' as string | null });
+
+    const [editingDraft, setEditingDraft] = useState<SharedLibrary | null>(null);
+    const [editDraftForm, setEditDraftForm] = useState({ title: '', description: '', category_id: null as string | null });
+
+    const handleEditOpen = (lib: SharedLibrary) => {
+        setEditingLib(lib);
+        setEditForm({
+            title: lib.title,
+            description: lib.description || '',
+            category_id: lib.category_id
         });
-        showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.updated });
-        setEditingDraft(null);
-    } catch (error: any) {
-        showAlert({ title: Strings.common.error, message: error.message });
-    }
-};
+    };
 
-const handlePublishDraft = async (lib: SharedLibrary) => {
-    try {
-        const sections = await SharedLibraryService.getSharedSections(lib.id);
-        if (sections.length === 0) {
-            showAlert({ title: Strings.common.warning, message: Strings.adminSharedManager.alerts.noSections });
-            return;
+    const handleUpdateDraft = async () => {
+        if (!editingDraft) return;
+        try {
+            await updateSharedLibrary(editingDraft.id, {
+                title: editDraftForm.title,
+                description: editDraftForm.description,
+                category_id: editDraftForm.category_id
+            });
+            showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.updated });
+            setEditingDraft(null);
+        } catch (error: any) {
+            showAlert({ title: Strings.common.error, message: error.message });
         }
+    };
 
+    const handlePublishDraft = async (lib: SharedLibrary) => {
+        try {
+            const sections = await SharedLibraryService.getSharedSections(lib.id);
+            if (sections.length === 0) {
+                showAlert({ title: Strings.common.warning, message: Strings.adminSharedManager.alerts.noSections });
+                return;
+            }
+
+            showAlert({
+                title: Strings.common.info,
+                message: Strings.adminSharedManager.alerts.publishConfirm(lib.title),
+                buttons: [
+                    { text: Strings.common.cancel, style: 'cancel' },
+                    {
+                        text: Strings.common.confirm,
+                        onPress: async () => {
+                            await publishDraft(lib.id);
+                            showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.publishSuccess });
+                        }
+                    }
+                ]
+            });
+        } catch (error: any) {
+            showAlert({ title: Strings.common.error, message: error.message });
+        }
+    };
+
+    const handleDeleteDraft = async (lib: SharedLibrary) => {
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.adminSharedManager.alerts.deleteConfirm(lib.title),
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteDraft(lib.id);
+                        } catch (error: any) {
+                            showAlert({ title: Strings.common.error, message: error.message });
+                        }
+                    }
+                }
+            ]
+        });
+    };
+
+    const handleUpdate = async () => {
+        if (!editingLib) return;
+        try {
+            await updateSharedLibrary(editingLib.id, {
+                title: editForm.title,
+                description: editForm.description,
+                category_id: editForm.category_id
+            });
+            showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.updated });
+            setEditingLib(null);
+        } catch (error: any) {
+            showAlert({ title: Strings.common.error, message: error.message });
+        }
+    };
+
+    const handleDeleteShared = async (item: SharedLibrary) => {
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.adminSharedManager.alerts.deleteSharedConfirm(item.title),
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteShared(item.id);
+                        } catch (error: any) {
+                            showAlert({ title: Strings.common.error, message: error.message });
+                        }
+                    }
+                }
+            ]
+        });
+    };
+
+    const handleUnpublishShared = async (item: SharedLibrary) => {
         showAlert({
             title: Strings.common.info,
-            message: Strings.adminSharedManager.alerts.publishConfirm(lib.title),
+            message: Strings.adminSharedManager.alerts.unpublishConfirm(item.title),
             buttons: [
                 { text: Strings.common.cancel, style: 'cancel' },
                 {
                     text: Strings.common.confirm,
                     onPress: async () => {
-                        await publishDraft(lib.id);
-                        showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.publishSuccess });
+                        try {
+                            await unpublishShared(item.id);
+                        } catch (error: any) {
+                            showAlert({ title: Strings.common.error, message: error.message });
+                        }
                     }
                 }
             ]
         });
-    } catch (error: any) {
-        showAlert({ title: Strings.common.error, message: error.message });
-    }
-};
+    };
 
-const handleDeleteDraft = async (lib: SharedLibrary) => {
-    showAlert({
-        title: Strings.common.deleteConfirmTitle,
-        message: Strings.adminSharedManager.alerts.deleteConfirm(lib.title),
-        buttons: [
-            { text: Strings.common.cancel, style: 'cancel' },
-            {
-                text: Strings.common.delete,
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteDraft(lib.id);
-                    } catch (error: any) {
-                        showAlert({ title: Strings.common.error, message: error.message });
-                    }
-                }
-            }
-        ]
-    });
-};
+    const handleMove = async (item: SharedLibrary, direction: 'up' | 'down') => {
+        const index = sharedLibs.findIndex(l => l.id === item.id);
+        if (index === -1) return;
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === sharedLibs.length - 1) return;
 
-const handleUpdate = async () => {
-    if (!editingLib) return;
-    try {
-        await updateSharedLibrary(editingLib.id, {
-            title: editForm.title,
-            description: editForm.description,
-            category_id: editForm.category_id
-        });
-        showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.updated });
-        setEditingLib(null);
-    } catch (error: any) {
-        showAlert({ title: Strings.common.error, message: error.message });
-    }
-};
+        const newLibs = [...sharedLibs];
+        const swapIdx = direction === 'up' ? index - 1 : index + 1;
 
-const handleDeleteShared = async (item: SharedLibrary) => {
-    showAlert({
-        title: Strings.common.deleteConfirmTitle,
-        message: Strings.adminSharedManager.alerts.deleteSharedConfirm(item.title),
-        buttons: [
-            { text: Strings.common.cancel, style: 'cancel' },
-            {
-                text: Strings.common.delete,
-                style: 'destructive',
-                onPress: async () => {
-                    try {
-                        await deleteShared(item.id);
-                    } catch (error: any) {
-                        showAlert({ title: Strings.common.error, message: error.message });
-                    }
-                }
-            }
-        ]
-    });
-};
+        // Swap
+        [newLibs[index], newLibs[swapIdx]] = [newLibs[swapIdx], newLibs[index]];
 
-const handleUnpublishShared = async (item: SharedLibrary) => {
-    showAlert({
-        title: Strings.common.info,
-        message: Strings.adminSharedManager.alerts.unpublishConfirm(item.title),
-        buttons: [
-            { text: Strings.common.cancel, style: 'cancel' },
-            {
-                text: Strings.common.confirm,
-                onPress: async () => {
-                    try {
-                        await unpublishShared(item.id);
-                    } catch (error: any) {
-                        showAlert({ title: Strings.common.error, message: error.message });
-                    }
-                }
-            }
-        ]
-    });
-};
+        // Update display_order based on new array order
+        const updates = newLibs.map((lib, i) => ({
+            id: lib.id,
+            display_order: i
+        }));
 
-const handleMove = async (item: SharedLibrary, direction: 'up' | 'down') => {
-    const index = sharedLibs.findIndex(l => l.id === item.id);
-    if (index === -1) return;
-    if (direction === 'up' && index === 0) return;
-    if (direction === 'down' && index === sharedLibs.length - 1) return;
+        try {
+            await reorderSharedLibraries(updates);
+        } catch (error: any) {
+            showAlert({ title: Strings.common.error, message: error.message });
+        }
+    };
 
-    const newLibs = [...sharedLibs];
-    const swapIdx = direction === 'up' ? index - 1 : index + 1;
+    const handleCreateDraft = async () => {
+        if (!directForm.title.trim()) {
+            showAlert({ title: Strings.common.warning, message: Strings.adminSharedManager.alerts.enterTitle });
+            return;
+        }
 
-    // Swap
-    [newLibs[index], newLibs[swapIdx]] = [newLibs[swapIdx], newLibs[index]];
+        try {
+            const { data } = await supabase.auth.getUser();
+            if (!data.user) throw new Error(Strings.auth.errorNoAdmin);
 
-    // Update display_order based on new array order
-    const updates = newLibs.map((lib, i) => ({
-        id: lib.id,
-        display_order: i
-    }));
+            await createDraft({
+                ...directForm,
+                adminId: data.user.id
+            });
 
-    try {
-        await reorderSharedLibraries(updates);
-    } catch (error: any) {
-        showAlert({ title: Strings.common.error, message: error.message });
-    }
-};
+            showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.saveSuccess });
+            setIsDirectModalVisible(false);
+            setDirectForm({
+                title: '',
+                description: '',
+                category_id: null
+            });
+        } catch (error: any) {
+            showAlert({ title: Strings.common.error, message: error.message });
+        }
+    };
 
-const handleCreateDraft = async () => {
-    if (!directForm.title.trim()) {
-        showAlert({ title: Strings.common.warning, message: Strings.adminSharedManager.alerts.enterTitle });
-        return;
-    }
-
-    try {
-        const { data } = await supabase.auth.getUser();
-        if (!data.user) throw new Error(Strings.auth.errorNoAdmin);
-
-        await createDraft({
-            ...directForm,
-            adminId: data.user.id
-        });
-
-        showAlert({ title: Strings.common.success, message: Strings.adminSharedManager.alerts.saveSuccess });
-        setIsDirectModalVisible(false);
-        setDirectForm({
-            title: '',
-            description: '',
-            category_id: null
-        });
-    } catch (error: any) {
-        showAlert({ title: Strings.common.error, message: error.message });
-    }
-};
-
-const LibRow = ({ item, isDraft }: { item: SharedLibrary, isDraft: boolean }) => (
-    <View variant="transparent" style={styles.tableRow}>
-        <View variant="transparent" style={[styles.col, { flex: 2.5 }]}>
-            <View style={[styles.libIconContainer, { backgroundColor: colors.tint + '10' }]}>
-                <FontAwesome name={Strings.admin.icons.libraries as any} size={16} color={colors.tint} />
+    const LibRow = ({ item, isDraft }: { item: SharedLibrary, isDraft: boolean }) => (
+        <View variant="transparent" style={styles.tableRow}>
+            <View variant="transparent" style={[styles.col, { flex: 2.5 }]}>
+                <View style={[styles.libIconContainer, { backgroundColor: colors.tint + '10' }]}>
+                    <FontAwesome name={Strings.admin.icons.libraries as any} size={16} color={colors.tint} />
+                </View>
+                <View variant="transparent">
+                    <Text style={styles.cellText}>{item.title}</Text>
+                    <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>{item.category || Strings.adminSharedManager.modal.none}</Text>
+                </View>
             </View>
-            <View variant="transparent">
-                <Text style={styles.cellText}>{item.title}</Text>
-                <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>{item.category || Strings.adminSharedManager.modal.none}</Text>
-            </View>
-        </View>
 
-        <View variant="transparent" style={[styles.col, { flex: 1 }]}>
-            <View style={[styles.statusBadge, { backgroundColor: (isDraft ? '#F59E0B' : colors.success) + '15' }]}>
-                <View style={[styles.statusDot, { backgroundColor: isDraft ? '#F59E0B' : colors.success }]} />
-                <Text style={[styles.statusText, { color: isDraft ? '#F59E0B' : colors.success }]}>
-                    {isDraft ? Strings.adminSharedManager.status.draft : Strings.adminSharedManager.status.published}
+            <View variant="transparent" style={[styles.col, { flex: 1 }]}>
+                <View style={[styles.statusBadge, { backgroundColor: (isDraft ? '#F59E0B' : colors.success) + '15' }]}>
+                    <View style={[styles.statusDot, { backgroundColor: isDraft ? '#F59E0B' : colors.success }]} />
+                    <Text style={[styles.statusText, { color: isDraft ? '#F59E0B' : colors.success }]}>
+                        {isDraft ? Strings.adminSharedManager.status.draft : Strings.adminSharedManager.status.published}
+                    </Text>
+                </View>
+            </View>
+
+            {!isDraft && (
+                <View variant="transparent" style={[styles.col, { flex: 0.8 }]}>
+                    <Text style={styles.cellText}>{item.download_count || 0}</Text>
+                </View>
+            )}
+
+            <View variant="transparent" style={[styles.col, { flex: 1.2 }]}>
+                <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>
+                    {new Date(item.created_at).toLocaleDateString()}
                 </Text>
             </View>
-        </View>
 
-        {!isDraft && (
-            <View variant="transparent" style={[styles.col, { flex: 0.8 }]}>
-                <Text style={styles.cellText}>{item.download_count || 0}</Text>
+            <View variant="transparent" style={[styles.col, { flex: 1.5, justifyContent: 'flex-end', gap: 8 }]}>
+                {!isDraft && (
+                    <>
+                        <TouchableOpacity
+                            style={[styles.miniActionBtn, { backgroundColor: colors.border }]}
+                            onPress={() => handleMove(item, 'up')}
+                        >
+                            <FontAwesome name="arrow-up" size={12} color={colors.text} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.miniActionBtn, { backgroundColor: colors.border }]}
+                            onPress={() => handleMove(item, 'down')}
+                        >
+                            <FontAwesome name="arrow-down" size={12} color={colors.text} />
+                        </TouchableOpacity>
+                    </>
+                )}
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: colors.tint }]}
+                    onPress={() => router.push(`/admin/shared-library/${item.id}` as any)}
+                >
+                    <FontAwesome name={Strings.shared.icons.globe as any} size={12} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: '#F59E0B' }]}
+                    onPress={() => isDraft ? (
+                        setEditingDraft(item),
+                        setEditDraftForm({
+                            title: item.title,
+                            description: item.description || '',
+                            category_id: item.category_id
+                        })
+                    ) : handleEditOpen(item)}
+                >
+                    <FontAwesome name={Strings.settings.icons.pencil as any} size={12} color="#fff" />
+                </TouchableOpacity>
+                {isDraft ? (
+                    <TouchableOpacity
+                        style={[styles.actionBtn, { backgroundColor: colors.success }]}
+                        onPress={() => handlePublishDraft(item)}
+                    >
+                        <FontAwesome name={Strings.settings.icons.check as any} size={12} color="#fff" />
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity
+                        style={[styles.actionBtn, { backgroundColor: '#3B82F6' }]}
+                        onPress={() => handleUnpublishShared(item)}
+                    >
+                        <FontAwesome name={Strings.settings.icons.refresh as any} size={12} color="#fff" />
+                    </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: colors.error }]}
+                    onPress={() => isDraft ? handleDeleteDraft(item) : handleDeleteShared(item)}
+                >
+                    <FontAwesome name={Strings.common.icons.delete as any} size={12} color="#fff" />
+                </TouchableOpacity>
             </View>
-        )}
-
-        <View variant="transparent" style={[styles.col, { flex: 1.2 }]}>
-            <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>
-                {new Date(item.created_at).toLocaleDateString()}
-            </Text>
-        </View>
-
-        <View variant="transparent" style={[styles.col, { flex: 1.5, justifyContent: 'flex-end', gap: 8 }]}>
-            {!isDraft && (
-                <>
-                    <TouchableOpacity
-                        style={[styles.miniActionBtn, { backgroundColor: colors.border }]}
-                        onPress={() => handleMove(item, 'up')}
-                    >
-                        <FontAwesome name="arrow-up" size={12} color={colors.text} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.miniActionBtn, { backgroundColor: colors.border }]}
-                        onPress={() => handleMove(item, 'down')}
-                    >
-                        <FontAwesome name="arrow-down" size={12} color={colors.text} />
-                    </TouchableOpacity>
-                </>
-            )}
-            <TouchableOpacity
-                style={[styles.actionBtn, { backgroundColor: colors.tint }]}
-                onPress={() => router.push(`/admin/shared-library/${item.id}` as any)}
-            >
-                <FontAwesome name={Strings.shared.icons.globe as any} size={12} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={[styles.actionBtn, { backgroundColor: '#F59E0B' }]}
-                onPress={() => isDraft ? (
-                    setEditingDraft(item),
-                    setEditDraftForm({
-                        title: item.title,
-                        description: item.description || '',
-                        category_id: item.category_id
-                    })
-                ) : handleEditOpen(item)}
-            >
-                <FontAwesome name={Strings.settings.icons.pencil as any} size={12} color="#fff" />
-            </TouchableOpacity>
-            {isDraft ? (
-                <TouchableOpacity
-                    style={[styles.actionBtn, { backgroundColor: colors.success }]}
-                    onPress={() => handlePublishDraft(item)}
-                >
-                    <FontAwesome name={Strings.settings.icons.check as any} size={12} color="#fff" />
-                </TouchableOpacity>
-            ) : (
-                <TouchableOpacity
-                    style={[styles.actionBtn, { backgroundColor: '#3B82F6' }]}
-                    onPress={() => handleUnpublishShared(item)}
-                >
-                    <FontAwesome name={Strings.settings.icons.refresh as any} size={12} color="#fff" />
-                </TouchableOpacity>
-            )}
-            <TouchableOpacity
-                style={[styles.actionBtn, { backgroundColor: colors.error }]}
-                onPress={() => isDraft ? handleDeleteDraft(item) : handleDeleteShared(item)}
-            >
-                <FontAwesome name={Strings.common.icons.delete as any} size={12} color="#fff" />
-            </TouchableOpacity>
-        </View>
-    </View>
-);
-
-if (loading && !isDirectModalVisible && !editingLib) {
-    return (
-        <View style={styles.center}>
-            <ActivityIndicator size="large" color={colors.tint} />
         </View>
     );
-}
 
-return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
-        <View variant="transparent" style={styles.header}>
-            <View variant="transparent">
-                <Text style={styles.title}>{Strings.adminSharedManager.title}</Text>
-                <Text style={[styles.subText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.subtitle}</Text>
+    if (loading && !isDirectModalVisible && !editingLib) {
+        return (
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color={colors.tint} />
             </View>
-            <TouchableOpacity style={styles.addBtn} onPress={() => setIsDirectModalVisible(true)}>
-                <FontAwesome name={Strings.shared.icons.plus as any} size={14} color="#fff" style={{ marginRight: 8 }} />
-                <Text style={styles.addBtnText}>{Strings.adminSharedManager.addBtn}</Text>
-            </TouchableOpacity>
-        </View>
+        );
+    }
 
-        <View variant="transparent" style={styles.tabWrapper}>
-            <View variant="transparent" style={styles.tabContainer}>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'draft' && styles.activeTab]}
-                    onPress={() => setActiveTab('draft')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'draft' && styles.activeTabText]}>
-                        {Strings.adminSharedManager.tabs.draft(draftLibs.length)}
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.tab, activeTab === 'published' && styles.activeTab]}
-                    onPress={() => setActiveTab('published')}
-                >
-                    <Text style={[styles.tabText, activeTab === 'published' && styles.activeTabText]}>
-                        {Strings.adminSharedManager.tabs.published(sharedLibs.length)}
-                    </Text>
+    return (
+        <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
+            <View variant="transparent" style={styles.header}>
+                <View variant="transparent">
+                    <Text style={styles.title}>{Strings.adminSharedManager.title}</Text>
+                    <Text style={[styles.subText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.subtitle}</Text>
+                </View>
+                <TouchableOpacity style={styles.addBtn} onPress={() => setIsDirectModalVisible(true)}>
+                    <FontAwesome name={Strings.shared.icons.plus as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                    <Text style={styles.addBtnText}>{Strings.adminSharedManager.addBtn}</Text>
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={refresh} style={styles.refreshBtn}>
-                <FontAwesome name={Strings.settings.icons.refresh as any} size={14} color={colors.textSecondary} />
-            </TouchableOpacity>
-        </View>
 
-        <Card style={styles.tableCard}>
-            <View variant="transparent" style={styles.tableHeader}>
-                <Text style={[styles.headerCol, { flex: 2.5 }]}>{Strings.adminSharedManager.table.info}</Text>
-                <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminSharedManager.table.status}</Text>
-                {activeTab === 'published' && <Text style={[styles.headerCol, { flex: 0.8 }]}>{Strings.adminSharedManager.table.download}</Text>}
-                <Text style={[styles.headerCol, { flex: 1.2 }]}>{Strings.adminSharedManager.table.date}</Text>
-                <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>{Strings.adminSharedManager.table.manage}</Text>
-            </View>
-
-            {activeTab === 'draft' ? (
-                draftLibs.length > 0 ? (
-                    draftLibs.map((item) => <LibRow key={item.id} item={item} isDraft={true} />)
-                ) : (
-                    <View variant="transparent" style={styles.emptyTable}>
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.alerts.emptyDraft}</Text>
-                    </View>
-                )
-            ) : (
-                sharedLibs.length > 0 ? (
-                    sharedLibs.map((item) => <LibRow key={item.id} item={item} isDraft={false} />)
-                ) : (
-                    <View variant="transparent" style={styles.emptyTable}>
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.alerts.emptyPublished}</Text>
-                    </View>
-                )
-            )}
-        </Card>
-
-        {/* Edit Modal */}
-        <Modal visible={!!editingLib} transparent animationType="slide">
-            <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                    <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.editTitle}</Text>
-
-                    <Text style={styles.label}>{Strings.adminSharedManager.modal.labelTitle}</Text>
-                    <TextInput
-                        style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                        value={editForm.title}
-                        onChangeText={(text) => setEditForm(prev => ({ ...prev, title: text }))}
-                    />
-
-                    <Text style={styles.label}>{Strings.adminSharedManager.modal.labelDesc}</Text>
-                    <TextInput
-                        style={[styles.input, { color: colors.text, borderColor: colors.border, height: 80 }]}
-                        value={editForm.description}
-                        onChangeText={(text) => setEditForm(prev => ({ ...prev, description: text }))}
-                        multiline
-                    />
-
-                    <Text style={styles.label}>{Strings.adminSharedManager.modal.labelCategory}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryPicker}>
-                        <TouchableOpacity
-                            style={[
-                                styles.categoryChip,
-                                !editForm.category_id && { backgroundColor: colors.tint }
-                            ]}
-                            onPress={() => setEditForm(prev => ({ ...prev, category_id: null }))}
-                        >
-                            <Text style={[styles.categoryChipText, !editForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
-                        </TouchableOpacity>
-                        {categories.map(cat => (
-                            <TouchableOpacity
-                                key={cat.id}
-                                style={[
-                                    styles.categoryChip,
-                                    editForm.category_id === cat.id && { backgroundColor: colors.tint }
-                                ]}
-                                onPress={() => setEditForm(prev => ({ ...prev, category_id: cat.id }))}
-                            >
-                                <Text style={[styles.categoryChipText, editForm.category_id === cat.id && { color: '#fff' }]}>
-                                    {cat.title}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-
-                    <View variant="transparent" style={styles.modalButtons}>
-                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setEditingLib(null)}>
-                            <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleUpdate}>
-                            <Text style={styles.modalButtonText}>{Strings.common.save}</Text>
-                        </TouchableOpacity>
-                    </View>
+            <View variant="transparent" style={styles.tabWrapper}>
+                <View variant="transparent" style={styles.tabContainer}>
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'draft' && styles.activeTab]}
+                        onPress={() => setActiveTab('draft')}
+                    >
+                        <Text style={[styles.tabText, activeTab === 'draft' && styles.activeTabText]}>
+                            {Strings.adminSharedManager.tabs.draft(draftLibs.length)}
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.tab, activeTab === 'published' && styles.activeTab]}
+                        onPress={() => setActiveTab('published')}
+                    >
+                        <Text style={[styles.tabText, activeTab === 'published' && styles.activeTabText]}>
+                            {Strings.adminSharedManager.tabs.published(sharedLibs.length)}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
+                <TouchableOpacity onPress={refresh} style={styles.refreshBtn}>
+                    <FontAwesome name={Strings.settings.icons.refresh as any} size={14} color={colors.textSecondary} />
+                </TouchableOpacity>
             </View>
-        </Modal>
 
-        {/* Draft 수정 Modal */}
-        <Modal visible={!!editingDraft} transparent animationType="slide">
-            <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
-                    <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.draftEditTitle}</Text>
-
-                    <Text style={styles.label}>{Strings.adminSharedManager.modal.labelTitle}</Text>
-                    <TextInput
-                        style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                        value={editDraftForm.title}
-                        onChangeText={(text) => setEditDraftForm(prev => ({ ...prev, title: text }))}
-                        placeholder={Strings.adminSharedManager.modal.labelTitle}
-                        placeholderTextColor={colors.textSecondary}
-                    />
-
-                    <Text style={styles.label}>{Strings.adminSharedManager.modal.labelDesc}</Text>
-                    <TextInput
-                        style={[styles.input, { color: colors.text, borderColor: colors.border, height: 80 }]}
-                        value={editDraftForm.description}
-                        onChangeText={(text) => setEditDraftForm(prev => ({ ...prev, description: text }))}
-                        multiline
-                        placeholder={Strings.adminSharedManager.modal.placeholderDescDraft}
-                        placeholderTextColor={colors.textSecondary}
-                    />
-
-                    <Text style={styles.label}>{Strings.adminSharedManager.modal.labelCategory}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryPicker}>
-                        <TouchableOpacity
-                            style={[styles.categoryChip, !editDraftForm.category_id && { backgroundColor: colors.tint }]}
-                            onPress={() => setEditDraftForm(prev => ({ ...prev, category_id: null }))}
-                        >
-                            <Text style={[styles.categoryChipText, !editDraftForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
-                        </TouchableOpacity>
-                        {categories.map(cat => (
-                            <TouchableOpacity
-                                key={cat.id}
-                                style={[styles.categoryChip, editDraftForm.category_id === cat.id && { backgroundColor: colors.tint }]}
-                                onPress={() => setEditDraftForm(prev => ({ ...prev, category_id: cat.id }))}
-                            >
-                                <Text style={[styles.categoryChipText, editDraftForm.category_id === cat.id && { color: '#fff' }]}>
-                                    {cat.title}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-
-                    <View variant="transparent" style={styles.modalButtons}>
-                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setEditingDraft(null)}>
-                            <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleUpdateDraft}>
-                            <Text style={styles.modalButtonText}>{Strings.common.save}</Text>
-                        </TouchableOpacity>
-                    </View>
+            <Card style={styles.tableCard}>
+                <View variant="transparent" style={styles.tableHeader}>
+                    <Text style={[styles.headerCol, { flex: 2.5 }]}>{Strings.adminSharedManager.table.info}</Text>
+                    <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminSharedManager.table.status}</Text>
+                    {activeTab === 'published' && <Text style={[styles.headerCol, { flex: 0.8 }]}>{Strings.adminSharedManager.table.download}</Text>}
+                    <Text style={[styles.headerCol, { flex: 1.2 }]}>{Strings.adminSharedManager.table.date}</Text>
+                    <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>{Strings.adminSharedManager.table.manage}</Text>
                 </View>
-            </View>
-        </Modal>
 
-        {/* Direct Publish Modal */}
-        <Modal visible={isDirectModalVisible} transparent animationType="slide">
-            <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, { backgroundColor: colors.cardBackground, maxHeight: '90%' }]}>
-                    <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.createTitle}</Text>
+                {activeTab === 'draft' ? (
+                    draftLibs.length > 0 ? (
+                        draftLibs.map((item) => <LibRow key={item.id} item={item} isDraft={true} />)
+                    ) : (
+                        <View variant="transparent" style={styles.emptyTable}>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.alerts.emptyDraft}</Text>
+                        </View>
+                    )
+                ) : (
+                    sharedLibs.length > 0 ? (
+                        sharedLibs.map((item) => <LibRow key={item.id} item={item} isDraft={false} />)
+                    ) : (
+                        <View variant="transparent" style={styles.emptyTable}>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminSharedManager.alerts.emptyPublished}</Text>
+                        </View>
+                    )
+                )}
+            </Card>
 
-                    <ScrollView showsVerticalScrollIndicator={false}>
+            {/* Edit Modal */}
+            <Modal visible={!!editingLib} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+                        <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.editTitle}</Text>
+
                         <Text style={styles.label}>{Strings.adminSharedManager.modal.labelTitle}</Text>
                         <TextInput
                             style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-                            value={directForm.title}
-                            onChangeText={(text) => setDirectForm(prev => ({ ...prev, title: text }))}
-                            placeholder={Strings.adminSharedManager.modal.placeholderTitle}
-                            placeholderTextColor={colors.textSecondary}
+                            value={editForm.title}
+                            onChangeText={(text) => setEditForm(prev => ({ ...prev, title: text }))}
                         />
 
                         <Text style={styles.label}>{Strings.adminSharedManager.modal.labelDesc}</Text>
                         <TextInput
-                            style={[styles.input, { color: colors.text, borderColor: colors.border, height: 60 }]}
-                            value={directForm.description}
-                            onChangeText={(text) => setDirectForm(prev => ({ ...prev, description: text }))}
+                            style={[styles.input, { color: colors.text, borderColor: colors.border, height: 80 }]}
+                            value={editForm.description}
+                            onChangeText={(text) => setEditForm(prev => ({ ...prev, description: text }))}
                             multiline
-                            placeholder={Strings.adminSharedManager.modal.placeholderDesc}
-                            placeholderTextColor={colors.textSecondary}
                         />
 
                         <Text style={styles.label}>{Strings.adminSharedManager.modal.labelCategory}</Text>
@@ -533,42 +420,165 @@ return (
                             <TouchableOpacity
                                 style={[
                                     styles.categoryChip,
-                                    !directForm.category_id && { backgroundColor: colors.tint }
+                                    !editForm.category_id && { backgroundColor: colors.tint }
                                 ]}
-                                onPress={() => setDirectForm(prev => ({ ...prev, category_id: null }))}
+                                onPress={() => setEditForm(prev => ({ ...prev, category_id: null }))}
                             >
-                                <Text style={[styles.categoryChipText, !directForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
+                                <Text style={[styles.categoryChipText, !editForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
                             </TouchableOpacity>
                             {categories.map(cat => (
                                 <TouchableOpacity
                                     key={cat.id}
                                     style={[
                                         styles.categoryChip,
-                                        directForm.category_id === cat.id && { backgroundColor: colors.tint }
+                                        editForm.category_id === cat.id && { backgroundColor: colors.tint }
                                     ]}
-                                    onPress={() => setDirectForm(prev => ({ ...prev, category_id: cat.id }))}
+                                    onPress={() => setEditForm(prev => ({ ...prev, category_id: cat.id }))}
                                 >
-                                    <Text style={[styles.categoryChipText, directForm.category_id === cat.id && { color: '#fff' }]}>
+                                    <Text style={[styles.categoryChipText, editForm.category_id === cat.id && { color: '#fff' }]}>
                                         {cat.title}
                                     </Text>
                                 </TouchableOpacity>
                             ))}
                         </ScrollView>
-                    </ScrollView>
 
-                    <View variant="transparent" style={styles.modalButtons}>
-                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setIsDirectModalVisible(false)}>
-                            <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleCreateDraft}>
-                            <Text style={styles.modalButtonText}>{Strings.adminSharedManager.status.draft}</Text>
-                        </TouchableOpacity>
+                        <View variant="transparent" style={styles.modalButtons}>
+                            <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setEditingLib(null)}>
+                                <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleUpdate}>
+                                <Text style={styles.modalButtonText}>{Strings.common.save}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
-            </View>
-        </Modal>
-    </ScrollView>
-);
+            </Modal>
+
+            {/* Draft 수정 Modal */}
+            <Modal visible={!!editingDraft} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground }]}>
+                        <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.draftEditTitle}</Text>
+
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelTitle}</Text>
+                        <TextInput
+                            style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+                            value={editDraftForm.title}
+                            onChangeText={(text) => setEditDraftForm(prev => ({ ...prev, title: text }))}
+                            placeholder={Strings.adminSharedManager.modal.labelTitle}
+                            placeholderTextColor={colors.textSecondary}
+                        />
+
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelDesc}</Text>
+                        <TextInput
+                            style={[styles.input, { color: colors.text, borderColor: colors.border, height: 80 }]}
+                            value={editDraftForm.description}
+                            onChangeText={(text) => setEditDraftForm(prev => ({ ...prev, description: text }))}
+                            multiline
+                            placeholder={Strings.adminSharedManager.modal.placeholderDescDraft}
+                            placeholderTextColor={colors.textSecondary}
+                        />
+
+                        <Text style={styles.label}>{Strings.adminSharedManager.modal.labelCategory}</Text>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryPicker}>
+                            <TouchableOpacity
+                                style={[styles.categoryChip, !editDraftForm.category_id && { backgroundColor: colors.tint }]}
+                                onPress={() => setEditDraftForm(prev => ({ ...prev, category_id: null }))}
+                            >
+                                <Text style={[styles.categoryChipText, !editDraftForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
+                            </TouchableOpacity>
+                            {categories.map(cat => (
+                                <TouchableOpacity
+                                    key={cat.id}
+                                    style={[styles.categoryChip, editDraftForm.category_id === cat.id && { backgroundColor: colors.tint }]}
+                                    onPress={() => setEditDraftForm(prev => ({ ...prev, category_id: cat.id }))}
+                                >
+                                    <Text style={[styles.categoryChipText, editDraftForm.category_id === cat.id && { color: '#fff' }]}>
+                                        {cat.title}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+
+                        <View variant="transparent" style={styles.modalButtons}>
+                            <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setEditingDraft(null)}>
+                                <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleUpdateDraft}>
+                                <Text style={styles.modalButtonText}>{Strings.common.save}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Direct Publish Modal */}
+            <Modal visible={isDirectModalVisible} transparent animationType="slide">
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.cardBackground, maxHeight: '90%' }]}>
+                        <Text style={styles.modalTitle}>{Strings.adminSharedManager.modal.createTitle}</Text>
+
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            <Text style={styles.label}>{Strings.adminSharedManager.modal.labelTitle}</Text>
+                            <TextInput
+                                style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+                                value={directForm.title}
+                                onChangeText={(text) => setDirectForm(prev => ({ ...prev, title: text }))}
+                                placeholder={Strings.adminSharedManager.modal.placeholderTitle}
+                                placeholderTextColor={colors.textSecondary}
+                            />
+
+                            <Text style={styles.label}>{Strings.adminSharedManager.modal.labelDesc}</Text>
+                            <TextInput
+                                style={[styles.input, { color: colors.text, borderColor: colors.border, height: 60 }]}
+                                value={directForm.description}
+                                onChangeText={(text) => setDirectForm(prev => ({ ...prev, description: text }))}
+                                multiline
+                                placeholder={Strings.adminSharedManager.modal.placeholderDesc}
+                                placeholderTextColor={colors.textSecondary}
+                            />
+
+                            <Text style={styles.label}>{Strings.adminSharedManager.modal.labelCategory}</Text>
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryPicker}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.categoryChip,
+                                        !directForm.category_id && { backgroundColor: colors.tint }
+                                    ]}
+                                    onPress={() => setDirectForm(prev => ({ ...prev, category_id: null }))}
+                                >
+                                    <Text style={[styles.categoryChipText, !directForm.category_id && { color: '#fff' }]}>{Strings.adminSharedManager.modal.none}</Text>
+                                </TouchableOpacity>
+                                {categories.map(cat => (
+                                    <TouchableOpacity
+                                        key={cat.id}
+                                        style={[
+                                            styles.categoryChip,
+                                            directForm.category_id === cat.id && { backgroundColor: colors.tint }
+                                        ]}
+                                        onPress={() => setDirectForm(prev => ({ ...prev, category_id: cat.id }))}
+                                    >
+                                        <Text style={[styles.categoryChipText, directForm.category_id === cat.id && { color: '#fff' }]}>
+                                            {cat.title}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        </ScrollView>
+
+                        <View variant="transparent" style={styles.modalButtons}>
+                            <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.border }]} onPress={() => setIsDirectModalVisible(false)}>
+                                <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalButton, { backgroundColor: colors.tint }]} onPress={handleCreateDraft}>
+                                <Text style={styles.modalButtonText}>{Strings.adminSharedManager.status.draft}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </ScrollView>
+    );
 }
 
 const styles = StyleSheet.create({
