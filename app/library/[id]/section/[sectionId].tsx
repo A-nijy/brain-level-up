@@ -259,7 +259,7 @@ export default function SectionDetailScreen() {
         },
         {
             id: 'toggle-reorder',
-            icon: Strings.settings.icons.refresh,
+            icon: Strings.common.icons.sort,
             onPress: () => setReorderMode(prev => !prev),
             color: reorderMode ? colors.tint : colors.textSecondary
         }
@@ -313,7 +313,7 @@ export default function SectionDetailScreen() {
                                     style={styles.menuOption}
                                     onPress={() => handleMenuOption(() => setReorderMode(!reorderMode))}
                                 >
-                                    <FontAwesome name={Strings.settings.icons.refresh as any} size={16} color={colors.tint} style={styles.menuIcon} />
+                                    <FontAwesome name={Strings.common.icons.sort as any} size={16} color={colors.tint} style={styles.menuIcon} />
                                     <Text style={styles.menuOptionText}>{reorderMode ? Strings.librarySection.menu.reorderEnd : Strings.librarySection.menu.reorderStart}</Text>
                                 </TouchableOpacity>
 

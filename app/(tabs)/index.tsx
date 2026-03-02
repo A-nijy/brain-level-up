@@ -196,7 +196,7 @@ export default function LibraryListScreen() {
                     ]}
                     onPress={() => setReorderMode(!reorderMode)}
                   >
-                    <FontAwesome name="sort" size={14} color={reorderMode ? colors.tint : colors.textSecondary} />
+                    <FontAwesome name={Strings.common.icons.sort as any} size={14} color={reorderMode ? colors.tint : colors.textSecondary} />
                     <Text style={[styles.reorderToggleText, { color: reorderMode ? colors.tint : colors.textSecondary }]}>
                       {reorderMode ? Strings.home.reorderDone : Strings.home.reorderStart}
                     </Text>

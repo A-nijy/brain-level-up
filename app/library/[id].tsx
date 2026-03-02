@@ -96,14 +96,14 @@ export default function LibraryDetailScreen() {
                             onPress={() => handleMoveUp(index)}
                             disabled={index === 0}
                         >
-                            <FontAwesome name={Strings.settings.icons.down as any} size={16} color={colors.tint} style={{ transform: [{ rotate: '180deg' }] }} />
+                            <FontAwesome name={Strings.home.icons.up as any} size={16} color={colors.tint} />
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={[styles.reorderButton, index === sections.length - 1 && { opacity: 0.3 }]}
                             onPress={() => handleMoveDown(index)}
                             disabled={index === sections.length - 1}
                         >
-                            <FontAwesome name={Strings.settings.icons.down as any} size={16} color={colors.tint} />
+                            <FontAwesome name={Strings.home.icons.down as any} size={16} color={colors.tint} />
                         </TouchableOpacity>
                     </View>
                 ) : (
@@ -143,7 +143,7 @@ export default function LibraryDetailScreen() {
         },
         {
             id: 'toggle-reorder',
-            icon: Strings.settings.icons.refresh,
+            icon: Strings.common.icons.sort,
             onPress: () => setReorderMode(prev => !prev),
             color: reorderMode ? colors.tint : colors.textSecondary
         }
@@ -186,7 +186,7 @@ export default function LibraryDetailScreen() {
                                 onPress={() => setReorderMode(!reorderMode)}
                                 style={[styles.headerIconButton, { marginRight: 0 }]}
                             >
-                                <FontAwesome name={Strings.settings.icons.refresh as any} size={20} color={reorderMode ? colors.tint : colors.textSecondary} />
+                                <FontAwesome name={Strings.common.icons.sort as any} size={20} color={reorderMode ? colors.tint : colors.textSecondary} />
                             </TouchableOpacity>
                         </View>
                     )

@@ -49,6 +49,7 @@ export const Strings = {
             back: "chevron-left", // [전체] 뒤로가기 화살표
             more: "ellipsis-v", // [전체] 더보기(⋮) 아이콘
             refresh: "refresh", // [전체] 새로고침 아이콘
+            sort: "sort", // [전체] 순서 변경 아이콘
         },
     },
 

@@ -108,14 +108,14 @@ export default function CategoryManagerScreen() {
                     onPress={() => handleMove(index, 'up')}
                     disabled={index === 0}
                 >
-                    <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} style={{ transform: [{ rotate: '180deg' }] }} />
+                    <FontAwesome name={Strings.home.icons.up as any} size={12} color={colors.textSecondary} />
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.moveBtn, { opacity: index === categories.length - 1 ? 0.3 : 1 }]}
                     onPress={() => handleMove(index, 'down')}
                     disabled={index === categories.length - 1}
                 >
-                    <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} />
+                    <FontAwesome name={Strings.home.icons.down as any} size={12} color={colors.textSecondary} />
                 </TouchableOpacity>
                 <View style={styles.divider} />
                 <TouchableOpacity
