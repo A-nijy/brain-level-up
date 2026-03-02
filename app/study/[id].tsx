@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform, Alert } from 'react-native';
-import * as Speech from 'expo-speech';
+import { TtsService } from '@/services/TtsService';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -204,7 +204,7 @@ export default function StudyScreen() {
                     style={[styles.speakerButton, { backgroundColor: colors.tint + '10' }]}
                     onPress={() => {
                         const textToSpeak = isFlipped ? currentItem?.answer : currentItem?.question;
-                        if (textToSpeak) Speech.speak(textToSpeak);
+                        if (textToSpeak) TtsService.speak(textToSpeak);
                     }}
                     activeOpacity={0.7}
                 >
