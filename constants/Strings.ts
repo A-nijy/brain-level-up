@@ -62,6 +62,7 @@ export const Strings = {
         welcomeMsg: "스마트한 암기 생활의 시작,\n지금 바로 경험해보세요.", // 로그인 환영 문구
         googleLogin: "Google로 시작하기", // 구글 로그인 버튼
         appleLogin: "Apple로 시작하기", // 애플 로그인 버튼
+        testLogin: "심사 위원용 테스트 로그인", // [NEW] 플레이스토어 심사용 테스트 로그인 버튼
         appleComingSoon: "애플 로그인은 곧 지원될 예정입니다.", // 애플 로그인 미지원 안내
         guestLogin: "게스트로 계속하기", // 익명 로그인 버튼
         or: "또는", // 구분선 "또는"

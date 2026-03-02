@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Platform, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Platform, useWindowDimensions, Modal, TextInput } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
@@ -20,6 +20,10 @@ export default function LoginScreen() {
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
     const { showAlert } = useAlert();
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [testEmail, setTestEmail] = useState('');
+    const [testPassword, setTestPassword] = useState('');
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
@@ -130,6 +134,40 @@ export default function LoginScreen() {
         setIsLoading(false);
     }
 
+    const onTestLogin = async () => {
+        setModalVisible(true);
+    }
+
+    const handleModalLogin = async () => {
+        setIsLoading(true);
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email: testEmail,
+                password: testPassword,
+            });
+
+            if (error) {
+                // 이메일 형식이 아닐 경우를 대비해 @test.com 시도 (Supabase 설정에 따라 다름)
+                if (!testEmail.includes('@')) {
+                    const { error: retryError } = await supabase.auth.signInWithPassword({
+                        email: `${testEmail}@test.com`,
+                        password: testPassword,
+                    });
+                    if (retryError) throw retryError;
+                    setModalVisible(false);
+                } else {
+                    throw error;
+                }
+            } else {
+                setModalVisible(false);
+            }
+        } catch (error: any) {
+            showAlert({ title: Strings.auth.errorLoginTitle, message: error.message });
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={[styles.contentWrapper, isWeb && { maxWidth: 500, alignSelf: 'center', width: '100%' }]}>
@@ -161,6 +199,16 @@ export default function LoginScreen() {
                         <Text style={styles.buttonTextBlack}>{Strings.auth.googleLogin}</Text>
                     </TouchableOpacity>
 
+                    <TouchableOpacity
+                        style={[styles.button, styles.testButton, { backgroundColor: colors.tint }]}
+                        onPress={onTestLogin}
+                        disabled={isLoading}
+                        activeOpacity={0.8}
+                    >
+                        <FontAwesome name="check-circle" size={20} color="#fff" style={{ marginRight: 12 }} />
+                        <Text style={styles.buttonTextWhite}>{Strings.auth.testLogin}</Text>
+                    </TouchableOpacity>
+
                     {/* 배포 초기에 애플/게스트 로그인은 숨김 처리 (안드로이드 우선 배포) */}
                     {/* 
                     <TouchableOpacity
@@ -189,11 +237,69 @@ export default function LoginScreen() {
                     </TouchableOpacity> 
                     */}
 
-                    {isLoading && (
+                    {isLoading && !modalVisible && (
                         <ActivityIndicator style={{ marginTop: 20 }} size="large" color={colors.tint} />
                     )}
                 </Animated.View>
             </View>
+
+            {/* 심사 위원용 테스트 로그인 모달 */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
+                        <Text style={[styles.modalTitle, { color: colors.text }]}>{Strings.auth.testLogin}</Text>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>아이디 (또는 이메일)</Text>
+                            <TextInput
+                                style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+                                value={testEmail}
+                                onChangeText={setTestEmail}
+                                placeholder="아이디 입력"
+                                placeholderTextColor={colors.textSecondary + '80'}
+                                autoCapitalize="none"
+                            />
+                        </View>
+
+                        <View style={styles.inputContainer}>
+                            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>비밀번호</Text>
+                            <TextInput
+                                style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+                                value={testPassword}
+                                onChangeText={setTestPassword}
+                                placeholder="비밀번호 입력"
+                                placeholderTextColor={colors.textSecondary + '80'}
+                                secureTextEntry
+                            />
+                        </View>
+
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={[styles.modalButton, { backgroundColor: colors.border }]}
+                                onPress={() => setModalVisible(false)}
+                            >
+                                <Text style={[styles.modalButtonText, { color: colors.text }]}>{Strings.common.cancel}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalButton, { backgroundColor: colors.tint }]}
+                                onPress={handleModalLogin}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={[styles.modalButtonText, { color: '#fff' }]}>{Strings.common.ok}</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
 
             <View style={styles.footer}>
                 <Text style={[styles.footerText, { color: colors.textSecondary }]}>
@@ -263,6 +369,17 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         borderWidth: 1.5,
     },
+    testButton: {
+        marginTop: 8,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4.65,
+        elevation: 8,
+    },
     buttonTextBlack: {
         fontSize: 17,
         fontWeight: '800',
@@ -296,6 +413,61 @@ const styles = StyleSheet.create({
     footer: {
         alignItems: 'center',
         paddingBottom: 20,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    modalContent: {
+        width: '100%',
+        maxWidth: 400,
+        borderRadius: 24,
+        padding: 24,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
+        elevation: 10,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: '800',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    inputContainer: {
+        marginBottom: 16,
+    },
+    inputLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 8,
+    },
+    input: {
+        height: 56,
+        borderWidth: 1.5,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        fontSize: 16,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        marginTop: 8,
+        gap: 12,
+    },
+    modalButton: {
+        flex: 1,
+        height: 56,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalButtonText: {
+        fontSize: 16,
+        fontWeight: '700',
     },
     footerText: {
         fontSize: 12,
