@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { SharedLibraryManagementService } from '../SharedLibraryManagementService';
 
 export const AdminSharedLibraryService = {
     /**
@@ -34,37 +35,10 @@ export const AdminSharedLibraryService = {
     },
 
     /**
-     * 공유 자료실에서 자료 삭제 (섹션, 단어 포함 삭제)
+     * 공유 자료실에서 자료 삭제 (공통 서비스 활용)
      */
     async deleteSharedLibrary(libraryId: string) {
-        // 1. 모든 섹션 조회
-        const { data: sections } = await supabase
-            .from('shared_sections')
-            .select('id')
-            .eq('shared_library_id', libraryId);
-
-        // 2. 각 섹션의 아이템 삭제
-        if (sections && sections.length > 0) {
-            const sectionIds = sections.map(s => s.id);
-            await supabase
-                .from('shared_items')
-                .delete()
-                .in('shared_section_id', sectionIds);
-        }
-
-        // 3. 섹션 삭제
-        await supabase
-            .from('shared_sections')
-            .delete()
-            .eq('shared_library_id', libraryId);
-
-        // 4. 자료 삭제
-        const { error } = await supabase
-            .from('shared_libraries')
-            .delete()
-            .eq('id', libraryId);
-
-        if (error) throw error;
+        await SharedLibraryManagementService.deleteSharedLibraryCascade(libraryId);
     },
 
     /**
@@ -80,37 +54,14 @@ export const AdminSharedLibraryService = {
 
         if (libError) throw libError;
 
-        // 2. 섹션 가져오기
-        const { data: sections, error: sectionsError } = await supabase
-            .from('library_sections')
-            .select('*')
-            .eq('library_id', libraryId)
-            .order('display_order', { ascending: true });
-
-        if (sectionsError) throw sectionsError;
-
-        // 3. 단어들 가져오기
-        const { data: items, error: itemsError } = await supabase
-            .from('items')
-            .select('*')
-            .eq('library_id', libraryId);
-
-        if (itemsError) throw itemsError;
-
-        // 4. shared_libraries 에 추가 (마지막 순서 다음으로)
-        const { data: maxOrder } = await supabase
-            .from('shared_libraries')
-            .select('display_order')
-            .order('display_order', { ascending: false })
-            .limit(1);
-        const nextOrder = (maxOrder?.[0]?.display_order ?? -1) + 1;
+        // 2. shared_libraries 에 추가 (마지막 순서 다음으로)
+        const nextOrder = await SharedLibraryManagementService.getNextDisplayOrder('shared_libraries');
 
         const { data: sharedLib, error: sharedLibError } = await supabase
             .from('shared_libraries')
             .insert({
                 title: library.title,
                 description: library.description,
-                category: library.category,
                 category_id: library.category_id,
                 created_by: library.user_id,
                 is_official: true,
@@ -121,55 +72,8 @@ export const AdminSharedLibraryService = {
 
         if (sharedLibError) throw sharedLibError;
 
-        // 5. 섹션 복제 및 매핑
-        const sectionIdMap: Record<string, string> = {};
-        if (sections && sections.length > 0) {
-            for (const section of sections) {
-                const { data: newSharedSection, error: nsError } = await supabase
-                    .from('shared_sections')
-                    .insert({
-                        shared_library_id: sharedLib.id,
-                        title: section.title,
-                        display_order: section.display_order
-                    })
-                    .select()
-                    .single();
-
-                if (nsError) throw nsError;
-                sectionIdMap[section.id] = newSharedSection.id;
-            }
-        } else {
-            const { data: defaultSection, error: dsError } = await supabase
-                .from('shared_sections')
-                .insert({
-                    shared_library_id: sharedLib.id,
-                    title: '기본 섹션',
-                    display_order: 0
-                })
-                .select()
-                .single();
-            if (dsError) throw dsError;
-            sectionIdMap['default'] = defaultSection.id;
-        }
-
-        // 6. shared_items 에 추가 (섹션 매핑 포함)
-        if (items && items.length > 0) {
-            const defaultSharedSectionId = Object.values(sectionIdMap)[0];
-            const sharedItems = items.map(item => ({
-                shared_library_id: sharedLib.id,
-                shared_section_id: (item.section_id && sectionIdMap[item.section_id]) ? sectionIdMap[item.section_id] : defaultSharedSectionId,
-                question: item.question,
-                answer: item.answer,
-                memo: item.memo,
-                image_url: item.image_url,
-            }));
-
-            const { error: sharedItemsError } = await supabase
-                .from('shared_items')
-                .insert(sharedItems);
-
-            if (sharedItemsError) throw sharedItemsError;
-        }
+        // 3. 데이터 복제 (공통 서비스 활용)
+        await SharedLibraryManagementService.copyLibraryDataToShared(libraryId, sharedLib.id);
 
         return sharedLib;
     },
@@ -196,13 +100,8 @@ export const AdminSharedLibraryService = {
         items: { question: string; answer: string; memo?: string }[];
         adminId: string;
     }) {
-        // 마지막 순서 다음으로
-        const { data: maxOrder } = await supabase
-            .from('shared_libraries')
-            .select('display_order')
-            .order('display_order', { ascending: false })
-            .limit(1);
-        const nextOrder = (maxOrder?.[0]?.display_order ?? -1) + 1;
+        // 공통 서비스 활용
+        const nextOrder = await SharedLibraryManagementService.getNextDisplayOrder('shared_libraries');
 
         const { data: sharedLib, error: sharedLibError } = await supabase
             .from('shared_libraries')

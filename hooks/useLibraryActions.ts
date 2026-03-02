@@ -4,11 +4,16 @@ import { useRouter } from 'expo-router';
 import { Library } from '@/types';
 import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
+import { MembershipService } from '@/services/MembershipService';
+import { supabase } from '@/lib/supabase';
+import { UserProfile } from '@/types';
 
 export const useLibraryActions = (
     libraries: Library[],
     reorderLibraries: (newLibs: Library[]) => Promise<void>,
-    deleteLibrary: (id: string) => Promise<void>
+    deleteLibrary: (id: string) => Promise<void>,
+    profile: UserProfile | null,
+    userId: string | undefined
 ) => {
     const router = useRouter();
     const { showAlert } = useAlert();
@@ -45,6 +50,36 @@ export const useLibraryActions = (
             console.error(error);
             showAlert({ title: Strings.common.error, message: `${Strings.common.delete} 실패: ${error.message}` });
         }
+    };
+
+    const handleCreateLibrary = async () => {
+        if (!profile || !userId) return;
+
+        const { count, error } = await supabase
+            .from('libraries')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId);
+
+        if (error) {
+            console.error('Error checking library count:', error);
+            return;
+        }
+
+        const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
+
+        if (access.status === 'LIMIT_REACHED') {
+            showAlert({
+                title: Strings.membership.alerts.limitReachedTitle,
+                message: access.message || Strings.membership.alerts.limitReachedMsg,
+                buttons: [
+                    { text: Strings.common.cancel, style: 'cancel' },
+                    { text: Strings.membership.upgrade, onPress: () => router.push('/membership') }
+                ]
+            });
+            return;
+        }
+
+        router.push('/library/create');
     };
 
     const showLibraryOptions = (library: Library, event: any) => {
@@ -90,6 +125,7 @@ export const useLibraryActions = (
         handleMoveDown,
         handleEditLibrary,
         handleDeleteLibrary,
+        handleCreateLibrary,
         showLibraryOptions
     };
 };

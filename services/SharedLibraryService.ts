@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { SharedLibrary, SharedItem, Library, Item, SharedSection, SharedLibraryCategory } from '@/types';
 import { LibraryService } from './LibraryService';
 import { ItemService } from './ItemService';
+import { SharedLibraryManagementService } from './SharedLibraryManagementService';
 
 export const SharedLibraryService = {
     /**
@@ -60,59 +61,15 @@ export const SharedLibraryService = {
 
         if (sharedError) throw sharedError;
 
-        // 3. 섹션 및 아이템 복제 (개인 -> 공유)
-        await this._copyLibraryToShared(libraryId, sharedLib.id);
+        if (sharedError) throw sharedError;
+
+        // 3. 섹션 및 아이템 복제 (공통 서비스 활용)
+        await SharedLibraryManagementService.copyLibraryDataToShared(libraryId, sharedLib.id);
     },
 
     /**
-     * [Internal Helper] 개인 암기장 데이터를 공유 자료실 데이터로 복제
+     * [Internal Helper] 제거 (공통 서비스로 이전)
      */
-    async _copyLibraryToShared(sourceLibId: string, targetSharedLibId: string): Promise<void> {
-        const { data: sections, error: secError } = await supabase
-            .from('library_sections')
-            .select('*')
-            .eq('library_id', sourceLibId)
-            .order('display_order', { ascending: true });
-
-        if (secError) throw secError;
-
-        for (const sec of sections) {
-            const { data: sharedSec, error: sharedSecError } = await supabase
-                .from('shared_sections')
-                .insert({
-                    shared_library_id: targetSharedLibId,
-                    title: sec.title,
-                    display_order: sec.display_order
-                })
-                .select()
-                .single();
-
-            if (sharedSecError) throw sharedSecError;
-
-            const { data: items, error: itemsError } = await supabase
-                .from('items')
-                .select('*')
-                .eq('section_id', sec.id)
-                .order('display_order', { ascending: true });
-
-            if (itemsError) throw itemsError;
-
-            if (items && items.length > 0) {
-                const sharedItems = items.map(item => ({
-                    shared_library_id: targetSharedLibId,
-                    shared_section_id: sharedSec.id,
-                    question: item.question,
-                    answer: item.answer,
-                    memo: item.memo,
-                    image_url: item.image_url,
-                    display_order: item.display_order
-                }));
-
-                const { error: batchError } = await supabase.from('shared_items').insert(sharedItems);
-                if (batchError) throw batchError;
-            }
-        }
-    },
 
     /**
      * [Refactored] 공유 자료를 내 암기장으로 다운로드 (Deep Copy)
@@ -169,27 +126,10 @@ export const SharedLibraryService = {
     },
 
     /**
-     * 공유 자료 삭제 (Cascade)
+     * 공유 자료 삭제 (공통 서비스 활용)
      */
     async deleteSharedLibrary(libraryId: string): Promise<void> {
-        // 1. 모든 섹션 조회
-        const { data: sections, error: secError } = await supabase
-            .from('shared_sections')
-            .select('id')
-            .eq('shared_library_id', libraryId);
-
-        if (secError) throw secError;
-
-        // 2. 아이템 및 섹션 삭제
-        if (sections && sections.length > 0) {
-            const sectionIds = sections.map(s => s.id);
-            await supabase.from('shared_items').delete().in('shared_section_id', sectionIds);
-        }
-        await supabase.from('shared_sections').delete().eq('shared_library_id', libraryId);
-
-        // 3. 라이브러리 삭제
-        const { error: libDelError } = await supabase.from('shared_libraries').delete().eq('id', libraryId);
-        if (libDelError) throw libDelError;
+        await SharedLibraryManagementService.deleteSharedLibraryCascade(libraryId);
     },
 
     /**
@@ -280,14 +220,7 @@ export const SharedLibraryService = {
     },
 
     async createSharedSection(sharedLibraryId: string, title: string): Promise<any> {
-        const { data: sections } = await supabase
-            .from('shared_sections')
-            .select('display_order')
-            .eq('shared_library_id', sharedLibraryId)
-            .order('display_order', { ascending: false })
-            .limit(1);
-
-        const nextOrder = sections && sections.length > 0 ? sections[0].display_order + 1 : 0;
+        const nextOrder = await SharedLibraryManagementService.getNextDisplayOrder('shared_sections', { shared_library_id: sharedLibraryId });
         const { data, error } = await supabase
             .from('shared_sections')
             .insert({ shared_library_id: sharedLibraryId, title, display_order: nextOrder })

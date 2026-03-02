@@ -42,38 +42,9 @@ export default function LibraryListScreen() {
     handleMoveDown,
     handleEditLibrary,
     handleDeleteLibrary,
+    handleCreateLibrary,
     showLibraryOptions
-  } = useLibraryActions(libraries, reorderLibraries, deleteLibrary);
-
-  const handleCreatePress = async () => {
-    if (!profile || !user?.id) return;
-
-    const { count, error } = await supabase
-      .from('libraries')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id);
-
-    if (error) {
-      console.error('Error checking library count:', error);
-      return;
-    }
-
-    const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
-
-    if (access.status === 'LIMIT_REACHED') {
-      showAlert({
-        title: Strings.membership.alerts.limitReachedTitle,
-        message: access.message || Strings.membership.alerts.limitReachedMsg,
-        buttons: [
-          { text: Strings.common.cancel, style: 'cancel' },
-          { text: Strings.membership.upgrade, onPress: () => router.push('/membership') }
-        ]
-      });
-      return;
-    }
-
-    router.push('/library/create');
-  };
+  } = useLibraryActions(libraries, reorderLibraries, deleteLibrary, profile, user?.id);
 
   // 웹과 데스크톱 환경을 위한 그리드 설정
   const isWeb = Platform.OS === 'web';
@@ -221,7 +192,7 @@ export default function LibraryListScreen() {
               </TouchableOpacity>
 
               {/* 추가 버튼 */}
-              <TouchableOpacity onPress={handleCreatePress} style={{ padding: 6 }}>
+              <TouchableOpacity onPress={handleCreateLibrary} style={{ padding: 6 }}>
                 <FontAwesome
                   name="plus"
                   size={22}
@@ -274,7 +245,7 @@ export default function LibraryListScreen() {
                 <View variant="transparent" style={{ flex: 1 }} />
 
                 <View variant="transparent" style={{ flexDirection: 'row', gap: 12, marginLeft: 20 }}>
-                  <TouchableOpacity style={styles.webAddBtn} onPress={handleCreatePress}>
+                  <TouchableOpacity style={styles.webAddBtn} onPress={handleCreateLibrary}>
                     <LinearGradient
                       colors={[colors.tint, colors.tint + 'CC']}
                       style={styles.webAddBtnGradient}
