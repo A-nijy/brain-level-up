@@ -4,11 +4,6 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { Item } from '@/types';
 
-import { StorageAccessFramework, EncodingType } from 'expo-file-system';
-
-const SAF = StorageAccessFramework;
-const EncType = EncodingType;
-
 export interface ExportOptions {
   mode: 'both' | 'word_only' | 'meaning_only';
   order: 'sequential' | 'random';
@@ -19,6 +14,11 @@ export interface ExportOptions {
 export const PdfService = {
   async generateAndShare(items: Item[], options: ExportOptions, showAlert?: (params: any) => void) {
     let processedItems = [...items];
+
+    // [디버깅] 안드로이드에서 파일 시스템 객체 상태 확인
+    if (Platform.OS === 'android') {
+      console.log('[PdfService] FileSystem Keys:', Object.keys(FileSystem));
+    }
 
     // 1. 순서 정렬
     if (options.order === 'random') {
@@ -60,14 +60,19 @@ export const PdfService = {
         if (options.action === 'download' && Platform.OS === 'android') {
           try {
             console.log('[PdfService] Android Download triggered');
+
+            // 런타임에서 안전하게 SAF 객체 획득
+            const SAF = (FileSystem as any).StorageAccessFramework;
+            const EncType = (FileSystem as any).EncodingType;
+
             if (!SAF) {
-              console.error('[PdfService] SAF Object missing');
+              console.error('[PdfService] StorageAccessFramework (SAF) is undefined. FileSystem object:', FileSystem);
               await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
               return;
             }
 
-            // [추가] 광고 직후라면 시스템 창 충돌을 피하기 위해 약간 더 대기
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 광고 직후 시스템 UI 충돌 방지 지연
+            await new Promise(resolve => setTimeout(resolve, 800));
 
             console.log('[PdfService] Requesting directory permissions...');
             const permissions = await SAF.requestDirectoryPermissionsAsync();
