@@ -3,11 +3,11 @@ import 'dotenv/config';
 export default {
     expo: {
         name: "뇌벨업",
-        slug: "mem-app",
+        slug: "brain-level-up",
         version: "1.0.0",
         orientation: "portrait",
         icon: "./assets/images/icon.png",
-        scheme: "memapp",
+        scheme: "brainlevelup",
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
         splash: {
@@ -17,10 +17,10 @@ export default {
         },
         ios: {
             supportsTablet: true,
-            bundleIdentifier: "com.dksgn.memapp"
+            bundleIdentifier: "com.dksgn.brainlevelup"
         },
         android: {
-            package: "com.dksgn.memapp",
+            package: "com.dksgn.brainlevelup",
             adaptiveIcon: {
                 foregroundImage: "./assets/images/adaptive-icon.png",
                 backgroundColor: "#ffffff"
