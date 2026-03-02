@@ -4,9 +4,10 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { Item } from '@/types';
 
-// StorageAccessFramework 및 EncodingType 명시적 확인
-const SAF = (FileSystem as any).StorageAccessFramework;
-const EncType = (FileSystem as any).EncodingType;
+import { StorageAccessFramework, EncodingType } from 'expo-file-system';
+
+const SAF = StorageAccessFramework;
+const EncType = EncodingType;
 
 export interface ExportOptions {
   mode: 'both' | 'word_only' | 'meaning_only';
