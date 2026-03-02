@@ -58,43 +58,47 @@ export const PdfService = {
 
         if (options.action === 'download' && Platform.OS === 'android') {
           try {
+            console.log('[PdfService] Android Download triggered');
             if (!SAF) {
-              console.warn('Android SAF: StorageAccessFramework is not available');
+              console.error('[PdfService] SAF Object missing');
               await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
               return;
             }
 
-            console.log('Android SAF: Requesting directory permissions...');
+            // [추가] 광고 직후라면 시스템 창 충돌을 피하기 위해 약간 더 대기
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            console.log('[PdfService] Requesting directory permissions...');
             const permissions = await SAF.requestDirectoryPermissionsAsync();
 
             if (permissions.granted) {
+              console.log('[PdfService] Permission granted for:', permissions.directoryUri);
               const base64 = await FileSystem.readAsStringAsync(uri, { encoding: EncType?.Base64 || 'base64' });
               const fileName = `${options.title.replace(/[\\/:*?"<>|]/g, '_')}_${new Date().getTime()}.pdf`;
 
-              // 선택한 폴더에 파일 생성
+              console.log('[PdfService] Creating file:', fileName);
               const fileUri = await SAF.createFileAsync(permissions.directoryUri, fileName, 'application/pdf');
               await FileSystem.writeAsStringAsync(fileUri, base64, { encoding: EncType?.Base64 || 'base64' });
 
-              console.log('Android SAF: File saved successfully at', fileUri);
-
+              console.log('[PdfService] File save success:', fileUri);
               if (showAlert) {
                 showAlert({
                   title: '저장 완료',
-                  message: '선택하신 폴더에 PDF 파일이 안전하게 저장되었습니다.'
+                  message: '선택하신 폴더에 PDF 파일이 저장되었습니다.'
                 });
               }
             } else {
-              console.log('Android SAF: Permission denied by user');
-              // 권한 거부 시 공유하기로 전환
+              console.warn('[PdfService] Permission denied or cancelled');
+              // 사용자가 취소했을 때만 공유창을 띄워줌 (보험용)
               await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
             }
-          } catch (safError) {
-            console.error('Android SAF Error:', safError);
-            // 오류 발생 시 안전하게 공유하기로 폴백
+          } catch (safError: any) {
+            console.error('[PdfService] Critical SAF Error:', safError);
+            // 에러 시 최종 수단으로 공유 시트 소환
             await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
           }
         } else {
-          // iOS 또는 공유하기 선택 시
+          // iOS 또는 '공유하기' 선택 시
           await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
         }
       }
