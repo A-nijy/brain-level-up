@@ -106,6 +106,7 @@ export const AdminSharedLibraryService = {
                 category: library.category,
                 category_id: library.category_id,
                 created_by: library.user_id,
+                is_official: true, // 관리자가 게시하는 것이므로 공식 자료로 설정
             })
             .select()
             .single();
@@ -194,6 +195,7 @@ export const AdminSharedLibraryService = {
                 description: data.description,
                 category_id: data.category_id,
                 created_by: data.adminId,
+                is_official: true, // 관리자 직접 게시이므로 공식 자료로 설정
             })
             .select()
             .single();
@@ -247,6 +249,7 @@ export const AdminSharedLibraryService = {
                 description: data.description,
                 category_id: data.category_id,
                 created_by: data.adminId,
+                is_official: true, // 관리자가 작성하는 초안이므로 공식 자료로 설정
                 is_draft: true
             })
             .select()
@@ -279,7 +282,10 @@ export const AdminSharedLibraryService = {
     async publishDraftSharedLibrary(draftId: string) {
         const { error } = await supabase
             .from('shared_libraries')
-            .update({ is_draft: false })
+            .update({
+                is_draft: false,
+                is_official: true // 게시 시 공식 자료임을 확정
+            })
             .eq('id', draftId);
 
         if (error) throw error;
