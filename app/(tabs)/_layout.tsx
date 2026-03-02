@@ -14,9 +14,9 @@ import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
 
 import { MembershipService } from '@/services/MembershipService';
-import { NotificationService } from '@/services/NotificationService';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -31,26 +31,8 @@ export default function TabLayout() {
   const { profile, user } = useAuth();
   const router = useRouter();
   const { showAlert } = useAlert();
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { unreadCount } = useUnreadNotifications();
   const insets = useSafeAreaInsets();
-
-  useEffect(() => {
-    if (user) {
-      loadUnreadCount();
-      const interval = setInterval(loadUnreadCount, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [user]);
-
-  const loadUnreadCount = async () => {
-    if (!user) return;
-    try {
-      const count = await NotificationService.getUnreadCount(user.id);
-      setUnreadCount(count);
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const handleCreatePress = async () => {
     if (!profile || !user) return;

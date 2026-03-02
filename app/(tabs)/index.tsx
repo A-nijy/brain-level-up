@@ -15,17 +15,22 @@ import { useAlert } from '@/contexts/AlertContext';
 import { useLibraryActions } from '@/hooks/useLibraryActions';
 
 import { Strings } from '@/constants/Strings';
+import { Tabs } from 'expo-router';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
+import { MembershipService } from '@/services/MembershipService';
+import { supabase } from '@/lib/supabase';
 
 export default function LibraryListScreen() {
   const { libraries, loading, refreshing, refresh, reorderLibraries, deleteLibrary } = useLibraries();
   const { stats, totals, streak } = useStudyStats();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const { width, height } = useWindowDimensions();
   const { showAlert } = useAlert();
   const [searchQuery, setSearchQuery] = useState('');
+  const { unreadCount } = useUnreadNotifications();
 
   const {
     reorderMode,
@@ -39,6 +44,36 @@ export default function LibraryListScreen() {
     handleDeleteLibrary,
     showLibraryOptions
   } = useLibraryActions(libraries, reorderLibraries, deleteLibrary);
+
+  const handleCreatePress = async () => {
+    if (!profile || !user?.id) return;
+
+    const { count, error } = await supabase
+      .from('libraries')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error checking library count:', error);
+      return;
+    }
+
+    const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
+
+    if (access.status === 'LIMIT_REACHED') {
+      showAlert({
+        title: Strings.membership.alerts.limitReachedTitle,
+        message: access.message || Strings.membership.alerts.limitReachedMsg,
+        buttons: [
+          { text: Strings.common.cancel, style: 'cancel' },
+          { text: Strings.membership.upgrade, onPress: () => router.push('/membership') }
+        ]
+      });
+      return;
+    }
+
+    router.push('/library/create');
+  };
 
   // 웹과 데스크톱 환경을 위한 그리드 설정
   const isWeb = Platform.OS === 'web';
@@ -140,6 +175,63 @@ export default function LibraryListScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Tabs.Screen
+        options={{
+          headerRight: () => (
+            <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
+              {/* 알림 버튼 */}
+              <TouchableOpacity onPress={() => router.push('/notifications')} style={{ padding: 6 }}>
+                <View variant="transparent" style={{ position: 'relative' }}>
+                  <FontAwesome
+                    name="bell-o"
+                    size={20}
+                    color={colors.text}
+                  />
+                  {unreadCount > 0 && (
+                    <View style={{
+                      position: 'absolute',
+                      top: -6,
+                      right: -6,
+                      backgroundColor: colors.error,
+                      borderRadius: 10,
+                      minWidth: 16,
+                      height: 16,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      paddingHorizontal: 4
+                    }}>
+                      <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+
+              {/* 순서 변경 버튼 (사용자 요청 위치) */}
+              <TouchableOpacity
+                onPress={() => setReorderMode(!reorderMode)}
+                style={{ padding: 6, marginHorizontal: 12 }}
+              >
+                <FontAwesome
+                  name={Strings.common.icons.sort as any}
+                  size={20}
+                  color={reorderMode ? colors.tint : colors.text}
+                />
+              </TouchableOpacity>
+
+              {/* 추가 버튼 */}
+              <TouchableOpacity onPress={handleCreatePress} style={{ padding: 6 }}>
+                <FontAwesome
+                  name="plus"
+                  size={22}
+                  color={colors.text}
+                />
+              </TouchableOpacity>
+            </View>
+          ),
+        }}
+      />
       <FlatList
         key={key}
         data={filteredLibraries}
@@ -189,19 +281,7 @@ export default function LibraryListScreen() {
                 </View>
 
                 <View variant="transparent" style={{ flexDirection: 'row', gap: 12, marginLeft: 20 }}>
-                  <TouchableOpacity
-                    style={[
-                      styles.reorderToggle,
-                      reorderMode && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
-                    ]}
-                    onPress={() => setReorderMode(!reorderMode)}
-                  >
-                    <FontAwesome name={Strings.common.icons.sort as any} size={14} color={reorderMode ? colors.tint : colors.textSecondary} />
-                    <Text style={[styles.reorderToggleText, { color: reorderMode ? colors.tint : colors.textSecondary }]}>
-                      {reorderMode ? Strings.home.reorderDone : Strings.home.reorderStart}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.webAddBtn} onPress={() => router.push('/library/create')}>
+                  <TouchableOpacity style={styles.webAddBtn} onPress={handleCreatePress}>
                     <LinearGradient
                       colors={[colors.tint, colors.tint + 'CC']}
                       style={styles.webAddBtnGradient}
@@ -215,7 +295,6 @@ export default function LibraryListScreen() {
             </View>
           ) : (
             <View variant="transparent" style={styles.mobileHeaderContainer}>
-              {/* Mobile Greeting removed */}
               <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, marginBottom: 20 }]}>
                 <FontAwesome name="search" size={14} color={colors.textSecondary} />
                 <TextInput
@@ -237,15 +316,10 @@ export default function LibraryListScreen() {
                   <Text style={styles.sectionTitle}>{Strings.home.sectionTitle}</Text>
                   <View style={[styles.titleUnderline, { backgroundColor: colors.tint }]} />
                 </View>
-                <TouchableOpacity
-                  style={[
-                    styles.reorderToggle,
-                    reorderMode && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
-                  ]}
-                  onPress={() => setReorderMode(!reorderMode)}
-                >
-                  <FontAwesome name="sort" size={14} color={reorderMode ? colors.tint : colors.textSecondary} />
-                </TouchableOpacity>
+                {/* 
+                  [순서 변경 아이콘 이동] 
+                  기존에는 여기에 순서 변경 아이콘이 있었으나, 사용자의 요청으로 상단 헤더(Tabs.Screen)로 이동되었습니다.
+                */}
               </View>
             </View>
           )
