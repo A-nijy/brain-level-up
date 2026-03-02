@@ -30,8 +30,8 @@ export const AdService = {
             requestNonPersonalizedAdsOnly: true,
         });
 
+        let isEarned = false;
         let adLoaded = false;
-        console.log('[AdService] Ad events mapping:', AD_EVENTS);
 
         const unsubscribeLoaded = rewarded.addAdEventListener(AD_EVENTS.LOADED, () => {
             console.log('[AdService] Ad Loaded');
@@ -43,13 +43,19 @@ export const AdService = {
             AD_EVENTS.EARNED_REWARD,
             (reward: any) => {
                 console.log('[AdService] User earned reward:', reward);
-                onComplete();
+                isEarned = true;
             }
         );
 
         const unsubscribeClosed = rewarded.addAdEventListener(AD_EVENTS.CLOSED, () => {
             console.log('[AdService] Ad Closed');
             cleanup();
+            if (isEarned) {
+                // 광고가 완전히 닫힌 후 1000ms 정도 충분한 지연을 주어 시스템 창 충돌 방지
+                setTimeout(() => {
+                    onComplete();
+                }, 1000);
+            }
         });
 
         const unsubscribeError = rewarded.addAdEventListener(AD_EVENTS.ERROR, (error: any) => {

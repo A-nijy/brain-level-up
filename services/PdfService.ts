@@ -5,8 +5,8 @@ import { Platform } from 'react-native';
 import { Item } from '@/types';
 
 // StorageAccessFramework 및 EncodingType 명시적 확인
-const SAF = FileSystem.StorageAccessFramework;
-const EncType = FileSystem.EncodingType;
+const SAF = (FileSystem as any).StorageAccessFramework;
+const EncType = (FileSystem as any).EncodingType;
 
 export interface ExportOptions {
   mode: 'both' | 'word_only' | 'meaning_only';
@@ -56,10 +56,15 @@ export const PdfService = {
         const { uri } = await Print.printToFileAsync({ html });
         console.log('PDF generated at:', uri);
 
-        if (options.action === 'download' && Platform.OS === 'android' && SAF) {
+        if (options.action === 'download' && Platform.OS === 'android') {
           try {
+            if (!SAF) {
+              console.warn('Android SAF: StorageAccessFramework is not available');
+              await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+              return;
+            }
+
             console.log('Android SAF: Requesting directory permissions...');
-            // 사용자가 직접 저장할 폴더를 선택하도록 유도 (안드로이드 10 이상 필수 절차)
             const permissions = await SAF.requestDirectoryPermissionsAsync();
 
             if (permissions.granted) {
