@@ -27,10 +27,9 @@ export function ExportModal({ isVisible, onClose, onExport, hasWrongItems }: Exp
     const [range, setRange] = useState<'all' | 'wrong'>('all');
     const [mode, setMode] = useState<'both' | 'word_only' | 'meaning_only'>('both');
     const [order, setOrder] = useState<'sequential' | 'random'>('sequential');
-    const [action, setAction] = useState<'download' | 'share'>('download');
 
     const handleExport = () => {
-        onExport({ range, mode, order, action });
+        onExport({ range, mode, order, action: 'share' });
         onClose();
     };
 
@@ -87,17 +86,8 @@ export function ExportModal({ isVisible, onClose, onExport, hasWrongItems }: Exp
                             <OptionButton label="무작위 (랜덤)" active={order === 'random'} onPress={() => setOrder('random')} />
                         </View>
 
-                        {Platform.OS !== 'web' && (
-                            <>
-                                <Text style={styles.sectionTitle}>작업 선택</Text>
-                                <View variant="transparent" style={styles.row}>
-                                    <OptionButton label="기기에 저장" active={action === 'download'} onPress={() => setAction('download')} icon="download" />
-                                    <OptionButton label="공유하기" active={action === 'share'} onPress={() => setAction('share')} icon="share-alt" />
-                                </View>
-                                {Platform.OS === 'ios' && action === 'share' && (
-                                    <Text style={styles.note}>* iOS '공유하기' 내에 '파일에 저장' 옵션이 포함되어 있습니다.</Text>
-                                )}
-                            </>
+                        {Platform.OS === 'ios' && (
+                            <Text style={styles.note}>* '공유하기' 창 내에 '파일에 저장' 옵션이 포함되어 있습니다.</Text>
                         )}
                     </ScrollView>
 
@@ -108,7 +98,7 @@ export function ExportModal({ isVisible, onClose, onExport, hasWrongItems }: Exp
                             style={styles.gradient}
                         >
                             <FontAwesome name="file-pdf-o" size={18} color="#fff" style={{ marginRight: 10 }} />
-                            <Text style={styles.exportButtonText}>PDF 생성 및 다운로드</Text>
+                            <Text style={styles.exportButtonText}>PDF 생성 및 공유하기</Text>
                         </LinearGradient>
                     </TouchableOpacity>
                 </View>

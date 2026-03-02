@@ -1,6 +1,5 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import { Item } from '@/types';
 
@@ -18,6 +17,13 @@ export const PdfService = {
     // [디버깅] 안드로이드에서 파일 시스템 객체 상태 확인
     if (Platform.OS === 'android') {
       console.log('[PdfService] FileSystem Keys:', Object.keys(FileSystem));
+    }
+
+    // 1. 순서 정렬
+    if (options.order === 'random') {
+      processedItems.sort(() => Math.random() - 0.5);
+    } else {
+      processedItems.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
     }
 
     // 1. 순서 정렬
