@@ -10,6 +10,12 @@ export default {
         scheme: "brainlevelup",
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
+        updates: {
+            url: "https://u.expo.dev/2e968fa9-82cd-4fbf-ab8b-d211209f88af"
+        },
+        runtimeVersion: {
+            policy: "appVersion"
+        },
         splash: {
             image: "./assets/images/splash-icon.png",
             resizeMode: "contain",
@@ -60,7 +66,7 @@ export default {
         extra: {
             router: {},
             eas: {
-                projectId: "9b0e2f00-0e8f-43b8-818c-a0600c73cde1"
+                projectId: "2e968fa9-82cd-4fbf-ab8b-d211209f88af"
             }
         }
     }

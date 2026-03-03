@@ -84,7 +84,7 @@ export default function LoginScreen() {
                 redirectUri = typeof window !== 'undefined' ? window.location.origin : undefined;
             } else {
                 redirectUri = makeRedirectUri({
-                    scheme: 'memapp',
+                    scheme: 'brainlevelup',
                     path: 'auth/callback',
                 });
             }

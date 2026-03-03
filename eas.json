@@ -12,7 +12,9 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "channel": "production",
+      "autoIncrement": true,
+      "developmentClient": false
     }
   },
   "submit": {
