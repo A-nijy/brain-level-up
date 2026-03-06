@@ -6,7 +6,11 @@ export const AdService = {
     /**
      * 웹에서는 실제 광고 대신 테스트용 팝업을 보여줍니다.
      */
-    async showRewardedAd(onComplete: () => void, showAlert: (params: any) => void): Promise<void> {
+    async showRewardedAd(
+        onComplete: () => void,
+        showAlert: (params: any) => void,
+        onLoadingChange?: (loading: boolean) => void
+    ): Promise<void> {
         showAlert({
             title: '광고 시청 중 (웹 테스트)',
             message: '웹 버전에서는 현재 실제 광고 대신 테스트 모드로 작동합니다.',

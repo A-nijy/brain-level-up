@@ -34,6 +34,7 @@ export default function SharedLibraryPreviewScreen() {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [downloading, setDownloading] = useState(false);
+    const [adLoading, setAdLoading] = useState(false);
 
     const handleDownloadRequest = () => {
         if (!user) {
@@ -70,13 +71,14 @@ export default function SharedLibraryPreviewScreen() {
         } finally {
             setDownloading(false);
             setModalVisible(false);
+            setAdLoading(false);
         }
     };
 
     const handleWatchAd = () => {
         AdService.showRewardedAd(() => {
             performDownload();
-        }, showAlert);
+        }, showAlert, setAdLoading);
     };
 
     const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (
@@ -170,10 +172,12 @@ export default function SharedLibraryPreviewScreen() {
 
             <FeatureGatingModal
                 isVisible={modalVisible}
-                onClose={() => setModalVisible(false)}
+                onClose={() => !adLoading && !downloading && setModalVisible(false)}
                 onWatchAd={handleWatchAd}
                 title={Strings.sharedDetail.downloadBtn}
                 description={Strings.sharedDetail.downloadGuide}
+                isLoading={adLoading || downloading}
+                loadingText={adLoading ? '광고 준비 중...' : '다운로드 중...'}
             />
         </View>
     );

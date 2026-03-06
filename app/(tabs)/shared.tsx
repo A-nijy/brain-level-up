@@ -57,6 +57,7 @@ export default function SharedLibraryScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedLib, setSelectedLib] = useState<SharedLibrary | null>(null);
     const [downloading, setDownloading] = useState<string | null>(null);
+    const [adLoading, setAdLoading] = useState(false);
 
     // Share Material Modal State
     const [shareModalVisible, setShareModalVisible] = useState(false);
@@ -242,13 +243,14 @@ export default function SharedLibraryScreen() {
         } finally {
             setDownloading(null);
             setModalVisible(false);
+            setAdLoading(false);
         }
     };
 
     const handleWatchAd = () => {
         AdService.showRewardedAd(() => {
             if (selectedLib) performDownload(selectedLib);
-        }, showAlert);
+        }, showAlert, setAdLoading);
     };
 
     const renderItem = ({ item, index }: { item: SharedLibrary; index: number }) => {
@@ -455,10 +457,12 @@ export default function SharedLibraryScreen() {
 
             <FeatureGatingModal
                 isVisible={modalVisible}
-                onClose={() => setModalVisible(false)}
+                onClose={() => !adLoading && !downloading && setModalVisible(false)}
                 onWatchAd={handleWatchAd}
                 title={Strings.shared.adModal.title}
                 description={Strings.shared.adModal.description}
+                isLoading={adLoading || !!downloading}
+                loadingText={adLoading ? '광고 준비 중...' : '다운로드 중...'}
             />
 
             {/* Share Material Modal */}

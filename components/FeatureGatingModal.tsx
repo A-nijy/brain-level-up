@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Modal, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { StyleSheet, Modal, TouchableOpacity, Dimensions, Platform, ActivityIndicator } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,11 +13,13 @@ interface FeatureGatingModalProps {
     onWatchAd: () => void;
     title: string;
     description: string;
+    isLoading?: boolean;
+    loadingText?: string;
 }
 
 const { width } = Dimensions.get('window');
 
-export function FeatureGatingModal({ isVisible, onClose, onWatchAd, title, description }: FeatureGatingModalProps) {
+export function FeatureGatingModal({ isVisible, onClose, onWatchAd, title, description, isLoading, loadingText }: FeatureGatingModalProps) {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const router = useRouter();
@@ -32,11 +34,15 @@ export function FeatureGatingModal({ isVisible, onClose, onWatchAd, title, descr
             visible={isVisible}
             transparent
             animationType="fade"
-            onRequestClose={onClose}
+            onRequestClose={() => !isLoading && onClose()}
         >
             <View variant="transparent" style={styles.overlay}>
                 <View style={[styles.content, { backgroundColor: colors.background }]}>
-                    <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                    <TouchableOpacity
+                        style={[styles.closeButton, isLoading && { opacity: 0.3 }]}
+                        onPress={() => !isLoading && onClose()}
+                        disabled={isLoading}
+                    >
                         <FontAwesome name="times" size={20} color={colors.textSecondary} />
                     </TouchableOpacity>
 
@@ -49,10 +55,20 @@ export function FeatureGatingModal({ isVisible, onClose, onWatchAd, title, descr
                     </View>
 
                     <View variant="transparent" style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.adButton} onPress={onWatchAd}>
+                        <TouchableOpacity
+                            style={[styles.adButton, isLoading && { opacity: 0.7 }]}
+                            onPress={onWatchAd}
+                            disabled={isLoading}
+                        >
                             <View variant="transparent" style={styles.adButtonContent}>
-                                <FontAwesome name="play-circle" size={20} color={colors.tint} />
-                                <Text style={[styles.adButtonText, { color: colors.tint }]}>광고 시청하고 받기</Text>
+                                {isLoading ? (
+                                    <ActivityIndicator size="small" color={colors.tint} />
+                                ) : (
+                                    <FontAwesome name="play-circle" size={20} color={colors.tint} />
+                                )}
+                                <Text style={[styles.adButtonText, { color: colors.tint }]}>
+                                    {isLoading ? (loadingText || '처리 중...') : '광고 시청하고 받기'}
+                                </Text>
                             </View>
                         </TouchableOpacity>
 
