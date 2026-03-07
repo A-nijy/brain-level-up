@@ -96,7 +96,7 @@ const StudyCard = ({ item, isWeb, colors, onFlip }: StudyCardProps) => {
 };
 
 export default function StudyScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id, sectionId } = useLocalSearchParams<{ id: string; sectionId?: string }>();
     const router = useRouter();
     const navigation = useNavigation();
     const {
@@ -110,7 +110,7 @@ export default function StudyScreen() {
         handleFlip,
         handleResult,
         saveSessionProgress,
-    } = useStudySession(id as string);
+    } = useStudySession(id as string, sectionId);
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];

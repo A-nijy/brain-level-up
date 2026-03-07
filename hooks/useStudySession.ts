@@ -4,7 +4,7 @@ import { StatsService } from '@/services/StatsService';
 import { useAuth } from '@/contexts/AuthContext';
 import { Item } from '@/types';
 
-export function useStudySession(libraryId: string) {
+export function useStudySession(libraryId: string, sectionId?: string) {
     const { profile } = useAuth();
     const [items, setItems] = useState<Item[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -18,10 +18,16 @@ export function useStudySession(libraryId: string) {
     const fetchItems = useCallback(async () => {
         try {
             setLoading(true);
-            const { data, error } = await supabase
+            let query = supabase
                 .from('items')
                 .select('*')
                 .eq('library_id', libraryId);
+
+            if (sectionId) {
+                query = query.eq('section_id', sectionId);
+            }
+
+            const { data, error } = await query;
 
             if (error) throw error;
 
@@ -34,7 +40,7 @@ export function useStudySession(libraryId: string) {
         } finally {
             setLoading(false);
         }
-    }, [libraryId]);
+    }, [libraryId, sectionId]);
 
     useEffect(() => {
         fetchItems();
