@@ -266,7 +266,12 @@ function InitialLayout() {
               marginRight: 10,
             }}
           >
-            <FontAwesome name="chevron-left" size={20} color={colorScheme === 'dark' ? '#fff' : '#000'} />
+            <FontAwesome
+              name="chevron-left"
+              size={20}
+              color={colorScheme === 'dark' ? '#fff' : '#000'}
+              style={{ transform: [{ translateY: Platform.OS === 'ios' ? 1 : 0 }] }}
+            />
           </TouchableOpacity>
         ),
         headerRight: () => <HeaderActions />,

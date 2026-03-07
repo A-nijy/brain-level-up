@@ -215,7 +215,12 @@ export default function StudyScreen() {
                         onPress={() => router.back()}
                         style={{ padding: 16, marginLeft: Platform.OS === 'ios' ? -8 : 0, marginRight: 8 }}
                     >
-                        <FontAwesome name="chevron-left" size={20} color={colors.text} />
+                        <FontAwesome
+                            name="chevron-left"
+                            size={20}
+                            color={colors.text}
+                            style={{ transform: [{ translateY: Platform.OS === 'ios' ? 1 : 0 }] }}
+                        />
                     </TouchableOpacity>
                 ),
             }} />
