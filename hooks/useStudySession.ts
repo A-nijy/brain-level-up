@@ -58,16 +58,28 @@ export function useStudySession(libraryId: string) {
         }
     };
 
+    const saveSessionProgress = useCallback(async (currentResults = results) => {
+        if (!profile || (currentResults.correct === 0 && currentResults.wrong === 0)) return;
+
+        try {
+            const totalItems = currentResults.correct + currentResults.wrong;
+            const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
+            await StatsService.logStudyActivity(profile.id, totalItems, currentResults.correct, durationSeconds);
+        } catch (err) {
+            console.error("[useStudySession] Failed to save session progress:", err);
+        }
+    }, [profile, results, startTime]);
+
     const handleResult = useCallback(async (success: boolean) => {
         const currentItem = items[currentIndex];
         if (!currentItem) return;
 
-        setResults(prev => ({
-            ...prev,
-            correct: success ? prev.correct + 1 : prev.correct,
-            wrong: !success ? prev.wrong + 1 : prev.wrong
-        }));
+        const newResults = {
+            correct: success ? results.correct + 1 : results.correct,
+            wrong: !success ? results.wrong + 1 : results.wrong
+        };
 
+        setResults(newResults);
         updateItemStats(currentItem.id, success);
 
         if (currentIndex < items.length - 1) {
@@ -75,14 +87,10 @@ export function useStudySession(libraryId: string) {
             setCurrentIndex(prev => prev + 1);
         } else {
             // End session
-            if (profile) {
-                const finalCorrect = success ? results.correct + 1 : results.correct;
-                const durationSeconds = Math.floor((Date.now() - startTime) / 1000);
-                await StatsService.logStudyActivity(profile.id, items.length, finalCorrect, durationSeconds);
-            }
+            await saveSessionProgress(newResults);
             setIsFinished(true);
         }
-    }, [items, currentIndex, results, profile, startTime]);
+    }, [items, currentIndex, results, saveSessionProgress]);
 
     const currentItem = useMemo(() => items[currentIndex], [items, currentIndex]);
     const progress = items.length > 0 ? (currentIndex + 1) / items.length : 0;
@@ -99,6 +107,7 @@ export function useStudySession(libraryId: string) {
         progress,
         handleFlip,
         handleResult,
+        saveSessionProgress,
         setIsFlipped // For manual sync if animations need it
     };
 }

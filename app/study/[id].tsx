@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { TtsService } from '@/services/TtsService';
 import { Text, View } from '@/components/Themed';
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack, useNavigation } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, {
@@ -98,6 +98,7 @@ const StudyCard = ({ item, isWeb, colors, onFlip }: StudyCardProps) => {
 export default function StudyScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
+    const navigation = useNavigation();
     const {
         currentItem,
         currentIndex,
@@ -108,6 +109,7 @@ export default function StudyScreen() {
         isFinished,
         handleFlip,
         handleResult,
+        saveSessionProgress,
     } = useStudySession(id as string);
 
     const colorScheme = useColorScheme() ?? 'light';
@@ -116,6 +118,18 @@ export default function StudyScreen() {
     const insets = useSafeAreaInsets();
 
     const isWeb = Platform.OS === 'web' && width > 768;
+
+    // Handle auto-save on exit
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            if (isFinished) return;
+
+            // Just trigger the save, we don't need to prevent removal since it's a fire-and-forget save
+            saveSessionProgress();
+        });
+
+        return unsubscribe;
+    }, [navigation, isFinished, saveSessionProgress]);
 
     if (isFinished) {
         return (
@@ -193,7 +207,8 @@ export default function StudyScreen() {
                 headerTitle: "학습",
                 headerTransparent: true,
                 headerTintColor: colors.text,
-                headerTitleStyle: { fontWeight: '800' }
+                headerTitleStyle: { fontWeight: '800' },
+                headerBackVisible: true,
             }} />
 
             <View variant="transparent" style={[
