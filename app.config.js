@@ -1,10 +1,11 @@
 import 'dotenv/config';
+import packageInfo from './package.json';
 
 export default {
     expo: {
         name: "뇌벨업",
         slug: "brain-level-up",
-        version: "1.0.0",
+        version: packageInfo.version,
         orientation: "portrait",
         icon: "./assets/images/icon.png",
         scheme: "brainlevelup",
