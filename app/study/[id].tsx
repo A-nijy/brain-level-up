@@ -213,7 +213,7 @@ export default function StudyScreen() {
                 headerLeft: () => (
                     <TouchableOpacity
                         onPress={() => router.back()}
-                        style={{ padding: 16, marginLeft: Platform.OS === 'ios' ? -8 : 0 }}
+                        style={{ padding: 16, marginLeft: Platform.OS === 'ios' ? -8 : 0, marginRight: 8 }}
                     >
                         <FontAwesome name="chevron-left" size={20} color={colors.text} />
                     </TouchableOpacity>

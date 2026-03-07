@@ -263,6 +263,7 @@ function InitialLayout() {
               padding: 8,
               justifyContent: 'center',
               alignItems: 'center',
+              marginRight: 10,
             }}
           >
             <FontAwesome name="chevron-left" size={20} color={colorScheme === 'dark' ? '#fff' : '#000'} />
