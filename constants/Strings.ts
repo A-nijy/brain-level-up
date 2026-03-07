@@ -166,6 +166,18 @@ export const Strings = {
         dontKnow: "몰라요",
         know: "알아요",
         finishTitle: "학습 완료",
+        config: {
+            title: "학습 설정",
+            rangeTitle: "학습 범위",
+            rangeAll: "전체",
+            frontSideTitle: "카드 앞면",
+            frontSideQuestion: "문제",
+            frontSideAnswer: "정답",
+            orderTitle: "출제 순서",
+            orderSequential: "기본순",
+            orderRandom: "랜덤순",
+            startBtn: "학습 시작",
+        }
     },
     /**
      * 1:1 문의 및 건의사항 제출 화면 텍스트입니다.

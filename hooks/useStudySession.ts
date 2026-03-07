@@ -4,7 +4,13 @@ import { StatsService } from '@/services/StatsService';
 import { useAuth } from '@/contexts/AuthContext';
 import { Item } from '@/types';
 
-export function useStudySession(libraryId: string, sectionId?: string) {
+export interface StudyOptions {
+    ranges?: string[];
+    frontSide?: 'question' | 'answer';
+    order?: 'sequential' | 'random';
+}
+
+export function useStudySession(libraryId: string, sectionId?: string, options?: StudyOptions) {
     const { profile } = useAuth();
     const [items, setItems] = useState<Item[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -27,12 +33,36 @@ export function useStudySession(libraryId: string, sectionId?: string) {
                 query = query.eq('section_id', sectionId);
             }
 
+            // Status filtering
+            if (options?.ranges && !options.ranges.includes('all')) {
+                // If 'all' is not present, filter by selected statuses
+                // Handle 'undecided' being null or empty in DB if necessary
+                const statuses = options.ranges.map(r => r === 'undecided' ? 'undecided' : r);
+                query = query.in('study_status', statuses);
+            }
+
             const { data, error } = await query;
 
             if (error) throw error;
 
-            const shuffled = (data || []).sort(() => Math.random() - 0.5);
-            setItems(shuffled);
+            let processedItems = data || [];
+
+            // Card face swapping
+            if (options?.frontSide === 'answer') {
+                processedItems = processedItems.map(item => ({
+                    ...item,
+                    question: item.answer,
+                    answer: item.question
+                }));
+            }
+
+            // Ordering
+            if (options?.order !== 'sequential') {
+                processedItems = [...processedItems].sort(() => Math.random() - 0.5);
+            }
+            // else: sequential (keep as returned by Supabase, usually by ID or created_at)
+
+            setItems(processedItems);
             setError(null);
         } catch (err: any) {
             console.error('[useStudySession] Fetch error:', err);
@@ -40,7 +70,7 @@ export function useStudySession(libraryId: string, sectionId?: string) {
         } finally {
             setLoading(false);
         }
-    }, [libraryId, sectionId]);
+    }, [libraryId, sectionId, options]);
 
     useEffect(() => {
         fetchItems();

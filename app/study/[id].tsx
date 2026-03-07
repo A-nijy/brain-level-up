@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { TtsService } from '@/services/TtsService';
 import { Text, View } from '@/components/Themed';
@@ -96,9 +96,30 @@ const StudyCard = ({ item, isWeb, colors, onFlip }: StudyCardProps) => {
 };
 
 export default function StudyScreen() {
-    const { id, sectionId } = useLocalSearchParams<{ id: string; sectionId?: string }>();
+    const { id, sectionId, ranges: rangesParam, frontSide, order } = useLocalSearchParams<{
+        id: string;
+        sectionId?: string;
+        ranges?: string | string[];
+        frontSide?: 'question' | 'answer';
+        order?: 'sequential' | 'random';
+    }>();
+
+    // Parse ranges from param (can be string or array)
+    const ranges = useMemo(() => {
+        if (!rangesParam) return ['all'];
+        if (Array.isArray(rangesParam)) return rangesParam;
+        return rangesParam.split(',');
+    }, [rangesParam]);
+
     const router = useRouter();
     const navigation = useNavigation();
+
+    const studyOptions = useMemo(() => ({
+        ranges,
+        frontSide: frontSide as any,
+        order: order as any,
+    }), [ranges, frontSide, order]);
+
     const {
         currentItem,
         currentIndex,
@@ -110,7 +131,7 @@ export default function StudyScreen() {
         handleFlip,
         handleResult,
         saveSessionProgress,
-    } = useStudySession(id as string, sectionId);
+    } = useStudySession(id as string, sectionId, studyOptions);
 
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];

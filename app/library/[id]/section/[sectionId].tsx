@@ -19,6 +19,7 @@ import { Strings } from '@/constants/Strings';
 import { MembershipService } from '@/services/MembershipService';
 import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
+import { StudyConfigModal } from '@/components/study/StudyConfigModal';
 
 export default function SectionDetailScreen() {
     const { id, sectionId, title: paramTitle } = useLocalSearchParams<{ id: string; sectionId: string; title?: string }>();
@@ -56,6 +57,7 @@ export default function SectionDetailScreen() {
     const [adLoading, setAdLoading] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [pendingExportOptions, setPendingExportOptions] = useState<PDFExportOptions | null>(null);
+    const [configModalVisible, setConfigModalVisible] = useState(false);
 
 
 
@@ -429,10 +431,7 @@ export default function SectionDetailScreen() {
                 <View variant="transparent" style={styles.footer}>
                     <TouchableOpacity
                         style={[styles.playButton, isWeb && { maxWidth: 400, alignSelf: 'center' }]}
-                        onPress={() => router.push({
-                            pathname: `/study/${libraryId}`,
-                            params: { sectionId: sid, title: "학습" }
-                        } as any)}
+                        onPress={() => setConfigModalVisible(true)}
                         activeOpacity={0.9}
                     >
                         <LinearGradient
@@ -447,6 +446,24 @@ export default function SectionDetailScreen() {
                     </TouchableOpacity>
                 </View>
             )}
+
+            <StudyConfigModal
+                isVisible={configModalVisible}
+                onClose={() => setConfigModalVisible(false)}
+                onStart={(config) => {
+                    setConfigModalVisible(false);
+                    router.push({
+                        pathname: `/study/${libraryId}`,
+                        params: {
+                            sectionId: sid,
+                            title: "학습",
+                            ranges: config.ranges.join(','),
+                            frontSide: config.frontSide,
+                            order: config.order
+                        }
+                    } as any);
+                }}
+            />
 
             <ExportModal
                 isVisible={exportModalVisible}
