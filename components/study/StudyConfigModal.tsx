@@ -6,6 +6,7 @@ import { Strings } from '@/constants/Strings';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAlert } from '@/contexts/AlertContext';
 
 export type StudyRange = 'all' | 'learned' | 'confused' | 'undecided';
 export type FrontSide = 'question' | 'answer';
@@ -26,6 +27,7 @@ interface StudyConfigModalProps {
 export const StudyConfigModal = ({ isVisible, onClose, onStart }: StudyConfigModalProps) => {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
 
     const [ranges, setRanges] = useState<StudyRange[]>(['all']);
     const [frontSide, setFrontSide] = useState<FrontSide>('question');
@@ -48,6 +50,10 @@ export const StudyConfigModal = ({ isVisible, onClose, onStart }: StudyConfigMod
     };
 
     const handleStart = () => {
+        if (!ranges || ranges.length === 0) {
+            showAlert({ title: Strings.common.info, message: Strings.pushModal.alerts.selectRange });
+            return;
+        }
         onStart({ ranges, frontSide, order });
     };
 

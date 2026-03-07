@@ -359,6 +359,7 @@ export const Strings = {
         alerts: {
             permissionNeeded: "푸시 알림 권한이 필요합니다. 설정에서 권한을 허용해 주세요.",
             selectLibrary: "알림을 받을 암기장을 선택해 주세요.",
+            selectRange: "문항 범위를 최소 하나 이상 선택해 주세요.",
             intervalTooShort: "알림 간격은 최소 10분 이상으로 설정해 주세요.",
             resetTitle: "설정 초기화",
             resetMsg: "푸시 알림 설정을 초기화하시겠습니까?",

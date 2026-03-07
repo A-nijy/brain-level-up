@@ -93,7 +93,8 @@ export default function SettingsScreen() {
         showAlert({ title: Strings.common.warning, message: Strings.pushModal.alerts.permissionNeeded });
         return;
       }
-      setTempSettings({ ...notificationSettings, enabled: true });
+      const initialRanges = notificationSettings.ranges?.length ? notificationSettings.ranges : (['all'] as NotificationRange[]);
+      setTempSettings({ ...notificationSettings, enabled: true, ranges: initialRanges });
       setShowNotificationModal(true);
     } else {
       const newSettings = { ...notificationSettings, enabled: false };
@@ -107,7 +108,8 @@ export default function SettingsScreen() {
 
   const handleOpenSettings = () => {
     if (!notificationSettings) return;
-    setTempSettings({ ...notificationSettings });
+    const initialRanges = notificationSettings.ranges?.length ? notificationSettings.ranges : (['all'] as NotificationRange[]);
+    setTempSettings({ ...notificationSettings, ranges: initialRanges });
     setShowNotificationModal(true);
   };
 
@@ -127,6 +129,11 @@ export default function SettingsScreen() {
     // 최소 10분 유효성 검사
     if (!tempSettings.interval || tempSettings.interval < 10) {
       showAlert({ title: Strings.common.info, message: Strings.pushModal.alerts.intervalTooShort });
+      return;
+    }
+
+    if (!tempSettings.ranges || tempSettings.ranges.length === 0) {
+      showAlert({ title: Strings.common.info, message: Strings.pushModal.alerts.selectRange });
       return;
     }
 
