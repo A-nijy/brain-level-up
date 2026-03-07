@@ -31,7 +31,7 @@ const StudyCard = ({ item, isWeb, colors, onFlip }: StudyCardProps) => {
     const flipProgress = useSharedValue(0);
 
     useEffect(() => {
-        flipProgress.value = withSpring(localFlipped ? 1 : 0, { damping: 15 });
+        flipProgress.value = withSpring(localFlipped ? 1 : 0, { damping: 22, stiffness: 150 });
     }, [localFlipped]);
 
     const handleLocalFlip = () => {
@@ -65,8 +65,8 @@ const StudyCard = ({ item, isWeb, colors, onFlip }: StudyCardProps) => {
 
     return (
         <Animated.View
-            entering={FadeInRight.springify().damping(20)}
-            exiting={FadeOutLeft.springify().damping(20)}
+            entering={FadeInRight.springify().damping(35).stiffness(200).mass(0.5)}
+            exiting={FadeOutLeft.duration(250)}
             style={[styles.cardContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}
         >
             {/* Front Card */}
