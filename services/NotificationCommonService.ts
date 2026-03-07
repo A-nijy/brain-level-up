@@ -3,7 +3,7 @@ import { ItemService } from './ItemService';
 import { Item } from '@/types';
 import { DeviceEventEmitter } from 'react-native';
 
-export type NotificationRange = 'all' | 'specific' | 'learned' | 'confused';
+export type NotificationRange = 'all' | 'specific' | 'learned' | 'confused' | 'undecided';
 export type NotificationFormat = 'both' | 'word_only' | 'meaning_only';
 export type NotificationOrder = 'sequential' | 'random';
 
@@ -11,7 +11,7 @@ export interface NotificationSettings {
     enabled: boolean;
     libraryId: string | null;
     sectionId: string | null;
-    range: NotificationRange;
+    ranges: NotificationRange[];
     rangeStart?: number;
     rangeEnd?: number;
     format: NotificationFormat;
@@ -41,12 +41,15 @@ export const NotificationCommonService = {
         }
 
         let filteredItems = allItems;
-        if (settings.range === 'confused') {
-            filteredItems = allItems.filter(item => item.study_status === 'confused');
-        } else if (settings.range === 'learned') {
-            filteredItems = allItems.filter(item => item.study_status === 'learned');
-        } else if (settings.range === 'specific' && settings.rangeStart !== undefined && settings.rangeEnd !== undefined) {
+        if (!settings.ranges || settings.ranges.includes('all')) {
+            filteredItems = allItems;
+        } else if (settings.ranges.includes('specific') && settings.rangeStart !== undefined && settings.rangeEnd !== undefined) {
             filteredItems = allItems.slice(settings.rangeStart, settings.rangeEnd + 1);
+        } else {
+            filteredItems = allItems.filter(item => {
+                const status = item.study_status || 'undecided';
+                return settings.ranges.includes(status as any);
+            });
         }
 
         const shownIds = await this.getShownIds();
@@ -96,12 +99,15 @@ export const NotificationCommonService = {
             }
 
             let filteredItems = allItems;
-            if (settings.range === 'confused') {
-                filteredItems = allItems.filter(item => item.study_status === 'confused');
-            } else if (settings.range === 'learned') {
-                filteredItems = allItems.filter(item => item.study_status === 'learned');
-            } else if (settings.range === 'specific' && settings.rangeStart !== undefined && settings.rangeEnd !== undefined) {
+            if (!settings.ranges || settings.ranges.includes('all')) {
+                filteredItems = allItems;
+            } else if (settings.ranges.includes('specific') && settings.rangeStart !== undefined && settings.rangeEnd !== undefined) {
                 filteredItems = allItems.slice(settings.rangeStart, settings.rangeEnd + 1);
+            } else {
+                filteredItems = allItems.filter(item => {
+                    const status = item.study_status || 'undecided';
+                    return settings.ranges.includes(status as any);
+                });
             }
 
             const shownIds = await this.getShownIds();

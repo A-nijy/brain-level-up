@@ -338,7 +338,7 @@ export const Strings = {
     pushModal: {
         title: "알림 상세 설정",
         step1: "1. 학습할 암기장 선택",
-        step2: "2. 세부 항목 선택 (소분)",
+        step2: "2. 세부 항목 선택 (섹션)",
         labelRange: "문제 범위",
         labelFormat: "노출 형식",
         labelOrder: "출력 순서",
@@ -352,9 +352,9 @@ export const Strings = {
         librarySelected: "암기장 선택됨",
         sectionSelected: "항목 선택됨",
 
-        ranges: { all: "전체", learned: "외움만", confused: "헷갈림만" },
-        formats: { both: "문제+정답", word_only: "문제만", meaning_only: "정답만" },
-        orders: { sequential: "순차적", random: "랜덤" },
+        ranges: { all: "전체", learned: "외움", confused: "헷갈림", undecided: "미정" },
+        formats: { both: "문제+정답", word_only: "문제", meaning_only: "정답" },
+        orders: { sequential: "기본순", random: "랜덤순" },
 
         alerts: {
             permissionNeeded: "푸시 알림 권한이 필요합니다. 설정에서 권한을 허용해 주세요.",

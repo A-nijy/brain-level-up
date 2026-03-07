@@ -29,7 +29,7 @@ export function usePushSettings() {
                 enabled: false,
                 libraryId: null,
                 sectionId: null,
-                range: 'all',
+                ranges: ['all'],
                 format: 'both',
                 order: 'sequential',
                 interval: 60,

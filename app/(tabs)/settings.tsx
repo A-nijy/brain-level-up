@@ -9,7 +9,7 @@ import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
 import { PushNotificationService } from '@/services/PushNotificationService';
-import { NotificationSettings } from '@/services/NotificationCommonService';
+import { NotificationSettings, NotificationRange } from '@/services/NotificationCommonService';
 import { Library, Section } from '@/types';
 
 import { usePushSettings } from '@/hooks/usePushSettings';
@@ -419,30 +419,51 @@ export default function SettingsScreen() {
                     { label: Strings.pushModal.ranges.all, value: 'all' },
                     { label: Strings.pushModal.ranges.learned, value: 'learned' },
                     { label: Strings.pushModal.ranges.confused, value: 'confused' },
-                  ].map((opt) => (
-                    <TouchableOpacity
-                      key={opt.value}
-                      style={[
-                        styles.chip,
-                        { borderColor: colors.border, backgroundColor: colors.background },
-                        tempSettings?.range === opt.value && {
-                          backgroundColor: colors.tint,
-                          borderColor: colors.tint,
-                        },
-                      ]}
-                      onPress={() => handleUpdateTempSettings({ range: opt.value as any })}
-                    >
-                      <Text
+                    { label: Strings.pushModal.ranges.undecided, value: 'undecided' },
+                  ].map((opt) => {
+                    const isSelected = tempSettings?.ranges?.includes(opt.value as any);
+                    return (
+                      <TouchableOpacity
+                        key={opt.value}
                         style={[
-                          styles.chipText,
-                          { color: colors.text },
-                          tempSettings?.range === opt.value && { color: '#fff' },
+                          styles.chip,
+                          { borderColor: colors.border, backgroundColor: colors.background },
+                          isSelected && {
+                            backgroundColor: colors.tint,
+                            borderColor: colors.tint,
+                          },
                         ]}
+                        onPress={() => {
+                          if (!tempSettings) return;
+                          let newRanges: NotificationRange[] = [...(tempSettings.ranges || [])];
+                          const value = opt.value as NotificationRange;
+
+                          if (value === 'all') {
+                            newRanges = ['all'];
+                          } else {
+                            newRanges = newRanges.filter(r => r !== 'all');
+                            if (newRanges.includes(value)) {
+                              newRanges = newRanges.filter(r => r !== value);
+                              if (newRanges.length === 0) newRanges = ['all'];
+                            } else {
+                              newRanges.push(value);
+                            }
+                          }
+                          handleUpdateTempSettings({ ranges: newRanges });
+                        }}
                       >
-                        {opt.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
+                        <Text
+                          style={[
+                            styles.chipText,
+                            { color: colors.text },
+                            isSelected && { color: '#fff' },
+                          ]}
+                        >
+                          {opt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
 
                 <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelFormat}</Text>
