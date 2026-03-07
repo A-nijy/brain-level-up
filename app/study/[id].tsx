@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform, Alert } from 'react-native';
+import { StyleSheet, TouchableOpacity, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
 import { TtsService } from '@/services/TtsService';
-import { Text, View, Card } from '@/components/Themed';
+import { Text, View } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -9,18 +9,94 @@ import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withSpring,
-    withTiming,
     interpolate,
-    runOnJS,
     ZoomIn,
+    FadeInRight,
+    FadeOutLeft,
 } from 'react-native-reanimated';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useStudySession } from '@/hooks/useStudySession';
 import { Strings } from '@/constants/Strings';
 
+interface StudyCardProps {
+    item: any;
+    isWeb: boolean;
+    colors: any;
+    onFlip: () => void;
+}
+
+const StudyCard = ({ item, isWeb, colors, onFlip }: StudyCardProps) => {
+    const [localFlipped, setLocalFlipped] = useState(false);
+    const flipProgress = useSharedValue(0);
+
+    useEffect(() => {
+        flipProgress.value = withSpring(localFlipped ? 1 : 0, { damping: 15 });
+    }, [localFlipped]);
+
+    const handleLocalFlip = () => {
+        setLocalFlipped(prev => !prev);
+        onFlip();
+    };
+
+    const frontAnimatedStyle = useAnimatedStyle(() => {
+        const rotateY = interpolate(flipProgress.value, [0, 1], [0, 180]);
+        return {
+            transform: [
+                { perspective: 1000 },
+                { rotateY: `${rotateY}deg` }
+            ],
+            opacity: interpolate(flipProgress.value, [0, 0.5, 0.5, 1], [1, 0, 0, 0]),
+            zIndex: localFlipped ? 0 : 1,
+        };
+    });
+
+    const backAnimatedStyle = useAnimatedStyle(() => {
+        const rotateY = interpolate(flipProgress.value, [0, 1], [180, 360]);
+        return {
+            transform: [
+                { perspective: 1000 },
+                { rotateY: `${rotateY}deg` }
+            ],
+            opacity: interpolate(flipProgress.value, [0, 0.5, 0.5, 1], [0, 0, 1, 1]),
+            zIndex: localFlipped ? 1 : 0,
+        };
+    });
+
+    return (
+        <Animated.View
+            entering={FadeInRight.springify().damping(20)}
+            exiting={FadeOutLeft.springify().damping(20)}
+            style={[styles.cardContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}
+        >
+            {/* Front Card */}
+            <Animated.View style={[styles.cardWrapper, frontAnimatedStyle]}>
+                <TouchableOpacity activeOpacity={1} onPress={handleLocalFlip} style={[styles.cardFace, { borderColor: colors.border }]}>
+                    <Text style={[styles.cardTag, { color: colors.textSecondary }]}>{Strings.study.questionTag}</Text>
+                    <Text style={styles.cardMainText}>{item?.question}</Text>
+                    <View variant="transparent" style={styles.hintContainer}>
+                        <FontAwesome name="mouse-pointer" size={12} color={colors.textSecondary} style={{ marginRight: 6, opacity: 0.5 }} />
+                        <Text style={[styles.hintText, { color: colors.textSecondary }]}>{Strings.study.hintText}</Text>
+                    </View>
+                </TouchableOpacity>
+            </Animated.View>
+
+            {/* Back Card */}
+            <Animated.View style={[styles.cardWrapper, backAnimatedStyle]}>
+                <TouchableOpacity activeOpacity={1} onPress={handleLocalFlip} style={[styles.cardFace, { borderColor: colors.tint }]}>
+                    <Text style={[styles.cardTag, { color: colors.tint }]}>{Strings.study.answerTag}</Text>
+                    <Text style={styles.cardMainText}>{item?.answer}</Text>
+                    {item?.memo && (
+                        <Text style={[styles.memoText, { color: colors.textSecondary }]}>{item.memo}</Text>
+                    )}
+                </TouchableOpacity>
+            </Animated.View>
+        </Animated.View>
+    );
+};
+
 export default function StudyScreen() {
-    const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
+    const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const {
         currentItem,
@@ -40,49 +116,6 @@ export default function StudyScreen() {
     const insets = useSafeAreaInsets();
 
     const isWeb = Platform.OS === 'web' && width > 768;
-
-    // Animation Values
-    const flipProgress = useSharedValue(0);
-    const cardScale = useSharedValue(1);
-
-    // Sync isFlipped with flipProgress for animations
-    useEffect(() => {
-        flipProgress.value = withSpring(isFlipped ? 1 : 0, { damping: 15 });
-    }, [isFlipped]);
-
-    const onResultPress = (success: boolean) => {
-        // Animate card out before processing result
-        cardScale.value = withTiming(0.8, { duration: 100 }, () => {
-            runOnJS(handleResult)(success);
-            cardScale.value = withSpring(1);
-        });
-    };
-
-    const frontAnimatedStyle = useAnimatedStyle(() => {
-        const rotateY = interpolate(flipProgress.value, [0, 1], [0, 180]);
-        return {
-            transform: [
-                { scale: cardScale.value },
-                { perspective: 1000 },
-                { rotateY: `${rotateY}deg` }
-            ],
-            opacity: interpolate(flipProgress.value, [0, 0.5, 0.5, 1], [1, 0, 0, 0]),
-            zIndex: isFlipped ? 0 : 1,
-        };
-    });
-
-    const backAnimatedStyle = useAnimatedStyle(() => {
-        const rotateY = interpolate(flipProgress.value, [0, 1], [180, 360]);
-        return {
-            transform: [
-                { scale: cardScale.value },
-                { perspective: 1000 },
-                { rotateY: `${rotateY}deg` }
-            ],
-            opacity: interpolate(flipProgress.value, [0, 0.5, 0.5, 1], [0, 0, 1, 1]),
-            zIndex: isFlipped ? 1 : 0,
-        };
-    });
 
     if (isFinished) {
         return (
@@ -173,30 +206,13 @@ export default function StudyScreen() {
                 </Text>
             </View>
 
-            <View variant="transparent" style={[styles.cardContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
-                {/* Front Card */}
-                <Animated.View style={[styles.cardWrapper, frontAnimatedStyle]}>
-                    <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={[styles.cardFace, { borderColor: colors.border }]}>
-                        <Text style={[styles.cardTag, { color: colors.textSecondary }]}>{Strings.study.questionTag}</Text>
-                        <Text style={styles.cardMainText}>{currentItem?.question}</Text>
-                        <View variant="transparent" style={styles.hintContainer}>
-                            <FontAwesome name="mouse-pointer" size={12} color={colors.textSecondary} style={{ marginRight: 6, opacity: 0.5 }} />
-                            <Text style={[styles.hintText, { color: colors.textSecondary }]}>{Strings.study.hintText}</Text>
-                        </View>
-                    </TouchableOpacity>
-                </Animated.View>
-
-                {/* Back Card */}
-                <Animated.View style={[styles.cardWrapper, backAnimatedStyle]}>
-                    <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={[styles.cardFace, { borderColor: colors.tint }]}>
-                        <Text style={[styles.cardTag, { color: colors.tint }]}>{Strings.study.answerTag}</Text>
-                        <Text style={styles.cardMainText}>{currentItem?.answer}</Text>
-                        {currentItem?.memo && (
-                            <Text style={[styles.memoText, { color: colors.textSecondary }]}>{currentItem.memo}</Text>
-                        )}
-                    </TouchableOpacity>
-                </Animated.View>
-            </View>
+            <StudyCard
+                key={currentIndex}
+                item={currentItem}
+                isWeb={isWeb}
+                colors={colors}
+                onFlip={handleFlip}
+            />
 
             {/* TTS Speaker Button */}
             <View variant="transparent" style={styles.speakerContainer}>
@@ -216,7 +232,7 @@ export default function StudyScreen() {
             <View variant="transparent" style={[styles.buttonContainer, isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }]}>
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: colors.error }]}
-                    onPress={() => onResultPress(false)}
+                    onPress={() => handleResult(false)}
                     activeOpacity={0.7}
                 >
                     <FontAwesome name="times" size={24} color={colors.error} />
@@ -225,7 +241,7 @@ export default function StudyScreen() {
 
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: colors.success }]}
-                    onPress={() => onResultPress(true)}
+                    onPress={() => handleResult(true)}
                     activeOpacity={0.7}
                 >
                     <FontAwesome name="check" size={24} color={colors.success} />

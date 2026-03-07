@@ -68,7 +68,7 @@ export function useStudySession(libraryId: string) {
             wrong: !success ? prev.wrong + 1 : prev.wrong
         }));
 
-        await updateItemStats(currentItem.id, success);
+        updateItemStats(currentItem.id, success);
 
         if (currentIndex < items.length - 1) {
             setIsFlipped(false);
