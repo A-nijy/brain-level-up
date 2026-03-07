@@ -205,15 +205,24 @@ export default function StudyScreen() {
         <View style={[styles.container, { backgroundColor: colors.background }]}>
             <Stack.Screen options={{
                 headerTitle: "학습",
-                headerTransparent: true,
+                headerTransparent: false,
+                headerShadowVisible: false,
+                headerStyle: { backgroundColor: colors.background },
                 headerTintColor: colors.text,
                 headerTitleStyle: { fontWeight: '800' },
-                headerBackVisible: true,
+                headerLeft: () => (
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        style={{ padding: 16, marginLeft: Platform.OS === 'ios' ? -8 : 0 }}
+                    >
+                        <FontAwesome name="chevron-left" size={20} color={colors.text} />
+                    </TouchableOpacity>
+                ),
             }} />
 
             <View variant="transparent" style={[
                 styles.progressHeader,
-                { marginTop: Math.max(insets.top + 20, 40) },
+                { marginTop: 20 },
                 isWeb && { maxWidth: 600, alignSelf: 'center', width: '100%' }
             ]}>
                 <Text style={[styles.progressText, { color: colors.textSecondary }]}>
