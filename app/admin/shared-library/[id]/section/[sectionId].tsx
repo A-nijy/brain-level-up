@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     itemContent: { flex: 1, marginRight: 12 },
     questionText: { fontSize: 18, fontWeight: '800', marginBottom: 4, letterSpacing: -0.5 },
     answerText: { fontSize: 15, fontWeight: '500', lineHeight: 20, marginBottom: 4 },
-    memoText: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+    memoText: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
     actionGroup: {
         flexDirection: 'row',
         gap: 8,

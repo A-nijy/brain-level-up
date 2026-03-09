@@ -635,7 +635,6 @@ const styles = StyleSheet.create({
     memoText: {
         fontSize: 12,
         fontWeight: '700',
-        textTransform: 'uppercase',
         letterSpacing: 0.5,
     },
     rightAction: {

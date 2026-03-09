@@ -115,12 +115,7 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         marginBottom: 8,
     },
-    memoText: {
-        fontSize: 12,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
+    memoText: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
     emptyContainer: {
         alignItems: 'center',
         paddingVertical: 80,
