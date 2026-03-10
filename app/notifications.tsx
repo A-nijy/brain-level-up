@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, DeviceEventEmitter } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationService } from '@/services/NotificationService';
@@ -10,6 +10,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack, useRouter } from 'expo-router';
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
+import { Events } from '@/constants/Events';
 
 export default function NotificationsScreen() {
     const { profile } = useAuth();
@@ -43,6 +44,7 @@ export default function NotificationsScreen() {
         try {
             await NotificationService.markAsRead(id);
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+            DeviceEventEmitter.emit(Events.NOTIFICATIONS_REFRESH);
         } catch (error) {
             console.error('Failed to mark as read:', error);
         }
@@ -53,6 +55,7 @@ export default function NotificationsScreen() {
         try {
             await NotificationService.markAllAsRead(profile.id);
             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+            DeviceEventEmitter.emit(Events.NOTIFICATIONS_REFRESH);
         } catch (error) {
             console.error('Failed to mark all as read:', error);
         }
@@ -68,6 +71,7 @@ export default function NotificationsScreen() {
             try {
                 await NotificationService.deleteNotification(id);
                 setNotifications(prev => prev.filter(n => n.id !== id));
+                DeviceEventEmitter.emit(Events.NOTIFICATIONS_REFRESH);
             } catch (error) {
                 console.error('Failed to delete notification:', error);
             }

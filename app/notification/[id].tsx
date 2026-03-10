@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+import { StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Platform, DeviceEventEmitter } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationService } from '@/services/NotificationService';
@@ -10,6 +10,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
+import { Events } from '@/constants/Events';
 
 export default function NotificationDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,6 +37,7 @@ export default function NotificationDetailScreen() {
                 setNotification(found);
                 if (!found.is_read) {
                     await NotificationService.markAsRead(found.id);
+                    DeviceEventEmitter.emit(Events.NOTIFICATIONS_REFRESH);
                 }
             } else {
                 showAlert({ title: Strings.common.error, message: Strings.notifications.notFound });
@@ -56,6 +58,7 @@ export default function NotificationDetailScreen() {
         const confirmDelete = async () => {
             try {
                 await NotificationService.deleteNotification(notification.id);
+                DeviceEventEmitter.emit(Events.NOTIFICATIONS_REFRESH);
                 router.back();
             } catch (error) {
                 console.error('Failed to delete notification:', error);

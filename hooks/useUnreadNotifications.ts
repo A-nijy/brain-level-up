@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { DeviceEventEmitter } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { NotificationService } from '@/services/NotificationService';
+import { Events } from '@/constants/Events';
 
 export function useUnreadNotifications() {
     const { user } = useAuth();
@@ -19,8 +21,16 @@ export function useUnreadNotifications() {
     useEffect(() => {
         if (user) {
             loadUnreadCount();
-            const interval = setInterval(loadUnreadCount, 30000); // 30초마다 갱신
-            return () => clearInterval(interval);
+
+            // Listen for immediate refresh requests
+            const subscription = DeviceEventEmitter.addListener(Events.NOTIFICATIONS_REFRESH, loadUnreadCount);
+
+            const interval = setInterval(loadUnreadCount, 30000); // 30s fallback
+
+            return () => {
+                subscription.remove();
+                clearInterval(interval);
+            };
         }
     }, [user]);
 
