@@ -43,7 +43,7 @@ export const useSectionActions = (
                             await SharedLibraryService.shareLibrary(
                                 library.user_id,
                                 library.id,
-                                library.category_id || 'others',
+                                library.category_id || '',
                                 []
                             );
                             showAlert({ title: Strings.common.success, message: Strings.libraryDetail.alerts.shareSuccess });

@@ -44,7 +44,26 @@ export const SharedLibraryService = {
 
         if (libError) throw libError;
 
-        // 2. 공유 자료실 레코드 생성
+        // 2. 카테고리 ID 검증 (UUID 형식이 아닌 경우 처리)
+        let validatedCategoryId: string | null = categoryId;
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+        if (!categoryId || !uuidRegex.test(categoryId)) {
+            // 유효하지 않은 경우 DB에서 첫 번째 사용 가능한 카테고리를 가져옴
+            const { data: cats } = await supabase
+                .from('shared_library_categories')
+                .select('id')
+                .order('display_order', { ascending: true })
+                .limit(1);
+
+            if (cats && cats.length > 0) {
+                validatedCategoryId = cats[0].id;
+            } else {
+                validatedCategoryId = null; // 최후의 수단
+            }
+        }
+
+        // 3. 공유 자료실 레코드 생성
         const { data: sharedLib, error: sharedError } = await supabase
             .from('shared_libraries')
             .insert({
@@ -53,7 +72,7 @@ export const SharedLibraryService = {
                 created_by: userId,
                 is_official: false,
                 is_draft: false,
-                category_id: categoryId,
+                category_id: validatedCategoryId,
                 tags: tags
             })
             .select()
