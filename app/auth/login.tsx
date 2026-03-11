@@ -190,13 +190,13 @@ export default function LoginScreen() {
 
                 <Animated.View entering={FadeInDown.delay(600).duration(800)} style={styles.content}>
                     <TouchableOpacity
-                        style={[styles.button, styles.googleButton, { borderColor: colors.border }]}
+                        style={[styles.button, styles.googleButton, { borderColor: colors.border, backgroundColor: colorScheme === 'dark' ? colors.cardBackground : '#fff' }]}
                         onPress={onSignInWithGoogle}
                         disabled={isLoading}
                         activeOpacity={0.8}
                     >
                         <FontAwesome name={Strings.auth.icons.google as any} size={20} color="#EA4335" style={{ marginRight: 12 }} />
-                        <Text style={styles.buttonTextBlack}>{Strings.auth.googleLogin}</Text>
+                        <Text style={[styles.buttonTextBlack, { color: colors.text }]}>{Strings.auth.googleLogin}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -359,7 +359,6 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     googleButton: {
-        backgroundColor: '#fff',
         borderWidth: 1.5,
     },
     appleButton: {
@@ -383,7 +382,6 @@ const styles = StyleSheet.create({
     buttonTextBlack: {
         fontSize: 17,
         fontWeight: '800',
-        color: '#000',
     },
     buttonTextWhite: {
         fontSize: 17,

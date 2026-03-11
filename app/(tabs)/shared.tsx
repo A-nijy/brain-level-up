@@ -497,7 +497,7 @@ export default function SharedLibraryScreen() {
                                         ) : (
                                             <View variant="transparent" style={styles.pickerContainer}>
                                                 <TouchableOpacity
-                                                    style={[styles.pickerTrigger, { borderColor: colors.border }]}
+                                                    style={[styles.pickerTrigger, { borderColor: colors.border, backgroundColor: colors.background }]}
                                                     onPress={() => setIsLibPickerOpen(!isLibPickerOpen)}
                                                 >
                                                     <Text style={[styles.pickerTriggerText, !selectedMyLibId && { color: colors.textSecondary }]}>
@@ -507,12 +507,12 @@ export default function SharedLibraryScreen() {
                                                 </TouchableOpacity>
 
                                                 {isLibPickerOpen && (
-                                                    <View variant="transparent" style={[styles.pickerDropdown, { borderColor: colors.border }]}>
+                                                    <View variant="transparent" style={[styles.pickerDropdown, { borderColor: colors.border, backgroundColor: colors.cardBackground }]}>
                                                         <RNScrollView style={styles.pickerScroll} nestedScrollEnabled>
                                                             {myLibraries.map(lib => (
                                                                 <TouchableOpacity
                                                                     key={lib.id}
-                                                                    style={[styles.pickerItem, selectedMyLibId === lib.id && { backgroundColor: colors.tint + '10' }]}
+                                                                    style={[styles.pickerItem, { borderBottomColor: colors.border + '30' }, selectedMyLibId === lib.id && { backgroundColor: colors.tint + '10' }]}
                                                                     onPress={() => {
                                                                         setSelectedMyLibId(lib.id);
                                                                         setIsLibPickerOpen(false);
@@ -536,7 +536,7 @@ export default function SharedLibraryScreen() {
                                         <Text style={[styles.stepLabel, { color: colors.textSecondary }]}>{Strings.userShareModal.step2.label}</Text>
                                         <View variant="transparent" style={styles.pickerContainer}>
                                             <TouchableOpacity
-                                                style={[styles.pickerTrigger, { borderColor: colors.border }]}
+                                                style={[styles.pickerTrigger, { borderColor: colors.border, backgroundColor: colors.background }]}
                                                 onPress={() => setIsCatPickerOpen(!isCatPickerOpen)}
                                             >
                                                 <Text style={[styles.pickerTriggerText, !shareCategoryId && { color: colors.textSecondary }]}>
@@ -546,12 +546,12 @@ export default function SharedLibraryScreen() {
                                             </TouchableOpacity>
 
                                             {isCatPickerOpen && (
-                                                <View variant="transparent" style={[styles.pickerDropdown, { borderColor: colors.border }]}>
+                                                <View variant="transparent" style={[styles.pickerDropdown, { borderColor: colors.border, backgroundColor: colors.cardBackground }]}>
                                                     <RNScrollView style={styles.pickerScroll} nestedScrollEnabled>
                                                         {allCategories.map(cat => (
                                                             <TouchableOpacity
                                                                 key={cat.id}
-                                                                style={[styles.pickerItem, shareCategoryId === cat.id && { backgroundColor: colors.tint + '10' }]}
+                                                                style={[styles.pickerItem, { borderBottomColor: colors.border + '30' }, shareCategoryId === cat.id && { backgroundColor: colors.tint + '10' }]}
                                                                 onPress={() => {
                                                                     setShareCategoryId(cat.id);
                                                                     setIsCatPickerOpen(false);
@@ -872,7 +872,6 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         paddingHorizontal: 16,
         height: 54,
-        backgroundColor: '#F8FAFC',
     },
     pickerTriggerText: {
         fontSize: 15,
@@ -883,7 +882,6 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderRadius: 14,
         overflow: 'hidden',
-        backgroundColor: '#fff',
         maxHeight: 250,
         // Elevation for android, Shadow for iOS
         ...Platform.select({
@@ -908,7 +906,6 @@ const styles = StyleSheet.create({
         paddingVertical: 14,
         paddingHorizontal: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#F1F5F9',
     },
     pickerItemText: {
         fontSize: 15,

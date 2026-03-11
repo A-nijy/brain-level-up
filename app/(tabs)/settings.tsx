@@ -598,7 +598,7 @@ export default function SettingsScreen() {
                     key={lib.id}
                     style={[
                       styles.listItem,
-                      tempSettings?.libraryId === lib.id && { backgroundColor: `${colors.tint}10` }
+                      tempSettings?.libraryId === lib.id ? { backgroundColor: `${colors.tint}20` } : { backgroundColor: colors.background }
                     ]}
                     onPress={() => {
                       handleUpdateTempSettings({ libraryId: lib.id, sectionId: 'all' });
@@ -635,7 +635,7 @@ export default function SettingsScreen() {
                 <TouchableOpacity
                   style={[
                     styles.listItem,
-                    (tempSettings?.sectionId === 'all' || !tempSettings?.sectionId) && { backgroundColor: `${colors.tint}10` }
+                    (tempSettings?.sectionId === 'all' || !tempSettings?.sectionId) ? { backgroundColor: `${colors.tint}20` } : { backgroundColor: colors.background }
                   ]}
                   onPress={() => {
                     handleUpdateTempSettings({ sectionId: 'all' });
@@ -656,7 +656,7 @@ export default function SettingsScreen() {
                     key={section.id}
                     style={[
                       styles.listItem,
-                      tempSettings?.sectionId === section.id && { backgroundColor: `${colors.tint}10` }
+                      tempSettings?.sectionId === section.id ? { backgroundColor: `${colors.tint}20` } : { backgroundColor: colors.background }
                     ]}
                     onPress={() => {
                       handleUpdateTempSettings({ sectionId: section.id });
@@ -833,7 +833,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: 'transparent',
-    backgroundColor: 'rgba(150, 150, 150, 0.1)',
   },
   pickerText: {
     fontSize: 14,
@@ -848,7 +847,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: 'rgba(150, 150, 150, 0.1)',
   },
   chipText: {
     fontSize: 14,

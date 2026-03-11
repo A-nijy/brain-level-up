@@ -93,7 +93,7 @@ export default function SharedLibraryPreviewScreen() {
                 <View variant="transparent" style={styles.sectionInfo}>
                     <Text style={styles.sectionTitle}>{item.title}</Text>
                 </View>
-                <FontAwesome name="angle-right" size={20} color={colors.border} />
+                <FontAwesome name="angle-right" size={20} color={colors.textSecondary} />
             </Card>
         </Animated.View>
     );

@@ -166,7 +166,8 @@ export default function StudyScreen() {
                             borderWidth: 2,
                             marginTop: Math.max(insets.top + 40, 60)
                         },
-                        isWeb && { maxWidth: 500, alignSelf: 'center' }
+                        isWeb && { maxWidth: 500, alignSelf: 'center' },
+                        { backgroundColor: colors.cardBackground }
                     ]}
                 >
                     <FontAwesome name="check-circle" size={80} color={colors.success} style={{ marginBottom: 24 }} />

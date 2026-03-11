@@ -92,14 +92,14 @@ export default function LibraryDetailScreen() {
                 {reorderMode ? (
                     <View variant="transparent" style={styles.reorderControls}>
                         <TouchableOpacity
-                            style={[styles.reorderButton, index === 0 && { opacity: 0.3 }]}
+                            style={[styles.reorderButton, { backgroundColor: colors.tint + '15' }, index === 0 && { opacity: 0.3 }]}
                             onPress={() => handleMoveUp(index)}
                             disabled={index === 0}
                         >
                             <FontAwesome name={Strings.home.icons.up as any} size={16} color={colors.tint} />
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.reorderButton, index === sections.length - 1 && { opacity: 0.3 }]}
+                            style={[styles.reorderButton, { backgroundColor: colors.tint + '15' }, index === sections.length - 1 && { opacity: 0.3 }]}
                             onPress={() => handleMoveDown(index)}
                             disabled={index === sections.length - 1}
                         >
@@ -242,7 +242,7 @@ export default function LibraryDetailScreen() {
                 onRequestClose={() => setCreateModalVisible(false)}
             >
                 <TouchableWithoutFeedback onPress={() => setCreateModalVisible(false)}>
-                    <View style={styles.modalOverlay}>
+                    <View style={[styles.modalOverlay, { backgroundColor: colorScheme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.4)' }]}>
                         <TouchableWithoutFeedback>
                             <Card style={styles.modalContent}>
                                 <Text style={styles.modalTitle}>{Strings.libraryDetail.modal.createTitle}</Text>
@@ -286,7 +286,7 @@ export default function LibraryDetailScreen() {
                 onRequestClose={() => setEditModalVisible(false)}
             >
                 <TouchableWithoutFeedback onPress={() => setEditModalVisible(false)}>
-                    <View style={styles.modalOverlay}>
+                    <View style={[styles.modalOverlay, { backgroundColor: colorScheme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.4)' }]}>
                         <TouchableWithoutFeedback>
                             <Card style={styles.modalContent}>
                                 <Text style={styles.modalTitle}>{Strings.libraryDetail.modal.editTitle}</Text>
@@ -407,7 +407,6 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 12,
-        backgroundColor: 'rgba(79, 70, 229, 0.05)',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -437,7 +436,6 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.4)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 24,

@@ -119,7 +119,7 @@ export default function LibraryListScreen() {
         </View>
 
         {reorderMode && (
-          <View variant="transparent" style={styles.reorderControls}>
+          <View variant="transparent" style={[styles.reorderControls, { borderTopColor: colors.border + '20' }]}>
             <TouchableOpacity
               style={[styles.reorderButton, index === 0 && { opacity: 0.3 }]}
               onPress={() => handleMoveUp(index)}
@@ -327,18 +327,19 @@ export default function LibraryListScreen() {
           animationType="fade"
           onRequestClose={() => setSelectedLibraryForMenu(null)}
         >
-          <Pressable
-            style={styles.modalOverlay}
+          <TouchableOpacity
+            style={[styles.modalOverlay, { backgroundColor: colorScheme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.4)' }]}
             onPress={() => setSelectedLibraryForMenu(null)}
+            activeOpacity={1}
           >
-            <RNView
+            <View
               style={[
                 styles.webActionMenu,
                 {
-                  top: Math.min(menuPosition.y, height - 150),
-                  left: Math.min(menuPosition.x - 140, width - 180),
                   backgroundColor: colors.cardBackground,
-                  borderColor: colors.border
+                  borderColor: colors.border,
+                  alignSelf: 'center',
+                  top: '40%'
                 }
               ]}
             >
@@ -374,8 +375,8 @@ export default function LibraryListScreen() {
                 <FontAwesome name="trash" size={16} color={colors.error} />
                 <Text style={[styles.menuItemText, { color: colors.error }]}>{Strings.home.deleteAction}</Text>
               </TouchableOpacity>
-            </RNView>
-          </Pressable>
+            </View>
+          </TouchableOpacity>
         </Modal>
       )}
 
@@ -566,7 +567,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.03)',
   },
   reorderButton: {
     width: 40,
@@ -582,7 +582,6 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.05)',
   },
   webActionMenu: {
     position: 'absolute',
