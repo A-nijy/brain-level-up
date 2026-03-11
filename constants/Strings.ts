@@ -372,7 +372,7 @@ export const Strings = {
      * 관리자 전역 설정을 위한 텍스트 및 아이콘입니다.
      */
     admin: {
-        welcome: "관리자 개요", // 상단 타이틀
+        welcome: "관리자 대시보드", // 상단 타이틀
         subWelcome: "시스템 통계 및 운영 현황", // 상단 서브 타이틀
         viewAnalysis: "상세 분석 보기", // 분석 페이지 이동 버튼
         essentialStats: "필수 운영 지표", // 섹션 제목 1
@@ -628,7 +628,7 @@ export const Strings = {
      */
     adminNotices: {
         title: "공지사항 관리",
-        subtitle: "시스템 공지 및 주요 안내 사항 관리",
+        subtitle: "공지사항 관리 및 주요 안내 사항 관리",
         newNotice: "새 공지 작성",
         table: {
             content: "공지 내용",
@@ -688,7 +688,7 @@ export const Strings = {
      * 관리자 1:1 문의 관리 화면 텍스트입니다.
      */
     adminInquiries: {
-        title: "문의 및 건의사항",
+        title: "문의사항 관리",
         subtitle: "사용자 피드백 수집 및 이슈 대응 현황",
         filterBtn: "필터링",
         filters: {

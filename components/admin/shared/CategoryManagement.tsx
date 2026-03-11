@@ -1,0 +1,380 @@
+import React, { useState } from 'react';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { Text, View, Card } from '@/components/Themed';
+import { SharedLibraryCategory } from '@/types';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+
+import { useAdminCategories } from '@/hooks/useAdminCategories';
+import { useAlert } from '@/contexts/AlertContext';
+import { Strings } from '@/constants/Strings';
+
+export default function CategoryManagement() {
+    const {
+        categories,
+        loading,
+        createCategory,
+        updateCategory,
+        deleteCategory,
+        reorderCategories
+    } = useAdminCategories();
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [editingCategory, setEditingCategory] = useState<SharedLibraryCategory | null>(null);
+    const [title, setTitle] = useState('');
+
+    const colorScheme = useColorScheme();
+    const colors = Colors[colorScheme];
+    const { showAlert } = useAlert();
+
+    const handleSave = async () => {
+        if (!title.trim()) {
+            showAlert({ title: Strings.common.warning, message: Strings.adminCategories.alerts.enterName });
+            return;
+        }
+
+        try {
+            if (editingCategory) {
+                await updateCategory(editingCategory.id, { title: title.trim() });
+            } else {
+                await createCategory(title.trim());
+            }
+            setModalVisible(false);
+            setTitle('');
+            setEditingCategory(null);
+        } catch (error: any) {
+            showAlert({ title: Strings.common.error, message: error.message });
+        }
+    };
+
+    const handleDelete = (category: SharedLibraryCategory) => {
+        showAlert({
+            title: Strings.common.deleteConfirmTitle,
+            message: Strings.adminCategories.alerts.deleteConfirm(category.title),
+            buttons: [
+                { text: Strings.common.cancel, style: 'cancel' },
+                {
+                    text: Strings.common.delete,
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteCategory(category.id);
+                        } catch (error: any) {
+                            showAlert({ title: Strings.common.error, message: error.message });
+                        }
+                    }
+                }
+            ]
+        });
+    };
+
+    const handleMove = async (index: number, direction: 'up' | 'down') => {
+        const newCategories = [...categories];
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+
+        if (targetIndex < 0 || targetIndex >= newCategories.length) return;
+
+        [newCategories[index], newCategories[targetIndex]] = [newCategories[targetIndex], newCategories[index]];
+
+        const updates = newCategories.map((cat, idx) => ({
+            id: cat.id,
+            display_order: idx
+        }));
+
+        try {
+            await reorderCategories(updates);
+        } catch (error: any) {
+            showAlert({ title: Strings.common.error, message: error.message });
+        }
+    };
+
+    const CategoryRow = ({ item, index }: { item: SharedLibraryCategory, index: number }) => (
+        <View variant="transparent" style={[styles.tableRow, { backgroundColor: index % 2 === 0 ? 'transparent' : colors.cardBackground + '30' }]}>
+            <View variant="transparent" style={[styles.col, { flex: 0.5 }]}>
+                <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>{index + 1}</Text>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 3 }]}>
+                <View style={[styles.iconBox, { backgroundColor: colors.tint + '10' }]}>
+                    <FontAwesome name={Strings.shared.icons.filter as any} size={14} color={colors.tint} />
+                </View>
+                <Text style={styles.cellText}>{item.title}</Text>
+            </View>
+
+            <View variant="transparent" style={[styles.col, { flex: 1.5, justifyContent: 'flex-end', gap: 8 }]}>
+                <TouchableOpacity
+                    style={[styles.moveBtn, { opacity: index === 0 ? 0.3 : 1 }]}
+                    onPress={() => handleMove(index, 'up')}
+                    disabled={index === 0}
+                >
+                    <FontAwesome name={Strings.home.icons.up as any} size={12} color={colors.textSecondary} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.moveBtn, { opacity: index === categories.length - 1 ? 0.3 : 1 }]}
+                    onPress={() => handleMove(index, 'down')}
+                    disabled={index === categories.length - 1}
+                >
+                    <FontAwesome name={Strings.home.icons.down as any} size={12} color={colors.textSecondary} />
+                </TouchableOpacity>
+                <View style={styles.divider} />
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: '#F59E0B' }]}
+                    onPress={() => {
+                        setEditingCategory(item);
+                        setTitle(item.title);
+                        setModalVisible(true);
+                    }}
+                >
+                    <FontAwesome name={Strings.settings.icons.pencil as any} size={12} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.actionBtn, { backgroundColor: colors.error }]}
+                    onPress={() => handleDelete(item)}
+                >
+                    <FontAwesome name={Strings.common.delete as any} size={12} color="#fff" />
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+
+    if (loading && categories.length === 0) {
+        return (
+            <View style={styles.center}>
+                <ActivityIndicator size="large" color={colors.tint} />
+            </View>
+        );
+    }
+
+    return (
+        <View variant="transparent" style={styles.content}>
+            <View variant="transparent" style={styles.header}>
+                <View variant="transparent">
+                    <Text style={styles.title}>{Strings.adminCategories.title}</Text>
+                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{Strings.adminCategories.subtitle}</Text>
+                </View>
+                <TouchableOpacity
+                    style={[styles.addBtn, { backgroundColor: colors.tint }]}
+                    onPress={() => {
+                        setEditingCategory(null);
+                        setTitle('');
+                        setModalVisible(true);
+                    }}
+                >
+                    <FontAwesome name={Strings.common.icons.add as any} size={14} color="#fff" style={{ marginRight: 8 }} />
+                    <Text style={styles.addBtnText}>{Strings.adminCategories.addBtn}</Text>
+                </TouchableOpacity>
+            </View>
+
+            <Card style={styles.tableCard}>
+                <View variant="transparent" style={styles.tableHeader}>
+                    <Text style={[styles.headerCol, { flex: 0.5 }]}>{Strings.adminCategories.table.index}</Text>
+                    <Text style={[styles.headerCol, { flex: 3 }]}>{Strings.adminCategories.table.title}</Text>
+                    <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right' }]}>{Strings.adminCategories.table.manage}</Text>
+                </View>
+                <FlatList
+                    data={categories}
+                    renderItem={({ item, index }) => <CategoryRow item={item} index={index} />}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={styles.listContent}
+                    ListEmptyComponent={
+                        <View variant="transparent" style={styles.emptyTable}>
+                            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.adminCategories.alerts.empty}</Text>
+                        </View>
+                    }
+                />
+            </Card>
+
+            <Modal visible={modalVisible} transparent animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <Card style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>{editingCategory ? Strings.adminCategories.modal.editTitle : Strings.adminCategories.modal.addTitle}</Text>
+                        <Text style={[styles.label, { color: colors.textSecondary }]}>{Strings.adminCategories.table.title}</Text>
+                        <TextInput
+                            style={[styles.input, { color: colors.text, borderColor: colors.border }]}
+                            placeholder={Strings.adminCategories.modal.placeholder}
+                            placeholderTextColor={colors.textSecondary}
+                            value={title}
+                            onChangeText={setTitle}
+                            autoFocus
+                        />
+                        <View variant="transparent" style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, { backgroundColor: colors.border + '30' }]}
+                                onPress={() => setModalVisible(false)}
+                            >
+                                <Text style={{ color: colors.text }}>{Strings.common.cancel}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, { backgroundColor: colors.tint }]}
+                                onPress={handleSave}
+                            >
+                                <Text style={styles.modalBtnText}>{Strings.adminCategories.modal.save}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Card>
+                </View>
+            </Modal>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    content: {
+        flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+    },
+    subtitle: {
+        fontSize: 14,
+        marginTop: 4,
+    },
+    addBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 12,
+    },
+    addBtnText: {
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 14,
+    },
+    tableCard: {
+        flex: 1,
+        borderRadius: 24,
+        borderWidth: 0,
+        overflow: 'hidden',
+    },
+    tableHeader: {
+        flexDirection: 'row',
+        padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
+        backgroundColor: 'rgba(0,0,0,0.02)',
+    },
+    headerCol: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#64748B',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    listContent: {
+        paddingBottom: 20,
+    },
+    tableRow: {
+        flexDirection: 'row',
+        padding: 16,
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.02)',
+    },
+    col: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconBox: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    cellText: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    cellSubText: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    moveBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.05)',
+    },
+    divider: {
+        width: 1,
+        height: 20,
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        marginHorizontal: 4,
+    },
+    actionBtn: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyTable: {
+        padding: 60,
+        alignItems: 'center',
+    },
+    emptyText: {
+        fontSize: 14,
+        fontStyle: 'italic',
+    },
+    center: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    modalContent: {
+        width: 400,
+        borderRadius: 24,
+        padding: 32,
+    },
+    modalTitle: {
+        fontSize: 22,
+        fontWeight: '800',
+        marginBottom: 24,
+    },
+    label: {
+        fontSize: 13,
+        fontWeight: '700',
+        marginBottom: 8,
+    },
+    input: {
+        borderWidth: 1,
+        borderRadius: 12,
+        padding: 14,
+        fontSize: 16,
+        marginBottom: 24,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        gap: 12,
+    },
+    modalBtn: {
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 12,
+    },
+    modalBtnText: {
+        color: '#fff',
+        fontWeight: '700',
+    }
+});

@@ -25,12 +25,12 @@ export default function WebSidebar() {
     ];
 
     const adminItems = [
-        { label: '관리자 홈', icon: 'dashboard', route: '/admin', id: 'index' },
+        { label: '관리자 대시보드', icon: 'dashboard', route: '/admin', id: 'index' },
         { label: '사용자 관리', icon: 'users', route: '/admin/users', id: 'users' },
-        { label: '공유 단어장 관리', icon: 'cloud', route: '/admin/shared-manager', id: 'shared-manager' },
-        { label: '카테고리 관리', icon: 'tags', route: '/admin/categories', id: 'categories' },
-        { label: '시스템 공지', icon: 'bullhorn', route: '/admin/notices', id: 'notices' },
-        { label: '문의사항 확인', icon: 'envelope-o', route: '/admin/inquiries', id: 'inquiries' },
+        { label: '공유 자료실 관리', icon: 'cloud', route: '/admin/shared-manager', id: 'shared-manager' },
+
+        { label: '공지사항 관리', icon: 'bullhorn', route: '/admin/notices', id: 'notices' },
+        { label: '문의사항 관리', icon: 'envelope-o', route: '/admin/inquiries', id: 'inquiries' },
         { label: '알림 발송', icon: 'bell-o', route: '/admin/notifications', id: 'notifications' }
     ];
 
