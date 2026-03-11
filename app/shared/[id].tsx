@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, View as DefaultView, SectionList, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -26,6 +27,7 @@ export default function SharedLibraryPreviewScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { showAlert } = useAlert();
+    const insets = useSafeAreaInsets();
 
     const { library, sections, loading, refreshing, refresh, downloadLibrary } = useSharedDetail(sharedLibraryId);
 
@@ -145,7 +147,7 @@ export default function SharedLibraryPreviewScreen() {
                 }
             />
 
-            <View variant="transparent" style={styles.footer}>
+            <View variant="transparent" style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) }]}>
                 <TouchableOpacity
                     style={styles.downloadButton}
                     onPress={handleDownloadRequest}
@@ -263,7 +265,6 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         padding: 24,
-        paddingBottom: 44, // iOS safe area approximate
     },
     downloadButton: {
         width: '100%',

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View, Card } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
@@ -23,6 +24,7 @@ export default function ImportItemsScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const { showAlert } = useAlert();
+    const insets = useSafeAreaInsets();
 
     const pickDocument = async () => {
         try {
@@ -229,7 +231,7 @@ export default function ImportItemsScreen() {
 
             <LinearGradient
                 colors={['transparent', colors.background]}
-                style={styles.footerGradient}
+                style={[styles.footerGradient, { paddingBottom: Math.max(insets.bottom, 20) }]}
             >
                 <TouchableOpacity
                     style={[styles.importButton, { backgroundColor: colors.tint }, (parsedData.length === 0 || loading) && styles.disabledButton]}
@@ -335,7 +337,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        padding: 20,
+        paddingHorizontal: 20,
         paddingTop: 40,
     },
     importButton: {

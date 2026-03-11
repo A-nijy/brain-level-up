@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Modal, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View, Card } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
@@ -23,6 +24,7 @@ export interface ExportOptions {
 export function ExportModal({ isVisible, onClose, onExport, hasWrongItems }: ExportModalProps) {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
+    const insets = useSafeAreaInsets();
 
     const [range, setRange] = useState<'all' | 'wrong'>('all');
     const [mode, setMode] = useState<'both' | 'word_only' | 'meaning_only'>('both');
@@ -56,7 +58,7 @@ export function ExportModal({ isVisible, onClose, onExport, hasWrongItems }: Exp
             onRequestClose={onClose}
         >
             <View variant="transparent" style={styles.overlay}>
-                <View variant="card" style={styles.content}>
+                <View variant="card" style={[styles.content, { paddingBottom: Math.max(insets.bottom, 24) }]}>
                     <View variant="transparent" style={styles.header}>
                         <Text style={styles.title}>PDF 출력 설정</Text>
                         <TouchableOpacity onPress={onClose}>
@@ -117,7 +119,6 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         padding: 24,
-        paddingBottom: Platform.OS === 'ios' ? 44 : 24,
         maxHeight: '85%',
     },
     header: {

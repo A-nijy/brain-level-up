@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, ScrollView, DeviceEventEmitter, Modal, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -31,6 +32,7 @@ export default function SectionDetailScreen() {
     const colors = Colors[colorScheme];
     const { showAlert } = useAlert();
     const { profile } = useAuth();
+    const insets = useSafeAreaInsets();
     const { width } = useWindowDimensions();
     const isWeb = Platform.OS === 'web' && width > 768;
 
@@ -428,7 +430,7 @@ export default function SectionDetailScreen() {
             />
 
             {items.length > 0 && (
-                <View variant="transparent" style={styles.footer}>
+                <View variant="transparent" style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 24) }]}>
                     <TouchableOpacity
                         style={[styles.playButton, isWeb && { maxWidth: 400, alignSelf: 'center' }]}
                         onPress={() => setConfigModalVisible(true)}
@@ -677,7 +679,6 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         padding: 24,
-        paddingBottom: Platform.OS === 'ios' ? 44 : 24,
     },
     playButton: {
         width: '100%',

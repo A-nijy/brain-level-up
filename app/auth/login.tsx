@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Platform, useWindowDimensions, Modal, TextInput } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri } from 'expo-auth-session';
@@ -20,6 +21,7 @@ export default function LoginScreen() {
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
     const { showAlert } = useAlert();
+    const insets = useSafeAreaInsets();
 
     const [modalVisible, setModalVisible] = useState(false);
     const [testEmail, setTestEmail] = useState('');
@@ -301,7 +303,7 @@ export default function LoginScreen() {
                 </View>
             </Modal>
 
-            <View style={styles.footer}>
+            <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
                 <Text style={[styles.footerText, { color: colors.textSecondary }]}>
                     {Strings.auth.footerLaw}
                 </Text>
@@ -410,7 +412,6 @@ const styles = StyleSheet.create({
     },
     footer: {
         alignItems: 'center',
-        paddingBottom: 20,
     },
     modalOverlay: {
         flex: 1,
