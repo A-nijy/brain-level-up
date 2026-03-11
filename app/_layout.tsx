@@ -210,6 +210,13 @@ function InitialLayout() {
     }
   }, [session, segments, isLoading, loaded]);
 
+  // 앱 실행 혹은 세션 변경 시 접속 이벤트 기록
+  useEffect(() => {
+    if (session?.user) {
+      LogService.logEvent('app_open');
+    }
+  }, [session?.user?.id]);
+
   // 웹 브라우저 탭 제목 강제 고정 ("뇌벨업")
   useEffect(() => {
     if (Platform.OS !== 'web') return;

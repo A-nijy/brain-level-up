@@ -62,6 +62,26 @@ const UserRow = ({ item, index, colors, handleUpdateRole, handleUpdateMembership
                 </Text>
             </View>
 
+            <View variant="transparent" style={[styles.col, { flex: 1.5 }]}>
+                {(() => {
+                    const isOnline = item.last_access_at && (new Date().getTime() - new Date(item.last_access_at).getTime() < 5 * 60 * 1000);
+                    if (isOnline) {
+                        return (
+                            <View style={[styles.tag, { backgroundColor: colors.success + '15' }]}>
+                                <Text style={[styles.tagText, { color: colors.success }]}>
+                                    {Strings.adminUsers.table.online}
+                                </Text>
+                            </View>
+                        );
+                    }
+                    return (
+                        <Text style={[styles.cellSubText, { color: colors.textSecondary }]}>
+                            {item.last_access_at ? new Date(item.last_access_at).toLocaleDateString() : '-'}
+                        </Text>
+                    );
+                })()}
+            </View>
+
             <View variant="transparent" style={[styles.col, { flex: 0.8, justifyContent: 'flex-end' }]}>
                 <FontAwesome name={Strings.admin.icons.arrowRight as any} size={14} color={colors.textSecondary} />
             </View>
@@ -167,6 +187,7 @@ export default function UserManagementScreen() {
                         <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminUsers.table.role}</Text>
                         <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminUsers.table.membership}</Text>
                         <Text style={[styles.headerCol, { flex: 1.5 }]}>{Strings.adminUsers.table.joinDate}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.5 }]}>{Strings.adminUsers.table.lastAccess}</Text>
                         <Text style={[styles.headerCol, { flex: 0.8, textAlign: 'right' }]}>{Strings.adminUsers.table.manage}</Text>
                     </View>
                     <FlatList

@@ -433,6 +433,8 @@ export const Strings = {
             role: "권한",
             membership: "멤버십",
             joinDate: "가입일",
+            lastAccess: "최근 접속",
+            online: "접속중",
             manage: "관리",
         },
         roles: {

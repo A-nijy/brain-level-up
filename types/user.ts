@@ -6,6 +6,7 @@ export interface UserProfile {
     role: 'user' | 'admin';
     membership_level: 'BASIC' | 'PREMIUM' | 'PRO';
     created_at: string;
+    last_access_at?: string;
 }
 
 export type Profile = UserProfile;

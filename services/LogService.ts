@@ -18,6 +18,14 @@ export const LogService = {
                     metadata: metadata
                 });
 
+            // app_open 이벤트인 경우 프로필의 최근 접속일도 갱신
+            if (!error && eventType === 'app_open' && user?.id) {
+                await supabase
+                    .from('profiles')
+                    .update({ last_access_at: new Date().toISOString() })
+                    .eq('id', user.id);
+            }
+
             if (error) {
                 // 로그 기록 자체가 실패했을 때의 에러는 무시하거나 콘솔에만 출력 (무한 루프 방지)
                 console.warn('[LogService] Log insertion failed:', error);
