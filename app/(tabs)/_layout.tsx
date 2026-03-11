@@ -33,6 +33,8 @@ export default function TabLayout() {
   const { showAlert } = useAlert();
   const { unreadCount } = useUnreadNotifications();
   const insets = useSafeAreaInsets();
+  const [adModalVisible, setAdModalVisible] = useState(false);
+  const [adLoading, setAdLoading] = useState(false);
 
   const handleCreatePress = async () => {
     if (!profile || !user) return;
@@ -49,19 +51,19 @@ export default function TabLayout() {
 
     const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
 
-    if (access.status === 'LIMIT_REACHED') {
-      showAlert({
-        title: Strings.membership.alerts.limitReachedTitle,
-        message: access.message || Strings.membership.alerts.limitReachedMsg,
-        buttons: [
-          { text: Strings.common.cancel, style: 'cancel' },
-          { text: Strings.membership.upgrade, onPress: () => router.push('/membership') }
-        ]
-      });
+    if (access.status === 'REQUIRE_AD') {
+      setAdModalVisible(true);
       return;
     }
 
     router.push('/library/create');
+  };
+
+  const handleWatchAd = () => {
+    AdService.showRewardedAd(() => {
+      setAdModalVisible(false);
+      router.push('/library/create');
+    }, showAlert, setAdLoading);
   };
 
   // 플랫폼과 안전 영역에 따른 하단 패딩 및 높이 계산
@@ -69,113 +71,127 @@ export default function TabLayout() {
   const tabHeight = Platform.OS === 'ios' ? 50 + insets.bottom : 64 + insets.bottom;
 
   const HeaderActions = require('@/components/HeaderActions').default;
+  const { FeatureGatingModal } = require('@/components/FeatureGatingModal');
+  const { AdService } = require('@/services/AdService');
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: colors.tint,
-        tabBarInactiveTintColor: colors.tabIconDefault,
-        tabBarStyle: {
-          backgroundColor: colors.cardBackground,
-          borderTopWidth: 1,
-          borderTopColor: colors.border,
-          height: tabHeight,
-          paddingBottom: tabPaddingBottom,
-          paddingTop: 10,
-          display: Platform.OS === 'web' ? 'none' : 'flex',
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-        },
-        headerShown: Platform.OS === 'web' ? false : useClientOnlyValue(false, true),
-        headerStyle: {
-          backgroundColor: colors.background,
-          elevation: 0,
-          shadowOpacity: 0,
-          borderBottomWidth: 0,
-        },
-        headerTitleStyle: {
-          fontSize: 20,
-          fontWeight: 'bold',
-          color: colors.text,
-        },
-        headerTintColor: colors.text,
-        headerRight: () => <HeaderActions />,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: Strings.tabs.home,
-          tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.home as any} color={color} />,
-          headerRight: () => (
-            <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
-              <Pressable onPress={() => router.push('/notifications')}>
-                {({ pressed }) => (
-                  <View variant="transparent" style={{ marginRight: 20, position: 'relative' }}>
+    <>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: colors.tint,
+          tabBarInactiveTintColor: colors.tabIconDefault,
+          tabBarStyle: {
+            backgroundColor: colors.cardBackground,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+            height: tabHeight,
+            paddingBottom: tabPaddingBottom,
+            paddingTop: 10,
+            display: Platform.OS === 'web' ? 'none' : 'flex',
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: '600',
+          },
+          headerShown: Platform.OS === 'web' ? false : useClientOnlyValue(false, true),
+          headerStyle: {
+            backgroundColor: colors.background,
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitleStyle: {
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: colors.text,
+          },
+          headerTintColor: colors.text,
+          headerRight: () => <HeaderActions />,
+        }}>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: Strings.tabs.home,
+            tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.home as any} color={color} />,
+            headerRight: () => (
+              <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
+                <Pressable onPress={() => router.push('/notifications')}>
+                  {({ pressed }) => (
+                    <View variant="transparent" style={{ marginRight: 20, position: 'relative' }}>
+                      <FontAwesome
+                        name="bell-o"
+                        size={20}
+                        color={colors.text}
+                        style={{ opacity: pressed ? 0.5 : 1 }}
+                      />
+                      {unreadCount > 0 && (
+                        <View style={{
+                          position: 'absolute',
+                          top: -4,
+                          right: -4,
+                          backgroundColor: colors.error,
+                          borderRadius: 10,
+                          minWidth: 16,
+                          height: 16,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          paddingHorizontal: 4
+                        }}>
+                          <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </Pressable>
+
+                <Pressable onPress={handleCreatePress}>
+                  {({ pressed }) => (
                     <FontAwesome
-                      name="bell-o"
-                      size={20}
+                      name="plus"
+                      size={22}
                       color={colors.text}
                       style={{ opacity: pressed ? 0.5 : 1 }}
                     />
-                    {unreadCount > 0 && (
-                      <View style={{
-                        position: 'absolute',
-                        top: -4,
-                        right: -4,
-                        backgroundColor: colors.error,
-                        borderRadius: 10,
-                        minWidth: 16,
-                        height: 16,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        paddingHorizontal: 4
-                      }}>
-                        <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                )}
-              </Pressable>
+                  )}
+                </Pressable>
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="shared"
+          options={{
+            title: Strings.tabs.shared,
+            tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.shared as any} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="stats"
+          options={{
+            title: Strings.tabs.stats,
+            tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.stats as any} color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: Strings.tabs.settings,
+            tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.settings as any} color={color} />,
+          }}
+        />
+      </Tabs>
 
-              <Pressable onPress={handleCreatePress}>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="plus"
-                    size={22}
-                    color={colors.text}
-                    style={{ opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </View>
-          ),
-        }}
+      <FeatureGatingModal
+        isVisible={adModalVisible}
+        onClose={() => !adLoading && setAdModalVisible(false)}
+        onWatchAd={handleWatchAd}
+        title={Strings.libraryForm.createTitle}
+        description={"암기장이 5개를 초과했습니다.\n광고를 시청하시면 하나 더 추가할 수 있습니다."}
+        isLoading={adLoading}
+        loadingText={"광고 준비 중..."}
       />
-      <Tabs.Screen
-        name="shared"
-        options={{
-          title: Strings.tabs.shared,
-          tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.shared as any} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="stats"
-        options={{
-          title: Strings.tabs.stats,
-          tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.stats as any} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: Strings.tabs.settings,
-          tabBarIcon: ({ color }) => <TabBarIcon name={Strings.tabs.icons.settings as any} color={color} />,
-        }}
-      />
-    </Tabs>
+    </>
   );
 }

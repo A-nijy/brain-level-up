@@ -2,10 +2,8 @@ import React from 'react';
 import { StyleSheet, Modal, TouchableOpacity, Dimensions, Platform, ActivityIndicator } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useRouter } from 'expo-router';
 
 interface FeatureGatingModalProps {
     isVisible: boolean;
@@ -22,12 +20,6 @@ const { width } = Dimensions.get('window');
 export function FeatureGatingModal({ isVisible, onClose, onWatchAd, title, description, isLoading, loadingText }: FeatureGatingModalProps) {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
-    const router = useRouter();
-
-    const handleUpgrade = () => {
-        onClose();
-        router.push('/membership');
-    };
 
     return (
         <Modal
@@ -71,28 +63,7 @@ export function FeatureGatingModal({ isVisible, onClose, onWatchAd, title, descr
                                 </Text>
                             </View>
                         </TouchableOpacity>
-
-                        {/* 멤버십 기능 일시 비활성화
-                        <TouchableOpacity style={styles.upgradeButton} onPress={handleUpgrade}>
-                            <LinearGradient
-                                colors={[colors.tint, colors.primaryGradient[1]]}
-                                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
-                                style={styles.gradient}
-                            >
-                                <View variant="transparent" style={styles.upgradeButtonContent}>
-                                    <FontAwesome name="star" size={18} color="#fff" />
-                                    <Text style={styles.upgradeButtonText}>Upgrade to Premium</Text>
-                                </View>
-                            </LinearGradient>
-                        </TouchableOpacity>
-                        */}
                     </View>
-
-                    {/*
-                    <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-                        Premium members enjoy instant access without ads.
-                    </Text>
-                    */}
                 </View>
             </View>
         </Modal>
@@ -165,31 +136,5 @@ const styles = StyleSheet.create({
     adButtonText: {
         fontSize: 16,
         fontWeight: 'bold',
-    },
-    upgradeButton: {
-        width: '100%',
-        height: 56,
-        borderRadius: 18,
-        overflow: 'hidden',
-    },
-    gradient: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    upgradeButtonContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    upgradeButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
-    footerText: {
-        fontSize: 12,
-        textAlign: 'center',
-        opacity: 0.7,
     }
 });

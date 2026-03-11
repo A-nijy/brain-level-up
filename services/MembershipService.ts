@@ -17,10 +17,11 @@ interface FeatureStrategy {
 const strategies: Record<FeatureType, FeatureStrategy> = {
     DOWNLOAD_SHARED: {
         check: (profile) => {
+            // 결제 기능 비활성화로 인해 모든 등급에서 광고 시청 유도 (추후 복구 가능하도록 로직 유지)
             if (profile?.membership_level === 'PREMIUM' || profile?.membership_level === 'PRO') {
                 return { status: 'GRANTED' };
             }
-            return { status: 'REQUIRE_AD', message: 'Watch a short ad to download this library!' };
+            return { status: 'REQUIRE_AD', message: '광고를 시청하시면 자료를 다운로드할 수 있습니다.' };
         }
     },
     CREATE_LIBRARY: {
@@ -30,25 +31,21 @@ const strategies: Record<FeatureType, FeatureStrategy> = {
                 return { status: 'GRANTED' };
             }
             if (currentCount >= 5) {
-                return { status: 'LIMIT_REACHED', message: 'BASIC users are limited to 5 libraries.' };
+                return { status: 'REQUIRE_AD', message: '암기장이 5개를 초과했습니다. 광고를 시청하시면 하나 더 추가할 수 있습니다.' };
             }
             return { status: 'GRANTED' };
         }
     },
     WEB_ACCESS: {
-        check: (profile) => {
-            if (profile?.membership_level === 'PRO') {
-                return { status: 'GRANTED' };
-            }
-            return { status: 'DENIED', message: 'Web access is exclusive to PRO members.' };
+        check: () => {
+            // 웹 버전 한시적 전면 개방
+            return { status: 'GRANTED' };
         }
     },
     ADVANCED_STATS: {
-        check: (profile) => {
-            if (profile?.membership_level === 'PRO') {
-                return { status: 'GRANTED' };
-            }
-            return { status: 'DENIED', message: 'Advanced analytics are available for PRO members.' };
+        check: () => {
+            // 고급 통계 한시적 전면 개방
+            return { status: 'GRANTED' };
         }
     },
     EXPORT_PDF: {
@@ -56,7 +53,7 @@ const strategies: Record<FeatureType, FeatureStrategy> = {
             if (profile?.membership_level === 'PREMIUM' || profile?.membership_level === 'PRO') {
                 return { status: 'GRANTED' };
             }
-            return { status: 'REQUIRE_AD', message: 'Watch a short ad to export this library as PDF!' };
+            return { status: 'REQUIRE_AD', message: '광고를 시청하시면 PDF로 내보낼 수 있습니다.' };
         }
     }
 };

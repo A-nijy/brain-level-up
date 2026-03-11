@@ -7,6 +7,8 @@ import { Strings } from '@/constants/Strings';
 import { MembershipService } from '@/services/MembershipService';
 import { supabase } from '@/lib/supabase';
 import { UserProfile } from '@/types';
+import { AdService } from '@/services/AdService';
+import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 
 export const useLibraryActions = (
     libraries: Library[],
@@ -20,6 +22,8 @@ export const useLibraryActions = (
     const [reorderMode, setReorderMode] = useState(false);
     const [selectedLibraryForMenu, setSelectedLibraryForMenu] = useState<Library | null>(null);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+    const [adModalVisible, setAdModalVisible] = useState(false);
+    const [adLoading, setAdLoading] = useState(false);
 
     const handleMoveUp = async (index: number) => {
         if (index === 0) return;
@@ -67,19 +71,19 @@ export const useLibraryActions = (
 
         const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
 
-        if (access.status === 'LIMIT_REACHED') {
-            showAlert({
-                title: Strings.membership.alerts.limitReachedTitle,
-                message: access.message || Strings.membership.alerts.limitReachedMsg,
-                buttons: [
-                    { text: Strings.common.cancel, style: 'cancel' },
-                    { text: Strings.membership.upgrade, onPress: () => router.push('/membership') }
-                ]
-            });
+        if (access.status === 'REQUIRE_AD') {
+            setAdModalVisible(true);
             return;
         }
 
         router.push('/library/create');
+    };
+
+    const handleWatchAd = () => {
+        AdService.showRewardedAd(() => {
+            setAdModalVisible(false);
+            router.push('/library/create');
+        }, showAlert, setAdLoading);
     };
 
     const showLibraryOptions = (library: Library, event: any) => {
@@ -126,6 +130,10 @@ export const useLibraryActions = (
         handleEditLibrary,
         handleDeleteLibrary,
         handleCreateLibrary,
-        showLibraryOptions
+        showLibraryOptions,
+        adModalVisible,
+        setAdModalVisible,
+        adLoading,
+        handleWatchAd
     };
 };

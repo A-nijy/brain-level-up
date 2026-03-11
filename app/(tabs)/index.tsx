@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useStudyStats } from '@/hooks/useStudyStats';
 import { useAlert } from '@/contexts/AlertContext';
 import { useLibraryActions } from '@/hooks/useLibraryActions';
+import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 
 import { Strings } from '@/constants/Strings';
 import { Tabs } from 'expo-router';
@@ -31,7 +32,6 @@ export default function LibraryListScreen() {
   const { showAlert } = useAlert();
   const [searchQuery, setSearchQuery] = useState('');
   const { unreadCount } = useUnreadNotifications();
-
   const {
     reorderMode,
     setReorderMode,
@@ -43,7 +43,11 @@ export default function LibraryListScreen() {
     handleEditLibrary,
     handleDeleteLibrary,
     handleCreateLibrary,
-    showLibraryOptions
+    showLibraryOptions,
+    adModalVisible,
+    setAdModalVisible,
+    adLoading,
+    handleWatchAd
   } = useLibraryActions(libraries, reorderLibraries, deleteLibrary, profile, user?.id);
 
   // 웹과 데스크톱 환경을 위한 그리드 설정
@@ -374,6 +378,16 @@ export default function LibraryListScreen() {
           </Pressable>
         </Modal>
       )}
+
+      <FeatureGatingModal
+        isVisible={adModalVisible}
+        onClose={() => !adLoading && setAdModalVisible(false)}
+        onWatchAd={handleWatchAd}
+        title={Strings.libraryForm.createTitle}
+        description={"암기장이 5개를 초과했습니다.\n광고를 시청하시면 하나 더 추가할 수 있습니다."}
+        isLoading={adLoading}
+        loadingText={"광고 준비 중..."}
+      />
     </View>
   );
 }

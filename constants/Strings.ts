@@ -431,7 +431,6 @@ export const Strings = {
         table: {
             userInfo: "사용자 정보",
             role: "권한",
-            membership: "멤버십",
             joinDate: "가입일",
             lastAccess: "최근 접속",
             online: "접속중",
@@ -464,7 +463,6 @@ export const Strings = {
         },
         headers: {
             email: "사용자 (Email)",
-            membership: "멤버십",
             lastAccess: "마지막 접속",
             joinDate: "가입 일시",
             timestamp: "발생 시간",
@@ -595,7 +593,6 @@ export const Strings = {
         titleDefault: "상세 정보",
         headers: {
             userEmail: "사용자 (Email)",
-            membership: "멤버십",
             lastAccess: "마지막 접속",
             joinDate: "가입 일시",
             occurTime: "발생 시간",
