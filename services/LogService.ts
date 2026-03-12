@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-export type AppEventType = 'app_open' | 'ad_view' | 'error' | 'study_complete' | 'screen_view' | 'heartbeat' | 'feature_usage';
+export type AppEventType = 'app_open' | 'app_close' | 'ad_view' | 'error' | 'study_complete' | 'screen_view' | 'heartbeat' | 'feature_usage' | 'library_mutation' | 'section_mutation' | 'item_mutation';
 
 export const LogService = {
     /**

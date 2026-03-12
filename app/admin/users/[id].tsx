@@ -24,6 +24,10 @@ interface UserDetailData {
     featureStats?: {
         summary: { today: number, total: number }
     };
+    timeline?: {
+        left: any[],
+        right: any[]
+    };
 }
 
 export default function UserDetailScreen() {
@@ -44,8 +48,17 @@ export default function UserDetailScreen() {
                 const usage = await AdminStatsService.getUserUsageStats(id as string);
                 const ads = await AdminStatsService.getUserAdUsageStats(id as string);
                 const features = await AdminStatsService.getUserFeatureUsageStats(id as string);
+                const timeline = await AdminStatsService.getUserActivityTimeline(id as string);
             
-                setData({ profile, libraryCount, recentLogs, usageStats: usage, adStats: ads, featureStats: features });
+                setData({ 
+                    profile, 
+                    libraryCount, 
+                    recentLogs, 
+                    usageStats: usage, 
+                    adStats: ads, 
+                    featureStats: features,
+                    timeline: timeline
+                });
             } catch (e: any) {
                 console.error(e);
                 showAlert({ title: Strings.common.error, message: Strings.adminUserDetail.fetchError });
@@ -57,6 +70,62 @@ export default function UserDetailScreen() {
         }
         loadUser();
     }, [id]);
+
+    const refreshTimeline = async () => {
+        if (!id) return;
+        try {
+            const timeline = await AdminStatsService.getUserActivityTimeline(id as string);
+            setData(prev => prev ? { ...prev, timeline } : null);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const handlePruneLogs = async () => {
+        showAlert({
+            title: '로그 정리',
+            message: '30일보다 오래된 모든 사용자의 로그를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+            buttons: [
+                { text: '취소', style: 'cancel' },
+                { 
+                    text: '삭제', 
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const count = await AdminStatsService.pruneOldLogs(30);
+                            showAlert({ title: '성공', message: `${count}개의 오래된 로그가 정리되었습니다.` });
+                            refreshTimeline();
+                        } catch (e) {
+                            showAlert({ title: '실패', message: '로그 정리 중 에러가 발생했습니다.' });
+                        }
+                    }
+                }
+            ]
+        });
+    };
+
+    const handleDeleteUserLogs = async () => {
+        showAlert({
+            title: '사용자 로그 삭제',
+            message: '이 사용자의 모든 활동 기록을 삭제하시겠습니까?',
+            buttons: [
+                { text: '취소', style: 'cancel' },
+                { 
+                    text: '삭제', 
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await AdminStatsService.deleteUserLogs(id as string);
+                            showAlert({ title: '성공', message: '사용자의 모든 로그가 삭제되었습니다.' });
+                            refreshTimeline();
+                        } catch (e) {
+                            showAlert({ title: '실패', message: '로그 삭제 중 에러가 발생했습니다.' });
+                        }
+                    }
+                }
+            ]
+        });
+    };
 
     if (loading || !data) {
         return (
@@ -151,6 +220,65 @@ export default function UserDetailScreen() {
                 </View>
             </Card>
 
+            {/* 타임라인 헤더 및 로그 관리 버튼 */}
+            <View variant="transparent" style={styles.timelineHeaderRow}>
+                <Text style={styles.sectionTitle}>활동 타임라인</Text>
+                <View variant="transparent" style={styles.headerActions}>
+                    <TouchableOpacity style={styles.actionBtn} onPress={handlePruneLogs}>
+                        <FontAwesome name="eraser" size={14} color={colors.textSecondary} />
+                        <Text style={[styles.actionBtnText, { color: colors.textSecondary }]}>전체 30일 정리</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.actionBtn} onPress={handleDeleteUserLogs}>
+                        <FontAwesome name="trash-o" size={14} color="#ef4444" />
+                        <Text style={[styles.actionBtnText, { color: '#ef4444' }]}>로그 비우기</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            {/* 2컬럼 타임라인 뷰 (고정 높이 스크롤박스) */}
+            <View variant="transparent" style={styles.timelineScrollContainer}>
+                {/* 왼쪽: 시스템/활동 */}
+                <View variant="transparent" style={styles.timelineCol}>
+                    <Text style={[styles.colTitle, { color: colors.textSecondary }]}>시스템 및 일반 활동</Text>
+                    <ScrollView style={styles.timelineInnerScroll} contentContainerStyle={styles.timelineInnerContent} nestedScrollEnabled={true}>
+                        {data.timeline?.left.map((item) => (
+                            <View key={item.id} style={[styles.timelineItem, { backgroundColor: colors.cardBackground, borderLeftColor: item.color }]}>
+                                <View variant="transparent" style={styles.itemHeader}>
+                                    <FontAwesome name={item.icon || 'circle'} size={14} color={item.color} />
+                                    <Text style={styles.itemTime}>{new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                                </View>
+                                <Text style={[styles.itemText, { color: colors.text }]}>{item.message}</Text>
+                            </View>
+                        ))}
+                        {data.timeline?.left.length === 0 && (
+                            <Text style={styles.emptyText}>활동 내역 없음</Text>
+                        )}
+                    </ScrollView>
+                </View>
+
+                {/* 중앙 구분선 */}
+                <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                {/* 오른쪽: 콘텐츠/뮤테이션 */}
+                <View variant="transparent" style={styles.timelineCol}>
+                    <Text style={[styles.colTitle, { color: colors.textSecondary }]}>이용 동태 (암기장/문항)</Text>
+                    <ScrollView style={styles.timelineInnerScroll} contentContainerStyle={styles.timelineInnerContent} nestedScrollEnabled={true}>
+                        {data.timeline?.right.map((item) => (
+                            <View key={item.id} style={[styles.timelineItem, { backgroundColor: colors.cardBackground, borderLeftColor: item.color }]}>
+                                <View variant="transparent" style={styles.itemHeader}>
+                                    <FontAwesome name={item.icon || 'circle'} size={14} color={item.color} />
+                                    <Text style={styles.itemTime}>{new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                                </View>
+                                <Text style={[styles.itemText, { color: colors.text }]}>{item.message}</Text>
+                            </View>
+                        ))}
+                        {data.timeline?.right.length === 0 && (
+                            <Text style={styles.emptyText}>동태 내역 없음</Text>
+                        )}
+                    </ScrollView>
+                </View>
+            </View>
+
             <TouchableOpacity
                 style={[styles.backBtn, { borderColor: colors.border }]}
                 onPress={() => router.back()}
@@ -178,14 +306,22 @@ const styles = StyleSheet.create({
     statBoxClickable: { borderRadius: 16, borderWidth: 1, marginHorizontal: 4 },
     statVal: { fontSize: 18, fontWeight: '800' },
     statLab: { fontSize: 12, marginTop: 4 },
-    sectionTitle: { fontSize: 18, fontWeight: '800', marginBottom: 16 },
-    emptyCard: { padding: 40, alignItems: 'center', borderRadius: 20 },
-    logCard: { padding: 16, borderRadius: 16, marginBottom: 12 },
-    logHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-    logDate: { fontSize: 15, fontWeight: '700' },
-    logStats: { flexDirection: 'row', gap: 12 },
-    logStat: { fontSize: 13, fontWeight: '600' },
-    logTime: { fontSize: 12 },
+    timelineHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, marginTop: 8 },
+    sectionTitle: { fontSize: 18, fontWeight: '800' },
+    headerActions: { flexDirection: 'row', gap: 12 },
+    actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 8, borderWidth: 1, borderColor: '#e2e8f0' },
+    actionBtnText: { fontSize: 12, fontWeight: '600' },
+    timelineScrollContainer: { flexDirection: 'row', gap: 16, marginBottom: 24, height: 480 },
+    timelineCol: { flex: 1, height: '100%' },
+    colTitle: { fontSize: 13, fontWeight: '700', marginBottom: 12, textAlign: 'center' },
+    timelineInnerScroll: { flex: 1 },
+    timelineInnerContent: { paddingRight: 4 },
+    timelineItem: { padding: 12, borderRadius: 12, marginBottom: 8, borderLeftWidth: 4, elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 },
+    itemHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+    itemTime: { fontSize: 11, color: '#94a3b8', fontWeight: '600' },
+    itemText: { fontSize: 13, lineHeight: 18, fontWeight: '500' },
+    divider: { width: 1, alignSelf: 'stretch', opacity: 0.5 },
+    emptyText: { fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 20, fontStyle: 'italic' },
     backBtn: { marginTop: 20, padding: 16, borderRadius: 16, borderWidth: 1, alignItems: 'center' },
     backBtnText: { fontSize: 15, fontWeight: '600' },
 });

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { Library, Section } from '@/types';
+import { LogService } from './LogService';
 
 // TODO: 추후 Local DB(SQLite)와 Supabase를 오가는 로직을 이곳에 구현합니다.
 // 현재는 Supabase 직접 호출 로직을 캡슐화합니다.
@@ -44,6 +45,14 @@ export const LibraryService = {
             .single();
 
         if (error) throw error;
+
+        // 활동 로그 기록
+        LogService.logEvent('library_mutation', { 
+            action: 'create', 
+            id: data.id, 
+            title: data.title 
+        }).catch(err => console.error('Failed to log library creation:', err));
+
         return data;
     },
 
@@ -56,6 +65,15 @@ export const LibraryService = {
             .single();
 
         if (error) throw error;
+
+        // 활동 로그 기록
+        LogService.logEvent('library_mutation', { 
+            action: 'update', 
+            id: id, 
+            title: data.title,
+            updates: Object.keys(updates)
+        }).catch(err => console.error('Failed to log library update:', err));
+
         return data;
     },
 
@@ -66,6 +84,12 @@ export const LibraryService = {
             .eq('id', id);
 
         if (error) throw error;
+
+        // 활동 로그 기록
+        LogService.logEvent('library_mutation', { 
+            action: 'delete', 
+            id: id 
+        }).catch(err => console.error('Failed to log library deletion:', err));
     },
 
     async updateLibrariesOrder(updates: { id: string, display_order: number }[]): Promise<void> {
@@ -109,6 +133,15 @@ export const LibraryService = {
             .single();
 
         if (error) throw error;
+
+        // 활동 로그 기록
+        LogService.logEvent('section_mutation', { 
+            action: 'create', 
+            id: data.id, 
+            library_id: libraryId,
+            title: title 
+        }).catch(err => console.error('Failed to log section creation:', err));
+
         return data;
     },
 
@@ -121,6 +154,15 @@ export const LibraryService = {
             .single();
 
         if (error) throw error;
+
+        // 활동 로그 기록
+        LogService.logEvent('section_mutation', { 
+            action: 'update', 
+            id: id, 
+            title: data.title,
+            updates: Object.keys(updates)
+        }).catch(err => console.error('Failed to log section update:', err));
+
         return data;
     },
 
@@ -131,6 +173,12 @@ export const LibraryService = {
             .eq('id', id);
 
         if (error) throw error;
+
+        // 활동 로그 기록
+        LogService.logEvent('section_mutation', { 
+            action: 'delete', 
+            id: id 
+        }).catch(err => console.error('Failed to log section deletion:', err));
     },
 
     async updateSectionsOrder(updates: { id: string, display_order: number }[]): Promise<void> {

@@ -522,4 +522,200 @@ export const AdminStatsService = {
             topFeatures
         };
     },
+    /**
+     * 특정 사용자의 상세 활동 타임라인 조회 (2컬럼용)
+     */
+    async getUserActivityTimeline(userId: string) {
+        // 최근 100건의 활동 로그 조회 (heartbeat 제외)
+        const { data: logs, error } = await supabase
+            .from('app_logs')
+            .select('*')
+            .eq('user_id', userId)
+            .neq('event_type', 'heartbeat')
+            .order('created_at', { ascending: false })
+            .limit(100);
+
+        if (error) throw error;
+
+        const leftTimeline: any[] = [];
+        const rightTimeline: any[] = [];
+
+        // 아이템 뮤테이션 요약을 위한 임시 저장소
+        let batchedItemAction: any = null;
+
+        logs?.forEach((log, index) => {
+            const eventType = log.event_type;
+            const metadata = log.metadata || {};
+            const createdAt = new Date(log.created_at);
+
+            // 1. 오른쪽 타임라인 (콘텐츠 뮤테이션) 처리
+            if (['library_mutation', 'section_mutation', 'item_mutation'].includes(eventType)) {
+                
+                // 아이템 뮤테이션 배칭 로직 (30분 이내 동일 작업)
+                if (eventType === 'item_mutation') {
+                    if (batchedItemAction && 
+                        batchedItemAction.action === metadata.action &&
+                        (new Date(batchedItemAction.lastTime).getTime() - createdAt.getTime()) < 30 * 60 * 1000) {
+                        
+                        batchedItemAction.count += (metadata.count || 1);
+                        batchedItemAction.lastTime = log.created_at;
+                        return; // 다음 로그로 건너뜀
+                    } else {
+                        // 이전 배칭이 있으면 추가
+                        if (batchedItemAction) {
+                            rightTimeline.push(this.formatTimelineItem(batchedItemAction));
+                        }
+                        // 새 배칭 시작
+                        batchedItemAction = {
+                            ...log,
+                            count: metadata.count || 1,
+                            lastTime: log.created_at,
+                            isBatched: true
+                        };
+                    }
+                } else {
+                    // 아이템 외의 뮤테이션이면 배칭 종료 후 추가
+                    if (batchedItemAction) {
+                        rightTimeline.push(this.formatTimelineItem(batchedItemAction));
+                        batchedItemAction = null;
+                    }
+                    rightTimeline.push(this.formatTimelineItem(log));
+                }
+            } 
+            // 2. 왼쪽 타임라인 (시스템/일반 활동) 처리
+            else {
+                // 시스템 로그 처리 시에도 아이템 배칭 종료
+                if (batchedItemAction) {
+                    rightTimeline.push(this.formatTimelineItem(batchedItemAction));
+                    batchedItemAction = null;
+                }
+                leftTimeline.push(this.formatTimelineItem(log));
+            }
+        });
+
+        // 마지막 남은 배칭 처리
+        if (batchedItemAction) {
+            rightTimeline.push(this.formatTimelineItem(batchedItemAction));
+        }
+
+        return { left: leftTimeline, right: rightTimeline };
+    },
+
+    /**
+     * 타임라인 아이템 포맷팅 (아이콘, 메시지 등)
+     */
+    formatTimelineItem(log: any) {
+        const metadata = log.metadata || {};
+        const action = metadata.action;
+        let icon = 'info-circle';
+        let message = '';
+        let color = '#64748b';
+
+        switch (log.event_type) {
+            case 'app_open':
+                icon = 'sign-in';
+                message = '앱 접속';
+                color = '#10b981';
+                break;
+            case 'app_close':
+                icon = 'sign-out';
+                message = '앱 종료';
+                color = '#6b7280';
+                break;
+            case 'ad_view':
+                icon = 'play-circle';
+                message = `광고 시청 (${metadata.placement || '일반'})`;
+                color = '#f59e0b';
+                break;
+            case 'feature_usage':
+                if (metadata.feature === 'EXPORT_PDF') {
+                    icon = 'file-pdf-o';
+                    message = 'PDF 추출';
+                    color = '#ef4444';
+                } else if (metadata.feature === 'DOWNLOAD_SHARED') {
+                    icon = 'cloud-download';
+                    message = '자료실 다운로드';
+                    color = '#3b82f6';
+                } else if (metadata.feature === 'SHARE_LIBRARY') {
+                    icon = 'share-alt';
+                    message = '자료실 공유';
+                    color = '#8b5cf6';
+                } else if (metadata.feature === 'IMPORT_DATA') {
+                    icon = 'file-excel-o';
+                    message = '데이터 가져오기';
+                    color = '#10b981';
+                } else if (metadata.feature === 'PUSH_NOTIFICATION') {
+                    icon = 'bell-o';
+                    message = '알림 설정 변경';
+                    color = '#f97316';
+                } else {
+                    icon = 'rocket';
+                    message = `기능 사용: ${metadata.feature}`;
+                }
+                break;
+            case 'library_mutation':
+                icon = 'book';
+                color = '#3b82f6';
+                if (action === 'create') message = `암기장 생성: ${metadata.title}`;
+                else if (action === 'update') message = `암기장 수정: ${metadata.title}`;
+                else if (action === 'delete') message = '암기장 삭제';
+                break;
+            case 'section_mutation':
+                icon = 'folder-open-o';
+                color = '#6366f1';
+                if (action === 'create') message = `섹션 생성: ${metadata.title}`;
+                else if (action === 'update') message = `섹션 수정: ${metadata.title}`;
+                else if (action === 'delete') message = '섹션 삭제';
+                break;
+            case 'item_mutation':
+                icon = 'pencil-square-o';
+                color = '#ec4899';
+                const count = log.count || 1;
+                const actStr = action === 'create' || action === 'create_bulk' ? '생성' : (action === 'update' ? '수정' : '삭제');
+                message = count > 1 ? `문항 ${count}개 ${actStr}` : `문항 ${actStr}: ${metadata.question || ''}`;
+                break;
+            case 'error':
+                icon = 'exclamation-triangle';
+                message = '에러 발생';
+                color = '#ef4444';
+                break;
+        }
+
+        return {
+            id: log.id,
+            time: log.created_at,
+            icon,
+            message,
+            color,
+            eventType: log.event_type
+        };
+    },
+
+    /**
+     * 오래된 로그 정리 (days일 이전 데이터 삭제)
+     */
+    async pruneOldLogs(days: number) {
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - days);
+        
+        const { count, error } = await supabase
+            .from('app_logs')
+            .delete()
+            .lt('created_at', targetDate.toISOString());
+
+        if (error) throw error;
+        return count;
+    },
+
+    /**
+     * 특정 사용자의 모든 활동 로그 삭제
+     */
+    async deleteUserLogs(userId: string) {
+        const { error } = await supabase
+            .from('app_logs')
+            .delete()
+            .eq('user_id', userId);
+
+        if (error) throw error;
+    }
 };
