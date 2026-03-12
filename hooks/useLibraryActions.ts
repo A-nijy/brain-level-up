@@ -83,7 +83,7 @@ export const useLibraryActions = (
         AdService.showRewardedAd(() => {
             setAdModalVisible(false);
             router.push('/library/create');
-        }, showAlert, setAdLoading);
+        }, showAlert, setAdLoading, 'CREATE_LIBRARY');
     };
 
     const showLibraryOptions = (library: Library, event: any) => {

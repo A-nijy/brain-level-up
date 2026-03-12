@@ -17,7 +17,10 @@ interface UserDetailData {
     recentLogs: any[];
     usageStats?: {
         today: { app: number, web: number, total: number }
-    }
+    };
+    adStats?: {
+        summary: { today: number, total: number }
+    };
 }
 
 export default function UserDetailScreen() {
@@ -36,8 +39,9 @@ export default function UserDetailScreen() {
             try {
                 const { profile, libraryCount, recentLogs } = await AdminService.getUserDetail(id as string);
                 const usage = await AdminStatsService.getUserUsageStats(id as string);
+                const ads = await AdminStatsService.getUserAdUsageStats(id as string);
             
-                setData({ profile, libraryCount, recentLogs, usageStats: usage });
+                setData({ profile, libraryCount, recentLogs, usageStats: usage, adStats: ads });
             } catch (e: any) {
                 console.error(e);
                 showAlert({ title: Strings.common.error, message: Strings.adminUserDetail.fetchError });
@@ -59,7 +63,7 @@ export default function UserDetailScreen() {
         );
     }
 
-    const { profile, libraryCount, recentLogs, usageStats } = data;
+    const { profile, libraryCount, recentLogs, usageStats, adStats } = data;
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
@@ -113,6 +117,17 @@ export default function UserDetailScreen() {
                         </View>
                         <Text style={[styles.statVal, { color: colors.tint }]}>{usageStats?.today.total || 0}분</Text>
                         <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statTodayUsage}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.statBox, styles.statBoxClickable, { backgroundColor: colors.tint + '08', borderColor: colors.tint + '20' }]}
+                        onPress={() => router.push(`/admin/users/ad-usage/${id}`)}
+                        activeOpacity={0.6}
+                    >
+                        <View variant="transparent" style={{ position: 'absolute', top: 8, right: 8 }}>
+                            <FontAwesome name="chevron-right" size={10} color={colors.tint} />
+                        </View>
+                        <Text style={[styles.statVal, { color: colors.tint }]}>{adStats?.summary.today || 0}회</Text>
+                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statTodayAd}</Text>
                     </TouchableOpacity>
                     <View variant="transparent" style={styles.statBox}>
                         <Text style={styles.statVal}>{recentLogs.length}</Text>

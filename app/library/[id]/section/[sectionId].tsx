@@ -197,7 +197,7 @@ export default function SectionDetailScreen() {
                 setIsExporting(false);
                 setAdLoading(false);
             }
-        }, showAlert, setAdLoading);
+        }, showAlert, setAdLoading, 'EXPORT_PDF');
     };
 
     const renderItem = ({ item, index }: { item: Item, index: number }) => (

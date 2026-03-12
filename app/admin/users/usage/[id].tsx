@@ -21,6 +21,12 @@ export default function UserUsageDetailScreen() {
     const [userEmail, setUserEmail] = useState('');
     const [stats, setStats] = useState<any>(null);
     const [timeline, setTimeline] = useState<any[]>([]);
+    const [tooltip, setTooltip] = useState<{ visible: boolean; x: number; y: number; text: string }>({
+        visible: false,
+        x: 0,
+        y: 0,
+        text: ''
+    });
 
     useEffect(() => {
         loadData();
@@ -76,11 +82,11 @@ export default function UserUsageDetailScreen() {
                     <Text style={styles.sectionTitle}>오늘의 사용 시간</Text>
                     <View variant="transparent" style={styles.summaryRow}>
                         <Card style={styles.summaryCard}>
-                            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>앱 (Native)</Text>
+                            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>App</Text>
                             <Text style={[styles.summaryValue, { color: colors.tint }]}>{stats?.today.app}분</Text>
                         </Card>
                         <Card style={styles.summaryCard}>
-                            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>웹 (Web)</Text>
+                            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Web</Text>
                             <Text style={[styles.summaryValue, { color: '#10b981' }]}>{stats?.today.web}분</Text>
                         </Card>
                     </View>
@@ -92,23 +98,60 @@ export default function UserUsageDetailScreen() {
                     <Card style={styles.chartCard}>
                         <View variant="transparent" style={styles.chartContainer}>
                             {stats?.chartData.map((day: any, index: number) => {
-                                const total = day.app + day.web;
-                                const height = total > 0 ? (total / Math.max(...stats.chartData.map((d: any) => d.total), 1)) * 150 : 2;
+                                const maxVal = Math.max(...stats.chartData.map((d: any) => Math.max(d.app, d.web)), 1);
                                 return (
                                     <View key={index} variant="transparent" style={styles.chartBarWrapper}>
-                                        <View variant="transparent" style={styles.barStack}>
+                                        <View variant="transparent" style={styles.sideBySideContainer}>
                                             <View 
                                                 variant="transparent"
+                                                {...({ 
+                                                    onMouseEnter: (e: any) => {
+                                                        const { clientX, clientY } = e.nativeEvent;
+                                                        setTooltip({ 
+                                                            visible: true, 
+                                                            x: clientX, 
+                                                            y: clientY, 
+                                                            text: `App: ${day.app}분` 
+                                                        });
+                                                    },
+                                                    onMouseMove: (e: any) => {
+                                                        const { clientX, clientY } = e.nativeEvent;
+                                                        setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
+                                                    },
+                                                    onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
+                                                } as any)}
                                                 style={[
-                                                    styles.webBar, 
-                                                    { height: total > 0 ? (day.web / total) * height : 0, backgroundColor: '#10b981' }
+                                                    styles.sideBar, 
+                                                    { 
+                                                        height: day.app > 0 ? Math.max((day.app / maxVal) * 140, 4) : 2, 
+                                                        backgroundColor: colors.tint 
+                                                    }
                                                 ]} 
                                             />
                                             <View 
                                                 variant="transparent"
+                                                {...({ 
+                                                    onMouseEnter: (e: any) => {
+                                                        const { clientX, clientY } = e.nativeEvent;
+                                                        setTooltip({ 
+                                                            visible: true, 
+                                                            x: clientX, 
+                                                            y: clientY, 
+                                                            text: `Web: ${day.web}분` 
+                                                        });
+                                                    },
+                                                    onMouseMove: (e: any) => {
+                                                        const { clientX, clientY } = e.nativeEvent;
+                                                        setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
+                                                    },
+                                                    onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
+                                                } as any)}
                                                 style={[
-                                                    styles.appBar, 
-                                                    { height: total > 0 ? (day.app / total) * height : height, backgroundColor: colors.tint }
+                                                    styles.sideBar, 
+                                                    { 
+                                                        height: day.web > 0 ? Math.max((day.web / maxVal) * 140, 4) : 2, 
+                                                        backgroundColor: '#10b981' 
+                                                    }
                                                 ]} 
                                             />
                                         </View>
@@ -167,6 +210,22 @@ export default function UserUsageDetailScreen() {
                     <Text style={[styles.backButtonText, { color: colors.text }]}>목록으로 돌아가기</Text>
                 </TouchableOpacity>
             </ScrollView>
+
+            {tooltip.visible && Platform.OS === 'web' && (
+                <View 
+                    style={[
+                        styles.tooltipPopup, 
+                        { 
+                            position: 'fixed' as any,
+                            left: tooltip.x + 15, 
+                            top: tooltip.y + 15, 
+                            backgroundColor: 'rgba(0,0,0,0.85)',
+                        }
+                    ]}
+                >
+                    <Text style={styles.tooltipText}>{tooltip.text}</Text>
+                </View>
+            )}
         </View>
     );
 }
@@ -194,7 +253,9 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#eee'
     },
-    chartBarWrapper: { alignItems: 'center', width: 40 },
+    chartBarWrapper: { alignItems: 'center', width: 44 },
+    sideBySideContainer: { height: 150, flexDirection: 'row', alignItems: 'flex-end', gap: 4, paddingBottom: 0 },
+    sideBar: { width: 10, borderRadius: 5, backgroundColor: '#f0f0f0' },
     barStack: { width: 12, borderRadius: 6, overflow: 'hidden', backgroundColor: '#f0f0f0', justifyContent: 'flex-end' },
     appBar: { width: '100%' },
     webBar: { width: '100%' },
@@ -219,4 +280,16 @@ const styles = StyleSheet.create({
         alignItems: 'center' 
     },
     backButtonText: { fontWeight: '700' },
+    tooltipPopup: {
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        zIndex: 9999,
+        pointerEvents: 'none',
+    },
+    tooltipText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '700',
+    },
 });

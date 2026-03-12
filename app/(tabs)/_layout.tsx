@@ -17,6 +17,9 @@ import { MembershipService } from '@/services/MembershipService';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
+import { AdService } from '@/services/AdService';
+import { FeatureGatingModal } from '@/components/FeatureGatingModal';
+import HeaderActions from '@/components/HeaderActions';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -63,16 +66,14 @@ export default function TabLayout() {
     AdService.showRewardedAd(() => {
       setAdModalVisible(false);
       router.push('/library/create');
-    }, showAlert, setAdLoading);
+    }, showAlert, setAdLoading, 'CREATE_LIBRARY');
   };
 
   // 플랫폼과 안전 영역에 따른 하단 패딩 및 높이 계산
   const tabPaddingBottom = Math.max(insets.bottom, 4); // 최소 패딩 보장
   const tabHeight = Platform.OS === 'ios' ? 50 + insets.bottom : 64 + insets.bottom;
 
-  const HeaderActions = require('@/components/HeaderActions').default;
-  const { FeatureGatingModal } = require('@/components/FeatureGatingModal');
-  const { AdService } = require('@/services/AdService');
+  // 플랫폼과 안전 영역에 따른 하단 패딩 및 높이 계산
 
   return (
     <>

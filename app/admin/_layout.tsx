@@ -66,6 +66,7 @@ export default function AdminLayout() {
                 headerTitle: (route.params as any)?.title || "섹션 상세"
             })} />
             <Stack.Screen name="users/usage/[id]" options={{ title: '사용량 상세 분석' }} />
+            <Stack.Screen name="users/ad-usage/[id]" options={{ title: '광고 시청 분석' }} />
         </Stack>
     );
 }

@@ -250,7 +250,7 @@ export default function SharedLibraryScreen() {
     const handleWatchAd = () => {
         AdService.showRewardedAd(() => {
             if (selectedLib) performDownload(selectedLib);
-        }, showAlert, setAdLoading);
+        }, showAlert, setAdLoading, 'DOWNLOAD_SHARED');
     };
 
     const renderItem = ({ item, index }: { item: SharedLibrary; index: number }) => {

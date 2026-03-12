@@ -80,7 +80,7 @@ export default function SharedLibraryPreviewScreen() {
     const handleWatchAd = () => {
         AdService.showRewardedAd(() => {
             performDownload();
-        }, showAlert, setAdLoading);
+        }, showAlert, setAdLoading, 'DOWNLOAD_SHARED');
     };
 
     const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (

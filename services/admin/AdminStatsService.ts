@@ -275,15 +275,16 @@ export const AdminStatsService = {
         // 3. 최근 7일 사용량 추이 데이터 생성
         const dailyStats: { [date: string]: { app: number, web: number } } = {};
         
-        // 7일치 초기화
+        // 7일치 초기화 (로컬 날짜 기준)
         for (let i = 0; i < 7; i++) {
-            const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i).toISOString().split('T')[0];
-            dailyStats[date] = { app: 0, web: 0 };
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            dailyStats[dateStr] = { app: 0, web: 0 };
         }
 
         logs?.forEach(log => {
             const logDate = new Date(log.created_at);
-            const dateKey = logDate.toISOString().split('T')[0];
+            const dateKey = `${logDate.getFullYear()}-${String(logDate.getMonth() + 1).padStart(2, '0')}-${String(logDate.getDate()).padStart(2, '0')}`;
             const platform = (log.metadata as any)?.platform;
             const isWeb = (log.metadata as any)?.isWeb || platform === 'web';
             
@@ -354,5 +355,88 @@ export const AdminStatsService = {
             ...h,
             platforms: Array.from(h.platforms)
         }));
+    },
+    /**
+     * 특정 사용자의 광고 사용량 통계 조회
+     */
+    async getUserAdUsageStats(userId: string) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+        const thirtyDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30).toISOString();
+
+        // 1. 전체 광고 로그 조회 (ad_view)
+        const { data: logs, error } = await supabase
+            .from('app_logs')
+            .select('metadata, created_at')
+            .eq('user_id', userId)
+            .eq('event_type', 'ad_view')
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        let todayCount = 0;
+        const totalCount = logs?.length || 0;
+        const placementCounts: { [key: string]: number } = {};
+        const dailyTrends: { [date: string]: number } = {};
+
+        // 30일치 일자 초기화 (로컬 날짜 기준)
+        for (let i = 0; i < 30; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            dailyTrends[dateStr] = 0;
+        }
+
+        logs?.forEach(log => {
+            const logDate = new Date(log.created_at);
+            const dateStr = `${logDate.getFullYear()}-${String(logDate.getMonth() + 1).padStart(2, '0')}-${String(logDate.getDate()).padStart(2, '0')}`;
+            const placement = (log.metadata as any)?.placement || '일반 (Unknown)';
+
+            // 오늘 횟수
+            if (logDate.toISOString() >= today) {
+                todayCount++;
+            }
+
+            // 경로별 집계
+            placementCounts[placement] = (placementCounts[placement] || 0) + 1;
+
+            // 일별 추이 (최근 30일)
+            if (dailyTrends[dateStr] !== undefined) {
+                dailyTrends[dateStr]++;
+            }
+        });
+
+        // 그래프용 데이터 변환
+        const chartData = Object.keys(dailyTrends).sort().map(date => {
+            const dateLogs = logs?.filter(log => {
+                const logDate = new Date(log.created_at);
+                return `${logDate.getFullYear()}-${String(logDate.getMonth() + 1).padStart(2, '0')}-${String(logDate.getDate()).padStart(2, '0')}` === date;
+            }) || [];
+
+            const placements: { [key: string]: number } = {};
+            dateLogs.forEach(log => {
+                const p = (log.metadata as any)?.placement || 'UNKNOWN';
+                placements[p] = (placements[p] || 0) + 1;
+            });
+
+            return {
+                date,
+                count: dailyTrends[date],
+                placements
+            };
+        });
+
+        // 경로별 순위 변환
+        const topPlacements = Object.entries(placementCounts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+
+        return {
+            summary: {
+                today: todayCount,
+                total: totalCount
+            },
+            chartData,
+            topPlacements
+        };
     },
 };

@@ -1,7 +1,7 @@
-import { Platform } from 'react-native';
 import * as AdMob from 'react-native-google-mobile-ads';
+import { LogService } from './LogService';
 
-const { RewardedAd, RewardedAdEventType, AdEventType, TestIds } = AdMob;
+const { RewardedAd, RewardedAdEventType, AdEventType } = AdMob;
 
 /**
  * AdMob v16.x 기준 공식 이벤트 타입 문자열
@@ -28,7 +28,8 @@ export const AdService = {
     async showRewardedAd(
         onComplete: () => void,
         showAlert: (params: any) => void,
-        onLoadingChange?: (loading: boolean) => void
+        onLoadingChange?: (loading: boolean) => void,
+        placement: string = 'unknown'
     ): Promise<void> {
         const rewarded = RewardedAd.createForAdRequest(REWARDED_AD_UNIT_ID as string, {
             requestNonPersonalizedAdsOnly: true,
@@ -53,6 +54,13 @@ export const AdService = {
             (reward: any) => {
                 console.log('[AdService] User earned reward:', reward);
                 isEarned = true;
+                
+                // 광고 시청 성공 로그 기록
+                LogService.logEvent('ad_view', { 
+                    placement,
+                    reward_type: reward.type,
+                    reward_amount: reward.amount
+                });
             }
         );
 
