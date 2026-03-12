@@ -15,6 +15,7 @@ import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
+import { LogService } from '@/services/LogService';
 import { useAlert } from '@/contexts/AlertContext';
 import { useWebHeaderTitle } from '@/contexts/HeaderContext';
 
@@ -81,6 +82,7 @@ export default function SharedLibraryPreviewScreen() {
         AdService.showRewardedAd(() => {
             performDownload();
         }, showAlert, setAdLoading, 'DOWNLOAD_SHARED');
+        LogService.logEvent('feature_usage', { feature: 'DOWNLOAD_SHARED' });
     };
 
     const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (

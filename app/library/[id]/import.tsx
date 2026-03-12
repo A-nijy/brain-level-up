@@ -13,6 +13,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
+import { LogService } from '@/services/LogService';
 
 export default function ImportItemsScreen() {
     const { id } = useLocalSearchParams(); // library_id
@@ -150,6 +151,8 @@ export default function ImportItemsScreen() {
             const { error } = await supabase.from('items').insert(itemsToInsert);
 
             if (error) throw error;
+
+            LogService.logEvent('feature_usage', { feature: 'IMPORT_DATA' });
 
             showAlert({
                 title: Strings.common.success,

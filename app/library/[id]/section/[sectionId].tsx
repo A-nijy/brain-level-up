@@ -13,6 +13,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { ExportModal, ExportOptions as PDFExportOptions } from '@/components/ExportModal';
 import { PdfService } from '@/services/PdfService';
 import { TtsService } from '@/services/TtsService';
+import { LogService } from '@/services/LogService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAlert } from '@/contexts/AlertContext';
 import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/HeaderContext';
@@ -190,6 +191,7 @@ export default function SectionDetailScreen() {
                     title: section?.title || Strings.librarySection.title,
                     action: pendingExportOptions.action
                 }, showAlert);
+                LogService.logEvent('feature_usage', { feature: 'EXPORT_PDF' }); // Log on successful export after ad
                 setAdModalVisible(false);
             } catch (error: any) {
                 showAlert({ title: Strings.librarySection.alerts.exportError, message: error.message });

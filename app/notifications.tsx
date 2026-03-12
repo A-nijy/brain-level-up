@@ -10,6 +10,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Stack, useRouter } from 'expo-router';
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
+import { LogService } from '@/services/LogService';
 import { Events } from '@/constants/Events';
 
 export default function NotificationsScreen() {
@@ -25,6 +26,7 @@ export default function NotificationsScreen() {
 
     useEffect(() => {
         loadNotifications();
+        LogService.logEvent('feature_usage', { feature: 'PUSH_NOTIFICATION' });
     }, [profile]);
 
     const loadNotifications = async () => {

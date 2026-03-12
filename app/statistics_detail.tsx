@@ -7,6 +7,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useRouter, Stack } from 'expo-router';
+import { LogService } from '@/services/LogService';
+import { useEffect } from 'react';
 
 import { useStudyStats } from '@/hooks/useStudyStats';
 import DonutChart from '@/components/stats/DonutChart';
@@ -21,6 +23,10 @@ export default function StatsDetailScreen() {
     const colors = Colors[colorScheme];
     const { width } = useWindowDimensions();
     const router = useRouter();
+
+    useEffect(() => {
+        LogService.logEvent('feature_usage', { feature: 'VIEW_STUDY_STATUS' });
+    }, []);
 
     if (loading) {
         return (

@@ -3,6 +3,7 @@ import { Section, Library } from '@/types';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
 import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
+import { LogService } from '@/services/LogService';
 
 export const useSectionActions = (
     library: Library | null,
@@ -46,6 +47,7 @@ export const useSectionActions = (
                                 library.category_id || '',
                                 []
                             );
+                            LogService.logEvent('feature_usage', { feature: 'SHARE_LIBRARY' });
                             showAlert({ title: Strings.common.success, message: Strings.libraryDetail.alerts.shareSuccess });
                         } catch (error: any) {
                             showAlert({ title: Strings.common.error, message: `${Strings.libraryDetail.alerts.shareFail}: ${error.message}` });

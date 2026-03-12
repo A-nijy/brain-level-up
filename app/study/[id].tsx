@@ -18,6 +18,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useStudySession } from '@/hooks/useStudySession';
 import { Strings } from '@/constants/Strings';
+import { LogService } from '@/services/LogService';
 
 interface StudyCardProps {
     item: any;
@@ -139,6 +140,10 @@ export default function StudyScreen() {
     const insets = useSafeAreaInsets();
 
     const isWeb = Platform.OS === 'web' && width > 768;
+
+    useEffect(() => {
+        LogService.logEvent('feature_usage', { feature: 'START_STUDY' });
+    }, []);
 
     // Handle auto-save on exit
     useEffect(() => {

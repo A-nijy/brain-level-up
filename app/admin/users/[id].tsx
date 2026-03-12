@@ -21,6 +21,9 @@ interface UserDetailData {
     adStats?: {
         summary: { today: number, total: number }
     };
+    featureStats?: {
+        summary: { today: number, total: number }
+    };
 }
 
 export default function UserDetailScreen() {
@@ -40,8 +43,9 @@ export default function UserDetailScreen() {
                 const { profile, libraryCount, recentLogs } = await AdminService.getUserDetail(id as string);
                 const usage = await AdminStatsService.getUserUsageStats(id as string);
                 const ads = await AdminStatsService.getUserAdUsageStats(id as string);
+                const features = await AdminStatsService.getUserFeatureUsageStats(id as string);
             
-                setData({ profile, libraryCount, recentLogs, usageStats: usage, adStats: ads });
+                setData({ profile, libraryCount, recentLogs, usageStats: usage, adStats: ads, featureStats: features });
             } catch (e: any) {
                 console.error(e);
                 showAlert({ title: Strings.common.error, message: Strings.adminUserDetail.fetchError });
@@ -63,7 +67,7 @@ export default function UserDetailScreen() {
         );
     }
 
-    const { profile, libraryCount, recentLogs, usageStats, adStats } = data;
+    const { profile, libraryCount, recentLogs, usageStats, adStats, featureStats } = data;
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
@@ -129,39 +133,23 @@ export default function UserDetailScreen() {
                         <Text style={[styles.statVal, { color: colors.tint }]}>{adStats?.summary.today || 0}회</Text>
                         <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statTodayAd}</Text>
                     </TouchableOpacity>
-                    <View variant="transparent" style={styles.statBox}>
-                        <Text style={styles.statVal}>{recentLogs.length}</Text>
-                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statRecent}</Text>
-                    </View>
+                    <TouchableOpacity
+                        style={[styles.statBox, styles.statBoxClickable, { backgroundColor: colors.tint + '08', borderColor: colors.tint + '20' }]}
+                        onPress={() => router.push(`/admin/users/feature-usage/${id}`)}
+                        activeOpacity={0.6}
+                    >
+                        <View variant="transparent" style={{ position: 'absolute', top: 8, right: 8 }}>
+                            <FontAwesome name="chevron-right" size={10} color={colors.tint} />
+                        </View>
+                        <Text style={[styles.statVal, { color: colors.tint }]}>{featureStats?.summary.today || 0}회</Text>
+                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>오늘 기능 사용</Text>
+                    </TouchableOpacity>
                     <View variant="transparent" style={styles.statBox}>
                         <Text style={styles.statVal}>{new Date(profile.created_at).toLocaleDateString()}</Text>
                         <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statJoin}</Text>
                     </View>
                 </View>
             </Card>
-
-            {/* 최근 학습 타임라인 */}
-            <Text style={styles.sectionTitle}>{Strings.adminUserDetail.sectionActivity}</Text>
-            {recentLogs.length === 0 ? (
-                <Card style={styles.emptyCard}>
-                    <Text style={{ color: colors.textSecondary }}>{Strings.adminUserDetail.emptyActivity}</Text>
-                </Card>
-            ) : (
-                recentLogs.map((log: any, idx: number) => (
-                    <Card key={idx} style={styles.logCard}>
-                        <View variant="transparent" style={styles.logHeader}>
-                            <Text style={styles.logDate}>{new Date(log.study_date).toLocaleDateString()}</Text>
-                            <View variant="transparent" style={styles.logStats}>
-                                <Text style={[styles.logStat, { color: colors.success }]}>{Strings.adminUserDetail.correct} {log.correct_count}</Text>
-                                <Text style={[styles.logStat, { color: colors.error }]}>{Strings.adminUserDetail.wrong} {log.items_count - log.correct_count}</Text>
-                            </View>
-                        </View>
-                        <Text style={[styles.logTime, { color: colors.textSecondary }]}>
-                            {Strings.adminUserDetail.studyTime(Math.floor(log.study_time_seconds / 60), log.study_time_seconds % 60)}
-                        </Text>
-                    </Card>
-                ))
-            )}
 
             <TouchableOpacity
                 style={[styles.backBtn, { borderColor: colors.border }]}

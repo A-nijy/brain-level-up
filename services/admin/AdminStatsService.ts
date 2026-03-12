@@ -439,4 +439,87 @@ export const AdminStatsService = {
             topPlacements
         };
     },
+    /**
+     * 특정 사용자의 기능 사용량 통계 조회 (오늘, 누적, 7일 추이)
+     */
+    async getUserFeatureUsageStats(userId: string) {
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toISOString();
+
+        // 1. 전체 기능 사용 로그 조회 (feature_usage)
+        const { data: logs, error } = await supabase
+            .from('app_logs')
+            .select('metadata, created_at')
+            .eq('user_id', userId)
+            .eq('event_type', 'feature_usage')
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        let todayCount = 0;
+        const totalCount = logs?.length || 0;
+        const featureCounts: { [key: string]: number } = {};
+        const dailyTrends: { [date: string]: number } = {};
+
+        // 7일치 일자 초기화
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+            const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            dailyTrends[dateStr] = 0;
+        }
+
+        logs?.forEach(log => {
+            const logDate = new Date(log.created_at);
+            const dateStr = `${logDate.getFullYear()}-${String(logDate.getMonth() + 1).padStart(2, '0')}-${String(logDate.getDate()).padStart(2, '0')}`;
+            const feature = (log.metadata as any)?.feature || 'UNKNOWN';
+
+            // 오늘 횟수
+            if (dateStr === todayStr) {
+                todayCount++;
+            }
+
+            // 기능별 집계
+            featureCounts[feature] = (featureCounts[feature] || 0) + 1;
+
+            // 일별 추이 (최근 7일)
+            if (dailyTrends[dateStr] !== undefined) {
+                dailyTrends[dateStr]++;
+            }
+        });
+
+        // 그래프용 데이터 변환
+        const chartData = Object.keys(dailyTrends).sort().map(date => {
+            const dateLogs = logs?.filter(log => {
+                const ld = new Date(log.created_at);
+                return `${ld.getFullYear()}-${String(ld.getMonth() + 1).padStart(2, '0')}-${String(ld.getDate()).padStart(2, '0')}` === date;
+            }) || [];
+
+            const features: { [key: string]: number } = {};
+            dateLogs.forEach(log => {
+                const f = (log.metadata as any)?.feature || 'UNKNOWN';
+                features[f] = (features[f] || 0) + 1;
+            });
+
+            return {
+                date,
+                count: dailyTrends[date],
+                features
+            };
+        });
+
+        // 기능별 순위 변환
+        const topFeatures = Object.entries(featureCounts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count);
+
+        return {
+            summary: {
+                today: todayCount,
+                total: totalCount
+            },
+            chartData,
+            topFeatures
+        };
+    },
 };
