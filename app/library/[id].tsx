@@ -10,7 +10,6 @@ import { Section } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { SharedLibraryService } from '@/services/SharedLibraryService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/HeaderContext';
 import { useAlert } from '@/contexts/AlertContext';
@@ -43,7 +42,6 @@ export default function LibraryDetailScreen() {
     useWebHeaderTitle(library?.title || paramTitle || Strings.libraryDetail.title, [library?.title, paramTitle]);
 
     const {
-        sharing,
         reorderMode,
         setReorderMode,
         createModalVisible,
@@ -57,7 +55,6 @@ export default function LibraryDetailScreen() {
         editSectionTitle,
         setEditSectionTitle,
         updating,
-        handleShare,
         handleCreateSection,
         handleEditSection,
         openEditModal,
@@ -131,12 +128,6 @@ export default function LibraryDetailScreen() {
     // 웹 헤더 액션 등록 (자동 정리 기능 포함)
     useHeaderActions([
         {
-            id: 'share',
-            icon: Strings.shared.icons.globe,
-            onPress: handleShare,
-            loading: sharing
-        },
-        {
             id: 'create-section',
             icon: Strings.shared.icons.plus,
             onPress: () => setCreateModalVisible(true)
@@ -147,7 +138,7 @@ export default function LibraryDetailScreen() {
             onPress: () => setReorderMode(prev => !prev),
             color: reorderMode ? colors.tint : colors.textSecondary
         }
-    ], [sharing, reorderMode, library]);
+    ], [reorderMode, library]);
 
     if (loading && !refreshing) {
         return (
@@ -165,17 +156,6 @@ export default function LibraryDetailScreen() {
                     headerTintColor: colors.text,
                     headerRight: () => (
                         <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: Platform.OS === 'web' ? 24 : 0 }}>
-                            <TouchableOpacity
-                                onPress={handleShare}
-                                style={styles.headerIconButton}
-                                disabled={sharing}
-                            >
-                                {sharing ? (
-                                    <ActivityIndicator size="small" color={colors.tint} />
-                                ) : (
-                                    <FontAwesome name={Strings.shared.icons.globe as any} size={18} color={colors.tint} />
-                                )}
-                            </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => setCreateModalVisible(true)}
                                 style={styles.headerIconButton}

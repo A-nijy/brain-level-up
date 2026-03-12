@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { Section, Library } from '@/types';
-import { SharedLibraryService } from '@/services/SharedLibraryService';
 import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
-import { LogService } from '@/services/LogService';
 
 export const useSectionActions = (
     library: Library | null,
@@ -14,7 +12,6 @@ export const useSectionActions = (
     reorderSections: (newSections: Section[]) => Promise<void>
 ) => {
     const { showAlert } = useAlert();
-    const [sharing, setSharing] = useState(false);
     const [reorderMode, setReorderMode] = useState(false);
 
     // Section Create Modal State
@@ -28,37 +25,6 @@ export const useSectionActions = (
     const [editSectionTitle, setEditSectionTitle] = useState('');
     const [updating, setUpdating] = useState(false);
 
-    const handleShare = async () => {
-        if (!library) return;
-
-        showAlert({
-            title: Strings.common.info,
-            message: Strings.libraryDetail.alerts.shareConfirm,
-            buttons: [
-                { text: Strings.common.cancel, style: 'cancel' },
-                {
-                    text: Strings.libraryDetail.share,
-                    onPress: async () => {
-                        setSharing(true);
-                        try {
-                            await SharedLibraryService.shareLibrary(
-                                library.user_id,
-                                library.id,
-                                library.category_id || '',
-                                []
-                            );
-                            LogService.logEvent('feature_usage', { feature: 'SHARE_LIBRARY' });
-                            showAlert({ title: Strings.common.success, message: Strings.libraryDetail.alerts.shareSuccess });
-                        } catch (error: any) {
-                            showAlert({ title: Strings.common.error, message: `${Strings.libraryDetail.alerts.shareFail}: ${error.message}` });
-                        } finally {
-                            setSharing(false);
-                        }
-                    }
-                }
-            ]
-        });
-    };
 
     const handleCreateSection = async () => {
         if (!newSectionTitle.trim()) {
@@ -139,7 +105,6 @@ export const useSectionActions = (
     };
 
     return {
-        sharing,
         reorderMode,
         setReorderMode,
         createModalVisible,
@@ -153,7 +118,6 @@ export const useSectionActions = (
         editSectionTitle,
         setEditSectionTitle,
         updating,
-        handleShare,
         handleCreateSection,
         handleEditSection,
         openEditModal,
