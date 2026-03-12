@@ -118,28 +118,35 @@ export default function UserFeatureUsageDetailScreen() {
                     <Card style={styles.chartCard}>
                         <View variant="transparent" style={styles.chartContainer}>
                             {chartData.map((day: any, index: number) => (
-                                <View key={index} variant="transparent" style={styles.chartBarWrapper}>
+                                <View 
+                                    key={index} 
+                                    variant="transparent" 
+                                    style={styles.chartBarWrapper}
+                                    {...({ 
+                                        onMouseEnter: (e: any) => {
+                                            const { clientX, clientY } = e.nativeEvent;
+                                            const featureList = Object.entries(day.features)
+                                                .map(([f, count]) => `${FEATURE_NAMES[f] || f}: ${count}회`)
+                                                .join('\n');
+                                            setTooltip({ 
+                                                visible: true, 
+                                                x: clientX, 
+                                                y: clientY, 
+                                                text: `${day.date}\n${featureList || '기록 없음'}` 
+                                            });
+                                        },
+                                        onMouseMove: (e: any) => {
+                                            const { clientX, clientY } = e.nativeEvent;
+                                            setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
+                                        },
+                                        onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
+                                    } as any)}
+                                >
                                     <View variant="transparent" style={styles.sideBySideRow}>
                                         {Object.entries(day.features).map(([feature, count]) => (
                                             <View 
                                                 key={feature} 
                                                 variant="transparent"
-                                                {...({ 
-                                                    onMouseEnter: (e: any) => {
-                                                        const { clientX, clientY } = e.nativeEvent;
-                                                        setTooltip({ 
-                                                            visible: true, 
-                                                            x: clientX, 
-                                                            y: clientY, 
-                                                            text: `${FEATURE_NAMES[feature] || feature}: ${count}회` 
-                                                        });
-                                                    },
-                                                    onMouseMove: (e: any) => {
-                                                        const { clientX, clientY } = e.nativeEvent;
-                                                        setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
-                                                    },
-                                                    onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
-                                                } as any)}
                                                 style={[
                                                     styles.sideBar,
                                                     { 

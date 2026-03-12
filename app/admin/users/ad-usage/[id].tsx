@@ -110,7 +110,31 @@ export default function UserAdUsageDetailScreen() {
                                     // 정의된 색상 순서대로 막대 표시 (고정 순서)
                                     const activePlacements = Object.entries(day.placements);
                                     return (
-                                        <View key={index} variant="transparent" style={styles.chartBarWrapper}>
+                                        <View 
+                                            key={index} 
+                                            variant="transparent" 
+                                            style={styles.chartBarWrapper}
+                                            {...({ 
+                                                onMouseEnter: (e: any) => {
+                                                    const { clientX, clientY } = e.nativeEvent;
+                                                    const placementList = Object.entries(day.placements)
+                                                        .filter(([_, count]) => (count as number) > 0)
+                                                        .map(([name, count]) => `${friendlyName[name] || name}: ${count}회`)
+                                                        .join('\n');
+                                                    setTooltip({ 
+                                                        visible: true, 
+                                                        x: clientX, 
+                                                        y: clientY, 
+                                                        text: `${day.date}\n${placementList || '시청 기록 없음'}` 
+                                                    });
+                                                },
+                                                onMouseMove: (e: any) => {
+                                                    const { clientX, clientY } = e.nativeEvent;
+                                                    setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
+                                                },
+                                                onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
+                                            } as any)}
+                                        >
                                             <View variant="transparent" style={styles.multiBarContainer}>
                                                 {Object.keys(PLACEMENT_COLORS).some(name => (day.placements[name] || 0) > 0) ? (
                                                     Object.keys(PLACEMENT_COLORS).map((name, pIdx) => {
@@ -120,22 +144,6 @@ export default function UserAdUsageDetailScreen() {
                                                             <View 
                                                                 key={pIdx}
                                                                 variant="transparent"
-                                                                {...({ 
-                                                                    onMouseEnter: (e: any) => {
-                                                                        const { clientX, clientY } = e.nativeEvent;
-                                                                        setTooltip({ 
-                                                                            visible: true, 
-                                                                            x: clientX, 
-                                                                            y: clientY, 
-                                                                            text: `${friendlyName[name] || name}: ${count}회` 
-                                                                        });
-                                                                    },
-                                                                    onMouseMove: (e: any) => {
-                                                                        const { clientX, clientY } = e.nativeEvent;
-                                                                        setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
-                                                                    },
-                                                                    onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
-                                                                } as any)}
                                                                 style={[
                                                                     styles.bar, 
                                                                     { 

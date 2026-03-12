@@ -100,26 +100,30 @@ export default function UserUsageDetailScreen() {
                             {stats?.chartData.map((day: any, index: number) => {
                                 const maxVal = Math.max(...stats.chartData.map((d: any) => Math.max(d.app, d.web)), 1);
                                 return (
-                                    <View key={index} variant="transparent" style={styles.chartBarWrapper}>
+                                    <View 
+                                        key={index} 
+                                        variant="transparent" 
+                                        style={styles.chartBarWrapper}
+                                        {...({ 
+                                            onMouseEnter: (e: any) => {
+                                                const { clientX, clientY } = e.nativeEvent;
+                                                setTooltip({ 
+                                                    visible: true, 
+                                                    x: clientX, 
+                                                    y: clientY, 
+                                                    text: `${day.date}\nApp: ${day.app}분\nWeb: ${day.web}분` 
+                                                });
+                                            },
+                                            onMouseMove: (e: any) => {
+                                                const { clientX, clientY } = e.nativeEvent;
+                                                setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
+                                            },
+                                            onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
+                                        } as any)}
+                                    >
                                         <View variant="transparent" style={styles.sideBySideContainer}>
                                             <View 
                                                 variant="transparent"
-                                                {...({ 
-                                                    onMouseEnter: (e: any) => {
-                                                        const { clientX, clientY } = e.nativeEvent;
-                                                        setTooltip({ 
-                                                            visible: true, 
-                                                            x: clientX, 
-                                                            y: clientY, 
-                                                            text: `App: ${day.app}분` 
-                                                        });
-                                                    },
-                                                    onMouseMove: (e: any) => {
-                                                        const { clientX, clientY } = e.nativeEvent;
-                                                        setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
-                                                    },
-                                                    onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
-                                                } as any)}
                                                 style={[
                                                     styles.sideBar, 
                                                     { 
@@ -130,22 +134,6 @@ export default function UserUsageDetailScreen() {
                                             />
                                             <View 
                                                 variant="transparent"
-                                                {...({ 
-                                                    onMouseEnter: (e: any) => {
-                                                        const { clientX, clientY } = e.nativeEvent;
-                                                        setTooltip({ 
-                                                            visible: true, 
-                                                            x: clientX, 
-                                                            y: clientY, 
-                                                            text: `Web: ${day.web}분` 
-                                                        });
-                                                    },
-                                                    onMouseMove: (e: any) => {
-                                                        const { clientX, clientY } = e.nativeEvent;
-                                                        setTooltip(prev => ({ ...prev, x: clientX, y: clientY }));
-                                                    },
-                                                    onMouseLeave: () => setTooltip(prev => ({ ...prev, visible: false }))
-                                                } as any)}
                                                 style={[
                                                     styles.sideBar, 
                                                     { 
