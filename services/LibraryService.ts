@@ -34,62 +34,91 @@ export const LibraryService = {
         return data;
     },
 
-    async createLibrary(userId: string, library: Pick<Library, 'title' | 'description' | 'category' | 'is_public'>): Promise<Library> {
-        const { data, error } = await supabase
-            .from('libraries')
-            .insert({
-                user_id: userId,
-                ...library
-            })
-            .select()
-            .single();
+    async createLibrary(userId: string, library: Pick<Library, 'title' | 'description' | 'category' | 'is_public'>, silent = false): Promise<Library> {
+        try {
+            const { data, error } = await supabase
+                .from('libraries')
+                .insert({
+                    user_id: userId,
+                    ...library
+                })
+                .select()
+                .single();
 
-        if (error) throw error;
+            if (error) throw error;
 
-        // 활동 로그 기록
-        LogService.logEvent('library_mutation', { 
-            action: 'create', 
-            id: data.id, 
-            title: data.title 
-        }).catch(err => console.error('Failed to log library creation:', err));
+            // 활동 로그 기록
+            if (!silent) {
+                LogService.logEvent('library_mutation', { 
+                    action: 'create', 
+                    id: data.id, 
+                    title: data.title 
+                }).catch(err => console.error('Failed to log library creation:', err));
+            }
 
-        return data;
+            return data;
+        } catch (error: any) {
+            LogService.logEvent('app_error', {
+                summary: '암기장 생성 실패',
+                message: error.message,
+                title: library.title
+            }).catch(() => {});
+            throw error;
+        }
     },
 
     async updateLibrary(id: string, updates: Partial<Library>): Promise<Library> {
-        const { data, error } = await supabase
-            .from('libraries')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('libraries')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single();
 
-        if (error) throw error;
+            if (error) throw error;
 
-        // 활동 로그 기록
-        LogService.logEvent('library_mutation', { 
-            action: 'update', 
-            id: id, 
-            title: data.title,
-            updates: Object.keys(updates)
-        }).catch(err => console.error('Failed to log library update:', err));
+            // 활동 로그 기록
+            LogService.logEvent('library_mutation', { 
+                action: 'update', 
+                id: id, 
+                title: data.title,
+                updates: Object.keys(updates)
+            }).catch(err => console.error('Failed to log library update:', err));
 
-        return data;
+            return data;
+        } catch (error: any) {
+            LogService.logEvent('app_error', {
+                summary: '암기장 수정 실패',
+                message: error.message,
+                id: id
+            }).catch(() => {});
+            throw error;
+        }
     },
 
     async deleteLibrary(id: string): Promise<void> {
-        const { error } = await supabase
-            .from('libraries')
-            .delete()
-            .eq('id', id);
+        try {
+            const { error } = await supabase
+                .from('libraries')
+                .delete()
+                .eq('id', id);
 
-        if (error) throw error;
+            if (error) throw error;
 
-        // 활동 로그 기록
-        LogService.logEvent('library_mutation', { 
-            action: 'delete', 
-            id: id 
-        }).catch(err => console.error('Failed to log library deletion:', err));
+            // 활동 로그 기록
+            LogService.logEvent('library_mutation', { 
+                action: 'delete', 
+                id: id 
+            }).catch(err => console.error('Failed to log library deletion:', err));
+        } catch (error: any) {
+            LogService.logEvent('app_error', {
+                summary: '암기장 삭제 실패',
+                message: error.message,
+                id: id
+            }).catch(() => {});
+            throw error;
+        }
     },
 
     async updateLibrariesOrder(updates: { id: string, display_order: number }[]): Promise<void> {
@@ -125,60 +154,89 @@ export const LibraryService = {
         return data;
     },
 
-    async createSection(libraryId: string, title: string): Promise<Section> {
-        const { data, error } = await supabase
-            .from('library_sections')
-            .insert({ library_id: libraryId, title })
-            .select()
-            .single();
+    async createSection(libraryId: string, title: string, silent = false): Promise<Section> {
+        try {
+            const { data, error } = await supabase
+                .from('library_sections')
+                .insert({ library_id: libraryId, title })
+                .select()
+                .single();
 
-        if (error) throw error;
+            if (error) throw error;
 
-        // 활동 로그 기록
-        LogService.logEvent('section_mutation', { 
-            action: 'create', 
-            id: data.id, 
-            library_id: libraryId,
-            title: title 
-        }).catch(err => console.error('Failed to log section creation:', err));
+            // 활동 로그 기록
+            if (!silent) {
+                LogService.logEvent('section_mutation', { 
+                    action: 'create', 
+                    id: data.id, 
+                    library_id: libraryId,
+                    title: data.title 
+                }).catch(err => console.error('Failed to log section creation:', err));
+            }
 
-        return data;
+            return data;
+        } catch (error: any) {
+            LogService.logEvent('app_error', {
+                summary: '섹션 생성 실패',
+                message: error.message,
+                title: title
+            }).catch(() => {});
+            throw error;
+        }
     },
 
     async updateSection(id: string, updates: Partial<Section>): Promise<Section> {
-        const { data, error } = await supabase
-            .from('library_sections')
-            .update(updates)
-            .eq('id', id)
-            .select()
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('library_sections')
+                .update(updates)
+                .eq('id', id)
+                .select()
+                .single();
 
-        if (error) throw error;
+            if (error) throw error;
 
-        // 활동 로그 기록
-        LogService.logEvent('section_mutation', { 
-            action: 'update', 
-            id: id, 
-            title: data.title,
-            updates: Object.keys(updates)
-        }).catch(err => console.error('Failed to log section update:', err));
+            // 활동 로그 기록
+            LogService.logEvent('section_mutation', { 
+                action: 'update', 
+                id: id, 
+                title: data.title,
+                updates: Object.keys(updates)
+            }).catch(err => console.error('Failed to log section update:', err));
 
-        return data;
+            return data;
+        } catch (error: any) {
+            LogService.logEvent('app_error', {
+                summary: '섹션 수정 실패',
+                message: error.message,
+                id: id
+            }).catch(() => {});
+            throw error;
+        }
     },
 
     async deleteSection(id: string): Promise<void> {
-        const { error } = await supabase
-            .from('library_sections')
-            .delete()
-            .eq('id', id);
+        try {
+            const { error } = await supabase
+                .from('library_sections')
+                .delete()
+                .eq('id', id);
 
-        if (error) throw error;
+            if (error) throw error;
 
-        // 활동 로그 기록
-        LogService.logEvent('section_mutation', { 
-            action: 'delete', 
-            id: id 
-        }).catch(err => console.error('Failed to log section deletion:', err));
+            // 활동 로그 기록
+            LogService.logEvent('section_mutation', { 
+                action: 'delete', 
+                id: id 
+            }).catch(err => console.error('Failed to log section deletion:', err));
+        } catch (error: any) {
+            LogService.logEvent('app_error', {
+                summary: '섹션 삭제 실패',
+                message: error.message,
+                id: id
+            }).catch(() => {});
+            throw error;
+        }
     },
 
     async updateSectionsOrder(updates: { id: string, display_order: number }[]): Promise<void> {

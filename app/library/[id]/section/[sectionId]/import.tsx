@@ -5,7 +5,7 @@ import { Text, View, Card } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
 import { useSectionDetail } from '@/hooks/useSectionDetail';
 import { useAlert } from '@/contexts/AlertContext';
+import { LogService } from '@/services/LogService';
 
 export default function ImportItemsScreen() {
     const { id, sectionId } = useLocalSearchParams();
@@ -110,8 +111,13 @@ export default function ImportItemsScreen() {
                     showAlert({ title: Strings.common.info, message: Strings.userImport.alerts.emptyFile });
                 }
                 setParsedData(json);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('File parsing error:', error);
+                LogService.logEvent('app_error', { 
+                    summary: '파일 파싱 실패', 
+                    message: error.message,
+                    fileName: file.name
+                });
                 showAlert({ title: Strings.common.error, message: Strings.userImport.alerts.parseError });
             } finally {
                 // For Native, we stop loading here. Web stops in reader.onload.
@@ -162,6 +168,8 @@ export default function ImportItemsScreen() {
 
             await createItems(itemsToInsert);
 
+            LogService.logEvent('feature_usage', { feature: 'IMPORT_DATA' });
+
             showAlert({
                 title: Strings.common.success,
                 message: Strings.userImport.alerts.importSuccess(itemsToInsert.length),
@@ -169,6 +177,11 @@ export default function ImportItemsScreen() {
             });
 
         } catch (error: any) {
+            LogService.logEvent('app_error', { 
+                summary: '데이터 가져오기 저장 실패', 
+                message: error.message,
+                itemCount: parsedData.length
+            });
             showAlert({ title: Strings.userImport.alerts.importFail, message: error.message });
         } finally {
             setLoading(false);

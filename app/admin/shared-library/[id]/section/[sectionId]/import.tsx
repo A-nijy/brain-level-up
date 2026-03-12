@@ -4,7 +4,7 @@ import { Text, View, Card } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -14,6 +14,7 @@ import { SharedLibraryService } from '@/services/SharedLibraryService';
 
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
+import { LogService } from '@/services/LogService';
 
 export default function AdminImportItemsScreen() {
     const { id, sectionId } = useLocalSearchParams();
@@ -107,8 +108,13 @@ export default function AdminImportItemsScreen() {
                     showAlert({ title: Strings.common.warning, message: Strings.adminImport.alerts.emptyFile });
                 }
                 setParsedData(json);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('File parsing error:', error);
+                LogService.logEvent('app_error', { 
+                    summary: '관리자 파일 파싱 실패', 
+                    message: error.message,
+                    fileName: file.name
+                });
                 showAlert({ title: Strings.common.error, message: Strings.adminImport.alerts.parseError });
             } finally {
                 if (Platform.OS !== 'web') setLoading(false);
@@ -163,6 +169,8 @@ export default function AdminImportItemsScreen() {
 
             await SharedLibraryService.createSharedItems(itemsToInsert);
 
+            LogService.logEvent('feature_usage', { feature: 'IMPORT_DATA' });
+
             showAlert({
                 title: Strings.common.confirmTitle,
                 message: Strings.adminImport.alerts.importSuccess(itemsToInsert.length),
@@ -170,6 +178,11 @@ export default function AdminImportItemsScreen() {
             });
 
         } catch (error: any) {
+            LogService.logEvent('app_error', { 
+                summary: '관리자 데이터 가져오기 저장 실패', 
+                message: error.message,
+                itemCount: parsedData.length
+            });
             showAlert({ title: Strings.adminImport.alerts.importFail, message: error.message });
         } finally {
             setLoading(false);

@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { SharedLibraryManagementService } from '../SharedLibraryManagementService';
+import { LogService } from '../LogService';
 
 export const AdminSharedLibraryService = {
     /**
@@ -45,37 +46,46 @@ export const AdminSharedLibraryService = {
      * 공개 암기장을 공유 자료실에 게시
      */
     async publishToShared(libraryId: string) {
-        // 1. 암기장 정보 가져오기
-        const { data: library, error: libError } = await supabase
-            .from('libraries')
-            .select('*')
-            .eq('id', libraryId)
-            .single();
+        try {
+            // 1. 암기장 정보 가져오기
+            const { data: library, error: libError } = await supabase
+                .from('libraries')
+                .select('*')
+                .eq('id', libraryId)
+                .single();
 
-        if (libError) throw libError;
+            if (libError) throw libError;
 
-        // 2. shared_libraries 에 추가 (마지막 순서 다음으로)
-        const nextOrder = await SharedLibraryManagementService.getNextDisplayOrder('shared_libraries');
+            // 2. shared_libraries 에 추가 (마지막 순서 다음으로)
+            const nextOrder = await SharedLibraryManagementService.getNextDisplayOrder('shared_libraries');
 
-        const { data: sharedLib, error: sharedLibError } = await supabase
-            .from('shared_libraries')
-            .insert({
-                title: library.title,
-                description: library.description,
-                category_id: library.category_id,
-                created_by: library.user_id,
-                is_official: true,
-                display_order: nextOrder
-            })
-            .select()
-            .single();
+            const { data: sharedLib, error: sharedLibError } = await supabase
+                .from('shared_libraries')
+                .insert({
+                    title: library.title,
+                    description: library.description,
+                    category_id: library.category_id,
+                    created_by: library.user_id,
+                    is_official: true,
+                    display_order: nextOrder
+                })
+                .select()
+                .single();
 
-        if (sharedLibError) throw sharedLibError;
+            if (sharedLibError) throw sharedLibError;
 
-        // 3. 데이터 복제 (공통 서비스 활용)
-        await SharedLibraryManagementService.copyLibraryDataToShared(libraryId, sharedLib.id);
+            // 3. 데이터 복제 (공통 서비스 활용)
+            await SharedLibraryManagementService.copyLibraryDataToShared(libraryId, sharedLib.id);
 
-        return sharedLib;
+            return sharedLib;
+        } catch (error: any) {
+            LogService.logEvent('app_error', {
+                summary: '공식 자료 게시 실패',
+                message: error.message,
+                libraryId
+            }).catch(() => {});
+            throw error;
+        }
     },
 
     /**
@@ -100,53 +110,62 @@ export const AdminSharedLibraryService = {
         items: { question: string; answer: string; memo?: string }[];
         adminId: string;
     }) {
-        // 공통 서비스 활용
-        const nextOrder = await SharedLibraryManagementService.getNextDisplayOrder('shared_libraries');
+        try {
+            // 공통 서비스 활용
+            const nextOrder = await SharedLibraryManagementService.getNextDisplayOrder('shared_libraries');
 
-        const { data: sharedLib, error: sharedLibError } = await supabase
-            .from('shared_libraries')
-            .insert({
-                title: data.title,
-                description: data.description,
-                category_id: data.category_id,
-                created_by: data.adminId,
-                is_official: true,
-                display_order: nextOrder
-            })
-            .select()
-            .single();
+            const { data: sharedLib, error: sharedLibError } = await supabase
+                .from('shared_libraries')
+                .insert({
+                    title: data.title,
+                    description: data.description,
+                    category_id: data.category_id,
+                    created_by: data.adminId,
+                    is_official: true,
+                    display_order: nextOrder
+                })
+                .select()
+                .single();
 
-        if (sharedLibError) throw sharedLibError;
+            if (sharedLibError) throw sharedLibError;
 
-        const { data: sharedSection, error: sectionError } = await supabase
-            .from('shared_sections')
-            .insert({
-                shared_library_id: sharedLib.id,
-                title: '기본 섹션',
-                display_order: 0
-            })
-            .select()
-            .single();
+            const { data: sharedSection, error: sectionError } = await supabase
+                .from('shared_sections')
+                .insert({
+                    shared_library_id: sharedLib.id,
+                    title: '기본 섹션',
+                    display_order: 0
+                })
+                .select()
+                .single();
 
-        if (sectionError) throw sectionError;
+            if (sectionError) throw sectionError;
 
-        if (data.items.length > 0) {
-            const sharedItems = data.items.map(item => ({
-                shared_library_id: sharedLib.id,
-                shared_section_id: sharedSection.id,
-                question: item.question,
-                answer: item.answer,
-                memo: item.memo,
-            }));
+            if (data.items.length > 0) {
+                const sharedItems = data.items.map(item => ({
+                    shared_library_id: sharedLib.id,
+                    shared_section_id: sharedSection.id,
+                    question: item.question,
+                    answer: item.answer,
+                    memo: item.memo,
+                }));
 
-            const { error: sharedItemsError } = await supabase
-                .from('shared_items')
-                .insert(sharedItems);
+                const { error: sharedItemsError } = await supabase
+                    .from('shared_items')
+                    .insert(sharedItems);
 
-            if (sharedItemsError) throw sharedItemsError;
+                if (sharedItemsError) throw sharedItemsError;
+            }
+
+            return sharedLib;
+        } catch (error: any) {
+            LogService.logEvent('app_error', {
+                summary: '직접 게시 실패',
+                message: error.message,
+                title: data.title
+            }).catch(() => {});
+            throw error;
         }
-
-        return sharedLib;
     },
 
     /**

@@ -1,29 +1,34 @@
 import { supabase } from '@/lib/supabase';
 
-export type AppEventType = 'app_open' | 'app_close' | 'ad_view' | 'error' | 'study_complete' | 'screen_view' | 'heartbeat' | 'feature_usage' | 'library_mutation' | 'section_mutation' | 'item_mutation';
+export type AppEventType = 'app_open' | 'app_close' | 'ad_view' | 'error' | 'app_error' | 'study_complete' | 'screen_view' | 'heartbeat' | 'feature_usage' | 'library_mutation' | 'section_mutation' | 'item_mutation';
 
 export const LogService = {
     /**
      * 앱 내 주요 이벤트를 기록합니다.
      */
-    async logEvent(eventType: AppEventType, metadata: any = {}) {
+    async logEvent(eventType: AppEventType, metadata: any = {}, userId?: string) {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            let finalUserId = userId;
+            
+            if (!finalUserId) {
+                const { data: { user } } = await supabase.auth.getUser();
+                finalUserId = user?.id;
+            }
 
             const { error } = await supabase
                 .from('app_logs')
                 .insert({
-                    user_id: user?.id || null,
+                    user_id: finalUserId || null,
                     event_type: eventType,
                     metadata: metadata
                 });
 
             // app_open 이벤트인 경우 프로필의 최근 접속일도 갱신
-            if (!error && eventType === 'app_open' && user?.id) {
+            if (!error && eventType === 'app_open' && finalUserId) {
                 await supabase
                     .from('profiles')
                     .update({ last_access_at: new Date().toISOString() })
-                    .eq('id', user.id);
+                    .eq('id', finalUserId);
             }
 
             if (error) {

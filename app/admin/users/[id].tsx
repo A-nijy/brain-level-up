@@ -245,7 +245,9 @@ export default function UserDetailScreen() {
                             <View key={item.id} style={[styles.timelineItem, { backgroundColor: colors.cardBackground, borderLeftColor: item.color }]}>
                                 <View variant="transparent" style={styles.itemHeader}>
                                     <FontAwesome name={item.icon || 'circle'} size={14} color={item.color} />
-                                    <Text style={styles.itemTime}>{new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                                    <Text style={styles.itemTime}>
+                                        {new Date(item.time).getMonth() + 1}/{new Date(item.time).getDate()} {new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </Text>
                                 </View>
                                 <Text style={[styles.itemText, { color: colors.text }]}>{item.message}</Text>
                             </View>
@@ -267,7 +269,9 @@ export default function UserDetailScreen() {
                             <View key={item.id} style={[styles.timelineItem, { backgroundColor: colors.cardBackground, borderLeftColor: item.color }]}>
                                 <View variant="transparent" style={styles.itemHeader}>
                                     <FontAwesome name={item.icon || 'circle'} size={14} color={item.color} />
-                                    <Text style={styles.itemTime}>{new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+                                    <Text style={styles.itemTime}>
+                                        {new Date(item.time).getMonth() + 1}/{new Date(item.time).getDate()} {new Date(item.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </Text>
                                 </View>
                                 <Text style={[styles.itemText, { color: colors.text }]}>{item.message}</Text>
                             </View>

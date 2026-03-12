@@ -82,7 +82,6 @@ export default function SharedLibraryPreviewScreen() {
         AdService.showRewardedAd(() => {
             performDownload();
         }, showAlert, setAdLoading, 'DOWNLOAD_SHARED');
-        LogService.logEvent('feature_usage', { feature: 'DOWNLOAD_SHARED' });
     };
 
     const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (

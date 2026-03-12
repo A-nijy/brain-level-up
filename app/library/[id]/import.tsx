@@ -5,7 +5,7 @@ import { Text, View, Card } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
@@ -105,8 +105,13 @@ export default function ImportItemsScreen() {
                     showAlert({ title: Strings.common.info, message: Strings.userImport.alerts.emptyFile });
                 }
                 setParsedData(json);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('File parsing error:', error);
+                LogService.logEvent('app_error', { 
+                    summary: '파일 파싱 실패', 
+                    message: error.message,
+                    fileName: file.name
+                });
                 showAlert({ title: Strings.common.error, message: Strings.userImport.alerts.parseError });
             } finally {
                 if (Platform.OS !== 'web') setLoading(false);
@@ -161,6 +166,11 @@ export default function ImportItemsScreen() {
             });
 
         } catch (error: any) {
+            LogService.logEvent('app_error', { 
+                summary: '데이터 가져오기 저장 실패', 
+                message: error.message,
+                itemCount: parsedData.length
+            });
             showAlert({ title: Strings.userImport.alerts.importFail, message: error.message });
         } finally {
             setLoading(false);

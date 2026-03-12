@@ -16,6 +16,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { MembershipService } from '@/services/MembershipService';
 import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
+import { LogService } from '@/services/LogService';
 import { useHeaderActions } from '@/contexts/HeaderContext';
 
 import { Strings } from '@/constants/Strings';

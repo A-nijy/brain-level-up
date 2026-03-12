@@ -533,7 +533,7 @@ export const AdminStatsService = {
             .eq('user_id', userId)
             .neq('event_type', 'heartbeat')
             .order('created_at', { ascending: false })
-            .limit(100);
+            .limit(300);
 
         if (error) throw error;
 
@@ -634,11 +634,11 @@ export const AdminStatsService = {
                     color = '#ef4444';
                 } else if (metadata.feature === 'DOWNLOAD_SHARED') {
                     icon = 'cloud-download';
-                    message = '자료실 다운로드';
+                    message = metadata.title ? `자료실 다운로드: ${metadata.title}` : '자료실 다운로드';
                     color = '#3b82f6';
                 } else if (metadata.feature === 'SHARE_LIBRARY') {
                     icon = 'share-alt';
-                    message = '자료실 공유';
+                    message = metadata.title ? `자료실 공유: ${metadata.title}` : '자료실 공유';
                     color = '#8b5cf6';
                 } else if (metadata.feature === 'IMPORT_DATA') {
                     icon = 'file-excel-o';
@@ -657,6 +657,7 @@ export const AdminStatsService = {
                 icon = 'book';
                 color = '#3b82f6';
                 if (action === 'create') message = `암기장 생성: ${metadata.title}`;
+                else if (action === 'download') message = `암기장 다운로드: ${metadata.title}`;
                 else if (action === 'update') message = `암기장 수정: ${metadata.title}`;
                 else if (action === 'delete') message = '암기장 삭제';
                 break;
@@ -675,8 +676,9 @@ export const AdminStatsService = {
                 message = count > 1 ? `문항 ${count}개 ${actStr}` : `문항 ${actStr}: ${metadata.question || ''}`;
                 break;
             case 'error':
+            case 'app_error':
                 icon = 'exclamation-triangle';
-                message = '에러 발생';
+                message = metadata.summary ? `${metadata.summary}: ${metadata.message || ''}` : '시스템 에러 발생';
                 color = '#ef4444';
                 break;
         }
