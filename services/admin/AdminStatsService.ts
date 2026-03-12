@@ -640,6 +640,14 @@ export const AdminStatsService = {
                     icon = 'share-alt';
                     message = metadata.title ? `자료실 공유: ${metadata.title}` : '자료실 공유';
                     color = '#8b5cf6';
+                } else if (metadata.feature === 'UPDATE_SHARED') {
+                    icon = 'pencil-square-o';
+                    message = metadata.title ? `자료실 자료 수정: ${metadata.title}` : '자료실 자료 수정';
+                    color = '#f59e0b';
+                } else if (metadata.feature === 'DELETE_SHARED') {
+                    icon = 'trash-o';
+                    message = metadata.title ? `자료실 자료 삭제: ${metadata.title}` : '자료실 자료 삭제';
+                    color = '#ef4444';
                 } else if (metadata.feature === 'IMPORT_DATA') {
                     icon = 'file-excel-o';
                     message = '데이터 가져오기';

@@ -186,7 +186,22 @@ export const SharedLibraryService = {
      */
     async deleteSharedLibrary(libraryId: string): Promise<void> {
         try {
+            // 삭제 전 제목 정보 미리 확보 (로그용)
+            const { data: libInfo } = await supabase
+                .from('shared_libraries')
+                .select('title, created_by')
+                .eq('id', libraryId)
+                .maybeSingle();
+
             await SharedLibraryManagementService.deleteSharedLibraryCascade(libraryId);
+
+            // 활동 로그 기록 (삭제 성공)
+            if (libInfo) {
+                await LogService.logEvent('feature_usage', { 
+                    feature: 'DELETE_SHARED',
+                    title: libInfo.title 
+                }, libInfo.created_by);
+            }
         } catch (error: any) {
             LogService.logEvent('app_error', {
                 summary: '자료실 삭제 실패',
@@ -212,8 +227,22 @@ export const SharedLibraryService = {
     },
 
     async updateSharedLibrary(libraryId: string, updates: Partial<SharedLibrary>): Promise<void> {
-        const { error } = await supabase.from('shared_libraries').update(updates).eq('id', libraryId);
+        const { data: updated, error } = await supabase
+            .from('shared_libraries')
+            .update(updates)
+            .eq('id', libraryId)
+            .select('title, created_by')
+            .single();
+
         if (error) throw error;
+
+        // 활동 로그 기록 (수정 성공)
+        if (updated) {
+            await LogService.logEvent('feature_usage', { 
+                feature: 'UPDATE_SHARED',
+                title: updated.title 
+            }, updated.created_by);
+        }
     },
 
     async getSharedSections(sharedLibraryId: string): Promise<SharedSection[]> {
