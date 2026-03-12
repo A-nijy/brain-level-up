@@ -77,10 +77,20 @@ export default function UserDetailScreen() {
                 </View>
 
                 <View variant="transparent" style={styles.statsRow}>
-                    <View variant="transparent" style={styles.statBox}>
-                        <Text style={styles.statVal}>{libraryCount}</Text>
+                    <TouchableOpacity
+                        style={[styles.statBox, styles.statBoxClickable, { backgroundColor: colors.tint + '08', borderColor: colors.tint + '20' }]}
+                        onPress={() => router.push({
+                            pathname: '/admin/user-libraries' as any,
+                            params: { userId: profile.id, email: profile.email }
+                        })}
+                        activeOpacity={0.6}
+                    >
+                        <View variant="transparent" style={{ position: 'absolute', top: 8, right: 8 }}>
+                            <FontAwesome name="chevron-right" size={10} color={colors.tint} />
+                        </View>
+                        <Text style={[styles.statVal, { color: colors.tint }]}>{libraryCount}</Text>
                         <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statLibrary}</Text>
-                    </View>
+                    </TouchableOpacity>
                     <View variant="transparent" style={styles.statBox}>
                         <Text style={styles.statVal}>{recentLogs.length}</Text>
                         <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statRecent}</Text>
@@ -138,7 +148,8 @@ const styles = StyleSheet.create({
     badge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
     badgeText: { fontSize: 12, fontWeight: 'bold' },
     statsRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.05)', paddingTop: 20 },
-    statBox: { flex: 1, alignItems: 'center' },
+    statBox: { flex: 1, alignItems: 'center', paddingVertical: 12 },
+    statBoxClickable: { borderRadius: 16, borderWidth: 1, marginHorizontal: 4 },
     statVal: { fontSize: 18, fontWeight: '800' },
     statLab: { fontSize: 12, marginTop: 4 },
     sectionTitle: { fontSize: 18, fontWeight: '800', marginBottom: 16 },

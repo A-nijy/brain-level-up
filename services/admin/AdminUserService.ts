@@ -59,6 +59,78 @@ export const AdminUserService = {
     },
 
     /**
+     * 특정 사용자의 암기장 목록 조회
+     */
+    async getUserLibraries(userId: string) {
+        const { data, error } = await supabase
+            .from('libraries')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    /**
+     * 관리자용: 특정 암기장의 섹션 목록 조회
+     */
+    async getUserLibrarySections(libraryId: string) {
+        const { data, error } = await supabase
+            .from('library_sections')
+            .select('*')
+            .eq('library_id', libraryId)
+            .order('display_order', { ascending: true })
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    /**
+     * 관리자용: 특정 섹션의 아이템 목록 조회
+     */
+    async getUserLibraryItems(sectionId: string) {
+        const { data, error } = await supabase
+            .from('items')
+            .select('*')
+            .eq('section_id', sectionId)
+            .order('display_order', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    /**
+     * 관리자용: 섹션에 정의되지 않은(Null) 암기장 아이템 전체 조회
+     */
+    async getUserLibraryItemsWithoutSection(libraryId: string) {
+        const { data, error } = await supabase
+            .from('items')
+            .select('*')
+            .eq('library_id', libraryId)
+            .is('section_id', null)
+            .order('display_order', { ascending: true });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    /**
+     * 관리자용: 특정 암기장 정보 조회
+     */
+    async getLibraryById(id: string) {
+        const { data, error } = await supabase
+            .from('libraries')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    /**
      * DAU 상세 내역 (오늘 접속한 사용자 목록)
      */
     async getDauDetails() {

@@ -53,8 +53,18 @@ export default function AdminLayout() {
                 headerTitle: (route.params as any)?.title || "통계 상세"
             })} />
             <Stack.Screen name="notices" options={{ title: '공지사항 관리' }} />
-
             <Stack.Screen name="inquiries" options={{ title: '문의사항 관리' }} />
+            
+            {/* 사용자 암기장 관련 추가 */}
+            <Stack.Screen name="user-libraries" options={({ route }) => ({
+                headerTitle: (route.params as any)?.email ? `${(route.params as any).email}의 암기장` : "사용자 암기장"
+            })} />
+            <Stack.Screen name="user-library/[id]" options={({ route }) => ({
+                headerTitle: (route.params as any)?.title || "암기장 상세"
+            })} />
+            <Stack.Screen name="user-library/section/[sectionId]" options={({ route }) => ({
+                headerTitle: (route.params as any)?.title || "섹션 상세"
+            })} />
         </Stack>
     );
 }
