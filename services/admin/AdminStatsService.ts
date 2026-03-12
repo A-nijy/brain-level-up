@@ -249,4 +249,110 @@ export const AdminStatsService = {
             placement: log.metadata?.placement || 'Unknown'
         }));
     },
+    /**
+     * 특정 사용자의 상세 사용량 통계 조회 (오늘 및 최근 7일)
+     */
+    async getUserUsageStats(userId: string) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+        const sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).toISOString();
+
+        // 1. 전체 로그(heartbeat) 조회
+        const { data: logs, error } = await supabase
+            .from('app_logs')
+            .select('event_type, metadata, created_at')
+            .eq('user_id', userId)
+            .eq('event_type', 'heartbeat')
+            .gte('created_at', sevenDaysAgo)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        // 2. 오늘 사용 시간 계산 (분 단위)
+        let todayAppMinutes = 0;
+        let todayWebMinutes = 0;
+        
+        // 3. 최근 7일 사용량 추이 데이터 생성
+        const dailyStats: { [date: string]: { app: number, web: number } } = {};
+        
+        // 7일치 초기화
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i).toISOString().split('T')[0];
+            dailyStats[date] = { app: 0, web: 0 };
+        }
+
+        logs?.forEach(log => {
+            const logDate = new Date(log.created_at);
+            const dateKey = logDate.toISOString().split('T')[0];
+            const platform = (log.metadata as any)?.platform;
+            const isWeb = (log.metadata as any)?.isWeb || platform === 'web';
+            
+            if (dailyStats[dateKey]) {
+                if (isWeb) dailyStats[dateKey].web += 1;
+                else dailyStats[dateKey].app += 1;
+            }
+
+            // 오늘 기록이면 별도 합산
+            if (logDate.toISOString() >= today) {
+                if (isWeb) todayWebMinutes += 1;
+                else todayAppMinutes += 1;
+            }
+        });
+
+        // 그래프용 배열 변환
+        const chartData = Object.keys(dailyStats).sort().map(date => ({
+            date,
+            app: dailyStats[date].app,
+            web: dailyStats[date].web,
+            total: dailyStats[date].app + dailyStats[date].web
+        }));
+
+        return {
+            today: {
+                app: todayAppMinutes,
+                web: todayWebMinutes,
+                total: todayAppMinutes + todayWebMinutes
+            },
+            chartData
+        };
+    },
+
+    /**
+     * 특정 사용자의 오늘 시간대별 접속 타임라인 조회
+     */
+    async getUserUsageTimeline(userId: string) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+
+        const { data: logs, error } = await supabase
+            .from('app_logs')
+            .select('metadata, created_at')
+            .eq('user_id', userId)
+            .eq('event_type', 'heartbeat')
+            .gte('created_at', today)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        // 시간별(0-23시) 분포
+        const hourlyDistribution = new Array(24).fill(0).map((_, i) => ({
+            hour: i,
+            minutes: 0,
+            platforms: new Set<string>()
+        }));
+
+        logs?.forEach(log => {
+            const date = new Date(log.created_at);
+            const hour = date.getHours();
+            const platform = (log.metadata as any)?.platform || 'unknown';
+            
+            hourlyDistribution[hour].minutes += 1;
+            hourlyDistribution[hour].platforms.add(platform);
+        });
+
+        return hourlyDistribution.map(h => ({
+            ...h,
+            platforms: Array.from(h.platforms)
+        }));
+    },
 };

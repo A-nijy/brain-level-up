@@ -613,6 +613,7 @@ export const Strings = {
     adminUserDetail: {
         title: "사용자 상세 정보",
         statLibrary: "암기장",
+        statTodayUsage: "오늘 사용",
         statRecent: "최근 학습",
         statJoin: "가입일",
         sectionActivity: "최근 학습 활동 (최근 10개)",

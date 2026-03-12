@@ -20,9 +20,13 @@ import { HeaderProvider } from '@/contexts/HeaderContext';
 import CustomAlert from '@/components/CustomAlert';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ThemeProvider as AppThemeProvider } from '@/contexts/ThemeContext';
+import { useUsageTracking } from '@/hooks/useUsageTracking';
 import { LogService } from '@/services/LogService';
 
-export { ErrorBoundary } from 'expo-router';
+export {
+  // Catch any errors thrown by the Layout component.
+  ErrorBoundary,
+} from 'expo-router';
 
 export const unstable_settings = { initialRouteName: '(tabs)' };
 
@@ -51,6 +55,9 @@ function InitialLayout() {
   const segments = useSegments();
   const router = useRouter();
   const colorScheme = useColorScheme();
+
+  // 모든 플랫폼에서 사용 시간 추적 활성화 (1분 단위 하트비트)
+  useUsageTracking();
 
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),

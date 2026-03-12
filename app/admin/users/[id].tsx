@@ -7,13 +7,23 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
+import { AdminStatsService } from '@/services/admin/AdminStatsService';
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
+
+interface UserDetailData {
+    profile: any;
+    libraryCount: number;
+    recentLogs: any[];
+    usageStats?: {
+        today: { app: number, web: number, total: number }
+    }
+}
 
 export default function UserDetailScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
     const [loading, setLoading] = useState(true);
-    const [userData, setUserData] = useState<any>(null);
+    const [data, setData] = useState<UserDetailData | null>(null);
 
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
@@ -24,8 +34,10 @@ export default function UserDetailScreen() {
         async function loadUser() {
             if (typeof id !== 'string') return;
             try {
-                const data = await AdminService.getUserDetail(id);
-                setUserData(data);
+                const { profile, libraryCount, recentLogs } = await AdminService.getUserDetail(id as string);
+                const usage = await AdminStatsService.getUserUsageStats(id as string);
+            
+                setData({ profile, libraryCount, recentLogs, usageStats: usage });
             } catch (e: any) {
                 console.error(e);
                 showAlert({ title: Strings.common.error, message: Strings.adminUserDetail.fetchError });
@@ -38,7 +50,7 @@ export default function UserDetailScreen() {
         loadUser();
     }, [id]);
 
-    if (loading || !userData) {
+    if (loading || !data) {
         return (
             <View style={styles.center}>
                 <Stack.Screen options={{ title: paramTitle || Strings.adminUserDetail.title }} />
@@ -47,7 +59,7 @@ export default function UserDetailScreen() {
         );
     }
 
-    const { profile, libraryCount, recentLogs } = userData;
+    const { profile, libraryCount, recentLogs, usageStats } = data;
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
@@ -90,6 +102,17 @@ export default function UserDetailScreen() {
                         </View>
                         <Text style={[styles.statVal, { color: colors.tint }]}>{libraryCount}</Text>
                         <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statLibrary}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.statBox, styles.statBoxClickable, { backgroundColor: colors.tint + '08', borderColor: colors.tint + '20' }]}
+                        onPress={() => router.push(`/admin/users/usage/${id}`)}
+                        activeOpacity={0.6}
+                    >
+                        <View variant="transparent" style={{ position: 'absolute', top: 8, right: 8 }}>
+                            <FontAwesome name="chevron-right" size={10} color={colors.tint} />
+                        </View>
+                        <Text style={[styles.statVal, { color: colors.tint }]}>{usageStats?.today.total || 0}분</Text>
+                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>{Strings.adminUserDetail.statTodayUsage}</Text>
                     </TouchableOpacity>
                     <View variant="transparent" style={styles.statBox}>
                         <Text style={styles.statVal}>{recentLogs.length}</Text>

@@ -65,6 +65,7 @@ export default function AdminLayout() {
             <Stack.Screen name="user-library/section/[sectionId]" options={({ route }) => ({
                 headerTitle: (route.params as any)?.title || "섹션 상세"
             })} />
+            <Stack.Screen name="users/usage/[id]" options={{ title: '사용량 상세 분석' }} />
         </Stack>
     );
 }
