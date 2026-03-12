@@ -5,6 +5,9 @@ import { ItemService } from './ItemService';
 import { SharedLibraryManagementService } from './SharedLibraryManagementService';
 import { LogService } from './LogService';
 
+/**
+ * [Refactored] 공유 자료실 관련 비즈니스 로직을 담당하는 서비스
+ */
 export const SharedLibraryService = {
     /**
      * 공유 자료실 목록 조회
@@ -33,7 +36,7 @@ export const SharedLibraryService = {
     },
 
     /**
-     * [Refactored] 개인 암기장을 공유 자료실에 게시 (Deep Copy)
+     * 개인 암기장을 공유 자료실에 게시 (Deep Copy)
      */
     async shareLibrary(userId: string, libraryId: string, categoryId: string, tags: string[]): Promise<void> {
         try {
@@ -51,18 +54,13 @@ export const SharedLibraryService = {
             const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
             if (!categoryId || !uuidRegex.test(categoryId)) {
-                // 유효하지 않은 경우 DB에서 첫 번째 사용 가능한 카테고리를 가져옴
                 const { data: cats } = await supabase
                     .from('shared_library_categories')
                     .select('id')
                     .order('display_order', { ascending: true })
                     .limit(1);
 
-                if (cats && cats.length > 0) {
-                    validatedCategoryId = cats[0].id;
-                } else {
-                    validatedCategoryId = null; // 최후의 수단
-                }
+                validatedCategoryId = cats && cats.length > 0 ? cats[0].id : null;
             }
 
             // 3. 공유 자료실 레코드 생성
@@ -82,41 +80,30 @@ export const SharedLibraryService = {
 
             if (sharedError) throw sharedError;
 
-            // 4. 섹션 및 아이템 복제 (공통 서비스 활용)
+            // 4. 섹션 및 아이템 복제
             await SharedLibraryManagementService.copyLibraryDataToShared(libraryId, sharedLib.id);
 
-            // 활동 로그 기록 (공유 성공)
             await LogService.logEvent('feature_usage', { 
                 feature: 'SHARE_LIBRARY',
                 title: lib.title 
             }, userId);
         } catch (error: any) {
-            LogService.logEvent('app_error', {
-                summary: '자료실 공유 실패',
-                message: error.message,
-                title: (error as any).libTitle || '알 수 없는 암기장',
-                libraryId
-            }, userId).catch(() => {});
+            await this._logError('자료실 공유 실패', error, { libraryId, userId });
             throw error;
         }
     },
 
     /**
-     * [Internal Helper] 제거 (공통 서비스로 이전)
-     */
-
-    /**
-     * [Refactored] 공유 자료를 내 암기장으로 다운로드 (Deep Copy)
+     * 공유 자료를 내 암기장으로 다운로드 (Deep Copy)
      */
     async downloadLibrary(userId: string, sharedLibrary: SharedLibrary): Promise<Library> {
         try {
-            // 활동 로그 기록 (다운로드 시작 - 피처 사용 관점)
             await LogService.logEvent('feature_usage', { 
                 feature: 'DOWNLOAD_SHARED',
                 title: sharedLibrary.title 
             }, userId);
 
-            // 1. 사용자용 새 암기장 생성 (상세 로그 억제)
+            // 1. 사용자용 새 암기장 생성
             const newLib = await LibraryService.createLibrary(userId, {
                 title: sharedLibrary.title,
                 description: sharedLibrary.description,
@@ -124,14 +111,7 @@ export const SharedLibraryService = {
                 is_public: false
             }, true);
 
-            // 활동 로그 기록 (암기장 생성 완료 - 콘텐츠 뮤테이션 관점 요약)
-            await LogService.logEvent('library_mutation', { 
-                action: 'download', 
-                id: newLib.id, 
-                title: newLib.title 
-            }, userId);
-
-            // 2. 섹션 및 아이템 복제 (공유 -> 개인)
+            // 2. 섹션 및 아이템 복제
             const { data: sharedSections, error: sectionsError } = await supabase
                 .from('shared_sections')
                 .select('*')
@@ -172,21 +152,16 @@ export const SharedLibraryService = {
 
             return newLib;
         } catch (error: any) {
-            LogService.logEvent('app_error', {
-                summary: '자료실 다운로드 실패',
-                message: error.message,
-                sharedLibraryId: sharedLibrary.id
-            }).catch(() => {});
+            await this._logError('자료실 다운로드 실패', error, { sharedLibraryId: sharedLibrary.id, userId });
             throw error;
         }
     },
 
     /**
-     * 공유 자료 삭제 (공통 서비스 활용)
+     * 공유 자료 삭제
      */
     async deleteSharedLibrary(libraryId: string): Promise<void> {
         try {
-            // 삭제 전 제목 정보 미리 확보 (로그용)
             const { data: libInfo } = await supabase
                 .from('shared_libraries')
                 .select('title, created_by')
@@ -195,7 +170,6 @@ export const SharedLibraryService = {
 
             await SharedLibraryManagementService.deleteSharedLibraryCascade(libraryId);
 
-            // 활동 로그 기록 (삭제 성공)
             if (libInfo) {
                 await LogService.logEvent('feature_usage', { 
                     feature: 'DELETE_SHARED',
@@ -203,18 +177,11 @@ export const SharedLibraryService = {
                 }, libInfo.created_by);
             }
         } catch (error: any) {
-            LogService.logEvent('app_error', {
-                summary: '자료실 삭제 실패',
-                message: error.message,
-                libraryId
-            }).catch(() => {});
+            await this._logError('자료실 삭제 실패', error, { libraryId });
             throw error;
         }
     },
 
-    /**
-     * 기타 헬퍼 메서드들 (ReadOnly)
-     */
     async getSharedLibraryById(id: string): Promise<SharedLibrary | null> {
         const { data, error } = await supabase
             .from('shared_libraries')
@@ -227,21 +194,25 @@ export const SharedLibraryService = {
     },
 
     async updateSharedLibrary(libraryId: string, updates: Partial<SharedLibrary>): Promise<void> {
-        const { data: updated, error } = await supabase
-            .from('shared_libraries')
-            .update(updates)
-            .eq('id', libraryId)
-            .select('title, created_by')
-            .single();
+        try {
+            const { data: updated, error } = await supabase
+                .from('shared_libraries')
+                .update(updates)
+                .eq('id', libraryId)
+                .select('title, created_by')
+                .single();
 
-        if (error) throw error;
+            if (error) throw error;
 
-        // 활동 로그 기록 (수정 성공)
-        if (updated) {
-            await LogService.logEvent('feature_usage', { 
-                feature: 'UPDATE_SHARED',
-                title: updated.title 
-            }, updated.created_by);
+            if (updated) {
+                await LogService.logEvent('feature_usage', { 
+                    feature: 'UPDATE_SHARED',
+                    title: updated.title 
+                }, updated.created_by);
+            }
+        } catch (error: any) {
+            await this._logError('자료실 수정 실패', error, { libraryId });
+            throw error;
         }
     },
 
@@ -365,5 +336,16 @@ export const SharedLibraryService = {
             await supabase.from('shared_library_reports').insert({ user_id: userId, shared_library_id: libraryId, reason });
             return true;
         }
+    },
+
+    /**
+     * 내부 에러 로깅 헬퍼
+     */
+    async _logError(summary: string, error: any, metadata: any = {}) {
+        await LogService.logEvent('app_error', {
+            summary,
+            message: error.message,
+            ...metadata
+        }).catch(() => {});
     }
 };

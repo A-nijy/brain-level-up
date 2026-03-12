@@ -4,8 +4,7 @@ import { useRouter } from 'expo-router';
 import { Library } from '@/types';
 import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
-import { MembershipService } from '@/services/MembershipService';
-import { supabase } from '@/lib/supabase';
+import { LibraryService } from '@/services/LibraryService';
 import { UserProfile } from '@/types';
 import { AdService } from '@/services/AdService';
 import { FeatureGatingModal } from '@/components/FeatureGatingModal';
@@ -59,24 +58,19 @@ export const useLibraryActions = (
     const handleCreateLibrary = async () => {
         if (!profile || !userId) return;
 
-        const { count, error } = await supabase
-            .from('libraries')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId);
+        try {
+            const access = await LibraryService.checkCreateAccess(userId, profile);
 
-        if (error) {
-            console.error('Error checking library count:', error);
-            return;
+            if (access.status === 'REQUIRE_AD') {
+                setAdModalVisible(true);
+                return;
+            }
+
+            router.push('/library/create');
+        } catch (error) {
+            console.error('Error checking library access:', error);
+            showAlert({ title: Strings.common.error, message: '권한 확인 중 오류가 발생했습니다.' });
         }
-
-        const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
-
-        if (access.status === 'REQUIRE_AD') {
-            setAdModalVisible(true);
-            return;
-        }
-
-        router.push('/library/create');
     };
 
     const handleWatchAd = () => {
