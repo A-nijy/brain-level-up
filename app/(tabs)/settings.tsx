@@ -35,6 +35,7 @@ export default function SettingsScreen() {
     fetchSections,
     saveSettings,
     requestPermissions,
+    checkAndRequestBatteryOptimization,
     refresh: refreshSettings
   } = usePushSettings();
 
@@ -93,6 +94,17 @@ export default function SettingsScreen() {
         showAlert({ title: Strings.common.warning, message: Strings.pushModal.alerts.permissionNeeded });
         return;
       }
+
+      // 안드로이드 배터리 최적화 예외 체크
+      const isOptimizationBypassed = await checkAndRequestBatteryOptimization();
+      if (!isOptimizationBypassed) {
+         showAlert({ 
+           title: Strings.common.info, 
+           message: '지연 없는 정확한 단어 알림을 위해 배터리 최적화를 "제한 없음"으로 설정해주세요.' 
+         });
+         return; // 설정 모달을 띄우기 전에 중단
+      }
+
       const initialRanges = notificationSettings.ranges?.length ? notificationSettings.ranges : (['all'] as NotificationRange[]);
       setTempSettings({ ...notificationSettings, enabled: true, ranges: initialRanges });
       setShowNotificationModal(true);
