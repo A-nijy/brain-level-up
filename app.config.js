@@ -14,9 +14,9 @@ export default {
         updates: {
             url: "https://u.expo.dev/2e968fa9-82cd-4fbf-ab8b-d211209f88af"
         },
-        runtimeVersion: {
+        runtimeVersion: "1.3.0"/*{
             policy: "appVersion"
-        },
+        }*/,
         splash: {
             image: "./assets/images/splash-icon.png",
             resizeMode: "contain",

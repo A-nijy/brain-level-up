@@ -138,8 +138,8 @@ export default function SettingsScreen() {
       return;
     }
 
-    // 최소 10분 유효성 검사
-    if (!tempSettings.interval || tempSettings.interval < 10) {
+    // 최소 5분 유효성 검사
+    if (!tempSettings.interval || tempSettings.interval < 5) {
       showAlert({ title: Strings.common.info, message: Strings.pushModal.alerts.intervalTooShort });
       return;
     }
@@ -554,7 +554,7 @@ export default function SettingsScreen() {
                     style={[
                       styles.input,
                       { color: colors.text, borderColor: colors.border },
-                      tempSettings?.interval > 0 && tempSettings.interval < 10 && { borderColor: colors.error },
+                      tempSettings?.interval > 0 && tempSettings.interval < 5 && { borderColor: colors.error },
                     ]}
                     keyboardType="numeric"
                     value={tempSettings?.interval === 0 ? '' : tempSettings?.interval.toString()}
@@ -567,7 +567,7 @@ export default function SettingsScreen() {
                   </Text>
                 </View>
                 {/* 안내 문구: 항상 표시 힘트 + 10분 미만 시 붉은 경고 문구 */}
-                {tempSettings?.interval > 0 && tempSettings.interval < 10 ? (
+                {tempSettings?.interval > 0 && tempSettings.interval < 5 ? (
                   <Text style={[styles.intervalHint, { color: colors.error }]}>
                     ⚠️ {Strings.pushModal.alerts.intervalTooShort}
                   </Text>
