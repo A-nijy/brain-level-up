@@ -23,19 +23,21 @@ export default function NoticesScreen() {
                 onPress={() => router.push(`/settings/notices/${item.id}`)}
             >
                 <View variant="transparent" style={styles.cardHeader}>
-                    <View variant="transparent" style={styles.badgeContainer}>
+                    <View variant="transparent" style={styles.titleContainer}>
                         {item.is_important && (
                             <View style={[styles.importantBadge, { backgroundColor: colors.tint }]}>
                                 <Text style={styles.importantText}>{Strings.notices.badgeImportant}</Text>
                             </View>
                         )}
+                        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
+                            {item.title}
+                        </Text>
                     </View>
                     <Text style={[styles.date, { color: colors.textSecondary }]}>
                         {new Date(item.created_at).toLocaleDateString()}
                     </Text>
                 </View>
-                <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
-                <Text style={[styles.contentPreview, { color: colors.textSecondary }]} numberOfLines={1}>
+                <Text style={[styles.contentPreview, { color: colors.textSecondary }]} numberOfLines={2}>
                     {item.content.replace(/<[^>]*>?/gm, '')}
                 </Text>
             </Card>
@@ -99,14 +101,17 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 8,
     },
-    badgeContainer: {
+    titleContainer: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
+        marginRight: 12,
     },
     importantBadge: {
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 4,
+        marginRight: 8,
     },
     importantText: {
         color: '#fff',
@@ -117,9 +122,9 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     title: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: 'bold',
-        marginBottom: 6,
+        flex: 1,
     },
     contentPreview: {
         fontSize: 14,
