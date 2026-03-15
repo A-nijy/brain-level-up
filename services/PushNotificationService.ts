@@ -12,6 +12,12 @@ const SETTINGS_KEY = COMMON_STORAGE_KEYS.SETTINGS;
 const SCHEDULED_LIST_KEY = '@push_notification_scheduled_list';
 const BUFFER_SIZE = 50;
 
+interface ScheduledNotification {
+    id: string;          // 기기에 예약된 알림 고유 ID
+    itemId: string;      // 해당 알림으로 발송될 단어 ID
+    triggerTime: number; // 발송 예정 시간 (밀리초)
+}
+
 // 알림 핸들러 설정
 try {
     if (Platform.OS !== 'web') {
@@ -123,6 +129,58 @@ export const PushNotificationService = {
     },
 
     /**
+     * 누락된(이미 발송된) 알림 동기화 처리
+     */
+    async syncDeliveredNotifications(): Promise<void> {
+        if (Platform.OS === 'web') return;
+
+        try {
+            const listJson = await AsyncStorage.getItem(SCHEDULED_LIST_KEY);
+            if (!listJson) return;
+
+            const scheduledList: ScheduledNotification[] = JSON.parse(listJson);
+            const now = Date.now();
+            
+            // 💡 1. 예약된 시간이 1분(버퍼) 이상 지난 알림 필터링
+            const pastNotifications = scheduledList.filter(item => item.triggerTime <= now);
+            const futureNotifications = scheduledList.filter(item => item.triggerTime > now);
+
+            if (pastNotifications.length > 0) {
+                console.log(`[PushSync] 발견된 과거 알림 ${pastNotifications.length}건 동기화 진행...`);
+                
+                // 💡 2. 시간이 지난 단어들을 shownIds(진행도)에 추가
+                for (const item of pastNotifications) {
+                    await NotificationCommonService.addShownId(item.itemId);
+                }
+
+                // 💡 3. 이미 동기화 처리된 과거 내역을 스토리지에서 삭제
+                if (futureNotifications.length > 0) {
+                     await AsyncStorage.setItem(SCHEDULED_LIST_KEY, JSON.stringify(futureNotifications));
+                } else {
+                     await AsyncStorage.removeItem(SCHEDULED_LIST_KEY);
+                }
+                
+                // 💡 4. 사용자 요청 1번 적용: 기존 예약된 알림 취소 (이후 다시 스케줄링 되므로 중복 방지)
+                await Notifications.cancelAllScheduledNotificationsAsync();
+                console.log('[PushSync] 기존 알림 취소 완료 및 동기화 처리 완료.');
+                
+                // 💡 5. 사용자 요청 3번 적용: 동기화 후 남은 단어가 없다면 완료 처리 연계
+                const progress = await NotificationCommonService.getProgress(await this.getSettings() as NotificationSettings);
+                if (progress && progress.total > 0 && progress.current >= progress.total) {
+                     console.log('🎉 [PushSync] 동기화 중 모든 단어 학습 완료 확인. 완료 알림 트리거.');
+                     const settings = await this.getSettings();
+                     if (settings && settings.enabled) {
+                         await this.saveSettings({ ...settings, enabled: false });
+                         await this.showCompletionNotification();
+                     }
+                }
+            }
+        } catch (error) {
+            console.error('[PushNotificationService] Sync Error:', error);
+        }
+    },
+
+    /**
      * 50개 일괄 예약 로직
      */
     async scheduleNextNotification(userId?: string): Promise<void> {
@@ -146,6 +204,7 @@ export const PushNotificationService = {
 
             const batchCount = Math.min(targetItems.length, BUFFER_SIZE);
             const now = Date.now();
+            const newScheduleList: ScheduledNotification[] = [];
 
             for (let i = 0; i < batchCount; i++) {
                 const item = targetItems[i];
@@ -171,7 +230,16 @@ export const PushNotificationService = {
                         date: triggerDate,
                     },
                 });
+
+                newScheduleList.push({
+                    id: `reminder_${i}`,
+                    itemId: item.id,
+                    triggerTime: triggerDate.getTime(),
+                });
             }
+
+            // 스케줄 리스트 스토리지에 저장 (동기화용)
+            await AsyncStorage.setItem(SCHEDULED_LIST_KEY, JSON.stringify(newScheduleList));
 
             // 완료 알림 스케줄
             if (targetItems.length <= BUFFER_SIZE) {

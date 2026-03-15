@@ -72,6 +72,9 @@ function InitialLayout() {
       if (nextAppState === 'active') {
         console.log('[Layout] App became active. Checking progress and buffer...');
 
+        // 0. 누락된 과거 알림 선제적 동기화
+        await PushNotificationService.syncDeliveredNotifications();
+
         // 1. 진행도 체크 및 완료 처리 (100% 도달 시 알림 비활성화)
         const progress = await PushNotificationService.getProgress();
         console.log('📊 [Layout] Current Progress:', progress);
@@ -82,6 +85,7 @@ function InitialLayout() {
             console.warn('🎉 [Layout] 100% Reached! DISABLING NOTIFICATIONS NOW.');
             // 중복 루프 방지를 위해 saveSettings 호출 전 한 번 더 체크 (서비스 내부 가드도 동일하게 동작)
             await PushNotificationService.saveSettings({ ...settings, enabled: false });
+            // 진행도가 100%가 되었을 때 완료 알림을 보냄
             await PushNotificationService.showCompletionNotification();
             return; // 100% 상태면 예약 건너뜀
           }
@@ -92,8 +96,24 @@ function InitialLayout() {
       }
     };
 
-    // 초기 기동 시 실행
-    PushNotificationService.scheduleNextNotification();
+    // 초기 기동 시 실행 (동기화 먼저 수행 후 스케줄링)
+    const initPushOnStartup = async () => {
+      await PushNotificationService.syncDeliveredNotifications();
+      
+      const progress = await PushNotificationService.getProgress();
+      if (progress && progress.total > 0 && progress.current >= progress.total) {
+          const settings = await PushNotificationService.getSettings();
+          if (settings && settings.enabled) {
+              await PushNotificationService.saveSettings({ ...settings, enabled: false });
+              await PushNotificationService.showCompletionNotification();
+              return;
+          }
+      }
+      
+      await PushNotificationService.scheduleNextNotification();
+    };
+
+    initPushOnStartup();
 
     const subscription = AppState.addEventListener('change', handleAppStateChange);
 
