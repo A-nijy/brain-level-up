@@ -5,7 +5,7 @@ import { SharedLibrary } from '@/types';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { useAdminUserShared } from '@/hooks/useAdminUserShared';
 import { Strings } from '@/constants/Strings';
@@ -86,7 +86,10 @@ export default function AdminUserSharedScreen() {
 
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme];
-    const [searchQuery, setSearchQuery] = useState('');
+    
+    // 이메일 파라미터가 있을 경우 초기 검색어로 사용 (특정 유저의 공유 목록 보기)
+    const { email } = useLocalSearchParams<{ email?: string }>();
+    const [searchQuery, setSearchQuery] = useState(email || '');
 
     const filteredLibs = libs.filter(lib =>
         lib.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -44,6 +44,11 @@ export const AdminUserService = {
             .select('*', { count: 'exact', head: true })
             .eq('user_id', userId);
 
+        const { count: sharedLibraryCount } = await supabase
+            .from('shared_libraries')
+            .select('*', { count: 'exact', head: true })
+            .eq('created_by', userId);
+
         const { data: recentLogs } = await supabase
             .from('study_logs')
             .select('*')
@@ -54,6 +59,7 @@ export const AdminUserService = {
         return {
             profile,
             libraryCount: libraryCount || 0,
+            sharedLibraryCount: sharedLibraryCount || 0,
             recentLogs: recentLogs || []
         };
     },

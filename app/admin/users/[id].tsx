@@ -14,6 +14,7 @@ import { useAlert } from '@/contexts/AlertContext';
 interface UserDetailData {
     profile: any;
     libraryCount: number;
+    sharedLibraryCount: number;
     recentLogs: any[];
     usageStats?: {
         today: { app: number, web: number, total: number }
@@ -44,7 +45,8 @@ export default function UserDetailScreen() {
         async function loadUser() {
             if (typeof id !== 'string') return;
             try {
-                const { profile, libraryCount, recentLogs } = await AdminService.getUserDetail(id as string);
+                const profileData = await AdminService.getUserDetail(id as string);
+                const { profile, libraryCount, recentLogs } = profileData;
                 const usage = await AdminStatsService.getUserUsageStats(id as string);
                 const ads = await AdminStatsService.getUserAdUsageStats(id as string);
                 const features = await AdminStatsService.getUserFeatureUsageStats(id as string);
@@ -52,7 +54,8 @@ export default function UserDetailScreen() {
             
                 setData({ 
                     profile, 
-                    libraryCount, 
+                    libraryCount,
+                    sharedLibraryCount: (profileData as any).sharedLibraryCount || 0, // AdminService return value matching
                     recentLogs, 
                     usageStats: usage, 
                     adStats: ads, 
@@ -136,7 +139,7 @@ export default function UserDetailScreen() {
         );
     }
 
-    const { profile, libraryCount, recentLogs, usageStats, adStats, featureStats } = data;
+    const { profile, libraryCount, sharedLibraryCount, recentLogs, usageStats, adStats, featureStats } = data;
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.scrollContent}>
@@ -212,6 +215,17 @@ export default function UserDetailScreen() {
                         </View>
                         <Text style={[styles.statVal, { color: colors.tint }]}>{featureStats?.summary.today || 0}회</Text>
                         <Text style={[styles.statLab, { color: colors.textSecondary }]}>오늘 기능 사용</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.statBox, styles.statBoxClickable, { backgroundColor: colors.tint + '08', borderColor: colors.tint + '20' }]}
+                        onPress={() => router.push(`/admin/user-shared?email=${encodeURIComponent(profile.email || '')}` as any)}
+                        activeOpacity={0.6}
+                    >
+                        <View variant="transparent" style={{ position: 'absolute', top: 8, right: 8 }}>
+                            <FontAwesome name="chevron-right" size={10} color={colors.tint} />
+                        </View>
+                        <Text style={[styles.statVal, { color: colors.tint }]}>{sharedLibraryCount}</Text>
+                        <Text style={[styles.statLab, { color: colors.textSecondary }]}>공유 항목</Text>
                     </TouchableOpacity>
                     <View variant="transparent" style={styles.statBox}>
                         <Text style={styles.statVal}>{new Date(profile.created_at).toLocaleDateString()}</Text>
