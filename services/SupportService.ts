@@ -82,5 +82,20 @@ export const SupportService = {
             console.error('Error toggling inquiry status:', error);
             throw error;
         }
+    },
+
+    /**
+     * (관리자) 문의사항을 삭제합니다.
+     */
+    async deleteInquiry(id: string): Promise<void> {
+        const { error } = await supabase
+            .from('inquiries')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting inquiry:', error);
+            throw error;
+        }
     }
 };

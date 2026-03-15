@@ -66,6 +66,16 @@ export function useSupport() {
         }
     };
 
+    const deleteInquiry = async (id: string) => {
+        try {
+            await SupportService.deleteInquiry(id);
+            setInquiries(prev => prev.filter(inq => inq.id !== id));
+        } catch (err: any) {
+            console.error('[useSupport] Delete error:', err);
+            throw err;
+        }
+    };
+
     return {
         inquiries,
         loading,
@@ -74,6 +84,7 @@ export function useSupport() {
         fetchMyInquiries,
         fetchAllInquiries,
         submitInquiry,
-        toggleInquiryResolved
+        toggleInquiryResolved,
+        deleteInquiry
     };
 }

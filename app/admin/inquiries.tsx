@@ -22,7 +22,8 @@ export default function AdminInquiriesScreen() {
         loading,
         refreshing,
         fetchAllInquiries,
-        toggleInquiryResolved
+        toggleInquiryResolved,
+        deleteInquiry
     } = useSupport();
 
     // UI State
@@ -65,6 +66,27 @@ export default function AdminInquiriesScreen() {
         } catch (error) {
             showAlert({ title: Strings.common.error, message: Strings.adminInquiries.alerts.statusFail });
         }
+    };
+
+    const handleDeleteInquiry = (item: Inquiry) => {
+        showAlert({
+            title: '문의 삭제',
+            message: '이 문의 내역을 정말 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
+            buttons: [
+                { text: '취소', style: 'cancel' },
+                {
+                    text: '삭제',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteInquiry(item.id);
+                        } catch (error) {
+                            showAlert({ title: Strings.common.error, message: '삭제 처리에 실패했습니다.' });
+                        }
+                    }
+                }
+            ]
+        });
     };
 
     const toggleCategory = (cat: InquiryCategory) => {
@@ -131,18 +153,21 @@ export default function AdminInquiriesScreen() {
                         </View>
                     </View>
 
-                    <View variant="transparent" style={[styles.col, { flex: 1.2, justifyContent: 'flex-end', paddingRight: 24 }]}>
+                    <View variant="transparent" style={[styles.col, { flex: 1.0, justifyContent: 'flex-end', paddingRight: 24 }]}>
                         <Text style={[styles.cellSubText, { color: colors.textSecondary, textAlign: 'right' }]}>
-                            {new Date(item.created_at).toLocaleDateString()}
+                            {new Date(item.created_at).toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                         </Text>
                     </View>
 
-                    <View variant="transparent" style={[styles.col, { flex: 0.8, justifyContent: 'flex-end', gap: 12 }]}>
+                    <View variant="transparent" style={[styles.col, { flex: 1.0, justifyContent: 'flex-end', gap: 12 }]}>
                         <TouchableOpacity onPress={() => toggleExpand(item.id)} style={styles.actionBtn}>
                             <FontAwesome name={(isExpanded ? Strings.settings.icons.down : Strings.settings.icons.down) as any} size={14} color={colors.textSecondary} style={isExpanded ? { transform: [{ rotate: '180deg' }] } : {}} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => toggleStatus(item)} style={styles.actionBtn}>
                             <FontAwesome name={(item.is_resolved ? Strings.admin.icons.success : Strings.settings.icons.circle) as any} size={16} color={item.is_resolved ? colors.tint : colors.textSecondary} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleDeleteInquiry(item)} style={styles.actionBtn}>
+                            <FontAwesome name="trash-o" size={16} color="#ef4444" />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -152,7 +177,7 @@ export default function AdminInquiriesScreen() {
                         <View variant="transparent" style={styles.detailContent}>
                             <View variant="transparent" style={styles.detailSection}>
                                 <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.content}</Text>
-                                <Text style={styles.detailText}>{item.content}</Text>
+                                <Text style={styles.detailText} selectable={true}>{item.content}</Text>
                             </View>
                             <View variant="transparent" style={styles.detailDivider} />
                             <View variant="transparent" style={styles.detailSection}>
@@ -160,15 +185,15 @@ export default function AdminInquiriesScreen() {
                                 <View variant="transparent" style={styles.userGrid}>
                                     <View variant="transparent" style={styles.userItem}>
                                         <Text style={[styles.userLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.nickname}</Text>
-                                        <Text style={styles.userValue}>{item.user_nickname || Strings.adminInquiries.details.none}</Text>
+                                        <Text style={styles.userValue} selectable={true}>{item.user_nickname || Strings.adminInquiries.details.none}</Text>
                                     </View>
                                     <View variant="transparent" style={styles.userItem}>
                                         <Text style={[styles.userLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.email}</Text>
-                                        <Text style={styles.userValue}>{item.user_email || Strings.adminInquiries.details.none}</Text>
+                                        <Text style={styles.userValue} selectable={true}>{item.user_email || Strings.adminInquiries.details.none}</Text>
                                     </View>
                                     <View variant="transparent" style={styles.userItem}>
                                         <Text style={[styles.userLabel, { color: colors.textSecondary }]}>{Strings.adminInquiries.details.userId}</Text>
-                                        <Text style={styles.userValue}>#{item.user_id_number || '-----'}</Text>
+                                        <Text style={styles.userValue} selectable={true}>#{item.user_id_number || '-----'}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -252,8 +277,8 @@ export default function AdminInquiriesScreen() {
                         <Text style={[styles.headerCol, { flex: 1 }]}>{Strings.adminInquiries.table.category}</Text>
                         <Text style={[styles.headerCol, { flex: 3.5 }]}>{Strings.adminInquiries.table.content}</Text>
                         <Text style={[styles.headerCol, { flex: 1.5, textAlign: 'right', paddingRight: 10 }]}>{Strings.adminInquiries.table.status}</Text>
-                        <Text style={[styles.headerCol, { flex: 1.2, textAlign: 'right', paddingRight: 24 }]}>{Strings.adminInquiries.table.date}</Text>
-                        <Text style={[styles.headerCol, { flex: 0.8, textAlign: 'right' }]}>{Strings.adminInquiries.table.manage}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.0, textAlign: 'right', paddingRight: 24 }]}>{Strings.adminInquiries.table.date}</Text>
+                        <Text style={[styles.headerCol, { flex: 1.0, textAlign: 'right' }]}>{Strings.adminInquiries.table.manage}</Text>
                     </View>
 
                     {loading && !refreshing ? (
