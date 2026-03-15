@@ -37,16 +37,53 @@ export const TtsService = {
     speak(text: string, options: Speech.SpeechOptions = {}) {
         if (!text) return;
 
+        // 새로운 음성을 재생하기 전 기존 음성 중단
+        Speech.stop();
+
         const lang = options.language || this.detectLanguage(text);
 
         // 언어별 속도 미세 조정 (영어는 조금 더 자연스럽게)
         const rate = options.rate || (lang.startsWith('en') ? 1.0 : 0.9);
 
-        Speech.speak(text, {
-            ...options,
-            language: lang,
-            rate: rate,
-        });
+        // 띄어쓰기, 줄바꿈, 괄호 등을 기준으로 텍스트 분할 후 빈 문자열 제거
+        const chunks = text.split(/[\s\(\)\[\]\{\}\<\>]+/).filter(Boolean);
+
+        let isStopped = false;
+
+        const playNext = (index: number) => {
+            if (isStopped || index >= chunks.length) {
+                if (index >= chunks.length && options.onDone) options.onDone();
+                return;
+            }
+
+            Speech.speak(chunks[index], {
+                ...options,
+                language: lang,
+                rate: rate,
+                onDone: () => {
+                    if (index < chunks.length - 1) {
+                        // 다음 단어를 읽기 전 0.5초(500ms) 대기
+                        setTimeout(() => {
+                            if (!isStopped) playNext(index + 1);
+                        }, 500);
+                    } else {
+                        if (options.onDone) options.onDone();
+                    }
+                },
+                onStopped: () => {
+                    isStopped = true;
+                    if (options.onStopped) options.onStopped();
+                },
+                onError: (e) => {
+                    isStopped = true;
+                    if (options.onError) options.onError(e);
+                }
+            });
+        };
+
+        if (chunks.length > 0) {
+            playNext(0);
+        }
     },
 
     /**
