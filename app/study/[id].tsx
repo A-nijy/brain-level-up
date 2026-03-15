@@ -9,6 +9,7 @@ import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withSpring,
+    withTiming,
     interpolate,
     ZoomIn,
     FadeInRight,
@@ -32,7 +33,7 @@ const StudyCard = ({ item, isWeb, colors, onFlip }: StudyCardProps) => {
     const flipProgress = useSharedValue(0);
 
     useEffect(() => {
-        flipProgress.value = withSpring(localFlipped ? 1 : 0, { damping: 22, stiffness: 150 });
+        flipProgress.value = withTiming(localFlipped ? 1 : 0, { duration: 300 });
     }, [localFlipped]);
 
     const handleLocalFlip = () => {
