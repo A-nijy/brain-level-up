@@ -285,7 +285,7 @@ export const Strings = {
         menuTheme: "테마 설정",
         themeTitle: "테마 설정",
         themeSubtitle: "앱의 테마를 선택해주세요.",
-        menuPush: "푸시 단어 암기 알림",
+        menuPush: "암기장 푸시 알림",
         menuPushDetail: "상세 설정 변경하기",
         studyProgress: "학습 진행도",
         menuVersion: "버전 정보",
