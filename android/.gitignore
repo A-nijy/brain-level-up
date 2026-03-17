@@ -14,8 +14,3 @@ local.properties
 
 # Bundle artifacts
 *.jsbundle
-
-# Signing credentials
-*.jks
-*.keystore
-gradle.properties

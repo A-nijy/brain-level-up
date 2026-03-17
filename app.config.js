@@ -28,7 +28,7 @@ export default {
         },
         android: {
             package: "com.dksgn.brainlevelup",
-            versionCode: 7,
+            versionCode: 9,
             adaptiveIcon: {
                 foregroundImage: "./assets/images/adaptive-icon.png",
                 backgroundColor: "#ffffff"
