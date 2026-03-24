@@ -288,10 +288,6 @@ export default function SharedLibraryScreen() {
 
                     <View variant="transparent" style={styles.cardFooter}>
                         <View variant="transparent" style={styles.footerLeft}>
-                            <View variant="transparent" style={styles.statItem}>
-                                <FontAwesome name={Strings.admin.icons.download as any} size={12} color={colors.textSecondary} style={{ marginRight: 6 }} />
-                                <Text style={styles.statText}>{Strings.shared.downloadCount(item.download_count)}</Text>
-                            </View>
 
                             {isOwner ? (
                                 <View variant="transparent" style={styles.managementButtons}>

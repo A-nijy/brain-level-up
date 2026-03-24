@@ -1,14 +1,13 @@
+import { useColorScheme } from '@/components/useColorScheme';
+import Colors from '@/constants/Colors';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, Platform, useWindowDimensions, Modal, TextInput } from 'react-native';
+import { ActivityIndicator, Image, Modal, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
-import * as WebBrowser from 'expo-web-browser';
-import { makeRedirectUri } from 'expo-auth-session';
-import { LinearGradient } from 'expo-linear-gradient';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -26,6 +25,8 @@ export default function LoginScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [testEmail, setTestEmail] = useState('');
     const [testPassword, setTestPassword] = useState('');
+    const [logoTapCount, setLogoTapCount] = useState(0);
+    const [showTestButton, setShowTestButton] = useState(false);
 
     const isWeb = Platform.OS === 'web' && width > 768;
 
@@ -140,6 +141,15 @@ export default function LoginScreen() {
         setModalVisible(true);
     }
 
+    const handleLogoTap = () => {
+        const newCount = logoTapCount + 1;
+        setLogoTapCount(newCount);
+        if (newCount >= 10) {
+            setShowTestButton(true);
+            setLogoTapCount(0); // 초기화
+        }
+    };
+
     const handleModalLogin = async () => {
         setIsLoading(true);
         try {
@@ -175,11 +185,13 @@ export default function LoginScreen() {
             <View style={[styles.contentWrapper, isWeb && { maxWidth: 500, alignSelf: 'center', width: '100%' }]}>
                 <View style={styles.header}>
                     <Animated.View entering={FadeInUp.delay(200).duration(800)}>
-                        <Image
-                            source={require('@/assets/images/logo.png')}
-                            style={styles.logoImage}
-                            resizeMode="contain"
-                        />
+                        <TouchableOpacity onPress={handleLogoTap} activeOpacity={1}>
+                            <Image
+                                source={require('@/assets/images/logo.png')}
+                                style={styles.logoImage}
+                                resizeMode="contain"
+                            />
+                        </TouchableOpacity>
                     </Animated.View>
 
                     <Animated.View entering={FadeInUp.delay(400).duration(800)} style={styles.titleContainer}>
@@ -201,15 +213,17 @@ export default function LoginScreen() {
                         <Text style={[styles.buttonTextBlack, { color: colors.text }]}>{Strings.auth.googleLogin}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={[styles.button, styles.testButton, { backgroundColor: colors.tint }]}
-                        onPress={onTestLogin}
-                        disabled={isLoading}
-                        activeOpacity={0.8}
-                    >
-                        <FontAwesome name="check-circle" size={20} color="#fff" style={{ marginRight: 12 }} />
-                        <Text style={styles.buttonTextWhite}>{Strings.auth.testLogin}</Text>
-                    </TouchableOpacity>
+                    {showTestButton && (
+                        <TouchableOpacity
+                            style={[styles.button, styles.testButton, { backgroundColor: colors.tint }]}
+                            onPress={onTestLogin}
+                            disabled={isLoading}
+                            activeOpacity={0.8}
+                        >
+                            <FontAwesome name="check-circle" size={20} color="#fff" style={{ marginRight: 12 }} />
+                            <Text style={styles.buttonTextWhite}>{Strings.auth.testLogin}</Text>
+                        </TouchableOpacity>
+                    )}
 
                     {/* 배포 초기에 애플/게스트 로그인은 숨김 처리 (안드로이드 우선 배포) */}
                     {/* 
