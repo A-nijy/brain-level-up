@@ -14,7 +14,7 @@ export default {
         updates: {
             url: "https://u.expo.dev/2e968fa9-82cd-4fbf-ab8b-d211209f88af"
         },
-        runtimeVersion: "1.3.0"/*{
+        runtimeVersion: "1.3.2"/*{
             policy: "appVersion"
         }*/,
         splash: {
@@ -28,7 +28,7 @@ export default {
         },
         android: {
             package: "com.dksgn.brainlevelup",
-            versionCode: 11,
+            versionCode: 12,
             adaptiveIcon: {
                 foregroundImage: "./assets/images/adaptive-icon.png",
                 backgroundColor: "#ffffff"
