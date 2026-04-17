@@ -86,7 +86,7 @@ export default function StatsScreen() {
                 >
                     <View variant="transparent" style={styles.statRow} pointerEvents="none">
                         {/* Left: Chart */}
-                        <DonutChart data={overallDistribution} size={150} strokeWidth={18} />
+                        <DonutChart data={overallDistribution} size={120} strokeWidth={14} />
 
                         {/* Right: Info */}
                         <View variant="transparent" style={styles.statInfo}>

@@ -129,47 +129,37 @@ export const StatsService = {
         undecided: number;
         total: number;
     }> {
-        let query = supabase
-            .from('items')
-            .select('study_status, count', { count: 'exact' })
-            .eq('library_id__user_id', userId); // RPC 또는 조인이 필요할 수 있음. 하지만 items에는 user_id가 직접 없을 수 있으므로 라이브러리 필터링이 필요함.
-
-        // 실제 스키마 확인: items 테이블에는 library_id가 있고, libraries 테이블에는 user_id가 있음.
-        // Supabase에서 직접 조인 필터링을 하거나, library_ids를 먼저 가져와야 함.
-
+        // 사용자의 모든 암기장 ID 가져오기
         const { data: libs } = await supabase.from('libraries').select('id').eq('user_id', userId);
         const libIds = libs?.map(l => l.id) || [];
 
         if (libIds.length === 0) return { learned: 0, confused: 0, undecided: 0, total: 0 };
 
-        let finalQuery = supabase
-            .from('items')
-            .select('study_status');
-
-        if (libraryId) {
-            finalQuery = finalQuery.eq('library_id', libraryId);
-        } else {
-            finalQuery = finalQuery.in('library_id', libIds);
-        }
-
-        const { data, error } = await finalQuery;
-
-        if (error) throw error;
-
-        const distribution = {
-            learned: 0,
-            confused: 0,
-            undecided: 0,
-            total: data?.length || 0
+        // 헬퍼 함수: 쿼리 빌드 (각 상태별 카운트를 위해 매번 새로운 쿼리 트리거 필요)
+        const getCountQuery = () => {
+            let q = supabase.from('items').select('*', { count: 'exact', head: true });
+            if (libraryId) return q.eq('library_id', libraryId);
+            return q.in('library_id', libIds);
         };
 
-        data?.forEach(item => {
-            if (item.study_status === 'learned') distribution.learned++;
-            else if (item.study_status === 'confused') distribution.confused++;
-            else distribution.undecided++;
-        });
+        // 데이터 전체를 가져오지 않고(Select *) 개수(Count)만 병렬로 쿼리하여 성능 최적화 및 1000개 리턴 제한 해결
+        const [totalRes, learnedRes, confusedRes] = await Promise.all([
+            getCountQuery(),
+            getCountQuery().eq('study_status', 'learned'),
+            getCountQuery().eq('study_status', 'confused')
+        ]);
 
-        return distribution;
+        const total = totalRes.count || 0;
+        const learned = learnedRes.count || 0;
+        const confused = confusedRes.count || 0;
+        const undecided = Math.max(0, total - (learned + confused));
+
+        return {
+            learned,
+            confused,
+            undecided,
+            total
+        };
     },
 
     /**

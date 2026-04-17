@@ -79,8 +79,8 @@ export default function StatsDetailScreen() {
                                                     undecided: lib.undecided,
                                                     total: lib.total
                                                 }}
-                                                size={120}
-                                                strokeWidth={14}
+                                                size={100}
+                                                strokeWidth={12}
                                             />
 
                                             <View variant="transparent" style={styles.statInfo}>

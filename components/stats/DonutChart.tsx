@@ -119,11 +119,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     totalText: {
-        fontSize: 24,
+        fontSize: 18,
         fontWeight: '900',
     },
     subText: {
-        fontSize: 10,
+        fontSize: 8,
         fontWeight: '700',
         textTransform: 'uppercase',
     },
