@@ -1,0 +1,252 @@
+[
+  {
+    "question": "company",
+    "answer": "회사, 동료, 함께 있음",
+    "memo": "He works for a big company."
+  },
+  {
+    "question": "yellow",
+    "answer": "노란색",
+    "memo": "Yellow sun."
+  },
+  {
+    "question": "badminton",
+    "answer": "배드민턴",
+    "memo": "Let's play badminton."
+  },
+  {
+    "question": "color / colour",
+    "answer": "색깔",
+    "memo": "What is your favorite color?"
+  },
+  {
+    "question": "big",
+    "answer": "큰",
+    "memo": "A big elephant."
+  },
+  {
+    "question": "desk",
+    "answer": "책상",
+    "memo": "I sit at my desk."
+  },
+  {
+    "question": "hike",
+    "answer": "하이킹, 도보 여행",
+    "memo": "Let's go for a hike."
+  },
+  {
+    "question": "small",
+    "answer": "작은",
+    "memo": "A small dog."
+  },
+  {
+    "question": "moon (half-moon)",
+    "answer": "달 (반달)",
+    "memo": "The moon is bright."
+  },
+  {
+    "question": "all",
+    "answer": "모든, 다",
+    "memo": "All children like toys."
+  },
+  {
+    "question": "print",
+    "answer": "인쇄하다",
+    "memo": "Print the document."
+  },
+  {
+    "question": "cheese",
+    "answer": "치즈",
+    "memo": "I like cheese pizza."
+  },
+  {
+    "question": "neck",
+    "answer": "목",
+    "memo": "A long neck."
+  },
+  {
+    "question": "pass",
+    "answer": "통과하다, 지나가다",
+    "memo": "Pass the exam."
+  },
+  {
+    "question": "website",
+    "answer": "웹사이트",
+    "memo": "Visit our website."
+  },
+  {
+    "question": "breakfast",
+    "answer": "아침 식사",
+    "memo": "What did you have for breakfast?"
+  },
+  {
+    "question": "first",
+    "answer": "첫째의, 처음으로",
+    "memo": "The first time."
+  },
+  {
+    "question": "elephant",
+    "answer": "코끼리",
+    "memo": "A big elephant."
+  },
+  {
+    "question": "day",
+    "answer": "날, 하루, 낮",
+    "memo": "Have a nice day."
+  },
+  {
+    "question": "land",
+    "answer": "땅, 착륙하다",
+    "memo": "The plane landed safely."
+  },
+  {
+    "question": "cousin",
+    "answer": "사촌",
+    "memo": "My cousin lives in Busan."
+  },
+  {
+    "question": "jam",
+    "answer": "잼, 혼잡",
+    "memo": "Strawberry jam."
+  },
+  {
+    "question": "kiss",
+    "answer": "키스, 키스하다",
+    "memo": "Give me a kiss."
+  },
+  {
+    "question": "lazy",
+    "answer": "게으른",
+    "memo": "Don't be lazy."
+  },
+  {
+    "question": "date",
+    "answer": "날짜, 데이트",
+    "memo": "What is the date today?"
+  },
+  {
+    "question": "size",
+    "answer": "크기",
+    "memo": "What is your size?"
+  },
+  {
+    "question": "wedding",
+    "answer": "결혼식",
+    "memo": "Attend a wedding."
+  },
+  {
+    "question": "favorite / favourite",
+    "answer": "가장 좋아하는",
+    "memo": "What is your favorite color?"
+  },
+  {
+    "question": "helmet",
+    "answer": "헬멧",
+    "memo": "Wear a helmet."
+  },
+  {
+    "question": "middle",
+    "answer": "중간의",
+    "memo": "In the middle."
+  },
+  {
+    "question": "swim",
+    "answer": "수영하다",
+    "memo": "Swim in the pool."
+  },
+  {
+    "question": "dress",
+    "answer": "드레스, 옷을 입다",
+    "memo": "She is wearing a white dress."
+  },
+  {
+    "question": "prince",
+    "answer": "왕자",
+    "memo": "A charming prince."
+  },
+  {
+    "question": "after",
+    "answer": "~후에",
+    "memo": "See you after school."
+  },
+  {
+    "question": "east",
+    "answer": "동쪽",
+    "memo": "The sun rises in the east."
+  },
+  {
+    "question": "take (mistake)",
+    "answer": "가져가다, 데려가다 (실수)",
+    "memo": "Take a photo."
+  },
+  {
+    "question": "design",
+    "answer": "디자인, 설계하다",
+    "memo": "The design of the building."
+  },
+  {
+    "question": "late",
+    "answer": "늦은",
+    "memo": "Don't be late."
+  },
+  {
+    "question": "and",
+    "answer": "그리고",
+    "memo": "Bread and butter."
+  },
+  {
+    "question": "bring",
+    "answer": "가져오다",
+    "memo": "Bring me some water."
+  },
+  {
+    "question": "heart",
+    "answer": "심장, 마음",
+    "memo": "Listen to your heart."
+  },
+  {
+    "question": "fan",
+    "answer": "팬, 부채, 선풍기",
+    "memo": "I'm a big fan of baseball."
+  },
+  {
+    "question": "south",
+    "answer": "남쪽",
+    "memo": "South Korea."
+  },
+  {
+    "question": "understand",
+    "answer": "이해하다",
+    "memo": "I understand you."
+  },
+  {
+    "question": "ice",
+    "answer": "얼음",
+    "memo": "Ice cubes."
+  },
+  {
+    "question": "choose",
+    "answer": "선택하다",
+    "memo": "Choose the best one."
+  },
+  {
+    "question": "course",
+    "answer": "과정, 항로",
+    "memo": "Of course."
+  },
+  {
+    "question": "kick",
+    "answer": "차다",
+    "memo": "Kick the ball."
+  },
+  {
+    "question": "belt",
+    "answer": "벨트, 허리띠",
+    "memo": "Fasten your seat belt."
+  },
+  {
+    "question": "watch",
+    "answer": "보다, 시계",
+    "memo": "Watch TV."
+  }
+]

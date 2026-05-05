@@ -1,0 +1,252 @@
+[
+  {
+    "question": "integrate",
+    "answer": "통합하다",
+    "memo": "Integrate the data."
+  },
+  {
+    "question": "gap",
+    "answer": "차이, 틈",
+    "memo": "Generation gap."
+  },
+  {
+    "question": "terminal",
+    "answer": "터미널, 끝의",
+    "memo": "Terminal cancer."
+  },
+  {
+    "question": "journal",
+    "answer": "일기, 잡지, 학술지",
+    "memo": "Keep a daily journal."
+  },
+  {
+    "question": "forbid",
+    "answer": "금지하다",
+    "memo": "Smoking is forbidden."
+  },
+  {
+    "question": "moist (moisture)",
+    "answer": "습한 (습기)",
+    "memo": "Moist skin."
+  },
+  {
+    "question": "burden",
+    "answer": "짐, 부담",
+    "memo": "A heavy burden."
+  },
+  {
+    "question": "upward / upwards",
+    "answer": "위쪽으로",
+    "memo": "Look upward."
+  },
+  {
+    "question": "ally",
+    "answer": "동맹국, 협력자",
+    "memo": "England was our ally in the war."
+  },
+  {
+    "question": "diplomat",
+    "answer": "외교관",
+    "memo": "He is a professional diplomat."
+  },
+  {
+    "question": "recruit",
+    "answer": "채용하다, 신병",
+    "memo": "Recruit new members."
+  },
+  {
+    "question": "consent",
+    "answer": "동의하다",
+    "memo": "Age of consent."
+  },
+  {
+    "question": "lone",
+    "answer": "혼자의",
+    "memo": "A lone wolf."
+  },
+  {
+    "question": "prejudice",
+    "answer": "편견",
+    "memo": "Race prejudice."
+  },
+  {
+    "question": "spectrum",
+    "answer": "스펙트럼, 범위",
+    "memo": "Broad spectrum."
+  },
+  {
+    "question": "biology",
+    "answer": "생물학",
+    "memo": "Biology is my favorite subject."
+  },
+  {
+    "question": "flee",
+    "answer": "달아나다",
+    "memo": "Flee from the danger."
+  },
+  {
+    "question": "intrigue",
+    "answer": "호기심을 끌다",
+    "memo": "Intriguing story."
+  },
+  {
+    "question": "rational",
+    "answer": "이성적인",
+    "memo": "A rational choice."
+  },
+  {
+    "question": "curriculum",
+    "answer": "교과 과정",
+    "memo": "School curriculum."
+  },
+  {
+    "question": "vacuum",
+    "answer": "진공, 청소기",
+    "memo": "Vacuum cleaner."
+  },
+  {
+    "question": "anchor",
+    "answer": "닻, 고정시키다",
+    "memo": "The ship dropped anchor in the bay."
+  },
+  {
+    "question": "estate",
+    "answer": "재산, 토지",
+    "memo": "Real estate."
+  },
+  {
+    "question": "venture",
+    "answer": "모험, 벤처",
+    "memo": "A business venture."
+  },
+  {
+    "question": "terror (terrorist)",
+    "answer": "테러, 공포 (테러리스트)",
+    "memo": "A terror attack."
+  },
+  {
+    "question": "evolve",
+    "answer": "진화하다, 발달하다",
+    "memo": "Evolve from apes."
+  },
+  {
+    "question": "delete",
+    "answer": "삭제하다",
+    "memo": "Delete the file."
+  },
+  {
+    "question": "mayor",
+    "answer": "시장(군수)",
+    "memo": "The mayor of Seoul."
+  },
+  {
+    "question": "tag",
+    "answer": "태그, 꼬리표",
+    "memo": "Price tag."
+  },
+  {
+    "question": "patch",
+    "answer": "헝겊 조각, 부분",
+    "memo": "A patch on the jeans."
+  },
+  {
+    "question": "intimate",
+    "answer": "친밀한",
+    "memo": "Intimate friends."
+  },
+  {
+    "question": "urban",
+    "answer": "도시의",
+    "memo": "Urban planning."
+  },
+  {
+    "question": "explore",
+    "answer": "탐험하다",
+    "memo": "Explore the space."
+  },
+  {
+    "question": "fountain",
+    "answer": "분수",
+    "memo": "Drinking fountain."
+  },
+  {
+    "question": "interpret",
+    "answer": "해석하다, 통역하다",
+    "memo": "Interpret the dream."
+  },
+  {
+    "question": "alternate (alternative)",
+    "answer": "교대하다 (대안)",
+    "memo": "We have no other alternative."
+  },
+  {
+    "question": "evaluate",
+    "answer": "평가하다",
+    "memo": "Evaluate the result."
+  },
+  {
+    "question": "particle",
+    "answer": "입자, 아주 작은 조각",
+    "memo": "Dust particles."
+  },
+  {
+    "question": "detach",
+    "answer": "떼다, 분리하다",
+    "memo": "Detach the coupon."
+  },
+  {
+    "question": "agency",
+    "answer": "대리점, 기관",
+    "memo": "She works for a travel agency."
+  },
+  {
+    "question": "supplement",
+    "answer": "보충, 보충하다",
+    "memo": "Vitamin supplements."
+  },
+  {
+    "question": "crew",
+    "answer": "승무원, 팀",
+    "memo": "A film crew."
+  },
+  {
+    "question": "flesh",
+    "answer": "살, 고기",
+    "memo": "Flesh and blood."
+  },
+  {
+    "question": "depart (department, departure)",
+    "answer": "출발하다 (부서, 출발)",
+    "memo": "The train departs at 5."
+  },
+  {
+    "question": "submit (submission)",
+    "answer": "제출하다 (제출)",
+    "memo": "Submit a report."
+  },
+  {
+    "question": "furnish",
+    "answer": "비치하다, 제공하다",
+    "memo": "Furnish a room."
+  },
+  {
+    "question": "joint",
+    "answer": "공동의, 관절",
+    "memo": "A joint project."
+  },
+  {
+    "question": "mechanism",
+    "answer": "기제, 구조",
+    "memo": "The defense mechanism."
+  },
+  {
+    "question": "bully",
+    "answer": "괴롭히는 사람",
+    "memo": "Stop being a bully."
+  },
+  {
+    "question": "decade",
+    "answer": "10년",
+    "memo": "For more than a decade."
+  }
+]

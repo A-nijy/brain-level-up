@@ -1,0 +1,252 @@
+[
+  {
+    "question": "blink",
+    "answer": "깜빡이다",
+    "memo": "He blinked his eyes."
+  },
+  {
+    "question": "betray",
+    "answer": "배신하다",
+    "memo": "He betrayed his country."
+  },
+  {
+    "question": "democracy",
+    "answer": "민주주의",
+    "memo": "The birth of democracy."
+  },
+  {
+    "question": "portrait",
+    "answer": "초상화",
+    "memo": "Paint a portrait."
+  },
+  {
+    "question": "flavor / flavour",
+    "answer": "맛, 풍미",
+    "memo": "Orange flavor."
+  },
+  {
+    "question": "visible",
+    "answer": "눈에 보이는",
+    "memo": "Visible light."
+  },
+  {
+    "question": "professor",
+    "answer": "교수",
+    "memo": "A college professor."
+  },
+  {
+    "question": "advocate",
+    "answer": "지지하다, 옹호자",
+    "memo": "He is an advocate of free speech."
+  },
+  {
+    "question": "bias",
+    "answer": "편견",
+    "memo": "We must overcome our bias."
+  },
+  {
+    "question": "concrete",
+    "answer": "구체적인, 콘크리트",
+    "memo": "A concrete plan."
+  },
+  {
+    "question": "hence",
+    "answer": "따라서, 그러므로",
+    "memo": "Hence the name."
+  },
+  {
+    "question": "cape",
+    "answer": "망토, 곶",
+    "memo": "Superheroes usually wear a cape."
+  },
+  {
+    "question": "astonish",
+    "answer": "깜짝 놀라게 하다",
+    "memo": "The news astonished everyone."
+  },
+  {
+    "question": "furthermore",
+    "answer": "게다가",
+    "memo": "Furthermore, it's cheap."
+  },
+  {
+    "question": "perspective",
+    "answer": "관점, 시각",
+    "memo": "A global perspective."
+  },
+  {
+    "question": "cancer",
+    "answer": "암",
+    "memo": "Smoking can cause lung cancer."
+  },
+  {
+    "question": "republic",
+    "answer": "공화국",
+    "memo": "Republic of Korea."
+  },
+  {
+    "question": "slope",
+    "answer": "경사, 비탈",
+    "memo": "A steep slope."
+  },
+  {
+    "question": "compromise",
+    "answer": "타협하다",
+    "memo": "We reached a compromise."
+  },
+  {
+    "question": "chronic",
+    "answer": "만성적인",
+    "memo": "A chronic disease."
+  },
+  {
+    "question": "household",
+    "answer": "가정, 가구",
+    "memo": "Household goods."
+  },
+  {
+    "question": "quantity",
+    "answer": "양",
+    "memo": "Quality over quantity."
+  },
+  {
+    "question": "symphony",
+    "answer": "교향곡",
+    "memo": "The 9th symphony."
+  },
+  {
+    "question": "physics",
+    "answer": "물리학",
+    "memo": "Laws of physics."
+  },
+  {
+    "question": "disaster",
+    "answer": "재난, 재앙",
+    "memo": "A natural disaster."
+  },
+  {
+    "question": "protein",
+    "answer": "단백질",
+    "memo": "High protein food."
+  },
+  {
+    "question": "deficit",
+    "answer": "적자, 결손",
+    "memo": "A budget deficit."
+  },
+  {
+    "question": "soak",
+    "answer": "담그다, 흠뻑 적시다",
+    "memo": "Soak in the tub."
+  },
+  {
+    "question": "decrease",
+    "answer": "줄다, 감소하다",
+    "memo": "The population is decreasing."
+  },
+  {
+    "question": "suck",
+    "answer": "빨다, 흡수하다",
+    "memo": "Suck a thumb."
+  },
+  {
+    "question": "vaccine",
+    "answer": "백신",
+    "memo": "Get a vaccine."
+  },
+  {
+    "question": "unify",
+    "answer": "통합하다, 통일하다",
+    "memo": "Unify the country."
+  },
+  {
+    "question": "blossom",
+    "answer": "꽃, 꽃을 피우다",
+    "memo": "Cherry blossoms."
+  },
+  {
+    "question": "induce",
+    "answer": "유도하다",
+    "memo": "Induce sleep."
+  },
+  {
+    "question": "roast",
+    "answer": "굽다, 볶다",
+    "memo": "Roast beef."
+  },
+  {
+    "question": "halt",
+    "answer": "중단, 멈추다",
+    "memo": "The car came to a halt."
+  },
+  {
+    "question": "heritage",
+    "answer": "유산",
+    "memo": "Cultural heritage."
+  },
+  {
+    "question": "costume",
+    "answer": "의상",
+    "memo": "A Halloween costume."
+  },
+  {
+    "question": "scheme",
+    "answer": "계획, 책략",
+    "memo": "A grand scheme."
+  },
+  {
+    "question": "dose",
+    "answer": "(약의) 복용량",
+    "memo": "A single dose."
+  },
+  {
+    "question": "distinct",
+    "answer": "뚜렷한, 별개의",
+    "memo": "A distinct difference."
+  },
+  {
+    "question": "terminate",
+    "answer": "종료하다",
+    "memo": "Terminate the contract."
+  },
+  {
+    "question": "atom",
+    "answer": "원자",
+    "memo": "Everything is made of atoms."
+  },
+  {
+    "question": "inject",
+    "answer": "주사하다",
+    "memo": "Inject a vaccine."
+  },
+  {
+    "question": "assault",
+    "answer": "공격, 폭행",
+    "memo": "The army began the assault at dawn."
+  },
+  {
+    "question": "obtain",
+    "answer": "얻다",
+    "memo": "Obtain permission."
+  },
+  {
+    "question": "chamber",
+    "answer": "방, 회의실",
+    "memo": "The heart has four chambers."
+  },
+  {
+    "question": "critic (criticize)",
+    "answer": "비평가 (비난하다)",
+    "memo": "Criticize the government."
+  },
+  {
+    "question": "credible (incredible)",
+    "answer": "믿을 수 있는 (놀라운)",
+    "memo": "An incredible story."
+  },
+  {
+    "question": "bare",
+    "answer": "벌거벗은, 간신히 ~한",
+    "memo": "He walked with bare feet."
+  }
+]

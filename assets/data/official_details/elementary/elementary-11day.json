@@ -1,0 +1,252 @@
+[
+  {
+    "question": "car",
+    "answer": "자동차",
+    "memo": "I wash my car every Sunday."
+  },
+  {
+    "question": "pretty",
+    "answer": "예쁜, 꽤",
+    "memo": "A pretty girl."
+  },
+  {
+    "question": "before",
+    "answer": "~ 전에",
+    "memo": "Wash your hands before meals."
+  },
+  {
+    "question": "nurse",
+    "answer": "간호사",
+    "memo": "A kind nurse."
+  },
+  {
+    "question": "air",
+    "answer": "공기, 공중",
+    "memo": "I need some fresh air."
+  },
+  {
+    "question": "partner",
+    "answer": "파트너, 동료",
+    "memo": "Dance partner."
+  },
+  {
+    "question": "here",
+    "answer": "여기",
+    "memo": "Come here."
+  },
+  {
+    "question": "slow",
+    "answer": "느린",
+    "memo": "Slow down."
+  },
+  {
+    "question": "see",
+    "answer": "보다",
+    "memo": "I see."
+  },
+  {
+    "question": "send",
+    "answer": "보내다",
+    "memo": "Send an email."
+  },
+  {
+    "question": "project",
+    "answer": "프로젝트, 계획",
+    "memo": "A school project."
+  },
+  {
+    "question": "many",
+    "answer": "많은",
+    "memo": "Many people."
+  },
+  {
+    "question": "ribbon",
+    "answer": "리본",
+    "memo": "A red ribbon."
+  },
+  {
+    "question": "act",
+    "answer": "행동하다",
+    "memo": "Think before you act."
+  },
+  {
+    "question": "hero",
+    "answer": "영웅",
+    "memo": "He is my hero."
+  },
+  {
+    "question": "marry",
+    "answer": "결혼하다",
+    "memo": "Will you marry me?"
+  },
+  {
+    "question": "police",
+    "answer": "경찰",
+    "memo": "Call the police."
+  },
+  {
+    "question": "brother",
+    "answer": "형제, 형, 남동생",
+    "memo": "I have two brothers."
+  },
+  {
+    "question": "nature",
+    "answer": "자연, 본성",
+    "memo": "Mother Nature."
+  },
+  {
+    "question": "chance",
+    "answer": "기회, 가능성",
+    "memo": "This is your last chance."
+  },
+  {
+    "question": "fool",
+    "answer": "바보, 속이다",
+    "memo": "Don't be a fool."
+  },
+  {
+    "question": "feel",
+    "answer": "느끼다",
+    "memo": "I feel happy."
+  },
+  {
+    "question": "foot",
+    "answer": "발",
+    "memo": "On foot."
+  },
+  {
+    "question": "dance",
+    "answer": "춤, 춤추다",
+    "memo": "She likes to dance."
+  },
+  {
+    "question": "ten",
+    "answer": "10",
+    "memo": "Count to ten."
+  },
+  {
+    "question": "cheap",
+    "answer": "값싼",
+    "memo": "This watch is very cheap."
+  },
+  {
+    "question": "you",
+    "answer": "당신, 너",
+    "memo": "I love you."
+  },
+  {
+    "question": "where",
+    "answer": "어디",
+    "memo": "Where are you?"
+  },
+  {
+    "question": "salad",
+    "answer": "샐러드",
+    "memo": "Green salad."
+  },
+  {
+    "question": "build",
+    "answer": "짓다, 세우다",
+    "memo": "They are building a house."
+  },
+  {
+    "question": "god",
+    "answer": "신",
+    "memo": "Oh my god."
+  },
+  {
+    "question": "certain",
+    "answer": "확실한, 특정한",
+    "memo": "I am certain of his success."
+  },
+  {
+    "question": "lesson",
+    "answer": "교습, 수업",
+    "memo": "Take a piano lesson."
+  },
+  {
+    "question": "forget",
+    "answer": "잊다",
+    "memo": "Don't forget me."
+  },
+  {
+    "question": "test",
+    "answer": "시험",
+    "memo": "Take a test."
+  },
+  {
+    "question": "film",
+    "answer": "영화, 필름",
+    "memo": "Watch a film."
+  },
+  {
+    "question": "autumn",
+    "answer": "가을",
+    "memo": "The leaves turn red in autumn."
+  },
+  {
+    "question": "lady",
+    "answer": "숙녀, 여성",
+    "memo": "Ladies and gentlemen."
+  },
+  {
+    "question": "memory",
+    "answer": "기억",
+    "memo": "A good memory."
+  },
+  {
+    "question": "chair",
+    "answer": "의자",
+    "memo": "Sit on the chair."
+  },
+  {
+    "question": "wall",
+    "answer": "벽",
+    "memo": "Against the wall."
+  },
+  {
+    "question": "tent",
+    "answer": "텐트",
+    "memo": "Sleep in a tent."
+  },
+  {
+    "question": "parent",
+    "answer": "부모",
+    "memo": "Listen to your parents."
+  },
+  {
+    "question": "fire",
+    "answer": "불, 해고하다",
+    "memo": "Don't play with fire."
+  },
+  {
+    "question": "from",
+    "answer": "~로부터",
+    "memo": "I'm from Korea."
+  },
+  {
+    "question": "move",
+    "answer": "움직이다, 이사하다",
+    "memo": "Don't move."
+  },
+  {
+    "question": "video",
+    "answer": "비디오, 영상",
+    "memo": "Watch a video."
+  },
+  {
+    "question": "may",
+    "answer": "~일지도 모른다, 5월",
+    "memo": "It may rain."
+  },
+  {
+    "question": "note (notion)",
+    "answer": "메모 (개념)",
+    "memo": "Take a note."
+  },
+  {
+    "question": "history",
+    "answer": "역사",
+    "memo": "I like history."
+  }
+]

@@ -1,0 +1,252 @@
+[
+  {
+    "question": "agree (disagree)",
+    "answer": "동의하다 (반대하다)",
+    "memo": "I agree with your opinion."
+  },
+  {
+    "question": "give",
+    "answer": "주다",
+    "memo": "Give me a hand."
+  },
+  {
+    "question": "sugar",
+    "answer": "설탕",
+    "memo": "Brown sugar."
+  },
+  {
+    "question": "climb",
+    "answer": "오르다, 등반하다",
+    "memo": "Don't climb the tree."
+  },
+  {
+    "question": "point",
+    "answer": "점, 요점, 가리키다",
+    "memo": "What's your point?"
+  },
+  {
+    "question": "bottle",
+    "answer": "병",
+    "memo": "A bottle of water."
+  },
+  {
+    "question": "star",
+    "answer": "별, 인기인",
+    "memo": "Movie star."
+  },
+  {
+    "question": "war",
+    "answer": "전쟁",
+    "memo": "World War II."
+  },
+  {
+    "question": "software",
+    "answer": "소프트웨어",
+    "memo": "New software."
+  },
+  {
+    "question": "fill",
+    "answer": "채우다",
+    "memo": "Fill the glass with water."
+  },
+  {
+    "question": "medal",
+    "answer": "메달",
+    "memo": "A gold medal."
+  },
+  {
+    "question": "heavy",
+    "answer": "무거운",
+    "memo": "The box is heavy."
+  },
+  {
+    "question": "story",
+    "answer": "이야기, 층",
+    "memo": "A true story."
+  },
+  {
+    "question": "now",
+    "answer": "지금",
+    "memo": "Right now."
+  },
+  {
+    "question": "any",
+    "answer": "어떤, 조금의",
+    "memo": "Are there any apples left?"
+  },
+  {
+    "question": "pencil",
+    "answer": "연필",
+    "memo": "Sharpen the pencil."
+  },
+  {
+    "question": "craze (crazy)",
+    "answer": "열광 (미친)",
+    "memo": "Don't go crazy."
+  },
+  {
+    "question": "road",
+    "answer": "도로",
+    "memo": "On the road."
+  },
+  {
+    "question": "pizza",
+    "answer": "피자",
+    "memo": "Eat pizza."
+  },
+  {
+    "question": "smile",
+    "answer": "웃음, 미소 짓다",
+    "memo": "Keep smiling."
+  },
+  {
+    "question": "work",
+    "answer": "일하다, 공부하다",
+    "memo": "Hard work."
+  },
+  {
+    "question": "area",
+    "answer": "지역, 면적",
+    "memo": "This is a quiet residential area."
+  },
+  {
+    "question": "visit",
+    "answer": "방문하다",
+    "memo": "Visit my grandma."
+  },
+  {
+    "question": "okay / OK",
+    "answer": "알았어",
+    "memo": "Are you okay?"
+  },
+  {
+    "question": "map",
+    "answer": "지도",
+    "memo": "Look at the map."
+  },
+  {
+    "question": "butter",
+    "answer": "버터",
+    "memo": "Bread and butter."
+  },
+  {
+    "question": "basket",
+    "answer": "바구니",
+    "memo": "Put the apples in the basket."
+  },
+  {
+    "question": "holiday",
+    "answer": "휴일",
+    "memo": "On holiday."
+  },
+  {
+    "question": "call",
+    "answer": "부르다, 전화하다",
+    "memo": "Give me a call tonight."
+  },
+  {
+    "question": "quiet",
+    "answer": "조용한",
+    "memo": "Be quiet."
+  },
+  {
+    "question": "alone",
+    "answer": "혼자, 홀로",
+    "memo": "I like being alone sometimes."
+  },
+  {
+    "question": "sleep",
+    "answer": "자다",
+    "memo": "Sleep well."
+  },
+  {
+    "question": "ski",
+    "answer": "스키",
+    "memo": "Go skiing."
+  },
+  {
+    "question": "bell",
+    "answer": "종, 벨",
+    "memo": "The school bell rang."
+  },
+  {
+    "question": "weekend",
+    "answer": "주말",
+    "memo": "Have a nice weekend."
+  },
+  {
+    "question": "window",
+    "answer": "창문",
+    "memo": "Open the window."
+  },
+  {
+    "question": "should",
+    "answer": "~해야 한다",
+    "memo": "I should go."
+  },
+  {
+    "question": "ask",
+    "answer": "묻다, 부탁하다",
+    "memo": "Can I ask you a favor?"
+  },
+  {
+    "question": "power",
+    "answer": "힘, 전력",
+    "memo": "Knowledge is power."
+  },
+  {
+    "question": "court",
+    "answer": "법정, 경기장",
+    "memo": "Tennis court."
+  },
+  {
+    "question": "bread",
+    "answer": "빵",
+    "memo": "I like whole wheat bread."
+  },
+  {
+    "question": "wet",
+    "answer": "젖은",
+    "memo": "Wet paint."
+  },
+  {
+    "question": "song",
+    "answer": "노래",
+    "memo": "Sing a song."
+  },
+  {
+    "question": "left",
+    "answer": "왼쪽의",
+    "memo": "Turn left."
+  },
+  {
+    "question": "wear",
+    "answer": "입다, 쓰다",
+    "memo": "Wear a hat."
+  },
+  {
+    "question": "member (membership)",
+    "answer": "구성원 (회원권)",
+    "memo": "A family member."
+  },
+  {
+    "question": "pig",
+    "answer": "돼지",
+    "memo": "A wild pig."
+  },
+  {
+    "question": "club",
+    "answer": "클럽, 동아리",
+    "memo": "I joined the soccer club."
+  },
+  {
+    "question": "for",
+    "answer": "~을 위하여, ~동안",
+    "memo": "This is for you."
+  },
+  {
+    "question": "business",
+    "answer": "사업, 일",
+    "memo": "It's none of your business."
+  }
+]

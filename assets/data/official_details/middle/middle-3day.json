@@ -1,0 +1,252 @@
+[
+  {
+    "question": "knee",
+    "answer": "무릎",
+    "memo": "Bend your knees."
+  },
+  {
+    "question": "photograph / photo",
+    "answer": "사진",
+    "memo": "Take a photo."
+  },
+  {
+    "question": "income",
+    "answer": "소득",
+    "memo": "A high income."
+  },
+  {
+    "question": "internal",
+    "answer": "내부의",
+    "memo": "Internal organs."
+  },
+  {
+    "question": "furniture",
+    "answer": "가구",
+    "memo": "Office furniture."
+  },
+  {
+    "question": "fortunate",
+    "answer": "운 좋은",
+    "memo": "You are very fortunate."
+  },
+  {
+    "question": "presence",
+    "answer": "존재, 출석",
+    "memo": "In the presence of."
+  },
+  {
+    "question": "generate (generation)",
+    "answer": "발생시키다 (세대)",
+    "memo": "Generate power."
+  },
+  {
+    "question": "operate",
+    "answer": "작동하다, 수술하다",
+    "memo": "Operate a machine."
+  },
+  {
+    "question": "perhaps",
+    "answer": "아마도",
+    "memo": "Perhaps it's true."
+  },
+  {
+    "question": "recent",
+    "answer": "최근의",
+    "memo": "Recent news."
+  },
+  {
+    "question": "mine (miner)",
+    "answer": "나의 것, 광산 (광부)",
+    "memo": "This is mine."
+  },
+  {
+    "question": "mean",
+    "answer": "의미하다, 비열한",
+    "memo": "What do you mean?"
+  },
+  {
+    "question": "practice / practise",
+    "answer": "연습, 관행",
+    "memo": "Practice makes perfect."
+  },
+  {
+    "question": "confirm",
+    "answer": "확인하다",
+    "memo": "Confirm the reservation."
+  },
+  {
+    "question": "meal",
+    "answer": "식사",
+    "memo": "Have a meal."
+  },
+  {
+    "question": "surprise",
+    "answer": "놀라게 하다, 놀라움",
+    "memo": "A big surprise."
+  },
+  {
+    "question": "wire",
+    "answer": "철사, 전선",
+    "memo": "Copper wire."
+  },
+  {
+    "question": "atmosphere",
+    "answer": "대기, 분위기",
+    "memo": "The atmosphere in the room was tense."
+  },
+  {
+    "question": "flash",
+    "answer": "번쩍임, 플래시",
+    "memo": "Flash of light."
+  },
+  {
+    "question": "person (personality)",
+    "answer": "사람 (성격)",
+    "memo": "A kind person."
+  },
+  {
+    "question": "snap",
+    "answer": "딱 부러지다, 스냅 사진",
+    "memo": "Snap your fingers."
+  },
+  {
+    "question": "delay",
+    "answer": "미루다, 지연",
+    "memo": "The flight was delayed."
+  },
+  {
+    "question": "century",
+    "answer": "1세기, 100년",
+    "memo": "The 21st century."
+  },
+  {
+    "question": "forever",
+    "answer": "영원히",
+    "memo": "Friends forever."
+  },
+  {
+    "question": "prove",
+    "answer": "증명하다",
+    "memo": "Prove it to me."
+  },
+  {
+    "question": "breath",
+    "answer": "숨, 호흡",
+    "memo": "Take a deep breath."
+  },
+  {
+    "question": "cable",
+    "answer": "케이블, 전선",
+    "memo": "The television needs a new cable."
+  },
+  {
+    "question": "maybe",
+    "answer": "아마도",
+    "memo": "Maybe next time."
+  },
+  {
+    "question": "wool",
+    "answer": "양모",
+    "memo": "Wool sweater."
+  },
+  {
+    "question": "weak",
+    "answer": "약한",
+    "memo": "A weak point."
+  },
+  {
+    "question": "remind",
+    "answer": "상기시키다",
+    "memo": "Remind me later."
+  },
+  {
+    "question": "experiment",
+    "answer": "실험",
+    "memo": "Scientific experiment."
+  },
+  {
+    "question": "escape",
+    "answer": "탈출하다",
+    "memo": "Escape from prison."
+  },
+  {
+    "question": "admit (admission)",
+    "answer": "인정하다, 허가하다 (입장, 입학)",
+    "memo": "He admitted that he was wrong."
+  },
+  {
+    "question": "pot",
+    "answer": "냄비, 단지",
+    "memo": "A flower pot."
+  },
+  {
+    "question": "which",
+    "answer": "어느 것",
+    "memo": "Which one?"
+  },
+  {
+    "question": "square",
+    "answer": "정사각형, 광장",
+    "memo": "Time square."
+  },
+  {
+    "question": "fortune",
+    "answer": "운, 재산",
+    "memo": "Make a fortune."
+  },
+  {
+    "question": "range",
+    "answer": "범위, 산맥",
+    "memo": "Price range."
+  },
+  {
+    "question": "motion",
+    "answer": "움직임, 동작",
+    "memo": "Slow motion."
+  },
+  {
+    "question": "describe (description)",
+    "answer": "묘사하다, 설명하다 (설명)",
+    "memo": "Describe your room."
+  },
+  {
+    "question": "match",
+    "answer": "경기, 어울리다",
+    "memo": "A soccer match."
+  },
+  {
+    "question": "deliver",
+    "answer": "배달하다, 연설하다",
+    "memo": "Deliver a letter."
+  },
+  {
+    "question": "shoot",
+    "answer": "쏘다, 촬영하다",
+    "memo": "Shoot a movie."
+  },
+  {
+    "question": "secretary",
+    "answer": "비서, 장관",
+    "memo": "The general secretary."
+  },
+  {
+    "question": "economy",
+    "answer": "경제",
+    "memo": "The world economy."
+  },
+  {
+    "question": "fund",
+    "answer": "자금",
+    "memo": "Raise funds."
+  },
+  {
+    "question": "leaf",
+    "answer": "잎",
+    "memo": "Fall leaves."
+  },
+  {
+    "question": "release",
+    "answer": "석방하다, 출시하다",
+    "memo": "Release a new album."
+  }
+]

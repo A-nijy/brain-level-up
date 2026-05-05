@@ -1,0 +1,252 @@
+[
+  {
+    "question": "prosper",
+    "answer": "번영하다",
+    "memo": "The business prospered."
+  },
+  {
+    "question": "rival",
+    "answer": "라이벌, 경쟁자",
+    "memo": "A business rival."
+  },
+  {
+    "question": "sphere",
+    "answer": "구, 영역",
+    "memo": "The political sphere."
+  },
+  {
+    "question": "fulfil",
+    "answer": "완수하다, 이행하다",
+    "memo": "Fulfil a promise."
+  },
+  {
+    "question": "complement",
+    "answer": "보완하다, 보충물",
+    "memo": "A perfect complement."
+  },
+  {
+    "question": "bankrupt",
+    "answer": "파산한",
+    "memo": "The company went bankrupt."
+  },
+  {
+    "question": "temple",
+    "answer": "사원, 절",
+    "memo": "Visit a temple."
+  },
+  {
+    "question": "beam",
+    "answer": "빛줄기, 기둥",
+    "memo": "A beam of light shone through."
+  },
+  {
+    "question": "retreat",
+    "answer": "후퇴, 휴양지",
+    "memo": "The army retreated."
+  },
+  {
+    "question": "essence (essential)",
+    "answer": "본질 (필수적인)",
+    "memo": "The essence of life."
+  },
+  {
+    "question": "destruct (destruction)",
+    "answer": "파괴하다 (파괴)",
+    "memo": "Mass destruction."
+  },
+  {
+    "question": "cluster",
+    "answer": "무리, 송이",
+    "memo": "A cluster of stars."
+  },
+  {
+    "question": "vessel",
+    "answer": "혈관, 선박, 그릇",
+    "memo": "Blood vessel."
+  },
+  {
+    "question": "subtle",
+    "answer": "미묘한",
+    "memo": "A subtle difference."
+  },
+  {
+    "question": "task",
+    "answer": "일, 과업",
+    "memo": "A difficult task."
+  },
+  {
+    "question": "reside (resident)",
+    "answer": "거주하다 (거주자)",
+    "memo": "Local residents."
+  },
+  {
+    "question": "erect",
+    "answer": "세우다, 똑바로 선",
+    "memo": "Erect a monument."
+  },
+  {
+    "question": "coupon",
+    "answer": "쿠폰",
+    "memo": "Use a discount coupon."
+  },
+  {
+    "question": "dwell",
+    "answer": "살다, 거주하다",
+    "memo": "Dwell in the city."
+  },
+  {
+    "question": "narrate",
+    "answer": "이야기하다",
+    "memo": "Narrate the story."
+  },
+  {
+    "question": "assert",
+    "answer": "주장하다, 단언하다",
+    "memo": "She asserted her innocence."
+  },
+  {
+    "question": "missile",
+    "answer": "미사일",
+    "memo": "A nuclear missile."
+  },
+  {
+    "question": "certificate",
+    "answer": "증명서, 자격증",
+    "memo": "A birth certificate."
+  },
+  {
+    "question": "declare",
+    "answer": "선언하다, 신고하다",
+    "memo": "I have nothing to declare."
+  },
+  {
+    "question": "nominate",
+    "answer": "지명하다",
+    "memo": "Nominate a candidate."
+  },
+  {
+    "question": "presume",
+    "answer": "추정하다",
+    "memo": "Presume innocent."
+  },
+  {
+    "question": "sculpt (sculpture)",
+    "answer": "조각하다 (조각상)",
+    "memo": "A stone sculpture."
+  },
+  {
+    "question": "gasoline / petrol",
+    "answer": "휘발유",
+    "memo": "Fill up with gasoline."
+  },
+  {
+    "question": "breeze",
+    "answer": "산들바람",
+    "memo": "A cool sea breeze."
+  },
+  {
+    "question": "elegant",
+    "answer": "우아한",
+    "memo": "An elegant dress."
+  },
+  {
+    "question": "ambassador",
+    "answer": "대사, 사절",
+    "memo": "He was appointed as the ambassador to France."
+  },
+  {
+    "question": "behave (behavior)",
+    "answer": "행동하다 (행동)",
+    "memo": "Please behave yourself."
+  },
+  {
+    "question": "drill",
+    "answer": "드릴, 훈련",
+    "memo": "A fire drill."
+  },
+  {
+    "question": "clay",
+    "answer": "찰흙",
+    "memo": "Making pots with clay."
+  },
+  {
+    "question": "addict",
+    "answer": "중독자, 빠지게 하다",
+    "memo": "He is a video game addict."
+  },
+  {
+    "question": "reverse",
+    "answer": "반대의, 뒤집다",
+    "memo": "In reverse order."
+  },
+  {
+    "question": "entry",
+    "answer": "입구, 참가",
+    "memo": "No entry."
+  },
+  {
+    "question": "tender",
+    "answer": "부드러운, 입찰하다",
+    "memo": "Tender meat."
+  },
+  {
+    "question": "symbol",
+    "answer": "상징",
+    "memo": "A symbol of peace."
+  },
+  {
+    "question": "symptom",
+    "answer": "증상",
+    "memo": "A common symptom."
+  },
+  {
+    "question": "regulate",
+    "answer": "규제하다, 조절하다",
+    "memo": "Regulate the traffic."
+  },
+  {
+    "question": "grain",
+    "answer": "곡물, 알갱이",
+    "memo": "A grain of rice."
+  },
+  {
+    "question": "congress",
+    "answer": "의회, 회의",
+    "memo": "The US Congress."
+  },
+  {
+    "question": "exaggerate",
+    "answer": "과장하다",
+    "memo": "Don't exaggerate."
+  },
+  {
+    "question": "literature",
+    "answer": "문학",
+    "memo": "English literature."
+  },
+  {
+    "question": "evacuate",
+    "answer": "대피시키다",
+    "memo": "Evacuate the building."
+  },
+  {
+    "question": "inn",
+    "answer": "여관",
+    "memo": "Stay at an inn."
+  },
+  {
+    "question": "diverse",
+    "answer": "다양한",
+    "memo": "A diverse culture."
+  },
+  {
+    "question": "facilitate",
+    "answer": "용이하게 하다, 촉진하다",
+    "memo": "To facilitate smooth communication."
+  },
+  {
+    "question": "portion",
+    "answer": "부분, 1인분",
+    "memo": "A large portion."
+  }
+]

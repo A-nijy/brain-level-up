@@ -110,7 +110,7 @@ export default function StatsScreen() {
 
                     <View style={[styles.detailLink, { borderTopColor: colors.border + '50' }]} pointerEvents="none">
                         <Text style={[styles.detailLinkText, { color: colors.tint }]}>{Strings.statsTab.detailLink}</Text>
-                        <FontAwesome name={Strings.admin.icons.arrowRight as any} size={10} color={colors.tint} />
+                        <FontAwesome name={Strings.home.icons.arrowRight as any} size={10} color={colors.tint} />
                     </View>
                 </Pressable>
             </Animated.View>

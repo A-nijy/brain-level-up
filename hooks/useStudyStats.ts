@@ -2,8 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { StudyLog } from '@/types';
 import { StatsService } from '@/services/StatsService';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
-import { Library, Item } from '@/types';
+import { runQuery } from '@/lib/db';
 
 export function useStudyStats() {
     const { profile } = useAuth();
@@ -36,10 +35,10 @@ export function useStudyStats() {
             setOverallDistribution(distributionData);
             setActivities(monthlyActivity);
 
-            // 암기장별 분포 가져오기
-            const { data: libs } = await supabase.from('libraries').select('id, title').eq('user_id', profile.id);
+            // 암기장별 분포 가져오기 (SQLite)
+            const libs = await runQuery('SELECT id, title FROM libraries WHERE user_id = ?', [profile.id]);
             if (libs && libs.length > 0) {
-                const libDists = await Promise.all(libs.map(async (lib: { id: string, title: string }) => {
+                const libDists = await Promise.all(libs.map(async (lib: any) => {
                     const dist = await StatsService.getStudyDistribution(profile.id, lib.id);
                     return { libraryId: lib.id, title: lib.title, ...dist };
                 }));

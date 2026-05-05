@@ -1,0 +1,252 @@
+[
+  {
+    "question": "fork",
+    "answer": "포크, 갈림길",
+    "memo": "Knife and fork."
+  },
+  {
+    "question": "spaghetti",
+    "answer": "스파게티",
+    "memo": "Spaghetti and meatball."
+  },
+  {
+    "question": "food",
+    "answer": "음식",
+    "memo": "Healthy food."
+  },
+  {
+    "question": "number",
+    "answer": "숫자, 번호",
+    "memo": "Phone number."
+  },
+  {
+    "question": "adult",
+    "answer": "성인, 어른",
+    "memo": "This movie is for adults only."
+  },
+  {
+    "question": "hit",
+    "answer": "치다",
+    "memo": "Hit the ball."
+  },
+  {
+    "question": "issue",
+    "answer": "문제, 발행하다",
+    "memo": "Today's issue."
+  },
+  {
+    "question": "enough",
+    "answer": "충분한",
+    "memo": "That's enough."
+  },
+  {
+    "question": "party",
+    "answer": "파티, 정당",
+    "memo": "Birthday party."
+  },
+  {
+    "question": "push",
+    "answer": "밀다",
+    "memo": "Push the button."
+  },
+  {
+    "question": "line",
+    "answer": "선, 줄",
+    "memo": "Wait in line."
+  },
+  {
+    "question": "quick",
+    "answer": "빠른",
+    "memo": "A quick lunch."
+  },
+  {
+    "question": "invite",
+    "answer": "초대하다",
+    "memo": "Invite friends."
+  },
+  {
+    "question": "check / cheque",
+    "answer": "확인하다, 수표",
+    "memo": "Check your answers again."
+  },
+  {
+    "question": "below",
+    "answer": "~ 아래에",
+    "memo": "The temperature is below zero."
+  },
+  {
+    "question": "go",
+    "answer": "가다",
+    "memo": "Go to school."
+  },
+  {
+    "question": "however",
+    "answer": "하지만",
+    "memo": "However, it is true."
+  },
+  {
+    "question": "man",
+    "answer": "남자, 사람",
+    "memo": "A tall man."
+  },
+  {
+    "question": "look",
+    "answer": "보다, 보이다",
+    "memo": "Look at me."
+  },
+  {
+    "question": "start",
+    "answer": "시작하다",
+    "memo": "Start a business."
+  },
+  {
+    "question": "rain",
+    "answer": "비",
+    "memo": "Heavy rain."
+  },
+  {
+    "question": "bone",
+    "answer": "뼈",
+    "memo": "The dog is chewing a bone."
+  },
+  {
+    "question": "heat",
+    "answer": "열, 뜨겁게 하다",
+    "memo": "Heat the soup."
+  },
+  {
+    "question": "grape",
+    "answer": "포도",
+    "memo": "A bunch of grapes."
+  },
+  {
+    "question": "clear (clarify)",
+    "answer": "맑은, 명확한 (명확하게 하다)",
+    "memo": "The sky is clear."
+  },
+  {
+    "question": "quiz",
+    "answer": "퀴즈",
+    "memo": "A math quiz."
+  },
+  {
+    "question": "fact (factual)",
+    "answer": "사실 (사실상의)",
+    "memo": "In fact, he is right."
+  },
+  {
+    "question": "remember",
+    "answer": "기억하다",
+    "memo": "Remember me."
+  },
+  {
+    "question": "around",
+    "answer": "주위에, 약",
+    "memo": "The earth moves around the sun."
+  },
+  {
+    "question": "by",
+    "answer": "~옆에, ~에 의하여",
+    "memo": "I stand by you."
+  },
+  {
+    "question": "need",
+    "answer": "필요하다",
+    "memo": "I need help."
+  },
+  {
+    "question": "paper",
+    "answer": "종이, 신문",
+    "memo": "A piece of paper."
+  },
+  {
+    "question": "ball",
+    "answer": "공, 무도회",
+    "memo": "He threw the ball to me."
+  },
+  {
+    "question": "case (casual)",
+    "answer": "경우, 사건 (격식 없는)",
+    "memo": "In case of fire, use the stairs."
+  },
+  {
+    "question": "already",
+    "answer": "이미, 벌써",
+    "memo": "I have already finished my homework."
+  },
+  {
+    "question": "write",
+    "answer": "쓰다",
+    "memo": "Write a letter."
+  },
+  {
+    "question": "tennis",
+    "answer": "테니스",
+    "memo": "Play tennis."
+  },
+  {
+    "question": "soup",
+    "answer": "수프",
+    "memo": "Chicken soup."
+  },
+  {
+    "question": "win",
+    "answer": "이기다",
+    "memo": "Win the game."
+  },
+  {
+    "question": "stone",
+    "answer": "돌",
+    "memo": "Throw a stone."
+  },
+  {
+    "question": "bath",
+    "answer": "목욕",
+    "memo": "I take a bath every night."
+  },
+  {
+    "question": "bill",
+    "answer": "청구서, 지폐, 부리",
+    "memo": "Can I have the bill, please?"
+  },
+  {
+    "question": "begin",
+    "answer": "시작하다",
+    "memo": "When does the class begin?"
+  },
+  {
+    "question": "cat",
+    "answer": "고양이",
+    "memo": "The cat is sleeping on the mat."
+  },
+  {
+    "question": "tape",
+    "answer": "테이프",
+    "memo": "Scotch tape."
+  },
+  {
+    "question": "address",
+    "answer": "주소, 연설하다",
+    "memo": "Write your address on the paper."
+  },
+  {
+    "question": "spoon",
+    "answer": "숟가락",
+    "memo": "A silver spoon."
+  },
+  {
+    "question": "buy",
+    "answer": "사다",
+    "memo": "I want to buy a new car."
+  },
+  {
+    "question": "danger",
+    "answer": "위험",
+    "memo": "The bridge is in danger of falling."
+  },
+  {
+    "question": "along",
+    "answer": "~을 따라서",
+    "memo": "We walked along the river."
+  }
+]

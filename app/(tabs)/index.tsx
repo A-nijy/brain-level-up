@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Modal, TextInput, Pressable, View as RNView } from 'react-native';
+import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Modal, TextInput, View as RNView } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLibraries } from '@/hooks/useLibraries';
 import { Library } from '@/types';
@@ -13,44 +13,39 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useStudyStats } from '@/hooks/useStudyStats';
 import { useAlert } from '@/contexts/AlertContext';
 import { useLibraryActions } from '@/hooks/useLibraryActions';
-import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 
 import { Strings } from '@/constants/Strings';
 import { Tabs } from 'expo-router';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
-import { MembershipService } from '@/services/MembershipService';
-import { supabase } from '@/lib/supabase';
 
+/**
+ * [Local-Only] 홈 화면 (나의 암기장 리스트)
+ * 광고 및 서버 동기화 로직이 모두 제거된 로컬 전용 버전
+ */
 export default function LibraryListScreen() {
   const { libraries, loading, refreshing, refresh, reorderLibraries, deleteLibrary } = useLibraries();
-  const { stats, totals, streak } = useStudyStats();
   const { profile, user } = useAuth();
   const router = useRouter();
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const { showAlert } = useAlert();
   const [searchQuery, setSearchQuery] = useState('');
   const { unreadCount } = useUnreadNotifications();
+  
   const {
     reorderMode,
     setReorderMode,
     selectedLibraryForMenu,
     setSelectedLibraryForMenu,
-    menuPosition,
     handleMoveUp,
     handleMoveDown,
     handleEditLibrary,
     handleDeleteLibrary,
     handleCreateLibrary,
     showLibraryOptions,
-    adModalVisible,
-    setAdModalVisible,
-    adLoading,
-    handleWatchAd
   } = useLibraryActions(libraries, reorderLibraries, deleteLibrary, profile, user?.id);
 
-  // 웹과 데스크톱 환경을 위한 그리드 설정
   const isWeb = Platform.OS === 'web';
   const numColumns = isWeb && width > 768 ? 2 : 1;
 
@@ -59,7 +54,6 @@ export default function LibraryListScreen() {
   );
 
   const key = `list-${numColumns}-${reorderMode}`;
-
 
   const renderItem = ({ item, index }: { item: Library; index: number }) => (
     <Animated.View
@@ -100,7 +94,6 @@ export default function LibraryListScreen() {
             </TouchableOpacity>
           )}
         </View>
-
 
         <View variant="transparent" style={styles.footerRow}>
           <View variant="transparent" style={styles.stat}>
@@ -154,7 +147,6 @@ export default function LibraryListScreen() {
         options={{
           headerRight: () => (
             <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
-              {/* 알림 버튼 */}
               <TouchableOpacity onPress={() => router.push('/notifications')} style={{ padding: 6 }}>
                 <View variant="transparent" style={{ position: 'relative' }}>
                   <FontAwesome
@@ -183,7 +175,6 @@ export default function LibraryListScreen() {
                 </View>
               </TouchableOpacity>
 
-              {/* 순서 변경 버튼 (사용자 요청 위치) */}
               <TouchableOpacity
                 onPress={() => setReorderMode(!reorderMode)}
                 style={{ padding: 6, marginHorizontal: 12 }}
@@ -195,7 +186,6 @@ export default function LibraryListScreen() {
                 />
               </TouchableOpacity>
 
-              {/* 추가 버튼 */}
               <TouchableOpacity onPress={handleCreateLibrary} style={{ padding: 6 }}>
                 <FontAwesome
                   name="plus"
@@ -223,10 +213,8 @@ export default function LibraryListScreen() {
         ListHeaderComponent={
           isWeb ? (
             <View variant="transparent" style={styles.webHeaderContainer}>
-              {/* Web Header Space Info Removed */}
               <View variant="transparent" style={[styles.greetingRow, { marginBottom: 10 }]}>
                 <View variant="transparent">
-                  {/* Web Search Bar Only */}
                   <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border, maxWidth: 400 }]}>
                     <FontAwesome name="search" size={14} color={colors.textSecondary} />
                     <TextInput
@@ -247,7 +235,6 @@ export default function LibraryListScreen() {
 
               <View variant="transparent" style={styles.sectionHeader}>
                 <View variant="transparent" style={{ flex: 1 }} />
-
                 <View variant="transparent" style={{ flexDirection: 'row', gap: 12, marginLeft: 20 }}>
                   <TouchableOpacity style={styles.webAddBtn} onPress={handleCreateLibrary}>
                     <LinearGradient
@@ -278,11 +265,6 @@ export default function LibraryListScreen() {
                   </TouchableOpacity>
                 )}
               </View>
-
-              {/* 
-                [중복 타이틀 제거] 
-                상단 헤더와 중복되므로 '나의 암기장' 제목 및 밑줄을 제거했습니다.
-              */}
             </View>
           )
         }
@@ -307,7 +289,7 @@ export default function LibraryListScreen() {
                 resizeMode="contain"
               />
               <Text style={[styles.emptyTitle, { color: colors.text }]}>{Strings.home.sectionTitle}</Text>
-              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>첫 번째 암기장을 만들어 학습을 시작해보세요!</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>{Strings.home.emptyPrompt}</Text>
               <TouchableOpacity
                 style={[styles.emptyAddBtn, { backgroundColor: colors.tint }]}
                 onPress={() => router.push('/library/create')}
@@ -379,16 +361,6 @@ export default function LibraryListScreen() {
           </TouchableOpacity>
         </Modal>
       )}
-
-      <FeatureGatingModal
-        isVisible={adModalVisible}
-        onClose={() => !adLoading && setAdModalVisible(false)}
-        onWatchAd={handleWatchAd}
-        title={Strings.libraryForm.createTitle}
-        description={"암기장이 5개를 초과했습니다.\n광고를 시청하시면 하나 더 추가할 수 있습니다."}
-        isLoading={adLoading}
-        loadingText={"광고 준비 중..."}
-      />
     </View>
   );
 }
@@ -410,38 +382,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  webGreeting: {
-    fontSize: 24,
-    fontWeight: '800',
-    marginBottom: 8,
-  },
-  webSubtext: {
-    fontSize: 16,
-  },
-  mobileGreeting: {
-    fontSize: 20,
-    fontWeight: '800',
-    marginBottom: 6,
-  },
-  mobileSubtext: {
-    fontSize: 14,
-    marginBottom: 16,
-  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    marginBottom: 8,
-  },
-  titleUnderline: {
-    height: 4,
-    width: 40,
-    borderRadius: 2,
   },
   mobileHeaderContainer: {
     marginBottom: 20,
@@ -465,10 +410,6 @@ const styles = StyleSheet.create({
   webAddBtn: {
     borderRadius: 14,
     overflow: 'hidden',
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
     elevation: 4,
   },
   webAddBtnGradient: {
@@ -517,14 +458,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  cardBody: {
-    marginTop: 12,
-    flex: 1,
-  },
-  description: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -545,20 +478,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  reorderToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: 'rgba(79, 70, 229, 0.2)',
-  },
-  reorderToggleText: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginLeft: 8,
   },
   reorderControls: {
     flexDirection: 'row',
@@ -589,10 +508,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     padding: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
     elevation: 8,
   },
   menuItem: {
@@ -643,10 +558,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 28,
     borderRadius: 16,
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
     elevation: 4,
   },
   emptyAddBtnText: {

@@ -1,0 +1,252 @@
+[
+  {
+    "question": "legitimate",
+    "answer": "적법한, 정당한",
+    "memo": "A legitimate reason."
+  },
+  {
+    "question": "err (error)",
+    "answer": "실수하다 (실수)",
+    "memo": "A computer error."
+  },
+  {
+    "question": "philosophy",
+    "answer": "철학",
+    "memo": "Study philosophy."
+  },
+  {
+    "question": "suffice (sufficient)",
+    "answer": "충분하다 (충분한)",
+    "memo": "Sufficient evidence."
+  },
+  {
+    "question": "clause",
+    "answer": "절(문법), 조항",
+    "memo": "A main clause."
+  },
+  {
+    "question": "inspire",
+    "answer": "영감을 주다",
+    "memo": "Inspire people."
+  },
+  {
+    "question": "fuel",
+    "answer": "연료",
+    "memo": "Fossil fuel."
+  },
+  {
+    "question": "intellect (intellectual)",
+    "answer": "지성 (지적인)",
+    "memo": "Intellectual property."
+  },
+  {
+    "question": "ethnic",
+    "answer": "민족의",
+    "memo": "Ethnic food."
+  },
+  {
+    "question": "precede (unprecedented)",
+    "answer": "앞서다 (전례 없는)",
+    "memo": "An unprecedented event."
+  },
+  {
+    "question": "heel",
+    "answer": "뒤꿈치",
+    "memo": "High heels."
+  },
+  {
+    "question": "withdraw",
+    "answer": "인출하다, 철수하다",
+    "memo": "Withdraw money."
+  },
+  {
+    "question": "immense",
+    "answer": "거대한",
+    "memo": "Immense pressure."
+  },
+  {
+    "question": "pat",
+    "answer": "토닥이다",
+    "memo": "Pat him on the back."
+  },
+  {
+    "question": "gender",
+    "answer": "성별",
+    "memo": "Gender equality."
+  },
+  {
+    "question": "fond",
+    "answer": "좋아하는",
+    "memo": "I'm fond of music."
+  },
+  {
+    "question": "negotiate",
+    "answer": "협상하다",
+    "memo": "Negotiate a deal."
+  },
+  {
+    "question": "legend",
+    "answer": "전설",
+    "memo": "A living legend."
+  },
+  {
+    "question": "kit",
+    "answer": "세트, 도구 상자",
+    "memo": "First-aid kit."
+  },
+  {
+    "question": "scholar",
+    "answer": "학자",
+    "memo": "A famous scholar."
+  },
+  {
+    "question": "wander",
+    "answer": "거닐다, 헤매다",
+    "memo": "Wander around."
+  },
+  {
+    "question": "splash",
+    "answer": "물을 튀기다",
+    "memo": "Splash water."
+  },
+  {
+    "question": "slim",
+    "answer": "날씬한",
+    "memo": "A slim body."
+  },
+  {
+    "question": "swear",
+    "answer": "맹세하다, 욕설하다",
+    "memo": "I swear it's true."
+  },
+  {
+    "question": "rally",
+    "answer": "집회, 모이다",
+    "memo": "Political rally."
+  },
+  {
+    "question": "apology",
+    "answer": "사과",
+    "memo": "I owe you an apology."
+  },
+  {
+    "question": "insult",
+    "answer": "모욕하다",
+    "memo": "Don't insult me."
+  },
+  {
+    "question": "arise",
+    "answer": "발생하다, 생기다",
+    "memo": "A new problem has arisen."
+  },
+  {
+    "question": "confess",
+    "answer": "고백하다",
+    "memo": "Confess the crime."
+  },
+  {
+    "question": "sigh",
+    "answer": "한숨 쉬다",
+    "memo": "A long sigh."
+  },
+  {
+    "question": "bull",
+    "answer": "황소",
+    "memo": "A bull fight."
+  },
+  {
+    "question": "palm",
+    "answer": "손바닥, 야자수",
+    "memo": "The palm of my hand."
+  },
+  {
+    "question": "medium (media)",
+    "answer": "중간의, 매체",
+    "memo": "Mass media."
+  },
+  {
+    "question": "copyright",
+    "answer": "저작권",
+    "memo": "All rights reserved copyright."
+  },
+  {
+    "question": "versus",
+    "answer": "~대(對)",
+    "memo": "Korea versus Japan."
+  },
+  {
+    "question": "premium",
+    "answer": "보험료, 할부금, 프리미엄",
+    "memo": "Insurance premium."
+  },
+  {
+    "question": "database",
+    "answer": "데이터베이스",
+    "memo": "We updated the customer database."
+  },
+  {
+    "question": "adjust",
+    "answer": "조정하다, 적응하다",
+    "memo": "I need to adjust my watch."
+  },
+  {
+    "question": "chef",
+    "answer": "요리사, 주방장",
+    "memo": "He is a famous chef."
+  },
+  {
+    "question": "demon",
+    "answer": "악마",
+    "memo": "Fight against the demon."
+  },
+  {
+    "question": "explode",
+    "answer": "폭발하다",
+    "memo": "The bomb exploded."
+  },
+  {
+    "question": "crystal",
+    "answer": "결정, 수정",
+    "memo": "A crystal ball."
+  },
+  {
+    "question": "counterpart",
+    "answer": "상대역, 대응물",
+    "memo": "My American counterpart."
+  },
+  {
+    "question": "sacred",
+    "answer": "신성한",
+    "memo": "A sacred cow."
+  },
+  {
+    "question": "strip",
+    "answer": "벗기다, 가느다란 조각",
+    "memo": "A strip of paper."
+  },
+  {
+    "question": "terrace",
+    "answer": "테라스",
+    "memo": "A rooftop terrace."
+  },
+  {
+    "question": "religion",
+    "answer": "종교",
+    "memo": "Freedom of religion."
+  },
+  {
+    "question": "destiny",
+    "answer": "운명",
+    "memo": "Master of your own destiny."
+  },
+  {
+    "question": "via",
+    "answer": "~을 통하여",
+    "memo": "Send it via email."
+  },
+  {
+    "question": "legislate",
+    "answer": "제정하다",
+    "memo": "Legislate new laws."
+  }
+]

@@ -5,25 +5,25 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useFocusEffect } from 'expo-router';
 
 export function useLibraries() {
-    const { session } = useAuth();
+    const { user } = useAuth();
     const [libraries, setLibraries] = useState<Library[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
     const fetchLibraries = useCallback(async (isRefresh = false) => {
-        if (!session?.user) {
-            console.log('[useLibraries] No session user, clearing loading.');
+        if (!user) {
+            console.log('[useLibraries] No user, clearing loading.');
             setLoading(false);
             return;
         }
 
         try {
-            console.log('[useLibraries] Fetching libraries for:', session.user.id);
+            console.log('[useLibraries] Fetching libraries for:', user.id);
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
 
-            const data = await LibraryService.getLibraries(session.user.id);
+            const data = await LibraryService.getLibraries(user.id);
             console.log('[useLibraries] Libraries fetched:', data.length);
             setLibraries(data);
             setError(null);
@@ -34,7 +34,7 @@ export function useLibraries() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [session?.user]);
+    }, [user]);
 
     useFocusEffect(
         useCallback(() => {

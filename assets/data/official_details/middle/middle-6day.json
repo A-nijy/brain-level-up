@@ -1,0 +1,252 @@
+[
+  {
+    "question": "empty",
+    "answer": "비어 있는",
+    "memo": "An empty box."
+  },
+  {
+    "question": "reason (reasonable)",
+    "answer": "이유, 이성 (합리적인)",
+    "memo": "Give me a reason."
+  },
+  {
+    "question": "patient",
+    "answer": "환자, 인내심 있는",
+    "memo": "Be patient with me."
+  },
+  {
+    "question": "instance",
+    "answer": "예, 사례",
+    "memo": "For instance."
+  },
+  {
+    "question": "mood",
+    "answer": "기분",
+    "memo": "I'm in a good mood."
+  },
+  {
+    "question": "blow",
+    "answer": "불다, 타격",
+    "memo": "The wind is blowing."
+  },
+  {
+    "question": "once",
+    "answer": "한 번, 일단 ~하면",
+    "memo": "Once upon a time."
+  },
+  {
+    "question": "tale",
+    "answer": "이야기",
+    "memo": "A fairy tale."
+  },
+  {
+    "question": "function",
+    "answer": "기능",
+    "memo": "The main function."
+  },
+  {
+    "question": "fit",
+    "answer": "알맞은, 건강한",
+    "memo": "Stay fit."
+  },
+  {
+    "question": "museum",
+    "answer": "박물관",
+    "memo": "Visit a museum."
+  },
+  {
+    "question": "mystery",
+    "answer": "미스터리, 신비",
+    "memo": "A mystery novel."
+  },
+  {
+    "question": "junior",
+    "answer": "학급 아래의, 주니어",
+    "memo": "He is a junior in high school."
+  },
+  {
+    "question": "dig",
+    "answer": "파다",
+    "memo": "Dig a hole."
+  },
+  {
+    "question": "band",
+    "answer": "밴드, 끈",
+    "memo": "He plays in a rock band."
+  },
+  {
+    "question": "lane",
+    "answer": "차선, 좁은 길",
+    "memo": "Change lanes."
+  },
+  {
+    "question": "account",
+    "answer": "계좌, 설명하다",
+    "memo": "I opened a new bank account."
+  },
+  {
+    "question": "suffer",
+    "answer": "고통받다",
+    "memo": "Suffer from a cold."
+  },
+  {
+    "question": "grant",
+    "answer": "승인하다, 보조금",
+    "memo": "Take it for granted."
+  },
+  {
+    "question": "opportune (opportunity)",
+    "answer": "시기적절한 (기회)",
+    "memo": "Wait for the opportunity."
+  },
+  {
+    "question": "awake",
+    "answer": "깨어 있는, 깨우다",
+    "memo": "I was wide awake all night."
+  },
+  {
+    "question": "cotton",
+    "answer": "솜, 면화",
+    "memo": "Cotton shirt."
+  },
+  {
+    "question": "golf",
+    "answer": "골프",
+    "memo": "Play golf."
+  },
+  {
+    "question": "concern",
+    "answer": "걱정, 관련되다",
+    "memo": "A matter of concern."
+  },
+  {
+    "question": "regard",
+    "answer": "간주하다, 존중",
+    "memo": "In this regard."
+  },
+  {
+    "question": "sweep",
+    "answer": "쓸다, 청소하다",
+    "memo": "Sweep the floor."
+  },
+  {
+    "question": "bond",
+    "answer": "유대, 채권",
+    "memo": "The bond between mother and child."
+  },
+  {
+    "question": "brief",
+    "answer": "잠시의, 짧은",
+    "memo": "A brief meeting."
+  },
+  {
+    "question": "slide",
+    "answer": "미끄러지다, 슬라이드",
+    "memo": "Slide down."
+  },
+  {
+    "question": "shout",
+    "answer": "외치다",
+    "memo": "Shout at me."
+  },
+  {
+    "question": "abroad",
+    "answer": "해외에, 외국으로",
+    "memo": "My sister is studying abroad."
+  },
+  {
+    "question": "lock",
+    "answer": "잠그다",
+    "memo": "Lock the door."
+  },
+  {
+    "question": "few",
+    "answer": "소수의, 거의 없는",
+    "memo": "A few days ago."
+  },
+  {
+    "question": "employ",
+    "answer": "고용하다",
+    "memo": "Employ ten workers."
+  },
+  {
+    "question": "aim",
+    "answer": "목표, 겨냥하다",
+    "memo": "My aim is to become a doctor."
+  },
+  {
+    "question": "pull",
+    "answer": "당기다",
+    "memo": "Pull the door."
+  },
+  {
+    "question": "license / licence",
+    "answer": "면허, 자격증",
+    "memo": "Driver's license."
+  },
+  {
+    "question": "strategy",
+    "answer": "전략",
+    "memo": "Business strategy."
+  },
+  {
+    "question": "cope",
+    "answer": "대처하다",
+    "memo": "Cope with stress."
+  },
+  {
+    "question": "click",
+    "answer": "클릭하다",
+    "memo": "Click the mouse button."
+  },
+  {
+    "question": "let",
+    "answer": "~하게 하다",
+    "memo": "Let it go."
+  },
+  {
+    "question": "dust",
+    "answer": "먼지",
+    "memo": "Clean the dust."
+  },
+  {
+    "question": "wage",
+    "answer": "임금, 급료",
+    "memo": "Minimum wage."
+  },
+  {
+    "question": "slight",
+    "answer": "약간의, 가벼운",
+    "memo": "A slight cold."
+  },
+  {
+    "question": "airport",
+    "answer": "공항",
+    "memo": "I will meet you at the airport."
+  },
+  {
+    "question": "advance",
+    "answer": "전진, 발전",
+    "memo": "Medical science has made a great advance."
+  },
+  {
+    "question": "pure",
+    "answer": "순수한",
+    "memo": "Pure water."
+  },
+  {
+    "question": "uniform",
+    "answer": "교복, 제복, 균일한",
+    "memo": "Wear a school uniform."
+  },
+  {
+    "question": "assess",
+    "answer": "평가하다",
+    "memo": "The teacher assessed the students' work."
+  },
+  {
+    "question": "charge (discharge)",
+    "answer": "요금, 책임, 충전하다 (방출하다)",
+    "memo": "Free of charge."
+  }
+]

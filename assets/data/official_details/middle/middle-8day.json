@@ -1,0 +1,252 @@
+[
+  {
+    "question": "aside",
+    "answer": "옆에, 제쳐두고",
+    "memo": "Put your books aside."
+  },
+  {
+    "question": "cause (causal)",
+    "answer": "원인, 야기하다 (인과 관계의)",
+    "memo": "What was the cause of the fire?"
+  },
+  {
+    "question": "shelter",
+    "answer": "피난처, 보호하다",
+    "memo": "An animal shelter."
+  },
+  {
+    "question": "chip",
+    "answer": "조각, 칩",
+    "memo": "Potato chips."
+  },
+  {
+    "question": "event (eventually)",
+    "answer": "사건, 행사 (결국)",
+    "memo": "A sporting event."
+  },
+  {
+    "question": "evil",
+    "answer": "사악한",
+    "memo": "An evil wizard."
+  },
+  {
+    "question": "academy",
+    "answer": "학원, 전문학교",
+    "memo": "She goes to a dance academy."
+  },
+  {
+    "question": "alarm",
+    "answer": "경보, 자명종",
+    "memo": "The fire alarm went off."
+  },
+  {
+    "question": "increase",
+    "answer": "증가하다",
+    "memo": "Increase the price."
+  },
+  {
+    "question": "feature",
+    "answer": "특징, 특집 기사",
+    "memo": "Key features of the product."
+  },
+  {
+    "question": "shut",
+    "answer": "닫다",
+    "memo": "Shut the door."
+  },
+  {
+    "question": "previous",
+    "answer": "이전의",
+    "memo": "The previous day."
+  },
+  {
+    "question": "struggle",
+    "answer": "투쟁하다, 애쓰다",
+    "memo": "Struggle for life."
+  },
+  {
+    "question": "resource",
+    "answer": "자원",
+    "memo": "Natural resources."
+  },
+  {
+    "question": "converse (conversation)",
+    "answer": "대화하다 (대화)",
+    "memo": "Have a conversation."
+  },
+  {
+    "question": "skill",
+    "answer": "기술, 솜씨",
+    "memo": "Learn a new skill."
+  },
+  {
+    "question": "conflict",
+    "answer": "갈등, 충돌",
+    "memo": "A conflict of interest."
+  },
+  {
+    "question": "shelf",
+    "answer": "선반",
+    "memo": "On the shelf."
+  },
+  {
+    "question": "connect",
+    "answer": "연결하다",
+    "memo": "Connect to the internet."
+  },
+  {
+    "question": "channel",
+    "answer": "채널, 경로",
+    "memo": "Turn to channel 7."
+  },
+  {
+    "question": "donate",
+    "answer": "기부하다",
+    "memo": "Donate blood."
+  },
+  {
+    "question": "manage",
+    "answer": "관리하다, 해내다",
+    "memo": "Can you manage it?"
+  },
+  {
+    "question": "mate",
+    "answer": "동료, 짝",
+    "memo": "A soul mate."
+  },
+  {
+    "question": "research",
+    "answer": "연구, 조사",
+    "memo": "Scientific research."
+  },
+  {
+    "question": "force (enforce)",
+    "answer": "힘, 강요하다 (집행하다)",
+    "memo": "By force."
+  },
+  {
+    "question": "settle",
+    "answer": "정착하다, 해결하다",
+    "memo": "Settle down."
+  },
+  {
+    "question": "tear",
+    "answer": "눈물, 찢다",
+    "memo": "Tears of joy."
+  },
+  {
+    "question": "passage",
+    "answer": "통로, 구절",
+    "memo": "A narrow passage."
+  },
+  {
+    "question": "promote",
+    "answer": "홍보하다, 승진시키다",
+    "memo": "Promote a product."
+  },
+  {
+    "question": "roof",
+    "answer": "지붕",
+    "memo": "On the roof."
+  },
+  {
+    "question": "laser",
+    "answer": "레이저",
+    "memo": "Laser printer."
+  },
+  {
+    "question": "figure",
+    "answer": "숫자, 인물, 모양",
+    "memo": "A public figure."
+  },
+  {
+    "question": "pie",
+    "answer": "파이",
+    "memo": "Apple pie."
+  },
+  {
+    "question": "involve",
+    "answer": "관련시키다, 포함하다",
+    "memo": "Be involved in."
+  },
+  {
+    "question": "feed",
+    "answer": "먹이를 주다",
+    "memo": "Feed the dog."
+  },
+  {
+    "question": "client",
+    "answer": "고객, 의뢰인",
+    "memo": "The lawyer has many clients."
+  },
+  {
+    "question": "plenty",
+    "answer": "풍부함, 많음",
+    "memo": "Plenty of time."
+  },
+  {
+    "question": "scale",
+    "answer": "규모, 저울, 비늘",
+    "memo": "On a large scale."
+  },
+  {
+    "question": "assume",
+    "answer": "가정하다, 맡다",
+    "memo": "Let's assume that it's true."
+  },
+  {
+    "question": "judge",
+    "answer": "판단하다, 판사",
+    "memo": "Don't judge a book by its cover."
+  },
+  {
+    "question": "pity",
+    "answer": "동정, 아쉬움",
+    "memo": "What a pity!"
+  },
+  {
+    "question": "blame",
+    "answer": "비난하다, ~의 탓으로 돌리다",
+    "memo": "Don't blame me."
+  },
+  {
+    "question": "press",
+    "answer": "누르다, 언론",
+    "memo": "Press the button."
+  },
+  {
+    "question": "establish",
+    "answer": "설립하다, 확립하다",
+    "memo": "Establish a school."
+  },
+  {
+    "question": "vehicle",
+    "answer": "탈것, 차량",
+    "memo": "Motor vehicle."
+  },
+  {
+    "question": "social",
+    "answer": "사회적인",
+    "memo": "Social media."
+  },
+  {
+    "question": "average",
+    "answer": "평균",
+    "memo": "The average age of the class is 15."
+  },
+  {
+    "question": "noise",
+    "answer": "소음",
+    "memo": "Don't make noise."
+  },
+  {
+    "question": "neither",
+    "answer": "어느 쪽도 ~아닌",
+    "memo": "Neither of them."
+  },
+  {
+    "question": "various",
+    "answer": "다양한",
+    "memo": "Various colors."
+  }
+]

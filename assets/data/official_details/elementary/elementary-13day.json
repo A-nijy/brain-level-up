@@ -1,0 +1,252 @@
+[
+  {
+    "question": "yesterday",
+    "answer": "어제",
+    "memo": "Yesterday afternoon."
+  },
+  {
+    "question": "want",
+    "answer": "원하다",
+    "memo": "I want it."
+  },
+  {
+    "question": "who",
+    "answer": "누구",
+    "memo": "Who are you?"
+  },
+  {
+    "question": "model",
+    "answer": "모델",
+    "memo": "A role model."
+  },
+  {
+    "question": "smell",
+    "answer": "냄새, 향기",
+    "memo": "A good smell."
+  },
+  {
+    "question": "alright",
+    "answer": "괜찮은",
+    "memo": "Everything will be alright."
+  },
+  {
+    "question": "mouse",
+    "answer": "쥐, 마우스",
+    "memo": "A computer mouse."
+  },
+  {
+    "question": "jump",
+    "answer": "뛰다, 점프하다",
+    "memo": "Jump high."
+  },
+  {
+    "question": "find",
+    "answer": "찾다",
+    "memo": "I found my key."
+  },
+  {
+    "question": "newspaper",
+    "answer": "신문",
+    "memo": "Read the newspaper."
+  },
+  {
+    "question": "believe",
+    "answer": "믿다",
+    "memo": "I believe in you."
+  },
+  {
+    "question": "behind",
+    "answer": "~의 뒤에",
+    "memo": "The cat is behind the sofa."
+  },
+  {
+    "question": "glad",
+    "answer": "기쁜",
+    "memo": "I'm glad to see you."
+  },
+  {
+    "question": "hold",
+    "answer": "잡다, 개최하다",
+    "memo": "Hold my hand."
+  },
+  {
+    "question": "mountain",
+    "answer": "산",
+    "memo": "Climb a mountain."
+  },
+  {
+    "question": "might",
+    "answer": "~일지도 모른다, 힘",
+    "memo": "He might be late."
+  },
+  {
+    "question": "scissors",
+    "answer": "가위",
+    "memo": "A pair of scissors."
+  },
+  {
+    "question": "show",
+    "answer": "보여주다, 공연",
+    "memo": "Show me the way."
+  },
+  {
+    "question": "spring",
+    "answer": "봄, 용수철",
+    "memo": "Spring flowers."
+  },
+  {
+    "question": "again",
+    "answer": "다시",
+    "memo": "Please say that again."
+  },
+  {
+    "question": "cap",
+    "answer": "모자, 뚜껑",
+    "memo": "I wear a baseball cap."
+  },
+  {
+    "question": "draw (drawer)",
+    "answer": "그리다 (서랍)",
+    "memo": "Draw a picture."
+  },
+  {
+    "question": "watermelon",
+    "answer": "수박",
+    "memo": "Sweet watermelon."
+  },
+  {
+    "question": "right",
+    "answer": "오른쪽의, 옳은, 권리",
+    "memo": "Human rights."
+  },
+  {
+    "question": "hat",
+    "answer": "모자",
+    "memo": "Wear a hat."
+  },
+  {
+    "question": "bike",
+    "answer": "자전거",
+    "memo": "I ride my bike to school."
+  },
+  {
+    "question": "safe",
+    "answer": "안전한, 금고",
+    "memo": "Have a safe trip."
+  },
+  {
+    "question": "much",
+    "answer": "많은, 훨씬",
+    "memo": "Thank you very much."
+  },
+  {
+    "question": "sun",
+    "answer": "태양, 해",
+    "memo": "The sun rises."
+  },
+  {
+    "question": "what",
+    "answer": "무엇",
+    "memo": "What is it?"
+  },
+  {
+    "question": "worry",
+    "answer": "걱정하다",
+    "memo": "Don't worry."
+  },
+  {
+    "question": "textbook",
+    "answer": "교과서",
+    "memo": "An English textbook."
+  },
+  {
+    "question": "puppy",
+    "answer": "강아지",
+    "memo": "A cute puppy."
+  },
+  {
+    "question": "sale",
+    "answer": "판매, 세일",
+    "memo": "For sale."
+  },
+  {
+    "question": "style",
+    "answer": "스타일, 방식",
+    "memo": "Life style."
+  },
+  {
+    "question": "drop",
+    "answer": "떨어뜨리다, 물방울",
+    "memo": "Don't drop the glass."
+  },
+  {
+    "question": "fun",
+    "answer": "재미",
+    "memo": "Have fun!"
+  },
+  {
+    "question": "head",
+    "answer": "머리, 이끌다",
+    "memo": "Use your head."
+  },
+  {
+    "question": "both",
+    "answer": "둘 다",
+    "memo": "Both of them are tall."
+  },
+  {
+    "question": "front",
+    "answer": "앞",
+    "memo": "In front of."
+  },
+  {
+    "question": "cook",
+    "answer": "요리하다",
+    "memo": "I like to cook."
+  },
+  {
+    "question": "die",
+    "answer": "죽다",
+    "memo": "He died of old age."
+  },
+  {
+    "question": "also",
+    "answer": "또한, 역시",
+    "memo": "She is a singer and also an actor."
+  },
+  {
+    "question": "wood",
+    "answer": "나무, 목재",
+    "memo": "Made of wood."
+  },
+  {
+    "question": "key",
+    "answer": "열쇠, 핵심적인",
+    "memo": "The key to success."
+  },
+  {
+    "question": "down",
+    "answer": "아래로",
+    "memo": "Sit down."
+  },
+  {
+    "question": "wake",
+    "answer": "깨다, 깨우다",
+    "memo": "Wake up."
+  },
+  {
+    "question": "school",
+    "answer": "학교",
+    "memo": "Go to school."
+  },
+  {
+    "question": "picture",
+    "answer": "사진, 그림",
+    "memo": "Draw a picture."
+  },
+  {
+    "question": "teach",
+    "answer": "가르치다",
+    "memo": "Teach English."
+  }
+]

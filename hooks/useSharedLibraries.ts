@@ -3,6 +3,10 @@ import { SharedLibrary, SharedLibraryCategory } from '@/types';
 import { SharedLibraryService } from '@/services/SharedLibraryService';
 import { useFocusEffect } from 'expo-router';
 
+/**
+ * [Local-Only] 공유 자료실 데이터 관리를 담당하는 훅
+ * 공식 자료만 지원하도록 리팩토링됨
+ */
 export function useSharedLibraries() {
     const [libraries, setLibraries] = useState<SharedLibrary[]>([]);
     const [categories, setCategories] = useState<SharedLibraryCategory[]>([]);
@@ -10,23 +14,23 @@ export function useSharedLibraries() {
     const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
-    const [isOfficial, setIsOfficial] = useState(true);
 
     const fetchCategories = useCallback(async () => {
         try {
-            const data = await SharedLibraryService.getSharedCategories(isOfficial);
+            const data = await SharedLibraryService.getAllSharedCategories();
             setCategories(data);
         } catch (err: any) {
             console.error('[useSharedLibraries] Fetch categories error:', err);
         }
-    }, [isOfficial]);
+    }, []);
 
     const fetchLibraries = useCallback(async (isRefresh = false) => {
         try {
             if (isRefresh) setRefreshing(true);
             else setLoading(true);
 
-            const data = await SharedLibraryService.getSharedLibraries(selectedCategoryId, isOfficial);
+            // 로컬 버전은 항상 공식 자료만 조회
+            const data = await SharedLibraryService.getSharedLibraries(selectedCategoryId, true);
             setLibraries(data);
             setError(null);
         } catch (err: any) {
@@ -36,7 +40,7 @@ export function useSharedLibraries() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [selectedCategoryId, isOfficial]);
+    }, [selectedCategoryId]);
 
     useEffect(() => {
         fetchCategories();
@@ -62,8 +66,6 @@ export function useSharedLibraries() {
         refresh,
         selectedCategoryId,
         setSelectedCategoryId,
-        isOfficial,
-        setIsOfficial,
         downloadLibrary: SharedLibraryService.downloadLibrary
     };
 }

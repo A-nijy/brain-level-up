@@ -1,0 +1,252 @@
+[
+  {
+    "question": "egg",
+    "answer": "계란",
+    "memo": "Boil an egg."
+  },
+  {
+    "question": "finish",
+    "answer": "끝내다",
+    "memo": "Finish your homework."
+  },
+  {
+    "question": "candy",
+    "answer": "사탕",
+    "memo": "Don't eat too much candy."
+  },
+  {
+    "question": "every",
+    "answer": "모든",
+    "memo": "Every day."
+  },
+  {
+    "question": "music",
+    "answer": "음악",
+    "memo": "Listen to music."
+  },
+  {
+    "question": "strong",
+    "answer": "강한",
+    "memo": "Strong wind."
+  },
+  {
+    "question": "hospital",
+    "answer": "병원",
+    "memo": "Go to the hospital."
+  },
+  {
+    "question": "season",
+    "answer": "계절",
+    "memo": "Four seasons."
+  },
+  {
+    "question": "program / programme",
+    "answer": "프로그램",
+    "memo": "TV program."
+  },
+  {
+    "question": "father (dad, daddy)",
+    "answer": "아버지",
+    "memo": "My father is a teacher."
+  },
+  {
+    "question": "little",
+    "answer": "작은, 조금",
+    "memo": "A little boy."
+  },
+  {
+    "question": "so",
+    "answer": "그래서, 매우",
+    "memo": "So do I."
+  },
+  {
+    "question": "voice",
+    "answer": "목소리",
+    "memo": "A loud voice."
+  },
+  {
+    "question": "sister",
+    "answer": "자매, 언니, 여동생",
+    "memo": "Older sister."
+  },
+  {
+    "question": "biscuit",
+    "answer": "비스킷",
+    "memo": "Would you like a biscuit?"
+  },
+  {
+    "question": "come",
+    "answer": "오다",
+    "memo": "Come here, please."
+  },
+  {
+    "question": "birth",
+    "answer": "탄생, 출생",
+    "memo": "Date of birth."
+  },
+  {
+    "question": "telephone (phone)",
+    "answer": "전화",
+    "memo": "Mobile phone."
+  },
+  {
+    "question": "sure (ensure)",
+    "answer": "확실한 (보장하다)",
+    "memo": "Are you sure?"
+  },
+  {
+    "question": "monkey",
+    "answer": "원숭이",
+    "memo": "A clever monkey."
+  },
+  {
+    "question": "customer",
+    "answer": "고객",
+    "memo": "A regular customer."
+  },
+  {
+    "question": "lie",
+    "answer": "거짓말하다, 눕다",
+    "memo": "Don't lie to me."
+  },
+  {
+    "question": "sock",
+    "answer": "양말",
+    "memo": "A pair of socks."
+  },
+  {
+    "question": "woman",
+    "answer": "여자",
+    "memo": "A beautiful woman."
+  },
+  {
+    "question": "west",
+    "answer": "서쪽",
+    "memo": "In the west."
+  },
+  {
+    "question": "under",
+    "answer": "~아래에",
+    "memo": "Under the table."
+  },
+  {
+    "question": "hate",
+    "answer": "미워하다",
+    "memo": "I hate cold weather."
+  },
+  {
+    "question": "album",
+    "answer": "앨범",
+    "memo": "I put the photos in an album."
+  },
+  {
+    "question": "city",
+    "answer": "도시",
+    "memo": "I live in a big city."
+  },
+  {
+    "question": "evening",
+    "answer": "저녁",
+    "memo": "Good evening."
+  },
+  {
+    "question": "he",
+    "answer": "그",
+    "memo": "He is my friend."
+  },
+  {
+    "question": "drink",
+    "answer": "마시다",
+    "memo": "Drink some water."
+  },
+  {
+    "question": "rich",
+    "answer": "부유한, 풍부한",
+    "memo": "A rich man."
+  },
+  {
+    "question": "corner",
+    "answer": "목동이",
+    "memo": "On the corner."
+  },
+  {
+    "question": "focus",
+    "answer": "집중하다",
+    "memo": "Focus on your work."
+  },
+  {
+    "question": "market",
+    "answer": "시장",
+    "memo": "Go to the market."
+  },
+  {
+    "question": "shy",
+    "answer": "수줍어하는",
+    "memo": "A shy boy."
+  },
+  {
+    "question": "apple",
+    "answer": "사과",
+    "memo": "An apple a day keeps the doctor away."
+  },
+  {
+    "question": "river",
+    "answer": "강",
+    "memo": "Across the river."
+  },
+  {
+    "question": "store",
+    "answer": "가게, 저장하다",
+    "memo": "Department store."
+  },
+  {
+    "question": "glass",
+    "answer": "유리, 유리잔",
+    "memo": "A glass of water."
+  },
+  {
+    "question": "doctor",
+    "answer": "의사, 박사",
+    "memo": "Call a doctor."
+  },
+  {
+    "question": "fine",
+    "answer": "좋은, 벌금",
+    "memo": "I'm fine, thank you."
+  },
+  {
+    "question": "baby",
+    "answer": "아기",
+    "memo": "The baby is sleeping."
+  },
+  {
+    "question": "month",
+    "answer": "달, 월",
+    "memo": "Once a month."
+  },
+  {
+    "question": "return",
+    "answer": "돌아오다, 반납하다",
+    "memo": "Return the book."
+  },
+  {
+    "question": "child",
+    "answer": "아이",
+    "memo": "Every child needs love."
+  },
+  {
+    "question": "near",
+    "answer": "가까운",
+    "memo": "Come near."
+  },
+  {
+    "question": "night",
+    "answer": "밤",
+    "memo": "Good night."
+  },
+  {
+    "question": "say",
+    "answer": "말하다",
+    "memo": "Say it again."
+  }
+]

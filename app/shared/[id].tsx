@@ -10,8 +10,6 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { MembershipService } from '@/services/MembershipService';
-import { AdService } from '@/services/AdService';
-import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
@@ -37,21 +35,9 @@ export default function SharedLibraryPreviewScreen() {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [downloading, setDownloading] = useState(false);
-    const [adLoading, setAdLoading] = useState(false);
 
     const handleDownloadRequest = () => {
-        if (!user) {
-            showAlert({ title: Strings.common.loginRequired, message: Strings.sharedDetail.alerts.loginRequired });
-            return;
-        }
-
-        const access = MembershipService.checkAccess('DOWNLOAD_SHARED', profile);
-
-        if (access.status === 'REQUIRE_AD') {
-            setModalVisible(true);
-        } else {
-            performDownload();
-        }
+        performDownload();
     };
 
     const performDownload = async () => {
@@ -74,15 +60,10 @@ export default function SharedLibraryPreviewScreen() {
         } finally {
             setDownloading(false);
             setModalVisible(false);
-            setAdLoading(false);
         }
     };
 
-    const handleWatchAd = () => {
-        AdService.showRewardedAd(() => {
-            performDownload();
-        }, showAlert, setAdLoading, 'DOWNLOAD_SHARED');
-    };
+
 
     const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (
         <Animated.View entering={FadeInUp.delay(index * 40).duration(400)}>
@@ -133,17 +114,17 @@ export default function SharedLibraryPreviewScreen() {
                             </Text>
                         )}
                         <View variant="transparent" style={styles.headerStats}>
-                            <Text style={styles.countText}>{Strings.adminSharedSection.count(sections.length)}</Text>
+                            <Text style={styles.countText}>{Strings.sharedDetail.count(sections.length)}</Text>
                         </View>
                         <View variant="transparent" style={styles.subHeaderTitle}>
-                            <Text style={[styles.subHeaderTitleText, { color: colors.textSecondary }]}>{Strings.libraryDetail.sectionListHeader}</Text>
+                            <Text style={[styles.subHeaderTitleText, { color: colors.textSecondary }]}>섹션 목록</Text>
                         </View>
                     </View>
                 }
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <FontAwesome name="folder-open-o" size={48} color={colors.textSecondary} style={{ opacity: 0.3 }} />
-                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>{Strings.libraryDetail.empty}</Text>
+                        <Text style={[styles.emptyText, { color: colors.textSecondary }]}>등록된 섹션이 없습니다.</Text>
                     </View>
                 }
             />
@@ -173,15 +154,7 @@ export default function SharedLibraryPreviewScreen() {
                 </TouchableOpacity>
             </View>
 
-            <FeatureGatingModal
-                isVisible={modalVisible}
-                onClose={() => !adLoading && !downloading && setModalVisible(false)}
-                onWatchAd={handleWatchAd}
-                title={Strings.sharedDetail.downloadBtn}
-                description={Strings.sharedDetail.downloadGuide}
-                isLoading={adLoading || downloading}
-                loadingText={adLoading ? '광고 준비 중...' : '다운로드 중...'}
-            />
+
         </View>
     );
 }

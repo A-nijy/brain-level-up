@@ -11,7 +11,7 @@ import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
 
 export default function CreateLibraryScreen() {
-    const { session } = useAuth();
+    const { user } = useAuth();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('');
@@ -27,14 +27,11 @@ export default function CreateLibraryScreen() {
             return;
         }
 
-        if (!session?.user) {
-            showAlert({ title: Strings.common.error, message: Strings.common.loginRequired });
-            return;
-        }
+        if (!user) return;
 
         setLoading(true);
         try {
-            await LibraryService.createLibrary(session.user.id, {
+            await LibraryService.createLibrary(user.id, {
                 title,
                 description,
                 category,

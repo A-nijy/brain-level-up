@@ -1,0 +1,252 @@
+[
+  {
+    "question": "conceive",
+    "answer": "상상하다, 임신하다",
+    "memo": "I cannot conceive of it."
+  },
+  {
+    "question": "conscience",
+    "answer": "양심",
+    "memo": "A clear conscience."
+  },
+  {
+    "question": "confer",
+    "answer": "상의하다, 수여하다",
+    "memo": "Confer with a lawyer."
+  },
+  {
+    "question": "erase (eraser)",
+    "answer": "지우다 (지우개)",
+    "memo": "Erase the board."
+  },
+  {
+    "question": "subscribe",
+    "answer": "구독하다",
+    "memo": "Subscribe to a channel."
+  },
+  {
+    "question": "silent",
+    "answer": "조용한, 침묵하는",
+    "memo": "Keep silent."
+  },
+  {
+    "question": "anticipate",
+    "answer": "예상하다, 기대하다",
+    "memo": "We anticipate a large crowd."
+  },
+  {
+    "question": "revive",
+    "answer": "활기를 되찾다, 회복시키다",
+    "memo": "Revive the economy."
+  },
+  {
+    "question": "statistic",
+    "answer": "통계, 통계치",
+    "memo": "Vital statistics."
+  },
+  {
+    "question": "flip",
+    "answer": "휙 던지다, 뒤집다",
+    "memo": "Flip a coin."
+  },
+  {
+    "question": "constitute (constitution)",
+    "answer": "구성하다 (헌법)",
+    "memo": "The Korean Constitution."
+  },
+  {
+    "question": "extinct",
+    "answer": "멸종된",
+    "memo": "The dinosaurs are extinct."
+  },
+  {
+    "question": "zone",
+    "answer": "지역, 구역",
+    "memo": "Safety zone."
+  },
+  {
+    "question": "dictate",
+    "answer": "받아쓰게 하다, 지시하다",
+    "memo": "Dictate a letter."
+  },
+  {
+    "question": "custom",
+    "answer": "관습, 세관",
+    "memo": "Local customs."
+  },
+  {
+    "question": "wicked",
+    "answer": "사악한",
+    "memo": "The wicked witch."
+  },
+  {
+    "question": "sensible",
+    "answer": "현명한, 분별 있는",
+    "memo": "A sensible choice."
+  },
+  {
+    "question": "prompt",
+    "answer": "즉각적인, 자극하다",
+    "memo": "A prompt reply."
+  },
+  {
+    "question": "scramble",
+    "answer": "재빨리 움직이다, 휘젓다",
+    "memo": "Scrambled eggs."
+  },
+  {
+    "question": "extent",
+    "answer": "정도, 범위",
+    "memo": "To a large extent."
+  },
+  {
+    "question": "abandon",
+    "answer": "버리다, 포기하다",
+    "memo": "The sailors had to abandon the ship."
+  },
+  {
+    "question": "allocate",
+    "answer": "할당하다, 배분하다",
+    "memo": "The government allocated money for education."
+  },
+  {
+    "question": "needle",
+    "answer": "바늘",
+    "memo": "A sewing needle."
+  },
+  {
+    "question": "stitch",
+    "answer": "바늘땀, 꿰매다",
+    "memo": "A few stitches."
+  },
+  {
+    "question": "conclude",
+    "answer": "결론을 내리다",
+    "memo": "To conclude my speech."
+  },
+  {
+    "question": "pond",
+    "answer": "연못",
+    "memo": "A small pond."
+  },
+  {
+    "question": "filter",
+    "answer": "필터, 여과하다",
+    "memo": "Water filter."
+  },
+  {
+    "question": "priest",
+    "answer": "사제, 신부",
+    "memo": "A village priest."
+  },
+  {
+    "question": "dismiss",
+    "answer": "해고하다, 묵살하다",
+    "memo": "Dismiss from work."
+  },
+  {
+    "question": "jail",
+    "answer": "교도소, 감옥",
+    "memo": "He was sent to jail."
+  },
+  {
+    "question": "sack",
+    "answer": "부대, 자루, 해고하다",
+    "memo": "A sack of potatoes."
+  },
+  {
+    "question": "verse",
+    "answer": "운문, (시의) 절",
+    "memo": "Chapter and verse."
+  },
+  {
+    "question": "elaborate",
+    "answer": "정교한, 상세히 설명하다",
+    "memo": "An elaborate plan."
+  },
+  {
+    "question": "implement",
+    "answer": "실행하다, 도구",
+    "memo": "Implement a plan."
+  },
+  {
+    "question": "continent",
+    "answer": "대륙",
+    "memo": "The Asian continent."
+  },
+  {
+    "question": "architect (architecture)",
+    "answer": "건축가 (건축)",
+    "memo": "He is a famous architect."
+  },
+  {
+    "question": "hostile",
+    "answer": "적대적인",
+    "memo": "A hostile environment."
+  },
+  {
+    "question": "mild",
+    "answer": "온화한, 순한",
+    "memo": "Mild weather."
+  },
+  {
+    "question": "rear",
+    "answer": "뒤쪽의, 기르다",
+    "memo": "Rear window."
+  },
+  {
+    "question": "poll",
+    "answer": "여론조사, 투표",
+    "memo": "Opinion poll."
+  },
+  {
+    "question": "pad",
+    "answer": "패드, 보호대",
+    "memo": "A writing pad."
+  },
+  {
+    "question": "fade",
+    "answer": "시들다, 바래다",
+    "memo": "The color began to fade."
+  },
+  {
+    "question": "diminish",
+    "answer": "줄이다, 감소하다",
+    "memo": "The resources diminished."
+  },
+  {
+    "question": "skip",
+    "answer": "거르다, 건너뛰다",
+    "memo": "Skip breakfast."
+  },
+  {
+    "question": "chorus",
+    "answer": "합창",
+    "memo": "They sang in chorus."
+  },
+  {
+    "question": "cooperate",
+    "answer": "협력하다",
+    "memo": "Cooperate with each other."
+  },
+  {
+    "question": "clap",
+    "answer": "박수치다",
+    "memo": "The audience clapped."
+  },
+  {
+    "question": "habitat",
+    "answer": "서식지",
+    "memo": "The natural habitat of tigers."
+  },
+  {
+    "question": "metropolitan",
+    "answer": "대도시의",
+    "memo": "Metropolitan area."
+  },
+  {
+    "question": "innovate",
+    "answer": "혁신하다",
+    "memo": "Innovate technology."
+  }
+]

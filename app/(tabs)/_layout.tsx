@@ -9,16 +9,11 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
-import { supabase } from '@/lib/supabase';
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
-
-import { MembershipService } from '@/services/MembershipService';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
-import { AdService } from '@/services/AdService';
-import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 import HeaderActions from '@/components/HeaderActions';
 
 function TabBarIcon(props: {
@@ -33,41 +28,14 @@ export default function TabLayout() {
   const colors = Colors[colorScheme];
   const { profile, user } = useAuth();
   const router = useRouter();
-  const { showAlert } = useAlert();
   const { unreadCount } = useUnreadNotifications();
   const insets = useSafeAreaInsets();
-  const [adModalVisible, setAdModalVisible] = useState(false);
-  const [adLoading, setAdLoading] = useState(false);
 
-  const handleCreatePress = async () => {
-    if (!profile || !user) return;
-
-    const { count, error } = await supabase
-      .from('libraries')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id);
-
-    if (error) {
-      console.error('Error checking library count:', error);
-      return;
-    }
-
-    const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
-
-    if (access.status === 'REQUIRE_AD') {
-      setAdModalVisible(true);
-      return;
-    }
-
+  const handleCreatePress = () => {
     router.push('/library/create');
   };
 
-  const handleWatchAd = () => {
-    AdService.showRewardedAd(() => {
-      setAdModalVisible(false);
-      router.push('/library/create');
-    }, showAlert, setAdLoading, 'CREATE_LIBRARY');
-  };
+
 
   // 플랫폼과 안전 영역에 따른 하단 패딩 및 높이 계산
   const tabPaddingBottom = Math.max(insets.bottom, 4); // 최소 패딩 보장
@@ -183,16 +151,6 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-
-      <FeatureGatingModal
-        isVisible={adModalVisible}
-        onClose={() => !adLoading && setAdModalVisible(false)}
-        onWatchAd={handleWatchAd}
-        title={Strings.libraryForm.createTitle}
-        description={"암기장이 5개를 초과했습니다.\n광고를 시청하시면 하나 더 추가할 수 있습니다."}
-        isLoading={adLoading}
-        loadingText={"광고 준비 중..."}
-      />
     </>
   );
 }

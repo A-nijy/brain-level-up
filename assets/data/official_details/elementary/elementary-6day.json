@@ -1,0 +1,252 @@
+[
+  {
+    "question": "dinner",
+    "answer": "저녁 식사",
+    "memo": "What's for dinner?"
+  },
+  {
+    "question": "duck",
+    "answer": "오리",
+    "memo": "A wild duck."
+  },
+  {
+    "question": "sing",
+    "answer": "노래하다",
+    "memo": "Sing a song."
+  },
+  {
+    "question": "end",
+    "answer": "끝, 끝내다",
+    "memo": "The end of the story."
+  },
+  {
+    "question": "soft",
+    "answer": "부드러운",
+    "memo": "Soft voice."
+  },
+  {
+    "question": "subway",
+    "answer": "지하철",
+    "memo": "Take the subway."
+  },
+  {
+    "question": "radio",
+    "answer": "라디오",
+    "memo": "Listen to the radio."
+  },
+  {
+    "question": "future",
+    "answer": "미래",
+    "memo": "In the future."
+  },
+  {
+    "question": "coat",
+    "answer": "코트, 외투",
+    "memo": "Wear your coat."
+  },
+  {
+    "question": "book",
+    "answer": "책, 예약하다",
+    "memo": "I want to book a table."
+  },
+  {
+    "question": "hot",
+    "answer": "뜨거운",
+    "memo": "Hot coffee."
+  },
+  {
+    "question": "bad",
+    "answer": "나쁜",
+    "memo": "It is a bad habit."
+  },
+  {
+    "question": "not",
+    "answer": "~않다",
+    "memo": "I am not."
+  },
+  {
+    "question": "notebook",
+    "answer": "공책",
+    "memo": "Write in your notebook."
+  },
+  {
+    "question": "fix",
+    "answer": "고치다, 정하다",
+    "memo": "Fix the car."
+  },
+  {
+    "question": "vacate (vacation)",
+    "answer": "비우다 (휴가)",
+    "memo": "Summer vacation."
+  },
+  {
+    "question": "on",
+    "answer": "~위에",
+    "memo": "On the table."
+  },
+  {
+    "question": "but",
+    "answer": "그러나",
+    "memo": "I'm tired but happy."
+  },
+  {
+    "question": "hundred",
+    "answer": "100",
+    "memo": "One hundred."
+  },
+  {
+    "question": "mouth",
+    "answer": "입",
+    "memo": "Open your mouth."
+  },
+  {
+    "question": "she",
+    "answer": "그녀",
+    "memo": "She is a doctor."
+  },
+  {
+    "question": "run",
+    "answer": "달리다, 운영하다",
+    "memo": "Run a business."
+  },
+  {
+    "question": "ear",
+    "answer": "귀",
+    "memo": "Listen with your ears."
+  },
+  {
+    "question": "milk",
+    "answer": "우유",
+    "memo": "Drink some milk."
+  },
+  {
+    "question": "walk",
+    "answer": "걷다",
+    "memo": "Walk to school."
+  },
+  {
+    "question": "form (formal, formation, informal)",
+    "answer": "형태, 형성하다 (공식적인, 형성, 비공식적인)",
+    "memo": "Fill out the form."
+  },
+  {
+    "question": "skirt",
+    "answer": "치마",
+    "memo": "A long skirt."
+  },
+  {
+    "question": "very",
+    "answer": "매우",
+    "memo": "Very good."
+  },
+  {
+    "question": "rose",
+    "answer": "장미",
+    "memo": "A red rose."
+  },
+  {
+    "question": "camp",
+    "answer": "캠프, 야영하다",
+    "memo": "We went on a summer camp."
+  },
+  {
+    "question": "energy",
+    "answer": "에너지",
+    "memo": "Solar energy."
+  },
+  {
+    "question": "often",
+    "answer": "종종",
+    "memo": "I often go there."
+  },
+  {
+    "question": "four",
+    "answer": "4",
+    "memo": "Four seasons."
+  },
+  {
+    "question": "mathematics (math)",
+    "answer": "수학",
+    "memo": "I like math."
+  },
+  {
+    "question": "some",
+    "answer": "약간의, 몇몇",
+    "memo": "Some water."
+  },
+  {
+    "question": "next",
+    "answer": "다음의",
+    "memo": "Next time."
+  },
+  {
+    "question": "taste",
+    "answer": "맛, 맛보다",
+    "memo": "Good taste."
+  },
+  {
+    "question": "jacket",
+    "answer": "재킷, 상의",
+    "memo": "Wear your jacket."
+  },
+  {
+    "question": "year",
+    "answer": "해, 년",
+    "memo": "Happy New Year."
+  },
+  {
+    "question": "afraid",
+    "answer": "두려워하는",
+    "memo": "Don't be afraid of the dog."
+  },
+  {
+    "question": "fight",
+    "answer": "싸우다",
+    "memo": "Don't fight with friends."
+  },
+  {
+    "question": "winter",
+    "answer": "겨울",
+    "memo": "Cold winter."
+  },
+  {
+    "question": "ago",
+    "answer": "~전에",
+    "memo": "I met him two days ago."
+  },
+  {
+    "question": "nose",
+    "answer": "코",
+    "memo": "A long nose."
+  },
+  {
+    "question": "beach",
+    "answer": "해변",
+    "memo": "Let's go to the beach."
+  },
+  {
+    "question": "problem",
+    "answer": "문제",
+    "memo": "No problem."
+  },
+  {
+    "question": "bridge",
+    "answer": "다리",
+    "memo": "The bridge is over the river."
+  },
+  {
+    "question": "free",
+    "answer": "자유로운, 무료의",
+    "memo": "Free time."
+  },
+  {
+    "question": "sad",
+    "answer": "슬픈",
+    "memo": "A sad story."
+  },
+  {
+    "question": "condition",
+    "answer": "조건, 상태",
+    "memo": "In good condition."
+  }
+]

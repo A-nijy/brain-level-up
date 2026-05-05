@@ -1,0 +1,252 @@
+[
+  {
+    "question": "battle",
+    "answer": "전투, 싸움",
+    "memo": "The battle lasted for three days."
+  },
+  {
+    "question": "inform",
+    "answer": "알리다",
+    "memo": "Inform the police."
+  },
+  {
+    "question": "male",
+    "answer": "남성의, 수컷",
+    "memo": "A male voice."
+  },
+  {
+    "question": "communicate (communication)",
+    "answer": "의사소통하다 (통신)",
+    "memo": "We communicate by email."
+  },
+  {
+    "question": "dive",
+    "answer": "다이빙하다, 뛰어들다",
+    "memo": "Dive into the water."
+  },
+  {
+    "question": "grace",
+    "answer": "우아함, 은총",
+    "memo": "Amazing grace."
+  },
+  {
+    "question": "brain",
+    "answer": "뇌, 두뇌",
+    "memo": "The human brain."
+  },
+  {
+    "question": "mention",
+    "answer": "언급하다",
+    "memo": "Don't mention it."
+  },
+  {
+    "question": "register",
+    "answer": "등록하다",
+    "memo": "Register for a class."
+  },
+  {
+    "question": "knowledge",
+    "answer": "지식",
+    "memo": "Basic knowledge."
+  },
+  {
+    "question": "spin",
+    "answer": "회전하다",
+    "memo": "Spin around."
+  },
+  {
+    "question": "develop",
+    "answer": "발달하다, 개발하다",
+    "memo": "Develop new technology."
+  },
+  {
+    "question": "desire",
+    "answer": "욕망, 갈망하다",
+    "memo": "A strong desire to win."
+  },
+  {
+    "question": "humor / humour",
+    "answer": "유머",
+    "memo": "A sense of humor."
+  },
+  {
+    "question": "steel",
+    "answer": "철강, 강철",
+    "memo": "Steel industry."
+  },
+  {
+    "question": "demand",
+    "answer": "요구하다, 수요",
+    "memo": "Supply and demand."
+  },
+  {
+    "question": "drug",
+    "answer": "약, 마약",
+    "memo": "A drug store."
+  },
+  {
+    "question": "captain",
+    "answer": "선장, 주장",
+    "memo": "He is the captain of the team."
+  },
+  {
+    "question": "knock",
+    "answer": "두드리다",
+    "memo": "Knock on the door."
+  },
+  {
+    "question": "general",
+    "answer": "일반적인, 장군",
+    "memo": "In general."
+  },
+  {
+    "question": "crisp",
+    "answer": "삭막한, 바삭바삭한",
+    "memo": "Crisp potato chips."
+  },
+  {
+    "question": "accent",
+    "answer": "강세, 말투",
+    "memo": "He has a strong British accent."
+  },
+  {
+    "question": "flow",
+    "answer": "흐름, 흐르다",
+    "memo": "The flow of water."
+  },
+  {
+    "question": "poison",
+    "answer": "독",
+    "memo": "Rat poison."
+  },
+  {
+    "question": "expert",
+    "answer": "전문가",
+    "memo": "A computer expert."
+  },
+  {
+    "question": "advantage (disadvantage)",
+    "answer": "유리한 점, 장점 (불리한 점)",
+    "memo": "She has an advantage over me."
+  },
+  {
+    "question": "countryside",
+    "answer": "시골, 지방",
+    "memo": "Live in the countryside."
+  },
+  {
+    "question": "expense (expensive)",
+    "answer": "비용 (비싼)",
+    "memo": "At the expense of."
+  },
+  {
+    "question": "remain",
+    "answer": "남다, 여전히 ~이다",
+    "memo": "Remain calm."
+  },
+  {
+    "question": "defense / defence",
+    "answer": "방어, 수비",
+    "memo": "A strong defense."
+  },
+  {
+    "question": "worth",
+    "answer": "가치가 있는",
+    "memo": "It's worth it."
+  },
+  {
+    "question": "lay (layer)",
+    "answer": "놓다, 낳다 (층)",
+    "memo": "Lay an egg."
+  },
+  {
+    "question": "smash",
+    "answer": "박살 내다",
+    "memo": "Smash the window."
+  },
+  {
+    "question": "honor / honour",
+    "answer": "명예, 영광",
+    "memo": "It's an honor."
+  },
+  {
+    "question": "snake",
+    "answer": "뱀",
+    "memo": "A poisonous snake."
+  },
+  {
+    "question": "alcohol",
+    "answer": "알코올, 술",
+    "memo": "Drinking too much alcohol is bad."
+  },
+  {
+    "question": "pronounce (pronunciation)",
+    "answer": "발음하다 (발음)",
+    "memo": "How do you pronounce it?"
+  },
+  {
+    "question": "sight",
+    "answer": "시력, 광경",
+    "memo": "At first sight."
+  },
+  {
+    "question": "FALSE",
+    "answer": "가짜의, 틀린",
+    "memo": "True or false?"
+  },
+  {
+    "question": "code",
+    "answer": "코드, 암호",
+    "memo": "Area code."
+  },
+  {
+    "question": "injure",
+    "answer": "부상을 입히다",
+    "memo": "Injure his leg."
+  },
+  {
+    "question": "senior",
+    "answer": "상급의, 노인",
+    "memo": "Senior citizens."
+  },
+  {
+    "question": "engage",
+    "answer": "참여하다, 고용하다",
+    "memo": "Engage in a conversation."
+  },
+  {
+    "question": "carpet",
+    "answer": "카펫",
+    "memo": "The floor is covered with a carpet."
+  },
+  {
+    "question": "wave",
+    "answer": "파도, 흔들다",
+    "memo": "Wave goodbye."
+  },
+  {
+    "question": "sudden",
+    "answer": "갑작스러운",
+    "memo": "A sudden change."
+  },
+  {
+    "question": "leap",
+    "answer": "도약하다",
+    "memo": "A giant leap."
+  },
+  {
+    "question": "justice",
+    "answer": "정의, 사법",
+    "memo": "Sense of justice."
+  },
+  {
+    "question": "technology",
+    "answer": "기술",
+    "memo": "Modern technology."
+  },
+  {
+    "question": "rob",
+    "answer": "강탈하다",
+    "memo": "Rob a bank."
+  }
+]

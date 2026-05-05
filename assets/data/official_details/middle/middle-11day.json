@@ -1,0 +1,252 @@
+[
+  {
+    "question": "shell",
+    "answer": "껍질, 조개",
+    "memo": "A sea shell."
+  },
+  {
+    "question": "billion",
+    "answer": "10억",
+    "memo": "One billion people."
+  },
+  {
+    "question": "aloud",
+    "answer": "큰 소리로",
+    "memo": "Read the poem aloud."
+  },
+  {
+    "question": "prison",
+    "answer": "교도소",
+    "memo": "Go to prison."
+  },
+  {
+    "question": "balance",
+    "answer": "균형, 잔고",
+    "memo": "You need to keep your balance."
+  },
+  {
+    "question": "support",
+    "answer": "지원하다, 지지하다",
+    "memo": "Support your family."
+  },
+  {
+    "question": "handle",
+    "answer": "다루다, 손잡이",
+    "memo": "Handle with care."
+  },
+  {
+    "question": "joke",
+    "answer": "농담",
+    "memo": "Tell a funny joke."
+  },
+  {
+    "question": "mess",
+    "answer": "엉망진창",
+    "memo": "What a mess!"
+  },
+  {
+    "question": "region",
+    "answer": "지역",
+    "memo": "A mountainous region."
+  },
+  {
+    "question": "volunteer",
+    "answer": "자원봉사자",
+    "memo": "Volunteer work."
+  },
+  {
+    "question": "major (majority)",
+    "answer": "주요한, 전공 (대부분)",
+    "memo": "What is your major?"
+  },
+  {
+    "question": "announce",
+    "answer": "발표하다, 알리다",
+    "memo": "They announced the winner."
+  },
+  {
+    "question": "crowd",
+    "answer": "군중, 인파",
+    "memo": "A large crowd."
+  },
+  {
+    "question": "pub",
+    "answer": "술집, 펍",
+    "memo": "Local pub."
+  },
+  {
+    "question": "benefit",
+    "answer": "이익, 혜택",
+    "memo": "Fresh air is a benefit to health."
+  },
+  {
+    "question": "instant",
+    "answer": "즉각적인, 인스턴트의",
+    "memo": "Instant coffee."
+  },
+  {
+    "question": "budget",
+    "answer": "예산",
+    "memo": "On a tight budget."
+  },
+  {
+    "question": "bury",
+    "answer": "묻다, 매장하다",
+    "memo": "They buried the treasure."
+  },
+  {
+    "question": "resist",
+    "answer": "저항하다",
+    "memo": "Resist the temptation."
+  },
+  {
+    "question": "forgive",
+    "answer": "용서하다",
+    "memo": "Forgive and forget."
+  },
+  {
+    "question": "document",
+    "answer": "서류, 문서",
+    "memo": "Save the document."
+  },
+  {
+    "question": "military",
+    "answer": "군대의",
+    "memo": "Military service."
+  },
+  {
+    "question": "attempt",
+    "answer": "시도하다",
+    "memo": "I'll attempt to solve the puzzle."
+  },
+  {
+    "question": "single",
+    "answer": "단 하나의, 싱글의",
+    "memo": "A single room."
+  },
+  {
+    "question": "chain",
+    "answer": "사슬, 체인",
+    "memo": "A bicycle chain."
+  },
+  {
+    "question": "frame (framework)",
+    "answer": "틀, 뼈대 (체제)",
+    "memo": "Picture frame."
+  },
+  {
+    "question": "deserve",
+    "answer": "~할 가치가 있다",
+    "memo": "You deserve the prize."
+  },
+  {
+    "question": "pocket",
+    "answer": "주머니",
+    "memo": "In my pocket."
+  },
+  {
+    "question": "choice",
+    "answer": "선택",
+    "memo": "I have no choice."
+  },
+  {
+    "question": "state",
+    "answer": "상태, 주, 국가, 말하다",
+    "memo": "United States."
+  },
+  {
+    "question": "oak",
+    "answer": "오크나무",
+    "memo": "An oak tree."
+  },
+  {
+    "question": "pear",
+    "answer": "배(과일)",
+    "memo": "Sweet pear."
+  },
+  {
+    "question": "flat",
+    "answer": "평평한, 아파트",
+    "memo": "Flat tire."
+  },
+  {
+    "question": "cart",
+    "answer": "수레, 카트",
+    "memo": "Put the groceries in the cart."
+  },
+  {
+    "question": "scarf",
+    "answer": "스카프, 목도리",
+    "memo": "Wear a scarf."
+  },
+  {
+    "question": "leave",
+    "answer": "떠나다, 남겨두다",
+    "memo": "Leave me alone."
+  },
+  {
+    "question": "suppose",
+    "answer": "가정하다, 생각하다",
+    "memo": "I suppose so."
+  },
+  {
+    "question": "background",
+    "answer": "배경",
+    "memo": "She has a musical background."
+  },
+  {
+    "question": "puzzle",
+    "answer": "퍼즐, 당황하게 하다",
+    "memo": "Solve a puzzle."
+  },
+  {
+    "question": "breathe",
+    "answer": "숨을 쉬다",
+    "memo": "Breathe deeply."
+  },
+  {
+    "question": "object (objective)",
+    "answer": "물체, 반대하다 (목표)",
+    "memo": "I object!"
+  },
+  {
+    "question": "coal",
+    "answer": "석탄",
+    "memo": "Burning coal."
+  },
+  {
+    "question": "rail",
+    "answer": "철도, 난간",
+    "memo": "By rail."
+  },
+  {
+    "question": "switch",
+    "answer": "전환하다, 스위치",
+    "memo": "Switch on the light."
+  },
+  {
+    "question": "although",
+    "answer": "~에도 불구하고",
+    "memo": "Although it rained, we went out."
+  },
+  {
+    "question": "else",
+    "answer": "그 밖에",
+    "memo": "Anything else?"
+  },
+  {
+    "question": "quit",
+    "answer": "그만두다",
+    "memo": "Quit smoking."
+  },
+  {
+    "question": "engineer",
+    "answer": "기술자, 엔지니어",
+    "memo": "A software engineer."
+  },
+  {
+    "question": "approach",
+    "answer": "접근하다",
+    "memo": "The train is approaching the station."
+  }
+]

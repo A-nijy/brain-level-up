@@ -1,0 +1,252 @@
+[
+  {
+    "question": "have",
+    "answer": "가지고 있다",
+    "memo": "I have a dream."
+  },
+  {
+    "question": "a (an)",
+    "answer": "하나의, 어떤",
+    "memo": "I have a pencil."
+  },
+  {
+    "question": "gentleman",
+    "answer": "신사",
+    "memo": "Ladies and gentlemen."
+  },
+  {
+    "question": "homework",
+    "answer": "숙제",
+    "memo": "Do your homework."
+  },
+  {
+    "question": "decide (decision)",
+    "answer": "결정하다 (결정)",
+    "memo": "I can't decide what to wear."
+  },
+  {
+    "question": "daughter",
+    "answer": "딸",
+    "memo": "My daughter is seven years old."
+  },
+  {
+    "question": "library",
+    "answer": "도서관",
+    "memo": "Study in the library."
+  },
+  {
+    "question": "couple",
+    "answer": "커플, 두어 개",
+    "memo": "A young couple."
+  },
+  {
+    "question": "borrow",
+    "answer": "빌리다",
+    "memo": "Can I borrow your pen?"
+  },
+  {
+    "question": "will",
+    "answer": "~할 것이다, 의지",
+    "memo": "Where there's a will."
+  },
+  {
+    "question": "introduce",
+    "answer": "소개하다",
+    "memo": "Introduce myself."
+  },
+  {
+    "question": "field",
+    "answer": "들판, 분야",
+    "memo": "In the field of science."
+  },
+  {
+    "question": "girl",
+    "answer": "소녀",
+    "memo": "A little girl."
+  },
+  {
+    "question": "bus",
+    "answer": "버스",
+    "memo": "I go to school by bus."
+  },
+  {
+    "question": "black",
+    "answer": "검은색",
+    "memo": "I have a black bag."
+  },
+  {
+    "question": "in",
+    "answer": "~안에",
+    "memo": "In the room."
+  },
+  {
+    "question": "sport",
+    "answer": "스포츠, 운동",
+    "memo": "I like sports."
+  },
+  {
+    "question": "ship",
+    "answer": "배, 배송하다",
+    "memo": "By ship."
+  },
+  {
+    "question": "stand",
+    "answer": "서다, 견디다",
+    "memo": "Stand up."
+  },
+  {
+    "question": "shop",
+    "answer": "가게, 쇼핑하다",
+    "memo": "Go to the shop."
+  },
+  {
+    "question": "nothing",
+    "answer": "아무것도 ~않다",
+    "memo": "Nothing is impossible."
+  },
+  {
+    "question": "salt",
+    "answer": "소금",
+    "memo": "Pass the salt."
+  },
+  {
+    "question": "orange",
+    "answer": "오렌지, 주황색",
+    "memo": "I like oranges."
+  },
+  {
+    "question": "if",
+    "answer": "만약",
+    "memo": "If it rains."
+  },
+  {
+    "question": "ache (headache)",
+    "answer": "아프다 (두통)",
+    "memo": "My head began to ache."
+  },
+  {
+    "question": "can",
+    "answer": "~할 수 있다, 통조림",
+    "memo": "I can speak English."
+  },
+  {
+    "question": "eight",
+    "answer": "8",
+    "memo": "I am eight years old."
+  },
+  {
+    "question": "hurry",
+    "answer": "서두르다",
+    "memo": "Hurry up!"
+  },
+  {
+    "question": "new",
+    "answer": "새로운",
+    "memo": "A new book."
+  },
+  {
+    "question": "vegetable",
+    "answer": "채소",
+    "memo": "Eat your vegetables."
+  },
+  {
+    "question": "rabbit",
+    "answer": "토끼",
+    "memo": "A white rabbit."
+  },
+  {
+    "question": "chicken",
+    "answer": "닭, 닭고기",
+    "memo": "I like fried chicken."
+  },
+  {
+    "question": "hamburger",
+    "answer": "햄버거",
+    "memo": "I want a hamburger."
+  },
+  {
+    "question": "than",
+    "answer": "~보다",
+    "memo": "Better than before."
+  },
+  {
+    "question": "cut",
+    "answer": "자르다",
+    "memo": "Cut the paper."
+  },
+  {
+    "question": "king",
+    "answer": "왕",
+    "memo": "The king of pop."
+  },
+  {
+    "question": "nation (international)",
+    "answer": "국가 (국제적인)",
+    "memo": "United Nations."
+  },
+  {
+    "question": "potato",
+    "answer": "감자",
+    "memo": "Baked potato."
+  },
+  {
+    "question": "large",
+    "answer": "큰",
+    "memo": "A large city."
+  },
+  {
+    "question": "sell",
+    "answer": "팔다",
+    "memo": "Sell cars."
+  },
+  {
+    "question": "wait",
+    "answer": "기다리다",
+    "memo": "Wait for me."
+  },
+  {
+    "question": "television",
+    "answer": "텔레비전",
+    "memo": "Watch television."
+  },
+  {
+    "question": "card",
+    "answer": "카드",
+    "memo": "I sent a birthday card to him."
+  },
+  {
+    "question": "uncle",
+    "answer": "삼촌, 이모부, 고모부",
+    "memo": "My uncle lives in Seoul."
+  },
+  {
+    "question": "page",
+    "answer": "페이지, 쪽",
+    "memo": "Turn the page."
+  },
+  {
+    "question": "factory",
+    "answer": "공장",
+    "memo": "He works in a car factory."
+  },
+  {
+    "question": "hard (hardly)",
+    "answer": "딱딱한, 어려운 (거의 ~않다)",
+    "memo": "He works hard."
+  },
+  {
+    "question": "comic",
+    "answer": "만화의, 웃기는",
+    "memo": "A comic book."
+  },
+  {
+    "question": "skate",
+    "answer": "스케이트",
+    "memo": "Go skating."
+  },
+  {
+    "question": "back",
+    "answer": "뒤, 등, 돌아오다",
+    "memo": "Come back home soon."
+  }
+]

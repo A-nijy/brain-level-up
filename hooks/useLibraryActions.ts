@@ -4,11 +4,12 @@ import { useRouter } from 'expo-router';
 import { Library } from '@/types';
 import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
-import { LibraryService } from '@/services/LibraryService';
 import { UserProfile } from '@/types';
-import { AdService } from '@/services/AdService';
-import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 
+/**
+ * [Local-Only] 암기장 목록에서 사용하는 주요 액션 핸들러
+ * 광고 및 서버 연동 로직이 제거됨
+ */
 export const useLibraryActions = (
     libraries: Library[],
     reorderLibraries: (newLibs: Library[]) => Promise<void>,
@@ -21,8 +22,6 @@ export const useLibraryActions = (
     const [reorderMode, setReorderMode] = useState(false);
     const [selectedLibraryForMenu, setSelectedLibraryForMenu] = useState<Library | null>(null);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-    const [adModalVisible, setAdModalVisible] = useState(false);
-    const [adLoading, setAdLoading] = useState(false);
 
     const handleMoveUp = async (index: number) => {
         if (index === 0) return;
@@ -56,28 +55,8 @@ export const useLibraryActions = (
     };
 
     const handleCreateLibrary = async () => {
-        if (!profile || !userId) return;
-
-        try {
-            const access = await LibraryService.checkCreateAccess(userId, profile);
-
-            if (access.status === 'REQUIRE_AD') {
-                setAdModalVisible(true);
-                return;
-            }
-
-            router.push('/library/create');
-        } catch (error) {
-            console.error('Error checking library access:', error);
-            showAlert({ title: Strings.common.error, message: '권한 확인 중 오류가 발생했습니다.' });
-        }
-    };
-
-    const handleWatchAd = () => {
-        AdService.showRewardedAd(() => {
-            setAdModalVisible(false);
-            router.push('/library/create');
-        }, showAlert, setAdLoading, 'CREATE_LIBRARY');
+        // 로컬 버전: 권한 확인 없이 즉시 생성 화면으로 이동
+        router.push('/library/create');
     };
 
     const showLibraryOptions = (library: Library, event: any) => {
@@ -125,9 +104,5 @@ export const useLibraryActions = (
         handleDeleteLibrary,
         handleCreateLibrary,
         showLibraryOptions,
-        adModalVisible,
-        setAdModalVisible,
-        adLoading,
-        handleWatchAd
     };
 };

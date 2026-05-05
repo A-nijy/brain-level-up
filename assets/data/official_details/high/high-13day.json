@@ -1,0 +1,252 @@
+[
+  {
+    "question": "depict",
+    "answer": "묘사하다",
+    "memo": "The book depicts a war."
+  },
+  {
+    "question": "decay",
+    "answer": "부패하다, 쇠퇴",
+    "memo": "Sugar causes tooth decay."
+  },
+  {
+    "question": "preach",
+    "answer": "설교하다",
+    "memo": "Preach the gospel."
+  },
+  {
+    "question": "horror",
+    "answer": "공포",
+    "memo": "A horror movie."
+  },
+  {
+    "question": "veterinarian",
+    "answer": "수의사",
+    "memo": "Visit a veterinarian."
+  },
+  {
+    "question": "resign",
+    "answer": "사직하다",
+    "memo": "Resign from the job."
+  },
+  {
+    "question": "persist",
+    "answer": "고집하다, 지속하다",
+    "memo": "The pain persisted."
+  },
+  {
+    "question": "whip",
+    "answer": "채찍질하다",
+    "memo": "Whip the cream."
+  },
+  {
+    "question": "likewise",
+    "answer": "마찬가지로",
+    "memo": "Do likewise."
+  },
+  {
+    "question": "federal",
+    "answer": "연방의",
+    "memo": "The federal government."
+  },
+  {
+    "question": "carve",
+    "answer": "새기다, 조각하다",
+    "memo": "He carved his name on the tree."
+  },
+  {
+    "question": "substance (substantial)",
+    "answer": "물질, 실체 (상당한)",
+    "memo": "A toxic substance."
+  },
+  {
+    "question": "ban",
+    "answer": "금지하다",
+    "memo": "Smoking is banned here."
+  },
+  {
+    "question": "contrast",
+    "answer": "대조, 대비",
+    "memo": "In contrast to."
+  },
+  {
+    "question": "span",
+    "answer": "기간, 범위",
+    "memo": "Attention span."
+  },
+  {
+    "question": "initial",
+    "answer": "처음의",
+    "memo": "Initial reaction."
+  },
+  {
+    "question": "incentive",
+    "answer": "인센티브, 장려책",
+    "memo": "Tax incentive."
+  },
+  {
+    "question": "horizon",
+    "answer": "지평선",
+    "memo": "Above the horizon."
+  },
+  {
+    "question": "accurate",
+    "answer": "정확한",
+    "memo": "The weather forecast was accurate."
+  },
+  {
+    "question": "pave",
+    "answer": "(길을) 포장하다",
+    "memo": "Pave the way."
+  },
+  {
+    "question": "harbor / harbour",
+    "answer": "항구",
+    "memo": "The ship is in the harbor."
+  },
+  {
+    "question": "restrict",
+    "answer": "제한하다",
+    "memo": "Restrict the use."
+  },
+  {
+    "question": "dimension",
+    "answer": "차원, 크기",
+    "memo": "The fourth dimension."
+  },
+  {
+    "question": "laundry",
+    "answer": "빨래",
+    "memo": "Do the laundry."
+  },
+  {
+    "question": "finite",
+    "answer": "유한한",
+    "memo": "Finite resources."
+  },
+  {
+    "question": "apparent",
+    "answer": "명백한, 겉치레의",
+    "memo": "It was apparent that he was lying."
+  },
+  {
+    "question": "bargain",
+    "answer": "싼 물건, 흥정하다",
+    "memo": "This dress is a real bargain."
+  },
+  {
+    "question": "ferry",
+    "answer": "페리, 선박",
+    "memo": "Take a ferry."
+  },
+  {
+    "question": "weird",
+    "answer": "이상한, 기묘한",
+    "memo": "A weird sound."
+  },
+  {
+    "question": "expertise",
+    "answer": "전문 지식",
+    "memo": "Professional expertise."
+  },
+  {
+    "question": "efficient",
+    "answer": "효율적인",
+    "memo": "An efficient engine."
+  },
+  {
+    "question": "platform",
+    "answer": "승강장, 플랫폼",
+    "memo": "Wait on the platform."
+  },
+  {
+    "question": "pose (dispose)",
+    "answer": "자세, 제기하다 (배치하다)",
+    "memo": "Pose a threat."
+  },
+  {
+    "question": "incident",
+    "answer": "사건",
+    "memo": "A minor incident."
+  },
+  {
+    "question": "infant",
+    "answer": "유아",
+    "memo": "Infant care."
+  },
+  {
+    "question": "proportion",
+    "answer": "부분, 비율",
+    "memo": "A large proportion."
+  },
+  {
+    "question": "devise",
+    "answer": "고안하다",
+    "memo": "Devise a new plan."
+  },
+  {
+    "question": "rid",
+    "answer": "제거하다",
+    "memo": "Get rid of it."
+  },
+  {
+    "question": "underlie",
+    "answer": "~의 기저를 이루다",
+    "memo": "The underlying cause."
+  },
+  {
+    "question": "superb",
+    "answer": "훌륭한, 최고의",
+    "memo": "A superb view."
+  },
+  {
+    "question": "convict",
+    "answer": "유죄를 선고하다",
+    "memo": "A convicted criminal."
+  },
+  {
+    "question": "hut",
+    "answer": "오두막",
+    "memo": "A small hut."
+  },
+  {
+    "question": "generous",
+    "answer": "관대한",
+    "memo": "A generous man."
+  },
+  {
+    "question": "behalf",
+    "answer": "~을 대신하여",
+    "memo": "On behalf of our team."
+  },
+  {
+    "question": "devil",
+    "answer": "악마",
+    "memo": "The devil is in the details."
+  },
+  {
+    "question": "mobile",
+    "answer": "이동식의",
+    "memo": "Mobile phone."
+  },
+  {
+    "question": "counsel",
+    "answer": "상담, 조언",
+    "memo": "Seek legal counsel."
+  },
+  {
+    "question": "highlight",
+    "answer": "강조하다, 핵심",
+    "memo": "The highlight of the show."
+  },
+  {
+    "question": "adolescent",
+    "answer": "청소년",
+    "memo": "Adolescents need enough sleep."
+  },
+  {
+    "question": "merge",
+    "answer": "합병하다",
+    "memo": "Merge the files."
+  }
+]

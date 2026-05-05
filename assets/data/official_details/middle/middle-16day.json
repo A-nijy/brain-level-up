@@ -1,0 +1,252 @@
+[
+  {
+    "question": "fault",
+    "answer": "잘못, 결점",
+    "memo": "It's not my fault."
+  },
+  {
+    "question": "absent",
+    "answer": "결석한, 부재중인",
+    "memo": "He was absent from the meeting."
+  },
+  {
+    "question": "schedule",
+    "answer": "일정, 스케줄",
+    "memo": "A busy schedule."
+  },
+  {
+    "question": "handsome",
+    "answer": "잘생긴",
+    "memo": "He is a handsome man."
+  },
+  {
+    "question": "maintain",
+    "answer": "유지하다",
+    "memo": "Maintain a good relationship."
+  },
+  {
+    "question": "joy (enjoy)",
+    "answer": "기쁨 (즐기다)",
+    "memo": "Jump for joy."
+  },
+  {
+    "question": "height",
+    "answer": "높이, 키",
+    "memo": "What is your height?"
+  },
+  {
+    "question": "spy",
+    "answer": "스파이, 염탐하다",
+    "memo": "A secret spy."
+  },
+  {
+    "question": "innocent",
+    "answer": "결백한, 순진한",
+    "memo": "Innocent child."
+  },
+  {
+    "question": "moreover",
+    "answer": "게다가",
+    "memo": "Moreover, it's free."
+  },
+  {
+    "question": "bowl",
+    "answer": "사발, 그릇",
+    "memo": "A bowl of soup."
+  },
+  {
+    "question": "process",
+    "answer": "과정, 처리하다",
+    "memo": "Peace process."
+  },
+  {
+    "question": "fascinate",
+    "answer": "매혹시키다",
+    "memo": "I was fascinated by the movie."
+  },
+  {
+    "question": "propose",
+    "answer": "제안하다, 청혼하다",
+    "memo": "Propose a toast."
+  },
+  {
+    "question": "adventure",
+    "answer": "모험",
+    "memo": "The book is about a jungle adventure."
+  },
+  {
+    "question": "cigarette",
+    "answer": "담배",
+    "memo": "Smoking cigarettes is bad."
+  },
+  {
+    "question": "credit",
+    "answer": "신용, 입금하다",
+    "memo": "Credit card."
+  },
+  {
+    "question": "spread",
+    "answer": "펼치다, 퍼뜨리다",
+    "memo": "Spread the news."
+  },
+  {
+    "question": "gift",
+    "answer": "선물, 재능",
+    "memo": "A birthday gift."
+  },
+  {
+    "question": "smoke",
+    "answer": "연기, 담배를 피우다",
+    "memo": "No smoking."
+  },
+  {
+    "question": "drag",
+    "answer": "끌다",
+    "memo": "Drag the bag."
+  },
+  {
+    "question": "appropriate",
+    "answer": "적절한",
+    "memo": "This dress is appropriate for the party."
+  },
+  {
+    "question": "rely",
+    "answer": "의지하다",
+    "memo": "Rely on him."
+  },
+  {
+    "question": "fever",
+    "answer": "열",
+    "memo": "I have a high fever."
+  },
+  {
+    "question": "gesture",
+    "answer": "몸짓, 제스처",
+    "memo": "A friendly gesture."
+  },
+  {
+    "question": "rope",
+    "answer": "밧줄",
+    "memo": "Jump rope."
+  },
+  {
+    "question": "fur",
+    "answer": "모피, 털",
+    "memo": "Soft fur."
+  },
+  {
+    "question": "speech",
+    "answer": "연설, 말하기",
+    "memo": "Give a speech."
+  },
+  {
+    "question": "cure",
+    "answer": "치료하다",
+    "memo": "Cure the disease."
+  },
+  {
+    "question": "bet",
+    "answer": "돈을 걸다, 확신하다",
+    "memo": "I bet he will win."
+  },
+  {
+    "question": "mix",
+    "answer": "섞다",
+    "memo": "Mix the ingredients."
+  },
+  {
+    "question": "noon",
+    "answer": "정오",
+    "memo": "At noon."
+  },
+  {
+    "question": "continue",
+    "answer": "계속하다",
+    "memo": "Continue your work."
+  },
+  {
+    "question": "constant",
+    "answer": "끊임없는, 불변의",
+    "memo": "Constant noise."
+  },
+  {
+    "question": "discipline",
+    "answer": "훈육, 규율",
+    "memo": "School discipline."
+  },
+  {
+    "question": "lend",
+    "answer": "빌려주다",
+    "memo": "Lend me your pen."
+  },
+  {
+    "question": "mask",
+    "answer": "마스크, 가면",
+    "memo": "Wear a mask."
+  },
+  {
+    "question": "seek",
+    "answer": "찾다, 추구하다",
+    "memo": "Seek advice."
+  },
+  {
+    "question": "solid",
+    "answer": "단단한, 고체의",
+    "memo": "Solid ground."
+  },
+  {
+    "question": "rocket",
+    "answer": "로켓",
+    "memo": "Space rocket."
+  },
+  {
+    "question": "nut",
+    "answer": "견과류, 너트",
+    "memo": "A peanut."
+  },
+  {
+    "question": "datum (data)",
+    "answer": "자료, 데이터",
+    "memo": "We need more data to decide."
+  },
+  {
+    "question": "language",
+    "answer": "언어",
+    "memo": "Foreign language."
+  },
+  {
+    "question": "claim",
+    "answer": "주장하다, 요구하다",
+    "memo": "He claimed his innocence."
+  },
+  {
+    "question": "chairman",
+    "answer": "의장, 회장",
+    "memo": "He was elected chairman."
+  },
+  {
+    "question": "attract",
+    "answer": "끌다, 유혹하다",
+    "memo": "The magnet attracts iron."
+  },
+  {
+    "question": "arrange",
+    "answer": "정리하다, 배열하다",
+    "memo": "I'll arrange the books on the shelf."
+  },
+  {
+    "question": "labor / labour",
+    "answer": "노동",
+    "memo": "Manual labor."
+  },
+  {
+    "question": "attention",
+    "answer": "주의, 관심",
+    "memo": "Pay attention to the teacher."
+  },
+  {
+    "question": "apart",
+    "answer": "떨어져서, 별개로",
+    "memo": "The two houses are far apart."
+  }
+]

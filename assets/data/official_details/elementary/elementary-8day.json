@@ -1,0 +1,252 @@
+[
+  {
+    "question": "brush",
+    "answer": "솔, 붓, 빗질하다",
+    "memo": "Brush your teeth."
+  },
+  {
+    "question": "question",
+    "answer": "질문, 의문",
+    "memo": "Answer the question."
+  },
+  {
+    "question": "light",
+    "answer": "빛, 가벼운",
+    "memo": "Light as a feather."
+  },
+  {
+    "question": "morning",
+    "answer": "아침",
+    "memo": "Good morning."
+  },
+  {
+    "question": "cloud",
+    "answer": "구름",
+    "memo": "The sun is behind a cloud."
+  },
+  {
+    "question": "blood",
+    "answer": "피, 혈액",
+    "memo": "Blood is thicker than water."
+  },
+  {
+    "question": "farm",
+    "answer": "농장",
+    "memo": "My uncle owns a farm."
+  },
+  {
+    "question": "we",
+    "answer": "우리",
+    "memo": "We are family."
+  },
+  {
+    "question": "nice",
+    "answer": "멋진, 친절한",
+    "memo": "Have a nice day."
+  },
+  {
+    "question": "when",
+    "answer": "언제",
+    "memo": "When is your birthday?"
+  },
+  {
+    "question": "hunt",
+    "answer": "사냥하다",
+    "memo": "Hunt for food."
+  },
+  {
+    "question": "fly",
+    "answer": "날다, 파리",
+    "memo": "Birds can fly."
+  },
+  {
+    "question": "college",
+    "answer": "대학",
+    "memo": "She is a college student."
+  },
+  {
+    "question": "ring",
+    "answer": "반지, 종이 울리다",
+    "memo": "A gold ring."
+  },
+  {
+    "question": "only",
+    "answer": "오직, 유일한",
+    "memo": "If only I could."
+  },
+  {
+    "question": "discuss",
+    "answer": "토론하다",
+    "memo": "Discuss the problem."
+  },
+  {
+    "question": "fat",
+    "answer": "뚱뚱한, 지방",
+    "memo": "Don't eat too much fat."
+  },
+  {
+    "question": "make",
+    "answer": "만들다",
+    "memo": "Make a wish."
+  },
+  {
+    "question": "good (goods)",
+    "answer": "좋은 (상품)",
+    "memo": "Good morning."
+  },
+  {
+    "question": "center",
+    "answer": "중심, 중앙",
+    "memo": "The shopping center is near here."
+  },
+  {
+    "question": "fox",
+    "answer": "여우",
+    "memo": "A clever fox."
+  },
+  {
+    "question": "white",
+    "answer": "하얀색",
+    "memo": "White snow."
+  },
+  {
+    "question": "busy",
+    "answer": "바쁜",
+    "memo": "I'm very busy today."
+  },
+  {
+    "question": "hello / hey / hi",
+    "answer": "안녕",
+    "memo": "Hello, everyone."
+  },
+  {
+    "question": "house",
+    "answer": "집",
+    "memo": "A big house."
+  },
+  {
+    "question": "circle",
+    "answer": "원, 집단",
+    "memo": "Draw a circle."
+  },
+  {
+    "question": "cream",
+    "answer": "크림",
+    "memo": "Ice cream."
+  },
+  {
+    "question": "earth",
+    "answer": "지구, 땅",
+    "memo": "The earth is round."
+  },
+  {
+    "question": "same",
+    "answer": "같은",
+    "memo": "The same as mine."
+  },
+  {
+    "question": "gold",
+    "answer": "금",
+    "memo": "Olympic gold medal."
+  },
+  {
+    "question": "ready",
+    "answer": "준비된",
+    "memo": "Are you ready?"
+  },
+  {
+    "question": "drum",
+    "answer": "드럼",
+    "memo": "Play the drums."
+  },
+  {
+    "question": "eat",
+    "answer": "먹다",
+    "memo": "Eat an apple."
+  },
+  {
+    "question": "do",
+    "answer": "하다",
+    "memo": "Do your best."
+  },
+  {
+    "question": "use (usual)",
+    "answer": "사용하다 (보통의)",
+    "memo": "Can I use your pen?"
+  },
+  {
+    "question": "as",
+    "answer": "~만큼, ~로서",
+    "memo": "He is as tall as his father."
+  },
+  {
+    "question": "dolphin",
+    "answer": "돌고래",
+    "memo": "Dolphins are smart."
+  },
+  {
+    "question": "chocolate",
+    "answer": "초콜릿",
+    "memo": "I love chocolate."
+  },
+  {
+    "question": "into",
+    "answer": "~안으로",
+    "memo": "Go into the room."
+  },
+  {
+    "question": "zoo",
+    "answer": "동물원",
+    "memo": "Go to the zoo."
+  },
+  {
+    "question": "young",
+    "answer": "젊은, 어린",
+    "memo": "Young people."
+  },
+  {
+    "question": "animal",
+    "answer": "동물",
+    "memo": "Lion is a wild animal."
+  },
+  {
+    "question": "listen",
+    "answer": "듣다",
+    "memo": "Listen to music."
+  },
+  {
+    "question": "sea",
+    "answer": "바다",
+    "memo": "Deep sea."
+  },
+  {
+    "question": "pen",
+    "answer": "펜",
+    "memo": "Write with a pen."
+  },
+  {
+    "question": "score",
+    "answer": "점수, 득점하다",
+    "memo": "A high score."
+  },
+  {
+    "question": "tall",
+    "answer": "키가 큰",
+    "memo": "He is very tall."
+  },
+  {
+    "question": "compute (computer)",
+    "answer": "계산하다 (컴퓨터)",
+    "memo": "I use a computer."
+  },
+  {
+    "question": "service",
+    "answer": "서비스, 봉사",
+    "memo": "Customer service."
+  },
+  {
+    "question": "gas",
+    "answer": "가스, 기체",
+    "memo": "Gas station."
+  }
+]

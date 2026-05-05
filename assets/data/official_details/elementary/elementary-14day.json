@@ -1,0 +1,252 @@
+[
+  {
+    "question": "idea",
+    "answer": "아이디어, 생각",
+    "memo": "Good idea!"
+  },
+  {
+    "question": "eleven",
+    "answer": "11",
+    "memo": "Eleven o'clock."
+  },
+  {
+    "question": "family",
+    "answer": "가족",
+    "memo": "I love my family."
+  },
+  {
+    "question": "cool",
+    "answer": "시원한, 멋진",
+    "memo": "Keep it cool."
+  },
+  {
+    "question": "death",
+    "answer": "죽음",
+    "memo": "The news of his death."
+  },
+  {
+    "question": "study (student)",
+    "answer": "공부하다, 연구 (학생)",
+    "memo": "Study hard."
+  },
+  {
+    "question": "pick",
+    "answer": "고르다, 줍다",
+    "memo": "Pick up the phone."
+  },
+  {
+    "question": "board",
+    "answer": "판자, 위원회, 탑승하다",
+    "memo": "Write it on the board."
+  },
+  {
+    "question": "human",
+    "answer": "인간",
+    "memo": "Human rights."
+  },
+  {
+    "question": "clever",
+    "answer": "영리한",
+    "memo": "He is a clever boy."
+  },
+  {
+    "question": "dog",
+    "answer": "개",
+    "memo": "A pet dog."
+  },
+  {
+    "question": "place (displace)",
+    "answer": "장소, 두다 (대체하다)",
+    "memo": "A safe place."
+  },
+  {
+    "question": "marathon",
+    "answer": "마라톤",
+    "memo": "Run a marathon."
+  },
+  {
+    "question": "box",
+    "answer": "상자",
+    "memo": "What is in the box?"
+  },
+  {
+    "question": "eye",
+    "answer": "눈",
+    "memo": "Keep an eye on him."
+  },
+  {
+    "question": "balloon",
+    "answer": "풍선",
+    "memo": "The red balloon flew away."
+  },
+  {
+    "question": "kid",
+    "answer": "아이, 농담하다",
+    "memo": "Just kidding."
+  },
+  {
+    "question": "office (official)",
+    "answer": "사무실 (공식적인)",
+    "memo": "Head office."
+  },
+  {
+    "question": "break",
+    "answer": "부수다, 깨다, 휴식",
+    "memo": "Let's take a break."
+  },
+  {
+    "question": "side",
+    "answer": "옆면, 측면",
+    "memo": "Side by side."
+  },
+  {
+    "question": "shirt",
+    "answer": "셔츠",
+    "memo": "White shirt."
+  },
+  {
+    "question": "play",
+    "answer": "놀다, 경기하다, 연극",
+    "memo": "Play soccer."
+  },
+  {
+    "question": "wish",
+    "answer": "바라다, 소원",
+    "memo": "Make a wish."
+  },
+  {
+    "question": "speak",
+    "answer": "말하다",
+    "memo": "Speak English."
+  },
+  {
+    "question": "care",
+    "answer": "돌보다, 상관하다",
+    "memo": "Take care of yourself."
+  },
+  {
+    "question": "oil",
+    "answer": "기름, 석유",
+    "memo": "Cooking oil."
+  },
+  {
+    "question": "robot",
+    "answer": "로봇",
+    "memo": "A smart robot."
+  },
+  {
+    "question": "about",
+    "answer": "~에 대하여, 약",
+    "memo": "Tell me about your family."
+  },
+  {
+    "question": "taxi",
+    "answer": "택시",
+    "memo": "Take a taxi."
+  },
+  {
+    "question": "get",
+    "answer": "얻다, 받다, 도착하다",
+    "memo": "Get a gift."
+  },
+  {
+    "question": "poor",
+    "answer": "가난한, 불쌍한",
+    "memo": "A poor man."
+  },
+  {
+    "question": "collect",
+    "answer": "모으다, 수집하다",
+    "memo": "I collect stamps."
+  },
+  {
+    "question": "be",
+    "answer": "~이다, 있다",
+    "memo": "I want to be a teacher."
+  },
+  {
+    "question": "bird",
+    "answer": "새",
+    "memo": "The bird is singing."
+  },
+  {
+    "question": "stop",
+    "answer": "멈추다",
+    "memo": "Don't stop."
+  },
+  {
+    "question": "money",
+    "answer": "돈",
+    "memo": "Time is money."
+  },
+  {
+    "question": "carry",
+    "answer": "나르다, 휴대하다",
+    "memo": "Can you help me carry this box?"
+  },
+  {
+    "question": "dry",
+    "answer": "마른",
+    "memo": "The clothes are dry."
+  },
+  {
+    "question": "enter",
+    "answer": "들어가다, 입력하다",
+    "memo": "Enter the room."
+  },
+  {
+    "question": "blue",
+    "answer": "파란색, 우울한",
+    "memo": "The sky is blue."
+  },
+  {
+    "question": "why",
+    "answer": "왜",
+    "memo": "Why not?"
+  },
+  {
+    "question": "file",
+    "answer": "파일, 서류첩",
+    "memo": "Save the file."
+  },
+  {
+    "question": "red",
+    "answer": "빨간색",
+    "memo": "Red apple."
+  },
+  {
+    "question": "camera",
+    "answer": "카메라",
+    "memo": "I bought a new digital camera."
+  },
+  {
+    "question": "talk",
+    "answer": "말하다, 대화",
+    "memo": "Talk to me."
+  },
+  {
+    "question": "open",
+    "answer": "열다, 열린",
+    "memo": "Open the door."
+  },
+  {
+    "question": "apartment",
+    "answer": "아파트",
+    "memo": "I live in a small apartment."
+  },
+  {
+    "question": "old",
+    "answer": "오래된, 나이 든",
+    "memo": "How old are you?"
+  },
+  {
+    "question": "horse",
+    "answer": "말",
+    "memo": "Ride a horse."
+  },
+  {
+    "question": "habit",
+    "answer": "습관",
+    "memo": "It is a good habit."
+  }
+]

@@ -1,0 +1,252 @@
+[
+  {
+    "question": "park",
+    "answer": "공원, 주차하다",
+    "memo": "Park the car."
+  },
+  {
+    "question": "speed",
+    "answer": "속도",
+    "memo": "Speed limit."
+  },
+  {
+    "question": "cup",
+    "answer": "컵",
+    "memo": "A cup of tea."
+  },
+  {
+    "question": "brave",
+    "answer": "용감한",
+    "memo": "Be brave!"
+  },
+  {
+    "question": "hair",
+    "answer": "머리카락",
+    "memo": "She has long hair."
+  },
+  {
+    "question": "could",
+    "answer": "~할 수 있었다",
+    "memo": "I could swim when I was five."
+  },
+  {
+    "question": "knife",
+    "answer": "칼",
+    "memo": "Use a knife and fork."
+  },
+  {
+    "question": "queen",
+    "answer": "여왕",
+    "memo": "The Queen of England."
+  },
+  {
+    "question": "well",
+    "answer": "잘, 건강한, 우물",
+    "memo": "Very well."
+  },
+  {
+    "question": "with",
+    "answer": "~와 함께",
+    "memo": "With me."
+  },
+  {
+    "question": "honest",
+    "answer": "정직한",
+    "memo": "Be honest."
+  },
+  {
+    "question": "no",
+    "answer": "아니오",
+    "memo": "No, thank you."
+  },
+  {
+    "question": "grandfather",
+    "answer": "할아버지",
+    "memo": "My grandfather is kind."
+  },
+  {
+    "question": "bake",
+    "answer": "(빵을) 굽다",
+    "memo": "I like to bake cookies."
+  },
+  {
+    "question": "six",
+    "answer": "6",
+    "memo": "Six apples."
+  },
+  {
+    "question": "festival",
+    "answer": "축제",
+    "memo": "A music festival."
+  },
+  {
+    "question": "name",
+    "answer": "이름",
+    "memo": "What's your name?"
+  },
+  {
+    "question": "sound",
+    "answer": "소리, ~처럼 들리다",
+    "memo": "Sound of music."
+  },
+  {
+    "question": "summer",
+    "answer": "여름",
+    "memo": "Summer vacation."
+  },
+  {
+    "question": "banana",
+    "answer": "바나나",
+    "memo": "I ate a banana for lunch."
+  },
+  {
+    "question": "carrot",
+    "answer": "당근",
+    "memo": "Rabbits like to eat carrots."
+  },
+  {
+    "question": "crayon",
+    "answer": "크레용",
+    "memo": "Draw with crayons."
+  },
+  {
+    "question": "between",
+    "answer": "~ 사이에",
+    "memo": "Between you and me."
+  },
+  {
+    "question": "sky",
+    "answer": "하늘",
+    "memo": "Blue sky."
+  },
+  {
+    "question": "dialogue / dialog",
+    "answer": "대화",
+    "memo": "Practice the dialogue."
+  },
+  {
+    "question": "deep",
+    "answer": "깊은",
+    "memo": "The water is very deep."
+  },
+  {
+    "question": "north",
+    "answer": "북쪽",
+    "memo": "North Korea."
+  },
+  {
+    "question": "beside",
+    "answer": "~ 옆에",
+    "memo": "Sit beside me."
+  },
+  {
+    "question": "news",
+    "answer": "뉴스",
+    "memo": "Bad news travels fast."
+  },
+  {
+    "question": "beef",
+    "answer": "소고기",
+    "memo": "I like beef more than pork."
+  },
+  {
+    "question": "rainbow",
+    "answer": "무지개",
+    "memo": "A beautiful rainbow."
+  },
+  {
+    "question": "steak",
+    "answer": "스테이크",
+    "memo": "Beef steak."
+  },
+  {
+    "question": "hope",
+    "answer": "희망, 바라다",
+    "memo": "I hope so."
+  },
+  {
+    "question": "mad",
+    "answer": "미친, 화난",
+    "memo": "Don't get mad at me."
+  },
+  {
+    "question": "clean",
+    "answer": "깨끗한, 청소하다",
+    "memo": "Clean your room."
+  },
+  {
+    "question": "people",
+    "answer": "사람들",
+    "memo": "Many people."
+  },
+  {
+    "question": "high",
+    "answer": "높은",
+    "memo": "High school."
+  },
+  {
+    "question": "friend (friendship)",
+    "answer": "친구 (우정)",
+    "memo": "Best friend."
+  },
+  {
+    "question": "full",
+    "answer": "가득 찬",
+    "memo": "The glass is full."
+  },
+  {
+    "question": "last",
+    "answer": "마지막의, 지난",
+    "memo": "Last night."
+  },
+  {
+    "question": "fruit",
+    "answer": "과일",
+    "memo": "Fresh fruit."
+  },
+  {
+    "question": "letter (literal)",
+    "answer": "편지, 글자 (문자 그대로의)",
+    "memo": "Write a letter."
+  },
+  {
+    "question": "mother (mom)",
+    "answer": "어머니",
+    "memo": "My mother is kind."
+  },
+  {
+    "question": "husband",
+    "answer": "남편",
+    "memo": "My husband is a doctor."
+  },
+  {
+    "question": "week",
+    "answer": "주(週)",
+    "memo": "Once a week."
+  },
+  {
+    "question": "bean",
+    "answer": "콩",
+    "memo": "I like green beans."
+  },
+  {
+    "question": "space",
+    "answer": "공간, 우주",
+    "memo": "Outer space."
+  },
+  {
+    "question": "leg",
+    "answer": "다리",
+    "memo": "Break a leg."
+  },
+  {
+    "question": "cold",
+    "answer": "추운, 감기",
+    "memo": "I have a bad cold."
+  },
+  {
+    "question": "must",
+    "answer": "~해야 한다",
+    "memo": "You must go."
+  }
+]

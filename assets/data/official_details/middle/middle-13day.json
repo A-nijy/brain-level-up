@@ -1,0 +1,252 @@
+[
+  {
+    "question": "pollute",
+    "answer": "오염시키다",
+    "memo": "Pollute the river."
+  },
+  {
+    "question": "disc (disk)",
+    "answer": "디스크, 원반",
+    "memo": "A computer disk."
+  },
+  {
+    "question": "source",
+    "answer": "원천, 출처",
+    "memo": "A reliable source."
+  },
+  {
+    "question": "blank",
+    "answer": "빈칸, 멍한",
+    "memo": "Fill in the blanks."
+  },
+  {
+    "question": "rat",
+    "answer": "쥐",
+    "memo": "A lab rat."
+  },
+  {
+    "question": "contain",
+    "answer": "포함하다",
+    "memo": "The box contains books."
+  },
+  {
+    "question": "entire",
+    "answer": "전체의",
+    "memo": "The entire world."
+  },
+  {
+    "question": "coach",
+    "answer": "코치, 지도하다",
+    "memo": "Our coach is very strict."
+  },
+  {
+    "question": "yet",
+    "answer": "아직, 벌써",
+    "memo": "Not yet."
+  },
+  {
+    "question": "convince",
+    "answer": "확신시키다",
+    "memo": "I am convinced of it."
+  },
+  {
+    "question": "secret",
+    "answer": "비밀",
+    "memo": "Keep a secret."
+  },
+  {
+    "question": "alive",
+    "answer": "살아있는",
+    "memo": "Is the fish still alive?"
+  },
+  {
+    "question": "pitch",
+    "answer": "던지다, 높낮이",
+    "memo": "High pitch voice."
+  },
+  {
+    "question": "follow",
+    "answer": "따르다",
+    "memo": "Follow me."
+  },
+  {
+    "question": "intent (intention)",
+    "answer": "의도",
+    "memo": "Good intention."
+  },
+  {
+    "question": "steam",
+    "answer": "증기",
+    "memo": "Steam iron."
+  },
+  {
+    "question": "bend",
+    "answer": "구부리다",
+    "memo": "Bend your knees."
+  },
+  {
+    "question": "cast",
+    "answer": "던지다, 배역을 맡기다",
+    "memo": "The moon cast a shadow on the wall."
+  },
+  {
+    "question": "earn",
+    "answer": "(돈을) 벌다",
+    "memo": "Earn money."
+  },
+  {
+    "question": "invent (inventor)",
+    "answer": "발명하다 (발명가)",
+    "memo": "Invent a machine."
+  },
+  {
+    "question": "nor",
+    "answer": "~도 아니다",
+    "memo": "Neither he nor I."
+  },
+  {
+    "question": "exist",
+    "answer": "존재하다",
+    "memo": "Life exists on Mars."
+  },
+  {
+    "question": "award",
+    "answer": "상, 수여하다",
+    "memo": "He won the best actor award."
+  },
+  {
+    "question": "occasion",
+    "answer": "때, 경우, 특별한 일",
+    "memo": "A special occasion."
+  },
+  {
+    "question": "emotion",
+    "answer": "감정",
+    "memo": "Strong emotion."
+  },
+  {
+    "question": "sense (sensation)",
+    "answer": "감각, 의미 (느낌)",
+    "memo": "Common sense."
+  },
+  {
+    "question": "dish",
+    "answer": "접시, 요리",
+    "memo": "A side dish."
+  },
+  {
+    "question": "refer",
+    "answer": "참조하다, 언급하다",
+    "memo": "Refer to the map."
+  },
+  {
+    "question": "gather",
+    "answer": "모으다, 모이다",
+    "memo": "Gather around."
+  },
+  {
+    "question": "purpose",
+    "answer": "목적",
+    "memo": "On purpose."
+  },
+  {
+    "question": "strike",
+    "answer": "치다, 파업",
+    "memo": "Air strike."
+  },
+  {
+    "question": "sail",
+    "answer": "항해하다, 돛",
+    "memo": "Sail around the world."
+  },
+  {
+    "question": "round",
+    "answer": "둥근, 주위에",
+    "memo": "A round table."
+  },
+  {
+    "question": "impress",
+    "answer": "감동을 주다",
+    "memo": "Impress the audience."
+  },
+  {
+    "question": "property",
+    "answer": "재산, 특성",
+    "memo": "Private property."
+  },
+  {
+    "question": "quality (qualify)",
+    "answer": "품질, 자질 (자격을 얻다)",
+    "memo": "High quality."
+  },
+  {
+    "question": "final",
+    "answer": "최후의, 결승전",
+    "memo": "The final exam."
+  },
+  {
+    "question": "ambulance",
+    "answer": "구급차",
+    "memo": "Call an ambulance, quickly!"
+  },
+  {
+    "question": "engine",
+    "answer": "엔진",
+    "memo": "Start the engine."
+  },
+  {
+    "question": "rather",
+    "answer": "차라리, 꽤",
+    "memo": "I'd rather stay."
+  },
+  {
+    "question": "blanket",
+    "answer": "담요",
+    "memo": "It's cold, use a blanket."
+  },
+  {
+    "question": "aware (unaware)",
+    "answer": "알고 있는 (모르는)",
+    "memo": "I am aware of the danger."
+  },
+  {
+    "question": "attend",
+    "answer": "참석하다, 주의를 기울이다",
+    "memo": "I attend church every Sunday."
+  },
+  {
+    "question": "attach",
+    "answer": "붙이다, 첨부하다",
+    "memo": "Please attach a photo to the form."
+  },
+  {
+    "question": "expose",
+    "answer": "노출시키다",
+    "memo": "Expose to the sun."
+  },
+  {
+    "question": "laboratory / lab",
+    "answer": "실험실",
+    "memo": "In the science lab."
+  },
+  {
+    "question": "protest",
+    "answer": "항의하다",
+    "memo": "A protest march."
+  },
+  {
+    "question": "bar",
+    "answer": "막대기, 술집, 창살",
+    "memo": "A chocolate bar."
+  },
+  {
+    "question": "million",
+    "answer": "백만",
+    "memo": "One million dollars."
+  },
+  {
+    "question": "zebra",
+    "answer": "얼룩말",
+    "memo": "A striped zebra."
+  }
+]

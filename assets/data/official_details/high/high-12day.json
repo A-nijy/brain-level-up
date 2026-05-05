@@ -1,0 +1,252 @@
+[
+  {
+    "question": "incline",
+    "answer": "기울다, ~하고 싶어지다",
+    "memo": "I'm inclined to agree."
+  },
+  {
+    "question": "index",
+    "answer": "지수, 색인",
+    "memo": "Consumer price index."
+  },
+  {
+    "question": "pursue",
+    "answer": "추구하다, 뒤쫓다",
+    "memo": "Pursue a dream."
+  },
+  {
+    "question": "approve",
+    "answer": "승인하다, 찬성하다",
+    "memo": "My parents didn't approve of my plan."
+  },
+  {
+    "question": "aesthetic",
+    "answer": "미적인, 심미적인",
+    "memo": "The building has great aesthetic value."
+  },
+  {
+    "question": "undermine",
+    "answer": "약화시키다",
+    "memo": "Undermine his authority."
+  },
+  {
+    "question": "reluctant",
+    "answer": "꺼리는",
+    "memo": "Reluctant to help."
+  },
+  {
+    "question": "stack",
+    "answer": "더미, 쌓다",
+    "memo": "A stack of paper."
+  },
+  {
+    "question": "conceal",
+    "answer": "숨기다",
+    "memo": "Conceal the truth."
+  },
+  {
+    "question": "dedicate",
+    "answer": "바치다, 헌신하다",
+    "memo": "He dedicated his life to art."
+  },
+  {
+    "question": "dense",
+    "answer": "빽빽한, 밀집한",
+    "memo": "A dense forest."
+  },
+  {
+    "question": "prior",
+    "answer": "이전의",
+    "memo": "Prior notice."
+  },
+  {
+    "question": "corridor",
+    "answer": "복도",
+    "memo": "Walk down the corridor."
+  },
+  {
+    "question": "attribute",
+    "answer": "~의 탓으로 돌리다, 자질",
+    "memo": "He attributes his success to hard work."
+  },
+  {
+    "question": "dash",
+    "answer": "돌진하다, 내던지다",
+    "memo": "He made a dash for the door."
+  },
+  {
+    "question": "buzz",
+    "answer": "윙윙거리다",
+    "memo": "Bees are buzzing."
+  },
+  {
+    "question": "nevertheless",
+    "answer": "그럼에도 불구하고",
+    "memo": "Nevertheless, he tried."
+  },
+  {
+    "question": "suspend",
+    "answer": "중단하다, 매달다",
+    "memo": "Suspend a license."
+  },
+  {
+    "question": "starve",
+    "answer": "굶주리다",
+    "memo": "Starving to death."
+  },
+  {
+    "question": "manipulate",
+    "answer": "조종하다, 조작하다",
+    "memo": "Manipulate the data."
+  },
+  {
+    "question": "novel",
+    "answer": "소설, 참신한",
+    "memo": "Read a novel."
+  },
+  {
+    "question": "phenomenon",
+    "answer": "현상",
+    "memo": "A natural phenomenon."
+  },
+  {
+    "question": "universe",
+    "answer": "우주, 만물",
+    "memo": "The mystery of the universe."
+  },
+  {
+    "question": "telegraph",
+    "answer": "전신, 전보",
+    "memo": "Send a telegraph."
+  },
+  {
+    "question": "coincide",
+    "answer": "동시에 일어나다, 일치하다",
+    "memo": "Our tastes coincide."
+  },
+  {
+    "question": "privilege",
+    "answer": "특권",
+    "memo": "Special privilege."
+  },
+  {
+    "question": "companion",
+    "answer": "동반자, 친구",
+    "memo": "A traveling companion."
+  },
+  {
+    "question": "characteristic",
+    "answer": "특징, 특성",
+    "memo": "What are the characteristics of this bird?"
+  },
+  {
+    "question": "simulate",
+    "answer": "시뮬레이션하다, 흉내 내다",
+    "memo": "Simulate the flight."
+  },
+  {
+    "question": "wreck",
+    "answer": "난파, 파괴하다",
+    "memo": "A car wreck."
+  },
+  {
+    "question": "host",
+    "answer": "주인, 주최하다",
+    "memo": "The host of the party."
+  },
+  {
+    "question": "spill",
+    "answer": "엎지르다",
+    "memo": "Spill the coffee."
+  },
+  {
+    "question": "linguistic",
+    "answer": "언어의, 언어학의",
+    "memo": "Linguistic skills."
+  },
+  {
+    "question": "heal",
+    "answer": "치유하다",
+    "memo": "Time heals all wounds."
+  },
+  {
+    "question": "genuine",
+    "answer": "진짜의",
+    "memo": "Genuine leather."
+  },
+  {
+    "question": "offend",
+    "answer": "기분 상하게 하다, 위반하다",
+    "memo": "I didn't mean to offend you."
+  },
+  {
+    "question": "currency",
+    "answer": "통화, 화폐",
+    "memo": "Foreign currency."
+  },
+  {
+    "question": "draft",
+    "answer": "초안, 외풍",
+    "memo": "A first draft."
+  },
+  {
+    "question": "romantic",
+    "answer": "낭만적인",
+    "memo": "A romantic movie."
+  },
+  {
+    "question": "wealth",
+    "answer": "재산, 부",
+    "memo": "Wealth and fame."
+  },
+  {
+    "question": "abound (abundant)",
+    "answer": "풍부하다 (풍부한)",
+    "memo": "Wild flowers abound in the mountains."
+  },
+  {
+    "question": "prospect",
+    "answer": "전망, 가능성",
+    "memo": "Future prospects."
+  },
+  {
+    "question": "colleague",
+    "answer": "동료",
+    "memo": "I'll ask my colleague."
+  },
+  {
+    "question": "swift",
+    "answer": "빠른, 신속한",
+    "memo": "A swift response."
+  },
+  {
+    "question": "routine",
+    "answer": "일상, 루틴",
+    "memo": "Daily routine."
+  },
+  {
+    "question": "fabric",
+    "answer": "천, 직물",
+    "memo": "This fabric feels very soft."
+  },
+  {
+    "question": "deficiency",
+    "answer": "결핍, 부족",
+    "memo": "Vitamin deficiency."
+  },
+  {
+    "question": "vigor (vigorous)",
+    "answer": "활력 (활기찬)",
+    "memo": "Vigorous exercise."
+  },
+  {
+    "question": "cling",
+    "answer": "매달리다, 집착하다",
+    "memo": "The child clung to his mother."
+  },
+  {
+    "question": "collapse",
+    "answer": "무너지다, 붕괴",
+    "memo": "The building collapsed."
+  }
+]

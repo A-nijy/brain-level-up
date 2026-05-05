@@ -1,0 +1,252 @@
+[
+  {
+    "question": "defend (defendant)",
+    "answer": "방어하다 (피고인)",
+    "memo": "Defend our country."
+  },
+  {
+    "question": "handicap",
+    "answer": "장애, 불리한 조건",
+    "memo": "Overcome his physical handicap."
+  },
+  {
+    "question": "resemble",
+    "answer": "~와 닮다",
+    "memo": "Resemble his father."
+  },
+  {
+    "question": "courage (discourage, encourage)",
+    "answer": "용기 (낙담시키다, 격려하다)",
+    "memo": "Encourage your child."
+  },
+  {
+    "question": "lecture",
+    "answer": "강의",
+    "memo": "Attend a lecture."
+  },
+  {
+    "question": "compound",
+    "answer": "혼합물, 화합물",
+    "memo": "A chemical compound."
+  },
+  {
+    "question": "leak",
+    "answer": "새다, 누출",
+    "memo": "Gas leak."
+  },
+  {
+    "question": "hypothesis",
+    "answer": "가설",
+    "memo": "Test the hypothesis."
+  },
+  {
+    "question": "neglect",
+    "answer": "방치하다, 무시하다",
+    "memo": "Neglect his duty."
+  },
+  {
+    "question": "intermediate",
+    "answer": "중급의",
+    "memo": "Intermediate level."
+  },
+  {
+    "question": "compose",
+    "answer": "구성하다, 작곡하다",
+    "memo": "Compose a letter."
+  },
+  {
+    "question": "glare",
+    "answer": "노려보다, 섬광",
+    "memo": "Glare at someone."
+  },
+  {
+    "question": "column",
+    "answer": "열, 기둥, 칼럼",
+    "memo": "A newspaper column."
+  },
+  {
+    "question": "defeat",
+    "answer": "패배시키다, 이기다",
+    "memo": "We defeated the enemy."
+  },
+  {
+    "question": "contrary",
+    "answer": "반대의",
+    "memo": "On the contrary."
+  },
+  {
+    "question": "spit",
+    "answer": "침을 뱉다",
+    "memo": "Don't spit."
+  },
+  {
+    "question": "fierce",
+    "answer": "사나운, 격렬한",
+    "memo": "A fierce dog."
+  },
+  {
+    "question": "censor",
+    "answer": "검열하다",
+    "memo": "The movie was censored."
+  },
+  {
+    "question": "abort (abortion)",
+    "answer": "중단하다 (낙태)",
+    "memo": "The mission was aborted yesterday."
+  },
+  {
+    "question": "sin",
+    "answer": "죄",
+    "memo": "Original sin."
+  },
+  {
+    "question": "border",
+    "answer": "국경, 경계",
+    "memo": "We crossed the border."
+  },
+  {
+    "question": "crush",
+    "answer": "눌러 부수다, 홀딱 반함",
+    "memo": "He has a crush on her."
+  },
+  {
+    "question": "stiff",
+    "answer": "뻣뻣한, 굳은",
+    "memo": "A stiff neck."
+  },
+  {
+    "question": "export",
+    "answer": "수출하다",
+    "memo": "Export cars."
+  },
+  {
+    "question": "forecast",
+    "answer": "예보",
+    "memo": "Weather forecast."
+  },
+  {
+    "question": "eliminate",
+    "answer": "제거하다",
+    "memo": "Eliminate the waste."
+  },
+  {
+    "question": "identical",
+    "answer": "동일한",
+    "memo": "Identical twins."
+  },
+  {
+    "question": "reject",
+    "answer": "거절하다",
+    "memo": "Reject the application."
+  },
+  {
+    "question": "keen",
+    "answer": "열렬한, 예리한",
+    "memo": "A keen interest."
+  },
+  {
+    "question": "dynamic",
+    "answer": "역동적인",
+    "memo": "A dynamic personality."
+  },
+  {
+    "question": "mature",
+    "answer": "성숙한",
+    "memo": "A mature person."
+  },
+  {
+    "question": "resolve",
+    "answer": "해결하다, 결심하다",
+    "memo": "Resolve the conflict."
+  },
+  {
+    "question": "sentiment",
+    "answer": "감정, 정서",
+    "memo": "Public sentiment."
+  },
+  {
+    "question": "discourse",
+    "answer": "강연, 담론",
+    "memo": "A political discourse."
+  },
+  {
+    "question": "invade",
+    "answer": "침략하다",
+    "memo": "Invade the country."
+  },
+  {
+    "question": "conform",
+    "answer": "따르다, 일치하다",
+    "memo": "Conform to the rules."
+  },
+  {
+    "question": "assure",
+    "answer": "확신시키다, 보장하다",
+    "memo": "I assure you that everything will be fine."
+  },
+  {
+    "question": "worship",
+    "answer": "예배하다, 숭배",
+    "memo": "Worship God."
+  },
+  {
+    "question": "immune",
+    "answer": "면역의",
+    "memo": "Immune system."
+  },
+  {
+    "question": "consist (consistent)",
+    "answer": "이루어져 있다 (일관된)",
+    "memo": "Consistent effort."
+  },
+  {
+    "question": "scarce",
+    "answer": "부족한, 드문",
+    "memo": "Water is scarce."
+  },
+  {
+    "question": "elevate (elevator)",
+    "answer": "높이다 (엘리베이터)",
+    "memo": "Take the elevator."
+  },
+  {
+    "question": "condemn",
+    "answer": "비난하다, 유죄 판결을 내리다",
+    "memo": "Condemn the violence."
+  },
+  {
+    "question": "preserve",
+    "answer": "보존하다",
+    "memo": "Preserve nature."
+  },
+  {
+    "question": "ministry",
+    "answer": "부처, 장관직",
+    "memo": "Ministry of Education."
+  },
+  {
+    "question": "device",
+    "answer": "장치, 장비",
+    "memo": "A mobile device."
+  },
+  {
+    "question": "myth",
+    "answer": "신화, 근거 없는 믿음",
+    "memo": "Greek myths."
+  },
+  {
+    "question": "jury",
+    "answer": "배심원단",
+    "memo": "The jury found him guilty."
+  },
+  {
+    "question": "gang",
+    "answer": "패거리, 갱",
+    "memo": "A street gang."
+  },
+  {
+    "question": "bold",
+    "answer": "용감한, 대담한",
+    "memo": "That was a bold move."
+  }
+]

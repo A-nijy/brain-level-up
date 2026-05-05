@@ -1,0 +1,252 @@
+[
+  {
+    "question": "compel",
+    "answer": "강요하다",
+    "memo": "He felt compelled to go."
+  },
+  {
+    "question": "merchant",
+    "answer": "상인",
+    "memo": "A spice merchant."
+  },
+  {
+    "question": "embassy",
+    "answer": "대사관",
+    "memo": "The Korean Embassy."
+  },
+  {
+    "question": "coordinate",
+    "answer": "조정하다, 좌표",
+    "memo": "Coordinate the schedule."
+  },
+  {
+    "question": "rod",
+    "answer": "막대기",
+    "memo": "A fishing rod."
+  },
+  {
+    "question": "oral",
+    "answer": "구두의, 입의",
+    "memo": "Oral exam."
+  },
+  {
+    "question": "executive",
+    "answer": "임원, 경영진",
+    "memo": "A chief executive officer."
+  },
+  {
+    "question": "vocation",
+    "answer": "직업, 천직",
+    "memo": "Find your vocation."
+  },
+  {
+    "question": "beast",
+    "answer": "짐승, 야수",
+    "memo": "The beauty and the beast."
+  },
+  {
+    "question": "imitate",
+    "answer": "모방하다",
+    "memo": "Imitate his voice."
+  },
+  {
+    "question": "aggress (aggressive)",
+    "answer": "공격하다 (공격적인)",
+    "memo": "The dog showed aggressive behavior."
+  },
+  {
+    "question": "crucial",
+    "answer": "결정적인, 중대한",
+    "memo": "A crucial moment."
+  },
+  {
+    "question": "nod",
+    "answer": "끄덕이다",
+    "memo": "Nod your head."
+  },
+  {
+    "question": "sneak",
+    "answer": "살금살금 가다",
+    "memo": "Sneak out."
+  },
+  {
+    "question": "enhance",
+    "answer": "항상시키다",
+    "memo": "Enhance the quality."
+  },
+  {
+    "question": "damp",
+    "answer": "축축한, 습기",
+    "memo": "The clothes are still damp."
+  },
+  {
+    "question": "predator",
+    "answer": "포식자",
+    "memo": "Natural predator."
+  },
+  {
+    "question": "exclude (exclusive)",
+    "answer": "제외하다 (독점적인)",
+    "memo": "Exclusive interview."
+  },
+  {
+    "question": "irritate",
+    "answer": "짜증나게 하다",
+    "memo": "The noise irritates me."
+  },
+  {
+    "question": "surgery",
+    "answer": "수술",
+    "memo": "Heart surgery."
+  },
+  {
+    "question": "spark",
+    "answer": "불꽃, 촉발시키다",
+    "memo": "A spark of hope."
+  },
+  {
+    "question": "accompany",
+    "answer": "동반하다, 동행하다",
+    "memo": "He accompanied me to the station."
+  },
+  {
+    "question": "wheat",
+    "answer": "밀",
+    "memo": "Wheat flour."
+  },
+  {
+    "question": "mutual",
+    "answer": "상호 간의",
+    "memo": "Mutual trust."
+  },
+  {
+    "question": "compatible",
+    "answer": "호환되는, 사이좋게 지내는",
+    "memo": "The software is compatible."
+  },
+  {
+    "question": "fuse",
+    "answer": "퓨즈, 융합하다",
+    "memo": "Fuse together."
+  },
+  {
+    "question": "summit",
+    "answer": "정상, 꼭대기",
+    "memo": "A summit meeting."
+  },
+  {
+    "question": "formula",
+    "answer": "공식",
+    "memo": "Chemical formula."
+  },
+  {
+    "question": "interval",
+    "answer": "간격",
+    "memo": "At regular intervals."
+  },
+  {
+    "question": "administer (administration)",
+    "answer": "관리하다, 집행하다 (관리, 행정)",
+    "memo": "The teacher administers the test."
+  },
+  {
+    "question": "logic",
+    "answer": "논리",
+    "memo": "Simple logic."
+  },
+  {
+    "question": "shallow",
+    "answer": "얕은",
+    "memo": "Shallow water."
+  },
+  {
+    "question": "construct (construction)",
+    "answer": "건설하다 (건설)",
+    "memo": "Construction site."
+  },
+  {
+    "question": "squeeze",
+    "answer": "짜다, 압착하다",
+    "memo": "Squeeze an orange."
+  },
+  {
+    "question": "stimulate",
+    "answer": "자극하다",
+    "memo": "Stimulate growth."
+  },
+  {
+    "question": "rescue",
+    "answer": "구조하다",
+    "memo": "Rescue the cat."
+  },
+  {
+    "question": "emerge (emergence)",
+    "answer": "나타나다 (출현)",
+    "memo": "A new leader emerged."
+  },
+  {
+    "question": "orient (orientation)",
+    "answer": "지향하게 하다 (오리엔테이션)",
+    "memo": "New student orientation."
+  },
+  {
+    "question": "embrace",
+    "answer": "포옹하다, 받아들이다",
+    "memo": "Embrace the change."
+  },
+  {
+    "question": "inhibit",
+    "answer": "방해하다, 억제하다",
+    "memo": "Inhibit growth."
+  },
+  {
+    "question": "pinch",
+    "answer": "꼬집다",
+    "memo": "Pinch my cheek."
+  },
+  {
+    "question": "raw",
+    "answer": "날것의",
+    "memo": "Raw fish."
+  },
+  {
+    "question": "imperial",
+    "answer": "제국의",
+    "memo": "The imperial palace."
+  },
+  {
+    "question": "caution",
+    "answer": "주의, 경고",
+    "memo": "Exercise caution when crossing."
+  },
+  {
+    "question": "electronic",
+    "answer": "전자의",
+    "memo": "Electronic music."
+  },
+  {
+    "question": "assemble",
+    "answer": "모으다, 조립하다",
+    "memo": "They assembled in the hall."
+  },
+  {
+    "question": "persuade",
+    "answer": "설득하다",
+    "memo": "Persuade him to go."
+  },
+  {
+    "question": "absorb",
+    "answer": "흡수하다, 열중하다",
+    "memo": "Sponge absorbs water well."
+  },
+  {
+    "question": "vast",
+    "answer": "방대한, 거대한",
+    "memo": "A vast area."
+  },
+  {
+    "question": "chemical",
+    "answer": "화학의, 화학 물질",
+    "memo": "A chemical reaction."
+  }
+]

@@ -1,0 +1,252 @@
+[
+  {
+    "question": "dawn",
+    "answer": "새벽, 동이 트다",
+    "memo": "We left the house at dawn."
+  },
+  {
+    "question": "lack",
+    "answer": "부족, 결핍",
+    "memo": "Lack of money."
+  },
+  {
+    "question": "grade (gradual)",
+    "answer": "학년, 성적 (점진적인)",
+    "memo": "A good grade."
+  },
+  {
+    "question": "destroy",
+    "answer": "파괴하다",
+    "memo": "The fire destroyed the forest."
+  },
+  {
+    "question": "castle",
+    "answer": "성",
+    "memo": "The king lived in a beautiful castle."
+  },
+  {
+    "question": "bless",
+    "answer": "축복하다",
+    "memo": "God bless you."
+  },
+  {
+    "question": "aid",
+    "answer": "도움, 돕다",
+    "memo": "He came to my aid."
+  },
+  {
+    "question": "able (disabled)",
+    "answer": "할 수 있는 (장애가 있는)",
+    "memo": "She is able to swim fast."
+  },
+  {
+    "question": "fog",
+    "answer": "안개",
+    "memo": "Heavy fog."
+  },
+  {
+    "question": "tax",
+    "answer": "세금",
+    "memo": "Pay income tax."
+  },
+  {
+    "question": "confuse",
+    "answer": "혼란시키다",
+    "memo": "The sign confused me."
+  },
+  {
+    "question": "challenge",
+    "answer": "도전",
+    "memo": "Accept the challenge."
+  },
+  {
+    "question": "island",
+    "answer": "섬",
+    "memo": "Jeju island."
+  },
+  {
+    "question": "glory",
+    "answer": "영광",
+    "memo": "Glory to the winner."
+  },
+  {
+    "question": "graph (graphic)",
+    "answer": "그래프 (그래픽의)",
+    "memo": "Look at the graph."
+  },
+  {
+    "question": "sample",
+    "answer": "샘플, 표본",
+    "memo": "A blood sample."
+  },
+  {
+    "question": "adopt",
+    "answer": "입양하다, 채택하다",
+    "memo": "They decided to adopt a child."
+  },
+  {
+    "question": "section",
+    "answer": "부분, 구역",
+    "memo": "The sports section."
+  },
+  {
+    "question": "shift",
+    "answer": "이동하다, 교대",
+    "memo": "Night shift."
+  },
+  {
+    "question": "royal",
+    "answer": "왕실의",
+    "memo": "Royal family."
+  },
+  {
+    "question": "reach",
+    "answer": "도달하다",
+    "memo": "Reach for the stars."
+  },
+  {
+    "question": "purple",
+    "answer": "보라색",
+    "memo": "Purple dress."
+  },
+  {
+    "question": "cliff",
+    "answer": "절벽",
+    "memo": "A steep cliff."
+  },
+  {
+    "question": "oppose",
+    "answer": "반대하다",
+    "memo": "Oppose the plan."
+  },
+  {
+    "question": "preside (president)",
+    "answer": "주재하다 (대통령)",
+    "memo": "Mr. President."
+  },
+  {
+    "question": "highway",
+    "answer": "고속도로",
+    "memo": "Drive on the highway."
+  },
+  {
+    "question": "posit (position, positive)",
+    "answer": "놓다 (위치, 긍정적인)",
+    "memo": "Positive thinking."
+  },
+  {
+    "question": "string",
+    "answer": "끈, 실",
+    "memo": "Guitar strings."
+  },
+  {
+    "question": "attack",
+    "answer": "공격하다",
+    "memo": "The enemy attacked at night."
+  },
+  {
+    "question": "breast",
+    "answer": "가슴",
+    "memo": "Breast cancer."
+  },
+  {
+    "question": "plane",
+    "answer": "비행기",
+    "memo": "By plane."
+  },
+  {
+    "question": "view (interview, review)",
+    "answer": "보다, 견해 (인터뷰, 복습)",
+    "memo": "A beautiful view."
+  },
+  {
+    "question": "search",
+    "answer": "검색하다, 찾다",
+    "memo": "Search for information."
+  },
+  {
+    "question": "similar",
+    "answer": "비슷한",
+    "memo": "A similar case."
+  },
+  {
+    "question": "count (discount)",
+    "answer": "세다 (할인)",
+    "memo": "Count to ten."
+  },
+  {
+    "question": "brick",
+    "answer": "벽돌",
+    "memo": "A house made of bricks."
+  },
+  {
+    "question": "bench",
+    "answer": "긴 의자, 벤치",
+    "memo": "Let's sit on the bench."
+  },
+  {
+    "question": "exit",
+    "answer": "출구, 나가다",
+    "memo": "The emergency exit."
+  },
+  {
+    "question": "rush",
+    "answer": "서두르다, 돌진",
+    "memo": "Rush hour."
+  },
+  {
+    "question": "loose",
+    "answer": "헐거운, 느슨한",
+    "memo": "Loose teeth."
+  },
+  {
+    "question": "surface",
+    "answer": "표면",
+    "memo": "On the surface."
+  },
+  {
+    "question": "standard",
+    "answer": "표준, 기준",
+    "memo": "Living standard."
+  },
+  {
+    "question": "empire",
+    "answer": "제국",
+    "memo": "The Roman Empire."
+  },
+  {
+    "question": "examine (examination / exam)",
+    "answer": "조사하다 (시험, 검사)",
+    "memo": "Examine the patient."
+  },
+  {
+    "question": "bloom",
+    "answer": "꽃이 피다",
+    "memo": "The flowers are in bloom."
+  },
+  {
+    "question": "annoy",
+    "answer": "짜증 나게 하다",
+    "memo": "The noise annoyed me."
+  },
+  {
+    "question": "citizen",
+    "answer": "시민",
+    "memo": "I am a Korean citizen."
+  },
+  {
+    "question": "relax",
+    "answer": "쉬다, 긴장을 풀다",
+    "memo": "Relax and enjoy."
+  },
+  {
+    "question": "suggest",
+    "answer": "제안하다, 암시하다",
+    "memo": "Suggest a plan."
+  },
+  {
+    "question": "rate",
+    "answer": "비율, 요금, 평가하다",
+    "memo": "Exchange rate."
+  }
+]

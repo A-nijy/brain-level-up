@@ -18,9 +18,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAlert } from '@/contexts/AlertContext';
 import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/HeaderContext';
 import { Strings } from '@/constants/Strings';
-import { MembershipService } from '@/services/MembershipService';
-import { AdService } from '@/services/AdService';
-import { FeatureGatingModal } from '@/components/FeatureGatingModal';
 import { StudyConfigModal } from '@/components/study/StudyConfigModal';
 
 export default function SectionDetailScreen() {
@@ -56,10 +53,7 @@ export default function SectionDetailScreen() {
     const [menuVisible, setMenuVisible] = useState(false);
     const [statusModalVisible, setStatusModalVisible] = useState(false);
     const [selectedItemForStatus, setSelectedItemForStatus] = useState<Item | null>(null);
-    const [adModalVisible, setAdModalVisible] = useState(false);
-    const [adLoading, setAdLoading] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
-    const [pendingExportOptions, setPendingExportOptions] = useState<PDFExportOptions | null>(null);
     const [configModalVisible, setConfigModalVisible] = useState(false);
 
 
@@ -148,59 +142,22 @@ export default function SectionDetailScreen() {
             exportItems = items.filter(item => item.study_status === 'confused');
         }
 
-        const proceedWithExport = async () => {
-            try {
-                await PdfService.generateAndShare(exportItems, {
-                    mode: options.mode,
-                    order: options.order,
-                    title: section?.title || Strings.librarySection.title,
-                    action: options.action
-                }, showAlert);
-            } catch (error: any) {
-                showAlert({ title: Strings.librarySection.alerts.exportError, message: error.message });
-            } finally {
-                setIsExporting(false);
-            }
-        };
-
-        // 광고 시청 여부 확인
-        if (MembershipService.shouldShowAd('EXPORT_PDF', profile)) {
-            setPendingExportOptions(options);
-            setAdModalVisible(true);
-            return;
+        try {
+            setIsExporting(true);
+            await PdfService.generateAndShare(exportItems, {
+                mode: options.mode,
+                order: options.order,
+                title: section?.title || Strings.librarySection.title,
+                action: options.action
+            }, showAlert);
+        } catch (error: any) {
+            showAlert({ title: Strings.librarySection.alerts.exportError, message: error.message });
+        } finally {
+            setIsExporting(false);
         }
-
-        // 광고가 필요 없는 경우(프리미엄 등) 바로 실행
-        await proceedWithExport();
     };
 
-    const handleWatchAd = () => {
-        if (!pendingExportOptions) return;
 
-        AdService.showRewardedAd(async () => {
-            let exportItems = [...items];
-            if (pendingExportOptions.range === 'wrong') {
-                exportItems = items.filter(item => item.study_status === 'confused');
-            }
-
-            try {
-                setIsExporting(true);
-                await PdfService.generateAndShare(exportItems, {
-                    mode: pendingExportOptions.mode,
-                    order: pendingExportOptions.order,
-                    title: section?.title || Strings.librarySection.title,
-                    action: pendingExportOptions.action
-                }, showAlert);
-                LogService.logEvent('feature_usage', { feature: 'EXPORT_PDF' }); // Log on successful export after ad
-                setAdModalVisible(false);
-            } catch (error: any) {
-                showAlert({ title: Strings.librarySection.alerts.exportError, message: error.message });
-            } finally {
-                setIsExporting(false);
-                setAdLoading(false);
-            }
-        }, showAlert, setAdLoading, 'EXPORT_PDF');
-    };
 
     const renderItem = ({ item, index }: { item: Item, index: number }) => (
         <Animated.View
@@ -476,15 +433,7 @@ export default function SectionDetailScreen() {
                 hasWrongItems={items.some(item => item.study_status === 'confused')}
             />
 
-            <FeatureGatingModal
-                isVisible={adModalVisible}
-                onClose={() => !adLoading && !isExporting && setAdModalVisible(false)}
-                onWatchAd={handleWatchAd}
-                title={Strings.librarySection.menu.exportPdf}
-                description={Strings.shared.alerts.adRequiredDownload}
-                isLoading={adLoading || isExporting}
-                loadingText={adLoading ? '광고 준비 중...' : 'PDF 생성 중...'}
-            />
+
 
             {/* Status Selection Modal */}
             <Modal

@@ -1,0 +1,252 @@
+[
+  {
+    "question": "spare",
+    "answer": "여분의, 아끼다",
+    "memo": "Spare tire."
+  },
+  {
+    "question": "lose",
+    "answer": "잃다, 지다",
+    "memo": "Lose weight."
+  },
+  {
+    "question": "victim",
+    "answer": "희생자",
+    "memo": "A victim of crime."
+  },
+  {
+    "question": "monitor",
+    "answer": "모니터, 감시하다",
+    "memo": "Monitor the situation."
+  },
+  {
+    "question": "pop",
+    "answer": "대중적인, 펑 소리가 나다",
+    "memo": "Pop music."
+  },
+  {
+    "question": "mirror",
+    "answer": "거울",
+    "memo": "Look in the mirror."
+  },
+  {
+    "question": "familiar",
+    "answer": "친숙한",
+    "memo": "Your face looks familiar."
+  },
+  {
+    "question": "foreign",
+    "answer": "외국의",
+    "memo": "Foreign languages."
+  },
+  {
+    "question": "automatic",
+    "answer": "자동의",
+    "memo": "This is an automatic washing machine."
+  },
+  {
+    "question": "commerce",
+    "answer": "상업, 무역",
+    "memo": "Electronic commerce."
+  },
+  {
+    "question": "create (creature)",
+    "answer": "창조하다 (생명체)",
+    "memo": "Create a new folder."
+  },
+  {
+    "question": "argue",
+    "answer": "논쟁하다, 주장하다",
+    "memo": "Don't argue with your sister."
+  },
+  {
+    "question": "huge",
+    "answer": "거대한",
+    "memo": "A huge elephant."
+  },
+  {
+    "question": "volume",
+    "answer": "부피, 음량, 권",
+    "memo": "Turn up the volume."
+  },
+  {
+    "question": "wide",
+    "answer": "넓은",
+    "memo": "Open wide."
+  },
+  {
+    "question": "imagine",
+    "answer": "상상하다",
+    "memo": "Imagine that."
+  },
+  {
+    "question": "appreciate",
+    "answer": "감사하다, 가치를 인정하다",
+    "memo": "I really appreciate your help."
+  },
+  {
+    "question": "relate (relative, relation, relationship)",
+    "answer": "관련시키다 (친척, 관계, 인간관계)",
+    "memo": "Relative merits."
+  },
+  {
+    "question": "label",
+    "answer": "라벨, 표를 붙이다",
+    "memo": "Read the label."
+  },
+  {
+    "question": "hesitate",
+    "answer": "망설이다",
+    "memo": "Don't hesitate to ask."
+  },
+  {
+    "question": "magazine",
+    "answer": "잡지",
+    "memo": "I read a fashion magazine."
+  },
+  {
+    "question": "soldier",
+    "answer": "군인",
+    "memo": "A brave soldier."
+  },
+  {
+    "question": "organ (organic, organize)",
+    "answer": "장기, 기관 (유기농의, 조직하다)",
+    "memo": "Organic food."
+  },
+  {
+    "question": "picnic",
+    "answer": "소풍",
+    "memo": "Go on a picnic."
+  },
+  {
+    "question": "correct",
+    "answer": "옳은, 수정하다",
+    "memo": "That is correct."
+  },
+  {
+    "question": "mushroom",
+    "answer": "버섯",
+    "memo": "Wild mushrooms."
+  },
+  {
+    "question": "hurt",
+    "answer": "다치게 하다",
+    "memo": "It hurts."
+  },
+  {
+    "question": "lean",
+    "answer": "기울다, 기대다",
+    "memo": "Lean against the wall."
+  },
+  {
+    "question": "chest",
+    "answer": "가슴, 상자",
+    "memo": "He has a broad chest."
+  },
+  {
+    "question": "upper",
+    "answer": "위쪽의",
+    "memo": "Upper lip."
+  },
+  {
+    "question": "bit",
+    "answer": "조금, 약간",
+    "memo": "Wait a bit."
+  },
+  {
+    "question": "nowhere",
+    "answer": "아무데도 ~않다",
+    "memo": "Nowhere to go."
+  },
+  {
+    "question": "separate",
+    "answer": "분리된, 나누다",
+    "memo": "Keep them separate."
+  },
+  {
+    "question": "cage",
+    "answer": "우리, 새장",
+    "memo": "The bird is in its cage."
+  },
+  {
+    "question": "gorgeous",
+    "answer": "아주 멋진",
+    "memo": "You look gorgeous."
+  },
+  {
+    "question": "cough",
+    "answer": "기침하다",
+    "memo": "I have a bad cough."
+  },
+  {
+    "question": "edge",
+    "answer": "가장자리, 날",
+    "memo": "The edge of the table."
+  },
+  {
+    "question": "nest",
+    "answer": "둥지",
+    "memo": "A bird's nest."
+  },
+  {
+    "question": "van",
+    "answer": "승합차, 밴",
+    "memo": "Drive a van."
+  },
+  {
+    "question": "slave",
+    "answer": "노예",
+    "memo": "Free the slaves."
+  },
+  {
+    "question": "silly",
+    "answer": "바보 같은",
+    "memo": "A silly mistake."
+  },
+  {
+    "question": "private",
+    "answer": "사적인",
+    "memo": "Private life."
+  },
+  {
+    "question": "plain",
+    "answer": "평원, 명백한, 무늬가 없는",
+    "memo": "Plain English."
+  },
+  {
+    "question": "except",
+    "answer": "~을 제외하고",
+    "memo": "Open every day except Sunday."
+  },
+  {
+    "question": "curl",
+    "answer": "곱슬곱슬하게 하다",
+    "memo": "Curl your hair."
+  },
+  {
+    "question": "dump",
+    "answer": "버리다, 쓰레기장",
+    "memo": "Don't dump trash here."
+  },
+  {
+    "question": "nail",
+    "answer": "손톱, 못",
+    "memo": "A long nail."
+  },
+  {
+    "question": "sweet",
+    "answer": "달콤한, 친절한",
+    "memo": "Sweet dreams."
+  },
+  {
+    "question": "prepare",
+    "answer": "준비하다",
+    "memo": "Prepare for dinner."
+  },
+  {
+    "question": "restroom",
+    "answer": "화장실",
+    "memo": "Where is the restroom?"
+  }
+]

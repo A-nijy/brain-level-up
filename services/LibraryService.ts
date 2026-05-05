@@ -1,60 +1,51 @@
-import { supabase } from '@/lib/supabase';
+import { runQuery, runCommand } from '../lib/db';
 import { Library, Section } from '@/types';
 import { LogService } from './LogService';
+import * as Crypto from 'expo-crypto';
 
 /**
- * [Refactored] 개인 암기장 관련 비즈니스 로직을 담당하는 서비스
- * SRP 준수: 데이터 접근 및 관련 로깅 책임만 가짐
+ * [Local-First] 개인 암기장 관련 비즈니스 로직을 담당하는 서비스
+ * SQLite를 직접 사용하도록 리팩토링됨
  */
 export const LibraryService = {
     /**
      * 사용자의 암기장 목록 조회
      */
     async getLibraries(userId: string): Promise<Library[]> {
-        const { data, error } = await supabase
-            .from('libraries')
-            .select('*, items:items(count)')
-            .eq('user_id', userId)
-            .order('display_order', { ascending: true })
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        return (data || []).map((lib: any) => ({
-            ...lib,
-            items_count: lib.items?.[0]?.count || 0
-        }));
+        const query = `
+            SELECT l.*, (SELECT COUNT(*) FROM items i WHERE i.library_id = l.id) as items_count 
+            FROM libraries l 
+            WHERE l.user_id = ? 
+            ORDER BY l.display_order ASC, l.created_at DESC
+        `;
+        const data = await runQuery(query, [userId]);
+        return data as Library[];
     },
 
     /**
      * ID로 암기장 상세 정보 조회
      */
     async getLibraryById(id: string): Promise<Library | null> {
-        const { data, error } = await supabase
-            .from('libraries')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
-
-        if (error) throw error;
-        return data;
+        const data = await runQuery('SELECT * FROM libraries WHERE id = ?', [id]);
+        return data.length > 0 ? (data[0] as Library) : null;
     },
 
     /**
      * 새 암기장 생성
      */
     async createLibrary(userId: string, library: Pick<Library, 'title' | 'description' | 'category' | 'is_public'>, silent = false): Promise<Library> {
+        const id = Crypto.randomUUID();
+        const now = new Date().toISOString();
+        
         try {
-            const { data, error } = await supabase
-                .from('libraries')
-                .insert({
-                    user_id: userId,
-                    ...library
-                })
-                .select()
-                .single();
+            await runCommand(
+                `INSERT INTO libraries (id, user_id, title, description, category, is_public, display_order, created_at, updated_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [id, userId, library.title, library.description || '', library.category || '', library.is_public ? 1 : 0, 0, now, now]
+            );
 
-            if (error) throw error;
+            const data = await this.getLibraryById(id);
+            if (!data) throw new Error('Failed to retrieve created library');
 
             if (!silent) {
                 await LogService.logEvent('library_mutation', { 
@@ -76,14 +67,18 @@ export const LibraryService = {
      */
     async updateLibrary(id: string, updates: Partial<Library>): Promise<Library> {
         try {
-            const { data, error } = await supabase
-                .from('libraries')
-                .update(updates)
-                .eq('id', id)
-                .select()
-                .single();
+            const now = new Date().toISOString();
+            const fields = Object.keys(updates).filter(k => k !== 'id' && k !== 'created_at');
+            const setClause = fields.map(f => `${f} = ?`).join(', ');
+            const params = fields.map(f => (updates as any)[f]);
+            
+            await runCommand(
+                `UPDATE libraries SET ${setClause}, updated_at = ? WHERE id = ?`,
+                [...params, now, id]
+            );
 
-            if (error) throw error;
+            const data = await this.getLibraryById(id);
+            if (!data) throw new Error('Library not found after update');
 
             await LogService.logEvent('library_mutation', { 
                 action: 'update', 
@@ -104,12 +99,7 @@ export const LibraryService = {
      */
     async deleteLibrary(id: string): Promise<void> {
         try {
-            const { error } = await supabase
-                .from('libraries')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
+            await runCommand('DELETE FROM libraries WHERE id = ?', [id]);
 
             await LogService.logEvent('library_mutation', { 
                 action: 'delete', 
@@ -125,55 +115,45 @@ export const LibraryService = {
      * 암기장 순서 일괄 업데이트
      */
     async updateLibrariesOrder(updates: { id: string, display_order: number }[]): Promise<void> {
-        const promises = updates.map(u =>
-            supabase.from('libraries').update({ display_order: u.display_order }).eq('id', u.id)
-        );
-        const results = await Promise.all(promises);
-        const firstError = results.find(r => r.error)?.error;
-        if (firstError) throw firstError;
+        for (const u of updates) {
+            await runCommand('UPDATE libraries SET display_order = ? WHERE id = ?', [u.display_order, u.id]);
+        }
     },
 
     /**
      * 특정 암기장의 섹션 목록 조회
      */
     async getSections(libraryId: string): Promise<Section[]> {
-        const { data, error } = await supabase
-            .from('library_sections')
-            .select('*')
-            .eq('library_id', libraryId)
-            .order('display_order', { ascending: true })
-            .order('created_at', { ascending: true });
-
-        if (error) throw error;
-        return data || [];
+        const data = await runQuery(
+            'SELECT * FROM library_sections WHERE library_id = ? ORDER BY display_order ASC, created_at ASC',
+            [libraryId]
+        );
+        return data as Section[];
     },
 
     /**
      * ID로 섹션 정보 조회
      */
     async getSectionById(id: string): Promise<Section | null> {
-        const { data, error } = await supabase
-            .from('library_sections')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
-
-        if (error) throw error;
-        return data;
+        const data = await runQuery('SELECT * FROM library_sections WHERE id = ?', [id]);
+        return data.length > 0 ? (data[0] as Section) : null;
     },
 
     /**
      * 새 섹션 생성
      */
     async createSection(libraryId: string, title: string, silent = false): Promise<Section> {
-        try {
-            const { data, error } = await supabase
-                .from('library_sections')
-                .insert({ library_id: libraryId, title })
-                .select()
-                .single();
+        const id = Crypto.randomUUID();
+        const now = new Date().toISOString();
 
-            if (error) throw error;
+        try {
+            await runCommand(
+                'INSERT INTO library_sections (id, library_id, title, display_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+                [id, libraryId, title, 0, now, now]
+            );
+
+            const data = await this.getSectionById(id);
+            if (!data) throw new Error('Failed to retrieve created section');
 
             if (!silent) {
                 await LogService.logEvent('section_mutation', { 
@@ -196,14 +176,18 @@ export const LibraryService = {
      */
     async updateSection(id: string, updates: Partial<Section>): Promise<Section> {
         try {
-            const { data, error } = await supabase
-                .from('library_sections')
-                .update(updates)
-                .eq('id', id)
-                .select()
-                .single();
+            const now = new Date().toISOString();
+            const fields = Object.keys(updates).filter(k => k !== 'id' && k !== 'created_at');
+            const setClause = fields.map(f => `${f} = ?`).join(', ');
+            const params = fields.map(f => (updates as any)[f]);
 
-            if (error) throw error;
+            await runCommand(
+                `UPDATE library_sections SET ${setClause}, updated_at = ? WHERE id = ?`,
+                [...params, now, id]
+            );
+
+            const data = await this.getSectionById(id);
+            if (!data) throw new Error('Section not found after update');
 
             await LogService.logEvent('section_mutation', { 
                 action: 'update', 
@@ -224,12 +208,7 @@ export const LibraryService = {
      */
     async deleteSection(id: string): Promise<void> {
         try {
-            const { error } = await supabase
-                .from('library_sections')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
+            await runCommand('DELETE FROM library_sections WHERE id = ?', [id]);
 
             await LogService.logEvent('section_mutation', { 
                 action: 'delete', 
@@ -244,37 +223,19 @@ export const LibraryService = {
     /**
      * 섹션 순서 일괄 업데이트
      */
-    /**
-     * 섹션 순서 일괄 업데이트
-     */
     async updateSectionsOrder(updates: { id: string, display_order: number }[]): Promise<void> {
-        const promises = updates.map(u =>
-            supabase.from('library_sections').update({ display_order: u.display_order }).eq('id', u.id)
-        );
-        const results = await Promise.all(promises);
-        const firstError = results.find(r => r.error)?.error;
-        if (firstError) throw firstError;
+        for (const u of updates) {
+            await runCommand('UPDATE library_sections SET display_order = ? WHERE id = ?', [u.display_order, u.id]);
+        }
     },
 
     /**
-     * 암기장 생성 가능 여부 확인 (멤버십 등급 및 현재 생성된 암기장 수 기준)
+     * 암기장 생성 가능 여부 확인
      */
     async checkCreateAccess(userId: string, profile: any): Promise<{ status: 'GRANTED' | 'REQUIRE_AD' | 'DENIED' }> {
-        const { count, error } = await supabase
-            .from('libraries')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId);
-
-        if (error) throw error;
-
-        const { MembershipService } = require('./MembershipService'); // 순환 참조 방지
-        const access = MembershipService.checkAccess('CREATE_LIBRARY', profile, { currentCount: count || 0 });
-        
-        return { status: access.status as any };
+        // 로컬 버전에서는 광고나 제한 없이 항상 허용
+        return { status: 'GRANTED' };
     },
-
-    /**
-     * 섹션 순서 일괄 업데이트
 
     /**
      * 내부 에러 로깅 헬퍼

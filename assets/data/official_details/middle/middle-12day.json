@@ -1,0 +1,252 @@
+[
+  {
+    "question": "order (disorder)",
+    "answer": "명령, 주문 (무질서)",
+    "memo": "May I take your order?"
+  },
+  {
+    "question": "affect (affection)",
+    "answer": "영향을 미치다 (애정)",
+    "memo": "Smoking affects your health."
+  },
+  {
+    "question": "sex",
+    "answer": "성별, 성",
+    "memo": "Opposite sex."
+  },
+  {
+    "question": "wonder",
+    "answer": "궁금해하다, 경이",
+    "memo": "I wonder why."
+  },
+  {
+    "question": "cute",
+    "answer": "귀여운",
+    "memo": "What a cute baby!"
+  },
+  {
+    "question": "medicine",
+    "answer": "약, 의학",
+    "memo": "Take your medicine."
+  },
+  {
+    "question": "real (realize)",
+    "answer": "실제의 (깨닫다, 실현하다)",
+    "memo": "Real life."
+  },
+  {
+    "question": "profit",
+    "answer": "이익",
+    "memo": "Make a profit."
+  },
+  {
+    "question": "dirt (dirty)",
+    "answer": "먼지, 흙 (더러운)",
+    "memo": "Wash the dirt off."
+  },
+  {
+    "question": "pepper",
+    "answer": "후추, 고추",
+    "memo": "Black pepper."
+  },
+  {
+    "question": "sink",
+    "answer": "가라앉다, 싱크대",
+    "memo": "The ship sank."
+  },
+  {
+    "question": "moment",
+    "answer": "순간",
+    "memo": "Just a moment."
+  },
+  {
+    "question": "unit",
+    "answer": "단위, 부대",
+    "memo": "A unit of measurement."
+  },
+  {
+    "question": "improve",
+    "answer": "향상시키다",
+    "memo": "Improve your English."
+  },
+  {
+    "question": "motor",
+    "answer": "모터, 자동차의",
+    "memo": "Start the motor."
+  },
+  {
+    "question": "rest",
+    "answer": "휴식, 나머지",
+    "memo": "Take a rest."
+  },
+  {
+    "question": "explain",
+    "answer": "설명하다",
+    "memo": "Explain the reason."
+  },
+  {
+    "question": "direct",
+    "answer": "직접적인, 지휘하다",
+    "memo": "Direct contact."
+  },
+  {
+    "question": "planet",
+    "answer": "행성",
+    "memo": "Planet Earth."
+  },
+  {
+    "question": "silver",
+    "answer": "은",
+    "memo": "Silver medal."
+  },
+  {
+    "question": "reply",
+    "answer": "대답하다",
+    "memo": "Waiting for a reply."
+  },
+  {
+    "question": "risk",
+    "answer": "위험, 모험",
+    "memo": "At your own risk."
+  },
+  {
+    "question": "exact",
+    "answer": "정확한",
+    "memo": "The exact time."
+  },
+  {
+    "question": "straight",
+    "answer": "똑바른, 곧장",
+    "memo": "Go straight."
+  },
+  {
+    "question": "insure (insurance)",
+    "answer": "보장하다 (보험)",
+    "memo": "Car insurance."
+  },
+  {
+    "question": "somewhat",
+    "answer": "다소, 어느 정도",
+    "memo": "Somewhat better."
+  },
+  {
+    "question": "plate",
+    "answer": "접시, 판",
+    "memo": "A paper plate."
+  },
+  {
+    "question": "champion",
+    "answer": "우승자, 챔피언",
+    "memo": "He is the world champion."
+  },
+  {
+    "question": "marvel",
+    "answer": "경이로워하다, 놀라운 것",
+    "memo": "A marvel of engineering."
+  },
+  {
+    "question": "retire",
+    "answer": "은퇴하다",
+    "memo": "Retire from work."
+  },
+  {
+    "question": "livingroom",
+    "answer": "거실",
+    "memo": "In the living room."
+  },
+  {
+    "question": "burst",
+    "answer": "터지다, 폭발",
+    "memo": "The balloon burst."
+  },
+  {
+    "question": "opera",
+    "answer": "오페라",
+    "memo": "Watch an opera."
+  },
+  {
+    "question": "shower",
+    "answer": "샤워, 소나기",
+    "memo": "Take a shower."
+  },
+  {
+    "question": "firm",
+    "answer": "회사, 단단한",
+    "memo": "A law firm."
+  },
+  {
+    "question": "master",
+    "answer": "거장, 숙달하다",
+    "memo": "Master a language."
+  },
+  {
+    "question": "hotel",
+    "answer": "호텔",
+    "memo": "Stay at a hotel."
+  },
+  {
+    "question": "sheet",
+    "answer": "시트, 장",
+    "memo": "A sheet of paper."
+  },
+  {
+    "question": "seat",
+    "answer": "좌석, 자리에 앉히다",
+    "memo": "Take a seat."
+  },
+  {
+    "question": "extreme",
+    "answer": "극도의, 극심한",
+    "memo": "Extreme sports."
+  },
+  {
+    "question": "smooth",
+    "answer": "부드러운, 매끄러운",
+    "memo": "Smooth skin."
+  },
+  {
+    "question": "protect",
+    "answer": "보호하다",
+    "memo": "Protect the environment."
+  },
+  {
+    "question": "passport",
+    "answer": "여권",
+    "memo": "Show your passport."
+  },
+  {
+    "question": "norm (normal)",
+    "answer": "규범 (보통의)",
+    "memo": "Back to normal."
+  },
+  {
+    "question": "survive",
+    "answer": "생존하다",
+    "memo": "Survive the war."
+  },
+  {
+    "question": "opt (option)",
+    "answer": "선택하다 (옵션)",
+    "memo": "A better option."
+  },
+  {
+    "question": "debt",
+    "answer": "빚, 부채",
+    "memo": "He is in heavy debt."
+  },
+  {
+    "question": "fellow",
+    "answer": "동료, 녀석",
+    "memo": "My fellow citizens."
+  },
+  {
+    "question": "civil",
+    "answer": "시민의, 민간의",
+    "memo": "Civil rights."
+  },
+  {
+    "question": "accuse",
+    "answer": "비난하다, 고소하다",
+    "memo": "They accused him of stealing."
+  }
+]

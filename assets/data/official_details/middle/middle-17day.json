@@ -1,0 +1,252 @@
+[
+  {
+    "question": "port",
+    "answer": "항구",
+    "memo": "A sea port."
+  },
+  {
+    "question": "shine",
+    "answer": "빛나다",
+    "memo": "The sun shines."
+  },
+  {
+    "question": "adapt",
+    "answer": "적응하다, 개조하다",
+    "memo": "It is hard to adapt to a new school."
+  },
+  {
+    "question": "float",
+    "answer": "뜨다",
+    "memo": "Ice floats on water."
+  },
+  {
+    "question": "complex (complexity)",
+    "answer": "복잡한, 복합건물 (복잡성)",
+    "memo": "A complex problem."
+  },
+  {
+    "question": "sauce",
+    "answer": "소스",
+    "memo": "Tomato sauce."
+  },
+  {
+    "question": "receive (reception)",
+    "answer": "받다 (환영회, 수신)",
+    "memo": "Receive a letter."
+  },
+  {
+    "question": "lamb",
+    "answer": "새끼 양",
+    "memo": "A little lamb."
+  },
+  {
+    "question": "ridicule (ridiculous)",
+    "answer": "조롱하다 (말도 안 되는)",
+    "memo": "That's ridiculous."
+  },
+  {
+    "question": "ordinary",
+    "answer": "평범한",
+    "memo": "An ordinary person."
+  },
+  {
+    "question": "navy",
+    "answer": "해군",
+    "memo": "Join the navy."
+  },
+  {
+    "question": "beat",
+    "answer": "치다, 이기다, 심장 박동",
+    "memo": "My heart beat fast."
+  },
+  {
+    "question": "stomach",
+    "answer": "위, 복부",
+    "memo": "Empty stomach."
+  },
+  {
+    "question": "capital",
+    "answer": "수도, 대문자, 자본",
+    "memo": "Seoul is the capital of Korea."
+  },
+  {
+    "question": "comedy",
+    "answer": "코미디",
+    "memo": "I like comedy movies."
+  },
+  {
+    "question": "block",
+    "answer": "덩어리, 구역, 막다",
+    "memo": "A concrete block."
+  },
+  {
+    "question": "manner",
+    "answer": "방식, 예의",
+    "memo": "Table manners."
+  },
+  {
+    "question": "hole",
+    "answer": "구멍",
+    "memo": "A hole in the sock."
+  },
+  {
+    "question": "wheel",
+    "answer": "바퀴, 핸들",
+    "memo": "At the wheel."
+  },
+  {
+    "question": "secure",
+    "answer": "안전한, 확보하다",
+    "memo": "A secure building."
+  },
+  {
+    "question": "branch",
+    "answer": "나뭇가지, 지점",
+    "memo": "A branch of a tree."
+  },
+  {
+    "question": "request",
+    "answer": "요청하다",
+    "memo": "Upon request."
+  },
+  {
+    "question": "immediate",
+    "answer": "즉각적인",
+    "memo": "Immediate response."
+  },
+  {
+    "question": "rub (rubber)",
+    "answer": "비비다 (고무, 지우개)",
+    "memo": "Rub your hands."
+  },
+  {
+    "question": "influence",
+    "answer": "영향",
+    "memo": "Under the influence."
+  },
+  {
+    "question": "offer",
+    "answer": "제공하다",
+    "memo": "Offer help."
+  },
+  {
+    "question": "calculate (calculator)",
+    "answer": "계산하다 (계산기)",
+    "memo": "Can you calculate the total cost?"
+  },
+  {
+    "question": "sweater",
+    "answer": "스웨터",
+    "memo": "Wear a sweater."
+  },
+  {
+    "question": "deal",
+    "answer": "다루다, 거래",
+    "memo": "It's a big deal."
+  },
+  {
+    "question": "anxious",
+    "answer": "걱정하는, 갈망하는",
+    "memo": "I'm anxious about the test result."
+  },
+  {
+    "question": "reserve",
+    "answer": "예약하다, 비축",
+    "memo": "Reserve a table."
+  },
+  {
+    "question": "select",
+    "answer": "선택하다",
+    "memo": "Select all."
+  },
+  {
+    "question": "path",
+    "answer": "길, 경로",
+    "memo": "Follow the path."
+  },
+  {
+    "question": "disappoint",
+    "answer": "실망시키다",
+    "memo": "Don't disappoint me."
+  },
+  {
+    "question": "panic",
+    "answer": "공포, 당황하다",
+    "memo": "Don't panic."
+  },
+  {
+    "question": "boom",
+    "answer": "급격한 증가, 쾅 소리",
+    "memo": "The economic boom."
+  },
+  {
+    "question": "clue",
+    "answer": "단서, 실마리",
+    "memo": "The police found a clue."
+  },
+  {
+    "question": "valley",
+    "answer": "계곡",
+    "memo": "In the valley."
+  },
+  {
+    "question": "cancel",
+    "answer": "취소하다",
+    "memo": "The game was canceled due to rain."
+  },
+  {
+    "question": "darling",
+    "answer": "사랑하는 사람, 여보",
+    "memo": "Hello, my darling."
+  },
+  {
+    "question": "possible",
+    "answer": "가능한",
+    "memo": "As soon as possible."
+  },
+  {
+    "question": "screen",
+    "answer": "화면, 가리다",
+    "memo": "Computer screen."
+  },
+  {
+    "question": "flame",
+    "answer": "불꽃",
+    "memo": "Burning flame."
+  },
+  {
+    "question": "whisper",
+    "answer": "속삭이다",
+    "memo": "Whisper a secret."
+  },
+  {
+    "question": "even",
+    "answer": "~조차도, 평평한",
+    "memo": "Even a child can do it."
+  },
+  {
+    "question": "deck",
+    "answer": "갑판, 층",
+    "memo": "Let's go up on deck."
+  },
+  {
+    "question": "remove",
+    "answer": "제거하다",
+    "memo": "Remove the stain."
+  },
+  {
+    "question": "root",
+    "answer": "뿌리, 근원",
+    "memo": "The root of evil."
+  },
+  {
+    "question": "odd",
+    "answer": "이상한, 홀수의",
+    "memo": "An odd number."
+  },
+  {
+    "question": "appeal",
+    "answer": "호소하다, 매력",
+    "memo": "The idea doesn't appeal to me."
+  }
+]

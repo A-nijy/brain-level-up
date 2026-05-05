@@ -1,0 +1,252 @@
+[
+  {
+    "question": "victory",
+    "answer": "승리",
+    "memo": "Win a victory."
+  },
+  {
+    "question": "phase",
+    "answer": "단계, 양상",
+    "memo": "The final phase."
+  },
+  {
+    "question": "dread",
+    "answer": "두려워하다",
+    "memo": "Dread the future."
+  },
+  {
+    "question": "scandal",
+    "answer": "스캔들, 추문",
+    "memo": "A political scandal."
+  },
+  {
+    "question": "decent",
+    "answer": "괜찮은, 예의 바른",
+    "memo": "A decent place to live."
+  },
+  {
+    "question": "vice",
+    "answer": "악덕, 대리의",
+    "memo": "Vice president."
+  },
+  {
+    "question": "avail (available)",
+    "answer": "도움이 되다 (이용 가능한)",
+    "memo": "Is there a room available?"
+  },
+  {
+    "question": "arrow",
+    "answer": "화살",
+    "memo": "Follow the green arrow."
+  },
+  {
+    "question": "cattle",
+    "answer": "소(축사)",
+    "memo": "A herd of cattle."
+  },
+  {
+    "question": "democrat",
+    "answer": "민주주의자",
+    "memo": "He is a liberal democrat."
+  },
+  {
+    "question": "install",
+    "answer": "설치하다",
+    "memo": "Install a program."
+  },
+  {
+    "question": "soap",
+    "answer": "비누",
+    "memo": "Hand soap."
+  },
+  {
+    "question": "tackle",
+    "answer": "씨름하다, 태클",
+    "memo": "Tackle the problem."
+  },
+  {
+    "question": "steep",
+    "answer": "가파른",
+    "memo": "A steep hill."
+  },
+  {
+    "question": "revolution",
+    "answer": "혁명",
+    "memo": "Industrial Revolution."
+  },
+  {
+    "question": "haunt",
+    "answer": "자주 들르다, (귀신이) 나타나다",
+    "memo": "The house is haunted."
+  },
+  {
+    "question": "territory",
+    "answer": "영토",
+    "memo": "National territory."
+  },
+  {
+    "question": "incorporate",
+    "answer": "통합하다, 법인으로 만들다",
+    "memo": "Incorporate a business."
+  },
+  {
+    "question": "visual",
+    "answer": "시각적인",
+    "memo": "Visual effects."
+  },
+  {
+    "question": "mere",
+    "answer": "단순한",
+    "memo": "A mere child."
+  },
+  {
+    "question": "dual",
+    "answer": "이중의",
+    "memo": "A dual role."
+  },
+  {
+    "question": "tenant",
+    "answer": "세입자",
+    "memo": "Find a tenant."
+  },
+  {
+    "question": "glow",
+    "answer": "빛나다, 온기",
+    "memo": "Glow in the dark."
+  },
+  {
+    "question": "drown",
+    "answer": "익사하다",
+    "memo": "He nearly drowned."
+  },
+  {
+    "question": "insight",
+    "answer": "통찰력",
+    "memo": "Deep insight."
+  },
+  {
+    "question": "penalty",
+    "answer": "처벌, 벌금",
+    "memo": "Death penalty."
+  },
+  {
+    "question": "elite",
+    "answer": "엘리트",
+    "memo": "The political elite."
+  },
+  {
+    "question": "ancient",
+    "answer": "고대의, 아주 오래된",
+    "memo": "I like visiting ancient palaces."
+  },
+  {
+    "question": "profound",
+    "answer": "심오한",
+    "memo": "Profound influence."
+  },
+  {
+    "question": "delicate",
+    "answer": "섬세한, 연약한",
+    "memo": "A delicate silk dress."
+  },
+  {
+    "question": "correspond",
+    "answer": "일치하다, 서신을 주고받다",
+    "memo": "Correspond with friends."
+  },
+  {
+    "question": "clash",
+    "answer": "충돌하다",
+    "memo": "The two teams clashed."
+  },
+  {
+    "question": "moderate",
+    "answer": "적당한",
+    "memo": "Moderate exercise."
+  },
+  {
+    "question": "medieval",
+    "answer": "중세의",
+    "memo": "Medieval history."
+  },
+  {
+    "question": "campaign",
+    "answer": "캠페인, 운동",
+    "memo": "The school started a clean-up campaign."
+  },
+  {
+    "question": "remote",
+    "answer": "먼, 외딴",
+    "memo": "Remote control."
+  },
+  {
+    "question": "brute (brutal)",
+    "answer": "짐승 (잔인한)",
+    "memo": "A brutal crime."
+  },
+  {
+    "question": "mortal",
+    "answer": "죽을 운명의, 치명적인",
+    "memo": "All men are mortal."
+  },
+  {
+    "question": "distract",
+    "answer": "산만하게 하다",
+    "memo": "Don't distract me."
+  },
+  {
+    "question": "pace",
+    "answer": "속도, 걸음",
+    "memo": "Keep pace with the changes."
+  },
+  {
+    "question": "fare",
+    "answer": "요금",
+    "memo": "Bus fare."
+  },
+  {
+    "question": "geography",
+    "answer": "지리학",
+    "memo": "I like geography."
+  },
+  {
+    "question": "fiber / fibre",
+    "answer": "섬유",
+    "memo": "Dietary fiber."
+  },
+  {
+    "question": "talent",
+    "answer": "재능",
+    "memo": "A hidden talent."
+  },
+  {
+    "question": "dot",
+    "answer": "점",
+    "memo": "On the dot."
+  },
+  {
+    "question": "nightmare",
+    "answer": "악몽",
+    "memo": "A bad nightmare."
+  },
+  {
+    "question": "consult",
+    "answer": "상담하다",
+    "memo": "Consult a doctor."
+  },
+  {
+    "question": "rank",
+    "answer": "계급, 순위",
+    "memo": "High rank."
+  },
+  {
+    "question": "wit",
+    "answer": "재치, 기지",
+    "memo": "A man of wit."
+  },
+  {
+    "question": "questionnaire",
+    "answer": "설문지",
+    "memo": "Fill out the questionnaire."
+  }
+]

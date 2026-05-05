@@ -1,0 +1,252 @@
+[
+  {
+    "question": "dozen",
+    "answer": "12개, 다스",
+    "memo": "A dozen eggs."
+  },
+  {
+    "question": "cop",
+    "answer": "경찰관",
+    "memo": "A good cop."
+  },
+  {
+    "question": "magic",
+    "answer": "마법, 마술",
+    "memo": "He performed a magic trick."
+  },
+  {
+    "question": "degree",
+    "answer": "도, 학위, 정도",
+    "memo": "The temperature is 20 degrees."
+  },
+  {
+    "question": "tea",
+    "answer": "차",
+    "memo": "A cup of tea."
+  },
+  {
+    "question": "altogether",
+    "answer": "전부, 완전히",
+    "memo": "That's altogether a different matter."
+  },
+  {
+    "question": "favor / favour",
+    "answer": "호의, 부탁",
+    "memo": "Can you do me a favor?"
+  },
+  {
+    "question": "diary",
+    "answer": "일기",
+    "memo": "Keep a diary."
+  },
+  {
+    "question": "spell",
+    "answer": "철자를 쓰다, 마법",
+    "memo": "How do you spell it?"
+  },
+  {
+    "question": "flight",
+    "answer": "비행, 항공편",
+    "memo": "Enjoy your flight."
+  },
+  {
+    "question": "crown",
+    "answer": "왕관",
+    "memo": "The King's crown."
+  },
+  {
+    "question": "excuse",
+    "answer": "변명, 용서하다",
+    "memo": "Excuse me."
+  },
+  {
+    "question": "cruel",
+    "answer": "잔인한",
+    "memo": "A cruel animal."
+  },
+  {
+    "question": "method",
+    "answer": "방법",
+    "memo": "A new method."
+  },
+  {
+    "question": "sponsor",
+    "answer": "후원하다",
+    "memo": "Official sponsor."
+  },
+  {
+    "question": "ill",
+    "answer": "아픈",
+    "memo": "I feel ill."
+  },
+  {
+    "question": "survey",
+    "answer": "설문조사, 살피다",
+    "memo": "Conduct a survey."
+  },
+  {
+    "question": "raise",
+    "answer": "올리다, 기르다",
+    "memo": "Raise your hand."
+  },
+  {
+    "question": "laugh",
+    "answer": "웃다",
+    "memo": "Laugh out loud."
+  },
+  {
+    "question": "diet",
+    "answer": "식단, 다이어트",
+    "memo": "Go on a diet."
+  },
+  {
+    "question": "combine",
+    "answer": "결합하다",
+    "memo": "Combine these ingredients."
+  },
+  {
+    "question": "committee",
+    "answer": "위원회",
+    "memo": "The school committee."
+  },
+  {
+    "question": "alter",
+    "answer": "바꾸다, 변경하다",
+    "memo": "We had to alter our plans."
+  },
+  {
+    "question": "individual",
+    "answer": "개인, 개개의",
+    "memo": "Individual effort."
+  },
+  {
+    "question": "period",
+    "answer": "기간, 시대",
+    "memo": "A long period of time."
+  },
+  {
+    "question": "swallow",
+    "answer": "삼키다, 제비",
+    "memo": "Swallow the medicine."
+  },
+  {
+    "question": "faith",
+    "answer": "믿음, 신념",
+    "memo": "Have faith in yourself."
+  },
+  {
+    "question": "advice",
+    "answer": "조언",
+    "memo": "Let me give you some advice."
+  },
+  {
+    "question": "rough",
+    "answer": "거친, 대략적인",
+    "memo": "A rough sea."
+  },
+  {
+    "question": "afford",
+    "answer": "~할 여유가 있다",
+    "memo": "I can't afford to buy a car."
+  },
+  {
+    "question": "hire",
+    "answer": "고용하다",
+    "memo": "Hire a new staff."
+  },
+  {
+    "question": "site",
+    "answer": "사이트, 현장",
+    "memo": "Construction site."
+  },
+  {
+    "question": "fee",
+    "answer": "요금, 수수료",
+    "memo": "Entrance fee."
+  },
+  {
+    "question": "crime (criminal)",
+    "answer": "범죄 (범죄자)",
+    "memo": "Commit a crime."
+  },
+  {
+    "question": "bomb",
+    "answer": "폭탄, 폭발하다",
+    "memo": "The bomb exploded."
+  },
+  {
+    "question": "frog",
+    "answer": "개구리",
+    "memo": "A green frog."
+  },
+  {
+    "question": "facility",
+    "answer": "시설, 설비",
+    "memo": "Sports facilities."
+  },
+  {
+    "question": "basis",
+    "answer": "기초, 근거",
+    "memo": "On a regular basis."
+  },
+  {
+    "question": "folk",
+    "answer": "사람들, 민속의",
+    "memo": "Folk music."
+  },
+  {
+    "question": "contest",
+    "answer": "경연, 대회",
+    "memo": "A speech contest."
+  },
+  {
+    "question": "evidence",
+    "answer": "증거",
+    "memo": "Lack of evidence."
+  },
+  {
+    "question": "interrupt",
+    "answer": "방해하다, 중단시키다",
+    "memo": "Don't interrupt me."
+  },
+  {
+    "question": "duty",
+    "answer": "의무, 세금",
+    "memo": "A sense of duty."
+  },
+  {
+    "question": "shall",
+    "answer": "~할 것이다",
+    "memo": "Shall we dance?"
+  },
+  {
+    "question": "brilliant",
+    "answer": "훌륭한, 빛나는",
+    "memo": "That's a brilliant idea!"
+  },
+  {
+    "question": "cheek",
+    "answer": "볼, 뺨",
+    "memo": "Her cheeks turned red."
+  },
+  {
+    "question": "asleep",
+    "answer": "잠든",
+    "memo": "The baby is fast asleep."
+  },
+  {
+    "question": "hear",
+    "answer": "듣다",
+    "memo": "I can hear you."
+  },
+  {
+    "question": "climate",
+    "answer": "기후",
+    "memo": "The climate is changing."
+  },
+  {
+    "question": "vary",
+    "answer": "다르다, 바뀌다",
+    "memo": "Prices vary."
+  }
+]

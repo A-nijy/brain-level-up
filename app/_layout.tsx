@@ -22,6 +22,10 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ThemeProvider as AppThemeProvider } from '@/contexts/ThemeContext';
 import { useUsageTracking } from '@/hooks/useUsageTracking';
 import { LogService } from '@/services/LogService';
+import { initDB } from '@/lib/db';
+
+// DB 초기화 실행
+initDB().catch(err => console.error('Failed to init DB:', err));
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -51,7 +55,7 @@ const CustomDarkTheme = {
 SplashScreen.preventAutoHideAsync();
 
 function InitialLayout() {
-  const { session, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const colorScheme = useColorScheme();
@@ -224,25 +228,19 @@ function InitialLayout() {
   }, [loaded, isLoading]);
 
   useEffect(() => {
-    if (isLoading || !loaded) return;
+    console.log('[Layout] Navigation check:', { hasUser: !!user, isLoading, loaded });
 
-    const inAuthGroup = segments[0] === 'auth';
-
-    console.log('[Layout] Navigation check:', { hasSession: !!session, inAuthGroup });
-
-    if (!session && !inAuthGroup) {
-      router.replace('/auth/login');
-    } else if (session && inAuthGroup) {
-      router.replace('/(tabs)');
+    if (!user && !isLoading && loaded) {
+      // 로컬 모드에서는 사실상 항상 user가 생성되어야 함
+      // 만약 없다면 다시 홈으로 리다이렉트 (무한루프 방지 위해 auth 체크 제거)
     }
-  }, [session, segments, isLoading, loaded]);
+  }, [user, segments, isLoading, loaded]);
 
-  // 앱 실행 혹은 세션 변경 시 접속 이벤트 기록
   useEffect(() => {
-    if (session?.user) {
+    if (user?.id) {
       LogService.logEvent('app_open');
     }
-  }, [session?.user?.id]);
+  }, [user?.id]);
 
   // 웹 브라우저 탭 제목 강제 고정 ("뇌벨업")
   useEffect(() => {
@@ -279,7 +277,7 @@ function InitialLayout() {
   }
 
   const isWeb = Platform.OS === 'web';
-  const showWebLayout = isWeb && session && segments[0] !== 'auth';
+  const showWebLayout = isWeb && user && segments[0] !== 'auth';
   const HeaderActions = require('@/components/HeaderActions').default;
 
   const LayoutContent = (
@@ -312,12 +310,7 @@ function InitialLayout() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="admin" options={{ headerShown: false }} />
-      <Stack.Screen name="auth/login" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="settings/notices/index" options={{ headerTitle: Strings.notices.screenTitle }} />
-      <Stack.Screen name="settings/notices/[id]" options={{ headerTitle: Strings.notices.screenTitle }} />
-      <Stack.Screen name="settings/profile" options={{ headerTitle: Strings.settings.profile.editTitle }} />
       <Stack.Screen name="library/create" options={{ headerTitle: Strings.libraryForm.createTitle }} />
       <Stack.Screen name="library/edit" options={({ route }) => ({
         headerTitle: (route.params as any)?.title || Strings.libraryForm.editTitle
@@ -344,7 +337,6 @@ function InitialLayout() {
       <Stack.Screen name="shared/[id]/section/[sectionId]" options={({ route }) => ({
         headerTitle: (route.params as any)?.title || Strings.sharedDetail.screenTitle
       })} />
-      <Stack.Screen name="support/new" options={{ headerTitle: Strings.support.screenTitle }} />
       <Stack.Screen name="notifications" options={{ headerTitle: Strings.notifications.screenTitle }} />
       <Stack.Screen name="statistics_detail" options={{ headerTitle: Strings.stats.detailTitle }} />
       <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />

@@ -1,0 +1,252 @@
+[
+  {
+    "question": "always",
+    "answer": "항상",
+    "memo": "I always get up at six."
+  },
+  {
+    "question": "lip",
+    "answer": "입술",
+    "memo": "Read my lips."
+  },
+  {
+    "question": "piano",
+    "answer": "피아노",
+    "memo": "Play the piano."
+  },
+  {
+    "question": "control",
+    "answer": "조절하다, 통제",
+    "memo": "Out of control."
+  },
+  {
+    "question": "against",
+    "answer": "~에 반대하여, ~에 기대어",
+    "memo": "The rain hit against the window."
+  },
+  {
+    "question": "movie",
+    "answer": "영화",
+    "memo": "Watch a movie."
+  },
+  {
+    "question": "hill",
+    "answer": "언덕",
+    "memo": "The house on the hill."
+  },
+  {
+    "question": "baseball",
+    "answer": "야구",
+    "memo": "Do you like baseball?"
+  },
+  {
+    "question": "how",
+    "answer": "어떻게",
+    "memo": "How are you?"
+  },
+  {
+    "question": "airplane / aeroplane",
+    "answer": "비행기",
+    "memo": "The airplane is taking off."
+  },
+  {
+    "question": "lion",
+    "answer": "사자",
+    "memo": "The king of the jungle."
+  },
+  {
+    "question": "science",
+    "answer": "과학",
+    "memo": "Natural science."
+  },
+  {
+    "question": "wash",
+    "answer": "씻다",
+    "memo": "Wash your hands."
+  },
+  {
+    "question": "church",
+    "answer": "교회",
+    "memo": "I go to church on Sundays."
+  },
+  {
+    "question": "inside",
+    "answer": "안에",
+    "memo": "Inside the box."
+  },
+  {
+    "question": "art",
+    "answer": "예술, 기술",
+    "memo": "I like art and music."
+  },
+  {
+    "question": "know",
+    "answer": "알다",
+    "memo": "I know the answer."
+  },
+  {
+    "question": "snow",
+    "answer": "눈, 눈이 내리다",
+    "memo": "Heavy snow."
+  },
+  {
+    "question": "short",
+    "answer": "짧은, 키가 작은",
+    "memo": "A short story."
+  },
+  {
+    "question": "put",
+    "answer": "놓다, 두다",
+    "memo": "Put it down."
+  },
+  {
+    "question": "fresh",
+    "answer": "신선한",
+    "memo": "Fresh air."
+  },
+  {
+    "question": "brown",
+    "answer": "갈색",
+    "memo": "She has brown eyes."
+  },
+  {
+    "question": "meat",
+    "answer": "고기",
+    "memo": "I don't eat meat."
+  },
+  {
+    "question": "door",
+    "answer": "문",
+    "memo": "Open the door."
+  },
+  {
+    "question": "another",
+    "answer": "또 다른 하나",
+    "memo": "Would you like another cup of tea?"
+  },
+  {
+    "question": "kitchen",
+    "answer": "부엌",
+    "memo": "In the kitchen."
+  },
+  {
+    "question": "during",
+    "answer": "~동안",
+    "memo": "During the vacation."
+  },
+  {
+    "question": "bear",
+    "answer": "곰, 참다, (아이를) 낳다",
+    "memo": "I can't bear this pain."
+  },
+  {
+    "question": "cookie / cooky",
+    "answer": "쿠키",
+    "memo": "Have a cookie."
+  },
+  {
+    "question": "ahead",
+    "answer": "앞에, 미리",
+    "memo": "Go straight ahead."
+  },
+  {
+    "question": "job",
+    "answer": "직업, 일",
+    "memo": "Find a good job."
+  },
+  {
+    "question": "part",
+    "answer": "부분, 부품",
+    "memo": "A part of the plan."
+  },
+  {
+    "question": "stay",
+    "answer": "머무르다",
+    "memo": "Stay with me."
+  },
+  {
+    "question": "meet",
+    "answer": "만나다",
+    "memo": "Nice to meet you."
+  },
+  {
+    "question": "home",
+    "answer": "집",
+    "memo": "Go home."
+  },
+  {
+    "question": "hour",
+    "answer": "시간",
+    "memo": "For an hour."
+  },
+  {
+    "question": "bag",
+    "answer": "가방",
+    "memo": "Is this your bag?"
+  },
+  {
+    "question": "cost",
+    "answer": "비용, 비용이 들다",
+    "memo": "How much does it cost?"
+  },
+  {
+    "question": "floor",
+    "answer": "바닥, 층",
+    "memo": "On the second floor."
+  },
+  {
+    "question": "sit",
+    "answer": "앉다",
+    "memo": "Sit down."
+  },
+  {
+    "question": "delicious",
+    "answer": "맛있는",
+    "memo": "This cake is delicious."
+  },
+  {
+    "question": "soccer",
+    "answer": "축구",
+    "memo": "Play soccer."
+  },
+  {
+    "question": "of",
+    "answer": "~의",
+    "memo": "A glass of water."
+  },
+  {
+    "question": "never",
+    "answer": "절대 ~않다",
+    "memo": "Never give up."
+  },
+  {
+    "question": "answer",
+    "answer": "대답, 정답",
+    "memo": "Please answer my question."
+  },
+  {
+    "question": "recreation",
+    "answer": "레크리에이션, 휴양",
+    "memo": "Recreation center."
+  },
+  {
+    "question": "violin",
+    "answer": "바이올린",
+    "memo": "Play the violin."
+  },
+  {
+    "question": "weather",
+    "answer": "날씨",
+    "memo": "How's the weather?"
+  },
+  {
+    "question": "clock",
+    "answer": "시계",
+    "memo": "The clock is ticking."
+  },
+  {
+    "question": "bottom",
+    "answer": "바닥, 아래",
+    "memo": "At the bottom of the sea."
+  }
+]

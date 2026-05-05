@@ -1,0 +1,252 @@
+[
+  {
+    "question": "welcome",
+    "answer": "환영하다",
+    "memo": "Welcome to Korea."
+  },
+  {
+    "question": "cover (discover)",
+    "answer": "덮다 (발견하다)",
+    "memo": "Cover the food."
+  },
+  {
+    "question": "wine",
+    "answer": "와인",
+    "memo": "Red wine."
+  },
+  {
+    "question": "staff",
+    "answer": "직원",
+    "memo": "Hospital staff."
+  },
+  {
+    "question": "wind",
+    "answer": "바람",
+    "memo": "Strong wind."
+  },
+  {
+    "question": "far",
+    "answer": "먼, 멀리",
+    "memo": "How far is it from here?"
+  },
+  {
+    "question": "mail",
+    "answer": "우편",
+    "memo": "You've got mail."
+  },
+  {
+    "question": "seven",
+    "answer": "7",
+    "memo": "Seven days."
+  },
+  {
+    "question": "pay",
+    "answer": "지불하다",
+    "memo": "Pay the bill."
+  },
+  {
+    "question": "afternoon",
+    "answer": "오후",
+    "memo": "I have a meeting this afternoon."
+  },
+  {
+    "question": "table",
+    "answer": "탁자, 표",
+    "memo": "On the table."
+  },
+  {
+    "question": "paint",
+    "answer": "칠하다, 그림을 그리다",
+    "memo": "Paint the wall white."
+  },
+  {
+    "question": "or",
+    "answer": "또는",
+    "memo": "Tea or coffee?"
+  },
+  {
+    "question": "sandwich",
+    "answer": "샌드위치",
+    "memo": "Ham sandwich."
+  },
+  {
+    "question": "beauty",
+    "answer": "아름다움, 미인",
+    "memo": "She is a famous beauty."
+  },
+  {
+    "question": "dream",
+    "answer": "꿈",
+    "memo": "Sweet dreams."
+  },
+  {
+    "question": "arrive",
+    "answer": "도착하다",
+    "memo": "What time does the bus arrive?"
+  },
+  {
+    "question": "tell",
+    "answer": "말하다",
+    "memo": "Tell me a story."
+  },
+  {
+    "question": "race (racial)",
+    "answer": "경주, 인종 (인종의)",
+    "memo": "A car race."
+  },
+  {
+    "question": "street",
+    "answer": "거리",
+    "memo": "On the street."
+  },
+  {
+    "question": "goodbye (bye)",
+    "answer": "안녕히 가세요",
+    "memo": "Say goodbye."
+  },
+  {
+    "question": "sick",
+    "answer": "아픈",
+    "memo": "I feel sick."
+  },
+  {
+    "question": "I",
+    "answer": "나",
+    "memo": "I am a student."
+  },
+  {
+    "question": "bacon",
+    "answer": "베이컨",
+    "memo": "I had eggs and bacon for breakfast."
+  },
+  {
+    "question": "fish",
+    "answer": "물고기, 생선",
+    "memo": "Catch a fish."
+  },
+  {
+    "question": "juice",
+    "answer": "주스",
+    "memo": "Orange juice."
+  },
+  {
+    "question": "rock",
+    "answer": "바위, 흔들다, 록 음악",
+    "memo": "Rock and roll."
+  },
+  {
+    "question": "wrong",
+    "answer": "틀린, 잘못된",
+    "memo": "Right or wrong."
+  },
+  {
+    "question": "help",
+    "answer": "돕다",
+    "memo": "Can I help you?"
+  },
+  {
+    "question": "restaurant",
+    "answer": "식당",
+    "memo": "Go to a restaurant."
+  },
+  {
+    "question": "double",
+    "answer": "두 배의",
+    "memo": "Double the size."
+  },
+  {
+    "question": "room",
+    "answer": "방, 공간",
+    "memo": "Clean your room."
+  },
+  {
+    "question": "join",
+    "answer": "가입하다, 함께하다",
+    "memo": "Join our club."
+  },
+  {
+    "question": "bee",
+    "answer": "벌",
+    "memo": "A bee stings."
+  },
+  {
+    "question": "fast",
+    "answer": "빠른, 빨리",
+    "memo": "He runs very fast."
+  },
+  {
+    "question": "bed",
+    "answer": "침대",
+    "memo": "Go to bed early."
+  },
+  {
+    "question": "drive",
+    "answer": "운전하다",
+    "memo": "Can you drive?"
+  },
+  {
+    "question": "kill",
+    "answer": "죽이다",
+    "memo": "Kill the virus."
+  },
+  {
+    "question": "difficult",
+    "answer": "어려운",
+    "memo": "The test was difficult."
+  },
+  {
+    "question": "internet",
+    "answer": "인터넷",
+    "memo": "Search on the internet."
+  },
+  {
+    "question": "skin",
+    "answer": "피부, 껍질",
+    "memo": "Dry skin."
+  },
+  {
+    "question": "son",
+    "answer": "아들",
+    "memo": "A good son."
+  },
+  {
+    "question": "at",
+    "answer": "~에서",
+    "memo": "I am at school."
+  },
+  {
+    "question": "hobby",
+    "answer": "취미",
+    "memo": "What is your hobby?"
+  },
+  {
+    "question": "read",
+    "answer": "읽다",
+    "memo": "Read a book."
+  },
+  {
+    "question": "kind",
+    "answer": "친절한, 종류",
+    "memo": "What kind of food do you like?"
+  },
+  {
+    "question": "wife",
+    "answer": "아내",
+    "memo": "My wife is kind."
+  },
+  {
+    "question": "water",
+    "answer": "물",
+    "memo": "Drink water."
+  },
+  {
+    "question": "goal",
+    "answer": "목표, 골",
+    "memo": "Achieve your goal."
+  },
+  {
+    "question": "doll",
+    "answer": "인형",
+    "memo": "Play with a doll."
+  }
+]

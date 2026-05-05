@@ -1,0 +1,252 @@
+[
+  {
+    "question": "shame",
+    "answer": "수치, 창피",
+    "memo": "What a shame!"
+  },
+  {
+    "question": "instrument",
+    "answer": "도구, 악기",
+    "memo": "Musical instrument."
+  },
+  {
+    "question": "fashion",
+    "answer": "패션, 방식",
+    "memo": "High fashion."
+  },
+  {
+    "question": "calendar",
+    "answer": "달력",
+    "memo": "Check the date on the calendar."
+  },
+  {
+    "question": "version",
+    "answer": "버전, 형태",
+    "memo": "The latest version."
+  },
+  {
+    "question": "step",
+    "answer": "발걸음, 단계",
+    "memo": "Step by step."
+  },
+  {
+    "question": "pardon",
+    "answer": "용서, 다시 말씀해 주시겠어요?",
+    "memo": "I beg your pardon?"
+  },
+  {
+    "question": "moral",
+    "answer": "도덕적인",
+    "memo": "A moral obligation."
+  },
+  {
+    "question": "principle",
+    "answer": "원리, 원칙",
+    "memo": "Basic principles."
+  },
+  {
+    "question": "divorce",
+    "answer": "이혼",
+    "memo": "Get a divorce."
+  },
+  {
+    "question": "within",
+    "answer": "~이내에",
+    "memo": "Within an hour."
+  },
+  {
+    "question": "disturb",
+    "answer": "방해하다",
+    "memo": "Do not disturb."
+  },
+  {
+    "question": "obvious",
+    "answer": "분명한",
+    "memo": "The answer is obvious."
+  },
+  {
+    "question": "experience",
+    "answer": "경험",
+    "memo": "A great experience."
+  },
+  {
+    "question": "giraffe",
+    "answer": "기린",
+    "memo": "Long-necked giraffe."
+  },
+  {
+    "question": "recognize",
+    "answer": "알아차리다, 인정하다",
+    "memo": "Recognize his face."
+  },
+  {
+    "question": "pregnant",
+    "answer": "임신한",
+    "memo": "A pregnant woman."
+  },
+  {
+    "question": "rare",
+    "answer": "드문, 희귀한",
+    "memo": "A rare disease."
+  },
+  {
+    "question": "freeze",
+    "answer": "얼다",
+    "memo": "Freeze water."
+  },
+  {
+    "question": "hunger (hungry)",
+    "answer": "배고픔 (배고픈)",
+    "memo": "I'm hungry."
+  },
+  {
+    "question": "comment",
+    "answer": "의견, 주석",
+    "memo": "No comment."
+  },
+  {
+    "question": "enormous",
+    "answer": "거대한",
+    "memo": "An enormous amount of money."
+  },
+  {
+    "question": "command",
+    "answer": "명령하다",
+    "memo": "The general commanded the army."
+  },
+  {
+    "question": "seem",
+    "answer": "~처럼 보이다",
+    "memo": "It seems so."
+  },
+  {
+    "question": "lawyer",
+    "answer": "변호사",
+    "memo": "Talk to a lawyer."
+  },
+  {
+    "question": "unless",
+    "answer": "~하지 않는 한",
+    "memo": "Unless it rains."
+  },
+  {
+    "question": "law",
+    "answer": "법",
+    "memo": "Break the law."
+  },
+  {
+    "question": "pattern",
+    "answer": "패턴, 양식",
+    "memo": "A behavior pattern."
+  },
+  {
+    "question": "capable",
+    "answer": "~할 능력이 있는",
+    "memo": "He is capable of doing the job."
+  },
+  {
+    "question": "stock",
+    "answer": "재고, 주식",
+    "memo": "In stock."
+  },
+  {
+    "question": "pride",
+    "answer": "자부심",
+    "memo": "Take pride in."
+  },
+  {
+    "question": "manufacture",
+    "answer": "제조하다",
+    "memo": "Manufacture cars."
+  },
+  {
+    "question": "soil",
+    "answer": "토양, 흙",
+    "memo": "Fertile soil."
+  },
+  {
+    "question": "represent",
+    "answer": "대표하다, 나타내다",
+    "memo": "Represent the country."
+  },
+  {
+    "question": "bow",
+    "answer": "절하다, 활",
+    "memo": "They bowed to each other."
+  },
+  {
+    "question": "shadow",
+    "answer": "그림자",
+    "memo": "Cast a shadow."
+  },
+  {
+    "question": "muscle",
+    "answer": "근육",
+    "memo": "Build muscle."
+  },
+  {
+    "question": "investigate",
+    "answer": "조사하다",
+    "memo": "Investigate the crime."
+  },
+  {
+    "question": "spirit",
+    "answer": "정신, 영혼",
+    "memo": "Team spirit."
+  },
+  {
+    "question": "battery",
+    "answer": "배터리, 건전지",
+    "memo": "My phone battery is low."
+  },
+  {
+    "question": "health (healthy)",
+    "answer": "건강 (건강한)",
+    "memo": "Health is wealth."
+  },
+  {
+    "question": "tap",
+    "answer": "톡톡 두드리다, 수도꼭지",
+    "memo": "Tap on the shoulder."
+  },
+  {
+    "question": "vote",
+    "answer": "투표하다",
+    "memo": "Right to vote."
+  },
+  {
+    "question": "content",
+    "answer": "내용물, 만족하는",
+    "memo": "Table of contents."
+  },
+  {
+    "question": "dentist",
+    "answer": "치과 의사",
+    "memo": "I have to see a dentist."
+  },
+  {
+    "question": "stretch",
+    "answer": "늘이다, 기지개 켜다",
+    "memo": "Stretch your legs."
+  },
+  {
+    "question": "express",
+    "answer": "표현하다, 급행의",
+    "memo": "Express your feelings."
+  },
+  {
+    "question": "identity (identify)",
+    "answer": "정체성 (확인하다)",
+    "memo": "Show your identity card."
+  },
+  {
+    "question": "machine",
+    "answer": "기계",
+    "memo": "The machine is out of order."
+  },
+  {
+    "question": "locate",
+    "answer": "위치하다, 찾아내다",
+    "memo": "Where is it located?"
+  }
+]

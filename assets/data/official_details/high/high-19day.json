@@ -1,0 +1,62 @@
+[
+  {
+    "question": "orbit",
+    "answer": "궤도, 궤도를 돌다",
+    "memo": "The Earth's orbit."
+  },
+  {
+    "question": "sector",
+    "answer": "부문, 영역",
+    "memo": "The private sector."
+  },
+  {
+    "question": "equip (equipment)",
+    "answer": "갖추다 (장비)",
+    "memo": "Office equipment."
+  },
+  {
+    "question": "whereas",
+    "answer": "~인 반면에",
+    "memo": "I like tea, whereas he likes coffee."
+  },
+  {
+    "question": "deposit",
+    "answer": "예금하다, 보증금",
+    "memo": "Deposit money in the bank."
+  },
+  {
+    "question": "restrain",
+    "answer": "억제하다, 저지하다",
+    "memo": "Restrain his anger."
+  },
+  {
+    "question": "clinic",
+    "answer": "병동, 클리닉",
+    "memo": "A dental clinic."
+  },
+  {
+    "question": "refine",
+    "answer": "정제하다, 개선하다",
+    "memo": "Refine the plan."
+  },
+  {
+    "question": "explicit",
+    "answer": "명백한, 노골적인",
+    "memo": "An explicit answer."
+  },
+  {
+    "question": "satellite",
+    "answer": "위성",
+    "memo": "A weather satellite."
+  },
+  {
+    "question": "lap",
+    "answer": "무릎(앉았을 때)",
+    "memo": "Sit on my lap."
+  },
+  {
+    "question": "molecule",
+    "answer": "분자",
+    "memo": "Water molecule."
+  }
+]

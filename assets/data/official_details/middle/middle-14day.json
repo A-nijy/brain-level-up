@@ -1,0 +1,252 @@
+[
+  {
+    "question": "cell",
+    "answer": "세포, 작은 방",
+    "memo": "The human body is made of cells."
+  },
+  {
+    "question": "vision",
+    "answer": "시력, 비전",
+    "memo": "A clear vision."
+  },
+  {
+    "question": "crash",
+    "answer": "충돌하다, 추락하다",
+    "memo": "A plane crash."
+  },
+  {
+    "question": "despite",
+    "answer": "~에도 불구하고",
+    "memo": "Despite the rain, he went out."
+  },
+  {
+    "question": "display",
+    "answer": "전시하다, 나타내다",
+    "memo": "The products are on display."
+  },
+  {
+    "question": "until",
+    "answer": "~까지",
+    "memo": "Until tomorrow."
+  },
+  {
+    "question": "compare",
+    "answer": "비교하다",
+    "memo": "Don't compare yourself with others."
+  },
+  {
+    "question": "quote",
+    "answer": "인용하다",
+    "memo": "Quote a poem."
+  },
+  {
+    "question": "rent",
+    "answer": "임대료, 빌리다",
+    "memo": "Pay the rent."
+  },
+  {
+    "question": "load",
+    "answer": "짐, 싣다",
+    "memo": "Download the file."
+  },
+  {
+    "question": "such",
+    "answer": "그러한, 매우",
+    "memo": "Such a nice day."
+  },
+  {
+    "question": "analysis",
+    "answer": "분석",
+    "memo": "They performed a chemical analysis."
+  },
+  {
+    "question": "brand",
+    "answer": "상표, 브랜드",
+    "memo": "Which brand do you like?"
+  },
+  {
+    "question": "curious",
+    "answer": "궁금한, 호기심 많은",
+    "memo": "I'm curious about it."
+  },
+  {
+    "question": "modern",
+    "answer": "현대의",
+    "memo": "Modern art."
+  },
+  {
+    "question": "populate (population)",
+    "answer": "거주하다 (인구)",
+    "memo": "World population."
+  },
+  {
+    "question": "insist",
+    "answer": "주장하다",
+    "memo": "Insist on it."
+  },
+  {
+    "question": "prevent",
+    "answer": "예방하다, 막다",
+    "memo": "Prevent accidents."
+  },
+  {
+    "question": "net",
+    "answer": "그물, 망",
+    "memo": "A fishing net."
+  },
+  {
+    "question": "mount",
+    "answer": "오르다, 산",
+    "memo": "Mount Everest."
+  },
+  {
+    "question": "subject (subjective)",
+    "answer": "주제, 과목 (주관적인)",
+    "memo": "Favorite subject."
+  },
+  {
+    "question": "stamp",
+    "answer": "우표, 도장을 찍다",
+    "memo": "Collect stamps."
+  },
+  {
+    "question": "scare",
+    "answer": "겁주다",
+    "memo": "Don't scare me."
+  },
+  {
+    "question": "chase",
+    "answer": "뒤쫓다, 추격",
+    "memo": "The cat chased the mouse."
+  },
+  {
+    "question": "phrase",
+    "answer": "구절, 관용구",
+    "memo": "A common phrase."
+  },
+  {
+    "question": "stress",
+    "answer": "스트레스, 강조하다",
+    "memo": "Under stress."
+  },
+  {
+    "question": "hide",
+    "answer": "숨다, 숨기다",
+    "memo": "Hide and seek."
+  },
+  {
+    "question": "detect",
+    "answer": "감지하다, 발견하다",
+    "memo": "Detect a lie."
+  },
+  {
+    "question": "purchase",
+    "answer": "구매하다",
+    "memo": "Purchase a ticket."
+  },
+  {
+    "question": "gain",
+    "answer": "얻다, 이익",
+    "memo": "No pain, no gain."
+  },
+  {
+    "question": "pet",
+    "answer": "애완동물",
+    "memo": "Do you have a pet?"
+  },
+  {
+    "question": "powder",
+    "answer": "가루",
+    "memo": "Milk powder."
+  },
+  {
+    "question": "emphasize",
+    "answer": "강조하다",
+    "memo": "The teacher emphasized the importance."
+  },
+  {
+    "question": "loan",
+    "answer": "대출, 빌려주다",
+    "memo": "Bank loan."
+  },
+  {
+    "question": "roll (enroll)",
+    "answer": "구르다, 명부 (등록하다)",
+    "memo": "Roll the ball."
+  },
+  {
+    "question": "price",
+    "answer": "가격",
+    "memo": "What is the price?"
+  },
+  {
+    "question": "remark",
+    "answer": "말하다, 주목",
+    "memo": "A strange remark."
+  },
+  {
+    "question": "iron",
+    "answer": "철, 다리미",
+    "memo": "Iron man."
+  },
+  {
+    "question": "complete",
+    "answer": "완성하다, 완전한",
+    "memo": "Mission complete."
+  },
+  {
+    "question": "debate",
+    "answer": "토론, 논쟁",
+    "memo": "A heated debate on education."
+  },
+  {
+    "question": "plus",
+    "answer": "더하기, 장점",
+    "memo": "Two plus two."
+  },
+  {
+    "question": "chief",
+    "answer": "주요한, 우두머리",
+    "memo": "The chief reason for the problem."
+  },
+  {
+    "question": "technique (technic)",
+    "answer": "기술, 기법",
+    "memo": "A new technique."
+  },
+  {
+    "question": "profession",
+    "answer": "직업, 전문직",
+    "memo": "By profession."
+  },
+  {
+    "question": "progress",
+    "answer": "진전, 발전",
+    "memo": "Make progress."
+  },
+  {
+    "question": "fantastic",
+    "answer": "환상적인",
+    "memo": "You look fantastic!"
+  },
+  {
+    "question": "comfort (comfortable)",
+    "answer": "편안함 (편안한)",
+    "memo": "The sofa is comfortable."
+  },
+  {
+    "question": "row",
+    "answer": "열, 줄, 배를 저어가다",
+    "memo": "In a row."
+  },
+  {
+    "question": "waste",
+    "answer": "낭비하다, 쓰레기",
+    "memo": "Don't waste time."
+  },
+  {
+    "question": "cave",
+    "answer": "동굴",
+    "memo": "Bats live in the cave."
+  }
+]

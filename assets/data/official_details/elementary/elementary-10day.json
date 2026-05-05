@@ -1,0 +1,252 @@
+[
+  {
+    "question": "country",
+    "answer": "나라, 시골",
+    "memo": "I love my country."
+  },
+  {
+    "question": "mind",
+    "answer": "마음, 싫어하다",
+    "memo": "Never mind."
+  },
+  {
+    "question": "miss",
+    "answer": "놓치다, 그리워하다",
+    "memo": "I miss you."
+  },
+  {
+    "question": "pants",
+    "answer": "바지",
+    "memo": "Wear blue pants."
+  },
+  {
+    "question": "five",
+    "answer": "5",
+    "memo": "High five!"
+  },
+  {
+    "question": "base",
+    "answer": "기초, 토대",
+    "memo": "The lamp has a heavy base."
+  },
+  {
+    "question": "lake",
+    "answer": "호수",
+    "memo": "Swim in the lake."
+  },
+  {
+    "question": "keep",
+    "answer": "유지하다, 보관하다",
+    "memo": "Keep a promise."
+  },
+  {
+    "question": "because",
+    "answer": "~ 때문에",
+    "memo": "I'm happy because it's Friday."
+  },
+  {
+    "question": "life",
+    "answer": "삶, 생명",
+    "memo": "Daily life."
+  },
+  {
+    "question": "image",
+    "answer": "이미지",
+    "memo": "The image of God."
+  },
+  {
+    "question": "live",
+    "answer": "살다, 생방송의",
+    "memo": "Where do you live?"
+  },
+  {
+    "question": "cross",
+    "answer": "건너다, 십자가",
+    "memo": "Cross the street."
+  },
+  {
+    "question": "shoe",
+    "answer": "신발",
+    "memo": "A pair of shoes."
+  },
+  {
+    "question": "class (classic, classify)",
+    "answer": "수업, 학급 (고전의, 분류하다)",
+    "memo": "I have an English class."
+  },
+  {
+    "question": "set",
+    "answer": "설정하다, 세트",
+    "memo": "Set a goal."
+  },
+  {
+    "question": "football",
+    "answer": "축구",
+    "memo": "Play football."
+  },
+  {
+    "question": "way",
+    "answer": "길, 방법",
+    "memo": "On my way home."
+  },
+  {
+    "question": "burn",
+    "answer": "타다, 태우다",
+    "memo": "The candle is burning."
+  },
+  {
+    "question": "learn",
+    "answer": "배우다",
+    "memo": "Learn by doing."
+  },
+  {
+    "question": "hang",
+    "answer": "걸다, 매달리다",
+    "memo": "Hang your coat here."
+  },
+  {
+    "question": "happy",
+    "answer": "행복한",
+    "memo": "I am so happy."
+  },
+  {
+    "question": "away",
+    "answer": "떨어져서, 멀리",
+    "memo": "Go away!"
+  },
+  {
+    "question": "like (likely)",
+    "answer": "좋아하다, ~처럼 (~할 것 같은)",
+    "memo": "I like you."
+  },
+  {
+    "question": "warm",
+    "answer": "따뜻한",
+    "memo": "Warm weather."
+  },
+  {
+    "question": "pink",
+    "answer": "분홍색",
+    "memo": "A pink dress."
+  },
+  {
+    "question": "please (pleasant, pleasure)",
+    "answer": "제발, 기쁘게 하다 (즐거운, 기쁨)",
+    "memo": "Yes, please."
+  },
+  {
+    "question": "bat",
+    "answer": "방망이, 박쥐",
+    "memo": "A baseball bat."
+  },
+  {
+    "question": "catch",
+    "answer": "잡다",
+    "memo": "Catch the ball!"
+  },
+  {
+    "question": "game",
+    "answer": "게임, 경기",
+    "memo": "Video games."
+  },
+  {
+    "question": "cow",
+    "answer": "암소",
+    "memo": "A milk cow."
+  },
+  {
+    "question": "finger",
+    "answer": "손가락",
+    "memo": "Ten fingers."
+  },
+  {
+    "question": "pilot",
+    "answer": "조종사",
+    "memo": "A plane pilot."
+  },
+  {
+    "question": "clothes",
+    "answer": "옷",
+    "memo": "Wash your clothes."
+  },
+  {
+    "question": "save",
+    "answer": "구하다, 저축하다",
+    "memo": "Save money."
+  },
+  {
+    "question": "become",
+    "answer": "~이 되다",
+    "memo": "He became a doctor."
+  },
+  {
+    "question": "body",
+    "answer": "몸, 신체",
+    "memo": "Exercise is good for your body."
+  },
+  {
+    "question": "doughnut",
+    "answer": "도넛",
+    "memo": "I like doughnuts."
+  },
+  {
+    "question": "hand",
+    "answer": "손, 건네다",
+    "memo": "Wash your hands."
+  },
+  {
+    "question": "second (secondary)",
+    "answer": "두 번째의, 초 (이차적인)",
+    "memo": "Wait a second."
+  },
+  {
+    "question": "dark",
+    "answer": "어두운",
+    "memo": "It's getting dark outside."
+  },
+  {
+    "question": "congratulate",
+    "answer": "축하하다",
+    "memo": "Congratulate on your graduation."
+  },
+  {
+    "question": "word",
+    "answer": "단어, 말",
+    "memo": "New words."
+  },
+  {
+    "question": "change",
+    "answer": "바꾸다, 거스름돈",
+    "memo": "I need to change my clothes."
+  },
+  {
+    "question": "almost",
+    "answer": "거의",
+    "memo": "Dinner is almost ready."
+  },
+  {
+    "question": "umbrella",
+    "answer": "우산",
+    "memo": "Open your umbrella."
+  },
+  {
+    "question": "it",
+    "answer": "그것",
+    "memo": "It is a pen."
+  },
+  {
+    "question": "bank",
+    "answer": "은행, 강둑",
+    "memo": "I need to go to the bank."
+  },
+  {
+    "question": "up",
+    "answer": "위로",
+    "memo": "Stand up."
+  },
+  {
+    "question": "boy",
+    "answer": "소년",
+    "memo": "He is a brave boy."
+  }
+]

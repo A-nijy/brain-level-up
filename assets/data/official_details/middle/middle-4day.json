@@ -1,0 +1,252 @@
+[
+  {
+    "question": "instruct",
+    "answer": "지시하다, 가르치다",
+    "memo": "Instruct the students."
+  },
+  {
+    "question": "notice",
+    "answer": "알아차리다, 공지",
+    "memo": "Did you notice?"
+  },
+  {
+    "question": "neat",
+    "answer": "깔끔한",
+    "memo": "A neat room."
+  },
+  {
+    "question": "peace (peaceful)",
+    "answer": "평화 (평화로운)",
+    "memo": "Peace of mind."
+  },
+  {
+    "question": "distance",
+    "answer": "거리",
+    "memo": "Keep your distance."
+  },
+  {
+    "question": "scratch",
+    "answer": "긁다, 상처",
+    "memo": "Scratch the surface."
+  },
+  {
+    "question": "wild",
+    "answer": "야생의",
+    "memo": "Wild animals."
+  },
+  {
+    "question": "proud",
+    "answer": "자랑스러운",
+    "memo": "Proud of you."
+  },
+  {
+    "question": "repair",
+    "answer": "수리하다",
+    "memo": "Repair the bike."
+  },
+  {
+    "question": "refuse",
+    "answer": "거절하다",
+    "memo": "Refuse the offer."
+  },
+  {
+    "question": "expect",
+    "answer": "기대하다, 예상하다",
+    "memo": "I expect him to come."
+  },
+  {
+    "question": "since",
+    "answer": "~이후로, ~때문에",
+    "memo": "Since yesterday."
+  },
+  {
+    "question": "shock",
+    "answer": "충격",
+    "memo": "Get a shock."
+  },
+  {
+    "question": "shave",
+    "answer": "면도하다",
+    "memo": "Shave every day."
+  },
+  {
+    "question": "recover",
+    "answer": "회복하다",
+    "memo": "Recover from a cold."
+  },
+  {
+    "question": "define",
+    "answer": "정의하다",
+    "memo": "How do you define success?"
+  },
+  {
+    "question": "poem",
+    "answer": "시",
+    "memo": "Write a poem."
+  },
+  {
+    "question": "either",
+    "answer": "또한, (둘 중) 어느 하나",
+    "memo": "Either way is fine."
+  },
+  {
+    "question": "pair",
+    "answer": "한 쌍, 켤레",
+    "memo": "A pair of shoes."
+  },
+  {
+    "question": "due",
+    "answer": "~하기로 되어 있는, 만기의",
+    "memo": "The report is due tomorrow."
+  },
+  {
+    "question": "wound",
+    "answer": "상처, 부상을 입히다",
+    "memo": "A deep wound."
+  },
+  {
+    "question": "bind",
+    "answer": "묶다, 결속시키다",
+    "memo": "They are bound by friendship."
+  },
+  {
+    "question": "punish",
+    "answer": "처벌하다",
+    "memo": "Punish the criminal."
+  },
+  {
+    "question": "smart",
+    "answer": "영리한, 똑똑한",
+    "memo": "A smart student."
+  },
+  {
+    "question": "awkward",
+    "answer": "어색한, 서투른",
+    "memo": "There was an awkward silence."
+  },
+  {
+    "question": "would",
+    "answer": "~일 것이다 (will의 과거)",
+    "memo": "Would you like some?"
+  },
+  {
+    "question": "airline",
+    "answer": "항공사",
+    "memo": "Which airline are you using?"
+  },
+  {
+    "question": "soon",
+    "answer": "곧",
+    "memo": "See you soon."
+  },
+  {
+    "question": "satisfy",
+    "answer": "만족시키다",
+    "memo": "Satisfy the customer."
+  },
+  {
+    "question": "rice",
+    "answer": "쌀, 밥",
+    "memo": "Eat rice."
+  },
+  {
+    "question": "legal",
+    "answer": "법률의, 합법적인",
+    "memo": "Legal advice."
+  },
+  {
+    "question": "intend",
+    "answer": "의도하다",
+    "memo": "What do you intend?"
+  },
+  {
+    "question": "effect (effective)",
+    "answer": "효과, 영향 (효과적인)",
+    "memo": "A side effect."
+  },
+  {
+    "question": "beyond",
+    "answer": "~을 넘어서",
+    "memo": "Beyond the mountains."
+  },
+  {
+    "question": "fancy",
+    "answer": "화려한, 원하다",
+    "memo": "A fancy restaurant."
+  },
+  {
+    "question": "privacy",
+    "answer": "사생활",
+    "memo": "Protect privacy."
+  },
+  {
+    "question": "pile",
+    "answer": "더미, 쌓다",
+    "memo": "A pile of books."
+  },
+  {
+    "question": "chew",
+    "answer": "씹다",
+    "memo": "Chew your food well."
+  },
+  {
+    "question": "series",
+    "answer": "연속, 시리즈",
+    "memo": "A TV series."
+  },
+  {
+    "question": "bunch",
+    "answer": "다발, 송이",
+    "memo": "A bunch of flowers."
+  },
+  {
+    "question": "respect (respective)",
+    "answer": "존중하다 (각각의)",
+    "memo": "Respect the elderly."
+  },
+  {
+    "question": "bite",
+    "answer": "물다",
+    "memo": "Don't let the dog bite you."
+  },
+  {
+    "question": "context",
+    "answer": "문맥, 배경",
+    "memo": "In the context of."
+  },
+  {
+    "question": "doubt",
+    "answer": "의심",
+    "memo": "I doubt it."
+  },
+  {
+    "question": "cottage",
+    "answer": "오두막, 시골집",
+    "memo": "A summer cottage."
+  },
+  {
+    "question": "fair",
+    "answer": "공평한, 박람회",
+    "memo": "That's not fair."
+  },
+  {
+    "question": "beard",
+    "answer": "턱수염",
+    "memo": "He grew a thick beard."
+  },
+  {
+    "question": "belong",
+    "answer": "~에 속하다",
+    "memo": "This book belongs to me."
+  },
+  {
+    "question": "ceiling",
+    "answer": "천장",
+    "memo": "The room has a high ceiling."
+  },
+  {
+    "question": "mark",
+    "answer": "표시, 점수",
+    "memo": "Mark the date."
+  }
+]

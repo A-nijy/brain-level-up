@@ -5,8 +5,7 @@ import { Text, View, Card } from '@/components/Themed';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as XLSX from 'xlsx';
-import * as FileSystem from 'expo-file-system/legacy';
-import { supabase } from '@/lib/supabase';
+import * as FileSystem from 'expo-file-system';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -14,7 +13,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
 import { LogService } from '@/services/LogService';
+import { ItemService } from '@/services/ItemService';
 
+/**
+ * [Local-Only] 외부 파일(CSV, Excel)에서 문항을 가져오는 화면
+ * Supabase 대신 로컬 SQLite(ItemService)를 사용하도록 리팩토링됨
+ */
 export default function ImportItemsScreen() {
     const { id } = useLocalSearchParams(); // library_id
     const router = useRouter();
@@ -36,7 +40,6 @@ export default function ImportItemsScreen() {
                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     'application/vnd.ms-excel',
                     'application/csv',
-                    'public.comma-separated-values-text', // iOS UTI
                 ],
                 copyToCacheDirectory: true,
             });
@@ -107,11 +110,6 @@ export default function ImportItemsScreen() {
                 setParsedData(json);
             } catch (error: any) {
                 console.error('File parsing error:', error);
-                LogService.logEvent('app_error', { 
-                    summary: '파일 파싱 실패', 
-                    message: error.message,
-                    fileName: file.name
-                });
                 showAlert({ title: Strings.common.error, message: Strings.userImport.alerts.parseError });
             } finally {
                 if (Platform.OS !== 'web') setLoading(false);
@@ -141,23 +139,22 @@ export default function ImportItemsScreen() {
                 if (!qKey || !aKey) return null;
 
                 return {
-                    library_id: id,
-                    question: row[qKey],
-                    answer: row[aKey],
-                    memo: mKey ? row[mKey] : null,
-                    study_status: 'undecided', // DB 필수값 대응
+                    library_id: id as string,
+                    section_id: null, // 라이브러리 직접 가져오기 시 섹션 미지정
+                    question: String(row[qKey]),
+                    answer: String(row[aKey]),
+                    memo: mKey ? String(row[mKey]) : '',
                 };
-            }).filter(item => item !== null);
+            }).filter(item => item !== null) as any[];
 
             if (itemsToInsert.length === 0) {
                 throw new Error(Strings.userImport.alerts.noColumns);
             }
 
-            const { error } = await supabase.from('items').insert(itemsToInsert);
+            // 로컬 서비스 사용
+            await ItemService.createItems(itemsToInsert);
 
-            if (error) throw error;
-
-            LogService.logEvent('feature_usage', { feature: 'IMPORT_DATA' });
+            LogService.logEvent('feature_usage', { feature: 'IMPORT_DATA', count: itemsToInsert.length });
 
             showAlert({
                 title: Strings.common.success,
@@ -166,11 +163,7 @@ export default function ImportItemsScreen() {
             });
 
         } catch (error: any) {
-            LogService.logEvent('app_error', { 
-                summary: '데이터 가져오기 저장 실패', 
-                message: error.message,
-                itemCount: parsedData.length
-            });
+            console.error('Import error:', error);
             showAlert({ title: Strings.userImport.alerts.importFail, message: error.message });
         } finally {
             setLoading(false);

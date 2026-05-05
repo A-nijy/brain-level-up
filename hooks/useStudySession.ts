@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
+import { runQuery, runCommand } from '@/lib/db';
 import { StatsService } from '@/services/StatsService';
 import { useAuth } from '@/contexts/AuthContext';
 import { Item } from '@/types';
@@ -24,28 +24,23 @@ export function useStudySession(libraryId: string, sectionId?: string, options?:
     const fetchItems = useCallback(async () => {
         try {
             setLoading(true);
-            let query = supabase
-                .from('items')
-                .select('*')
-                .eq('library_id', libraryId);
+            let sql = 'SELECT * FROM items WHERE library_id = ?';
+            let params: any[] = [libraryId];
 
             if (sectionId) {
-                query = query.eq('section_id', sectionId);
+                sql += ' AND section_id = ?';
+                params.push(sectionId);
             }
 
             // Status filtering
             if (options?.ranges && !options.ranges.includes('all')) {
-                // If 'all' is not present, filter by selected statuses
-                // Handle 'undecided' being null or empty in DB if necessary
-                const statuses = options.ranges.map(r => r === 'undecided' ? 'undecided' : r);
-                query = query.in('study_status', statuses);
+                const placeholders = options.ranges.map(() => '?').join(',');
+                sql += ` AND study_status IN (${placeholders})`;
+                params.push(...options.ranges);
             }
 
-            const { data, error } = await query;
-
-            if (error) throw error;
-
-            let processedItems = data || [];
+            const data = await runQuery(sql, params);
+            let processedItems = (data || []) as Item[];
 
             // Card face swapping
             if (options?.frontSide === 'answer') {
@@ -60,7 +55,6 @@ export function useStudySession(libraryId: string, sectionId?: string, options?:
             if (options?.order !== 'sequential') {
                 processedItems = [...processedItems].sort(() => Math.random() - 0.5);
             }
-            // else: sequential (keep as returned by Supabase, usually by ID or created_at)
 
             setItems(processedItems);
             setError(null);
@@ -82,15 +76,12 @@ export function useStudySession(libraryId: string, sectionId?: string, options?:
 
     const updateItemStats = async (itemId: string, success: boolean) => {
         try {
-            const { error } = await supabase
-                .from('items')
-                .update({ study_status: success ? 'learned' : 'confused' })
-                .eq('id', itemId);
-            if (error) throw error;
+            await runCommand(
+                'UPDATE items SET study_status = ? WHERE id = ?',
+                [success ? 'learned' : 'confused', itemId]
+            );
         } catch (err: any) {
             console.error("[useStudySession] Update status error:", err);
-            // We don't necessarily want to block the user if stats update fails,
-            // but we log it.
         }
     };
 
@@ -144,6 +135,6 @@ export function useStudySession(libraryId: string, sectionId?: string, options?:
         handleFlip,
         handleResult,
         saveSessionProgress,
-        setIsFlipped // For manual sync if animations need it
+        setIsFlipped
     };
 }

@@ -10,7 +10,7 @@ import { Strings } from '@/constants/Strings';
 import { useAlert } from '@/contexts/AlertContext';
 
 export default function EditLibraryScreen() {
-    const { session } = useAuth();
+    const { user } = useAuth();
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
     const libraryId = Array.isArray(id) ? id[0] : id;
 
@@ -52,8 +52,8 @@ export default function EditLibraryScreen() {
             return;
         }
 
-        if (!session?.user || !libraryId) {
-            showAlert({ title: Strings.common.error, message: Strings.itemForm.alerts.invalidAccess });
+        if (!user || !libraryId) {
+            showAlert({ title: Strings.common.error, message: Strings.common.error });
             return;
         }
 

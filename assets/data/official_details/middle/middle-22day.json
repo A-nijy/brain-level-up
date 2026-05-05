@@ -1,0 +1,252 @@
+[
+  {
+    "question": "electric",
+    "answer": "전기의",
+    "memo": "An electric car."
+  },
+  {
+    "question": "warn",
+    "answer": "경고하다",
+    "memo": "Warn the children."
+  },
+  {
+    "question": "belief",
+    "answer": "믿음, 신념",
+    "memo": "It is my firm belief."
+  },
+  {
+    "question": "passion",
+    "answer": "열정",
+    "memo": "Passion for music."
+  },
+  {
+    "question": "nerve (nervous)",
+    "answer": "신경 (긴장한)",
+    "memo": "I'm nervous."
+  },
+  {
+    "question": "supply",
+    "answer": "공급, 공급하다",
+    "memo": "Water supply."
+  },
+  {
+    "question": "rapid",
+    "answer": "빠른",
+    "memo": "Rapid growth."
+  },
+  {
+    "question": "still",
+    "answer": "여전히, 정지한",
+    "memo": "Keep still."
+  },
+  {
+    "question": "contract",
+    "answer": "계약, 수축하다",
+    "memo": "Sign a contract."
+  },
+  {
+    "question": "crisis",
+    "answer": "위기",
+    "memo": "An economic crisis."
+  },
+  {
+    "question": "observe",
+    "answer": "관찰하다, 준수하다",
+    "memo": "Observe the birds."
+  },
+  {
+    "question": "narrow",
+    "answer": "좁은",
+    "memo": "A narrow street."
+  },
+  {
+    "question": "arrest",
+    "answer": "체포하다",
+    "memo": "The police arrested the thief."
+  },
+  {
+    "question": "bore",
+    "answer": "지루하게 하다",
+    "memo": "The movie bored me."
+  },
+  {
+    "question": "plant",
+    "answer": "식물, 공장, 심다",
+    "memo": "Water the plants."
+  },
+  {
+    "question": "medical",
+    "answer": "의료의",
+    "memo": "Medical check-up."
+  },
+  {
+    "question": "studio",
+    "answer": "스튜디오, 작업실",
+    "memo": "A photo studio."
+  },
+  {
+    "question": "menu",
+    "answer": "메뉴",
+    "memo": "Look at the menu."
+  },
+  {
+    "question": "react",
+    "answer": "반응하다",
+    "memo": "React to the news."
+  },
+  {
+    "question": "delight",
+    "answer": "기쁨, 즐겁게 하다",
+    "memo": "A look of delight."
+  },
+  {
+    "question": "industry",
+    "answer": "산업, 근면",
+    "memo": "Heavy industry."
+  },
+  {
+    "question": "ghost",
+    "answer": "유령",
+    "memo": "A ghost story."
+  },
+  {
+    "question": "regular",
+    "answer": "규칙적인, 보통의",
+    "memo": "A regular customer."
+  },
+  {
+    "question": "soul",
+    "answer": "영혼",
+    "memo": "Soul music."
+  },
+  {
+    "question": "report",
+    "answer": "보고서, 보도하다",
+    "memo": "Weather report."
+  },
+  {
+    "question": "mental",
+    "answer": "정신의",
+    "memo": "Mental health."
+  },
+  {
+    "question": "bother",
+    "answer": "괴롭히다, 귀찮게 하다",
+    "memo": "Don't bother me."
+  },
+  {
+    "question": "ocean",
+    "answer": "대양, 바다",
+    "memo": "The Pacific Ocean."
+  },
+  {
+    "question": "elect",
+    "answer": "선출하다",
+    "memo": "Elect a president."
+  },
+  {
+    "question": "appear (disappear)",
+    "answer": "나타나다 (사라지다)",
+    "memo": "A rainbow appeared in the sky."
+  },
+  {
+    "question": "county",
+    "answer": "군(행정구역)",
+    "memo": "Orange County."
+  },
+  {
+    "question": "equal",
+    "answer": "같은, 평등한",
+    "memo": "All men are equal."
+  },
+  {
+    "question": "officer",
+    "answer": "경찰관, 장교",
+    "memo": "A police officer."
+  },
+  {
+    "question": "temperature",
+    "answer": "온도, 기온",
+    "memo": "The temperature is rising."
+  },
+  {
+    "question": "paragraph",
+    "answer": "단락, 문단",
+    "memo": "Read the first paragraph."
+  },
+  {
+    "question": "ease (disease, easy)",
+    "answer": "안락함 (질병, 쉬운)",
+    "memo": "With ease."
+  },
+  {
+    "question": "lift",
+    "answer": "들어 올리다",
+    "memo": "Lift a heavy box."
+  },
+  {
+    "question": "flag",
+    "answer": "깃발",
+    "memo": "The national flag."
+  },
+  {
+    "question": "whole",
+    "answer": "전체의",
+    "memo": "The whole world."
+  },
+  {
+    "question": "shade",
+    "answer": "그늘, 색조",
+    "memo": "In the shade."
+  },
+  {
+    "question": "stable",
+    "answer": "안정된, 마구간",
+    "memo": "A stable job."
+  },
+  {
+    "question": "embarrass",
+    "answer": "당황하게 하다",
+    "memo": "Don't embarrass me."
+  },
+  {
+    "question": "aboard",
+    "answer": "탑승한",
+    "memo": "All passengers are aboard the plane."
+  },
+  {
+    "question": "edit",
+    "answer": "편집하다",
+    "memo": "Edit the video."
+  },
+  {
+    "question": "harm (harmonious)",
+    "answer": "해치다 (조화로운)",
+    "memo": "Smoking does harm to health."
+  },
+  {
+    "question": "value",
+    "answer": "가치",
+    "memo": "Cultural value."
+  },
+  {
+    "question": "steady",
+    "answer": "꾸준한, 고정된",
+    "memo": "A steady job."
+  },
+  {
+    "question": "appoint",
+    "answer": "임명하다, 정하다",
+    "memo": "They appointed him manager."
+  },
+  {
+    "question": "concert",
+    "answer": "콘서트, 음악회",
+    "memo": "Go to a concert."
+  },
+  {
+    "question": "coin",
+    "answer": "동전",
+    "memo": "I found a gold coin."
+  }
+]
