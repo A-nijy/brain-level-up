@@ -1,8 +1,6 @@
 {
   "categories": [
-    { "id": "cat-1", "title": "외국어", "display_order": 1 },
-    { "id": "cat-2", "title": "IT/프로그래밍", "display_order": 2 },
-    { "id": "cat-3", "title": "상식/기타", "display_order": 3 }
+    { "id": "cat-1", "title": "기초 영단어", "display_order": 1 }
   ],
   "libraries": [
     {

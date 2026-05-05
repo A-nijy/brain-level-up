@@ -86,45 +86,31 @@ export default function SharedLibraryScreen() {
                 >
                     <View variant="transparent" style={styles.cardHeader}>
                         <View style={[styles.iconContainer, { backgroundColor: colors.tint + '15' }]}>
-                            <FontAwesome name="bookmark" size={20} color={colors.tint} />
+                            <FontAwesome name="bookmark" size={18} color={colors.tint} />
                         </View>
                         <View variant="transparent" style={styles.titleContainer}>
-                            <Text type="title" style={styles.cardTitle}>{item.title}</Text>
-                            {item.category && (
-                                <Text style={[styles.categoryText, { color: colors.tint }]}>{item.category}</Text>
-                            )}
+                            <Text type="title" style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
                         </View>
                         <FontAwesome name="angle-right" size={18} color={colors.border} />
                     </View>
 
-                    {item.description && (
-                        <Text style={[styles.cardDescription, { color: colors.textSecondary }]} numberOfLines={2}>
+                    <View variant="transparent" style={styles.descriptionRow}>
+                        <Text 
+                            style={[styles.cardDescription, { color: colors.textSecondary }]} 
+                            numberOfLines={2}
+                        >
                             {item.description}
                         </Text>
-                    )}
-
-                    <View variant="transparent" style={styles.cardFooter}>
-                        <View variant="transparent" style={styles.footerLeft}>
-                            <View variant="transparent" style={styles.statItem}>
-                                <FontAwesome name="download" size={12} color={colors.textSecondary} style={{ marginRight: 6 }} />
-                                <Text style={[styles.statText, { color: colors.textSecondary }]}>
-                                    {Strings.shared.downloadCount(item.download_count || 0)}
-                                </Text>
-                            </View>
-                        </View>
-
+                        
                         <TouchableOpacity
-                            style={[styles.downloadButton, { backgroundColor: colors.tint, borderColor: colors.tint }]}
+                            style={[styles.compactDownloadButton, { backgroundColor: colors.tint }]}
                             onPress={() => handleDownloadRequest(item)}
                             disabled={downloading === item.id}
                         >
                             {downloading === item.id ? (
                                 <ActivityIndicator size="small" color="#fff" />
                             ) : (
-                                <>
-                                    <FontAwesome name="plus" size={12} color="#fff" style={{ marginRight: 6 }} />
-                                    <Text style={[styles.downloadButtonText, { color: '#fff' }]}>{Strings.shared.import}</Text>
-                                </>
+                                <Text style={styles.downloadButtonText}>{Strings.shared.import}</Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -249,71 +235,52 @@ const styles = StyleSheet.create({
     card: {
         borderWidth: 1.5,
         borderRadius: 20,
+        padding: 16,
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 10,
     },
     iconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 10,
+        width: 32,
+        height: 32,
+        borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: 10,
     },
     titleContainer: {
         flex: 1,
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: '700',
-        marginBottom: 2,
     },
-    categoryText: {
-        fontSize: 11,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
-    cardDescription: {
-        fontSize: 14,
-        lineHeight: 20,
-        marginBottom: 16,
-        opacity: 0.8,
-    },
-    cardFooter: {
+    descriptionRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(0,0,0,0.03)',
-        paddingTop: 12,
+        gap: 12,
     },
-    footerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
+    cardDescription: {
+        flex: 1,
+        fontSize: 13,
+        lineHeight: 18,
+        opacity: 0.8,
     },
-    statItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    statText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    downloadButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
+    compactDownloadButton: {
+        paddingHorizontal: 12,
         paddingVertical: 8,
-        borderRadius: 12,
-        borderWidth: 1,
+        borderRadius: 10,
+        minWidth: 70,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     downloadButtonText: {
         fontSize: 13,
-        fontWeight: '700',
+        fontWeight: '800',
+        color: '#fff',
     },
     emptyContainer: {
         alignItems: 'center',
