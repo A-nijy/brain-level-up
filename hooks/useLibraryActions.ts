@@ -23,20 +23,6 @@ export const useLibraryActions = (
     const [selectedLibraryForMenu, setSelectedLibraryForMenu] = useState<Library | null>(null);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
-    const handleMoveUp = async (index: number) => {
-        if (index === 0) return;
-        const newLibs = [...libraries];
-        [newLibs[index - 1], newLibs[index]] = [newLibs[index], newLibs[index - 1]];
-        await reorderLibraries(newLibs);
-    };
-
-    const handleMoveDown = async (index: number) => {
-        if (index === libraries.length - 1) return;
-        const newLibs = [...libraries];
-        [newLibs[index + 1], newLibs[index]] = [newLibs[index], newLibs[index + 1]];
-        await reorderLibraries(newLibs);
-    };
-
     const handleEditLibrary = (libraryId: string, title: string) => {
         router.push({
             pathname: "/library/edit",
@@ -98,8 +84,6 @@ export const useLibraryActions = (
         selectedLibraryForMenu,
         setSelectedLibraryForMenu,
         menuPosition,
-        handleMoveUp,
-        handleMoveDown,
         handleEditLibrary,
         handleDeleteLibrary,
         handleCreateLibrary,

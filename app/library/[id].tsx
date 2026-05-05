@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, Modal, TouchableWithoutFeedback, TextInput } from 'react-native';
+import { StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, Modal, TouchableWithoutFeedback, TextInput } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -15,6 +15,8 @@ import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/Heade
 import { useAlert } from '@/contexts/AlertContext';
 import { useSectionActions } from '@/hooks/useSectionActions';
 import { Strings } from '@/constants/Strings';
+
+import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 
 export default function LibraryDetailScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -59,8 +61,6 @@ export default function LibraryDetailScreen() {
         handleEditSection,
         openEditModal,
         handleDeleteSection,
-        handleMoveUp,
-        handleMoveDown
     } = useSectionActions(
         library,
         sections,
@@ -70,58 +70,54 @@ export default function LibraryDetailScreen() {
         reorderSections
     );
 
-    const renderItem = ({ item, index }: { item: Section, index: number }) => (
-        <Animated.View
-            entering={FadeInUp.delay(index * 40).duration(400)}
-            style={styles.cardWrapper}
-        >
-            <Card
-                style={styles.sectionCard}
-                onPress={reorderMode ? undefined : () => router.push({
-                    pathname: "/library/[id]/section/[sectionId]",
-                    params: { id: libraryId, sectionId: item.id, title: item.title }
-                })}
+    const renderItem = ({ item, drag, isActive }: RenderItemParams<Section>) => (
+        <ScaleDecorator>
+            <Animated.View
+                style={[
+                    styles.cardWrapper,
+                    isActive && { opacity: 0.9, elevation: 10 }
+                ]}
             >
-                <View variant="transparent" style={styles.sectionInfo}>
-                    <Text style={styles.sectionTitle}>{item.title}</Text>
-                </View>
+                <Card
+                    style={[
+                        styles.sectionCard,
+                        isActive && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
+                    ]}
+                    onPress={reorderMode ? undefined : () => router.push({
+                        pathname: "/library/[id]/section/[sectionId]",
+                        params: { id: libraryId, sectionId: item.id, title: item.title }
+                    })}
+                    onLongPress={reorderMode ? drag : undefined}
+                    delayLongPress={100}
+                >
+                    <View variant="transparent" style={styles.sectionInfo}>
+                        <Text style={styles.sectionTitle}>{item.title}</Text>
+                    </View>
 
-                {reorderMode ? (
-                    <View variant="transparent" style={styles.reorderControls}>
-                        <TouchableOpacity
-                            style={[styles.reorderButton, { backgroundColor: colors.tint + '15' }, index === 0 && { opacity: 0.3 }]}
-                            onPress={() => handleMoveUp(index)}
-                            disabled={index === 0}
-                        >
-                            <FontAwesome name={Strings.home.icons.up as any} size={16} color={colors.tint} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.reorderButton, { backgroundColor: colors.tint + '15' }, index === sections.length - 1 && { opacity: 0.3 }]}
-                            onPress={() => handleMoveDown(index)}
-                            disabled={index === sections.length - 1}
-                        >
-                            <FontAwesome name={Strings.home.icons.down as any} size={16} color={colors.tint} />
-                        </TouchableOpacity>
-                    </View>
-                ) : (
-                    <View variant="transparent" style={styles.rightAction}>
-                        <TouchableOpacity
-                            onPress={() => openEditModal(item)}
-                            style={styles.editIconButton}
-                        >
-                            <FontAwesome name={Strings.settings.icons.pencil as any} size={18} color={colors.tint} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => handleDeleteSection(item)}
-                            style={styles.deleteIconButton}
-                        >
-                            <FontAwesome name={Strings.common.icons.delete as any} size={18} color={colors.textSecondary} />
-                        </TouchableOpacity>
-                        <FontAwesome name={Strings.home.icons.arrowRight as any} size={20} color={colors.border} />
-                    </View>
-                )}
-            </Card>
-        </Animated.View>
+                    {reorderMode ? (
+                        <View variant="transparent" style={{ padding: 10 }}>
+                            <FontAwesome name="bars" size={18} color={colors.border} />
+                        </View>
+                    ) : (
+                        <View variant="transparent" style={styles.rightAction}>
+                            <TouchableOpacity
+                                onPress={() => openEditModal(item)}
+                                style={styles.editIconButton}
+                            >
+                                <FontAwesome name={Strings.settings.icons.pencil as any} size={18} color={colors.tint} />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => handleDeleteSection(item)}
+                                style={styles.deleteIconButton}
+                            >
+                                <FontAwesome name={Strings.common.icons.delete as any} size={18} color={colors.textSecondary} />
+                            </TouchableOpacity>
+                            <FontAwesome name={Strings.home.icons.arrowRight as any} size={20} color={colors.border} />
+                        </View>
+                    )}
+                </Card>
+            </Animated.View>
+        </ScaleDecorator>
     );
 
 
@@ -173,10 +169,11 @@ export default function LibraryDetailScreen() {
                 }}
             />
 
-            <FlatList
+            <DraggableFlatList
                 data={sections}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
+                onDragEnd={({ data }) => reorderSections(data)}
                 contentContainerStyle={styles.listContent}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />

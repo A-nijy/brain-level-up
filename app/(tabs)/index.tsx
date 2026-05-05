@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Modal, TextInput, View as RNView } from 'react-native';
+import { StyleSheet, RefreshControl, ActivityIndicator, Image, Platform, useWindowDimensions, TouchableOpacity, Modal, TextInput, View as RNView } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLibraries } from '@/hooks/useLibraries';
 import { Library } from '@/types';
@@ -22,6 +22,8 @@ import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
  * [Local-Only] 홈 화면 (나의 암기장 리스트)
  * 광고 및 서버 동기화 로직이 모두 제거된 로컬 전용 버전
  */
+import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
+
 export default function LibraryListScreen() {
   const { libraries, loading, refreshing, refresh, reorderLibraries, deleteLibrary } = useLibraries();
   const { profile, user } = useAuth();
@@ -38,8 +40,6 @@ export default function LibraryListScreen() {
     setReorderMode,
     selectedLibraryForMenu,
     setSelectedLibraryForMenu,
-    handleMoveUp,
-    handleMoveDown,
     handleEditLibrary,
     handleDeleteLibrary,
     handleCreateLibrary,
@@ -55,83 +55,78 @@ export default function LibraryListScreen() {
 
   const key = `list-${numColumns}-${reorderMode}`;
 
-  const renderItem = ({ item, index }: { item: Library; index: number }) => (
-    <Animated.View
-      entering={FadeInUp.delay(index * 50).springify()}
-      style={[
-        styles.cardContainer,
-        numColumns > 1 && { width: '48%', marginHorizontal: '1%' }
-      ]}
-    >
-      <Card
-        style={styles.card}
-        onPress={reorderMode ? undefined : () => router.push({
-          pathname: "/library/[id]",
-          params: { id: item.id, title: item.title }
-        })}
-        activeOpacity={reorderMode ? 1 : 0.7}
-      >
-        <View variant="transparent" style={styles.cardHeader}>
-          <View variant="transparent" style={styles.iconContainer}>
-            <Image
-              source={{ uri: Strings.home.images.libraryDefault }}
-              style={{ width: 22, height: 22, tintColor: colors.tint }}
-            />
-          </View>
-          <View variant="transparent" style={styles.titleContainer}>
-            <Text type="title" style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-            {item.category && (
-              <Text style={[styles.categoryText, { color: colors.tint }]} numberOfLines={1}>{item.category}</Text>
-            )}
-          </View>
-          {!reorderMode && (
-            <TouchableOpacity
-              style={styles.moreButton}
-              onPress={(e) => showLibraryOptions(item, e)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <FontAwesome name={Strings.home.icons.more as any} size={18} color={colors.textSecondary} />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <View variant="transparent" style={styles.footerRow}>
-          <View variant="transparent" style={styles.stat}>
-            <FontAwesome name={Strings.home.icons.items as any} size={12} color={colors.textSecondary} />
-            <Text style={styles.statText}>{item.items_count || 0} {Strings.common.unitWord}</Text>
-          </View>
-          <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View variant="transparent" style={styles.stat}>
-              <FontAwesome name={Strings.home.icons.date as any} size={12} color={colors.textSecondary} />
-              <Text style={styles.statText}>
-                {new Date(item.created_at || Date.now()).toLocaleDateString()}
-              </Text>
+  const renderItem = ({ item, drag, isActive }: RenderItemParams<Library>) => {
+    return (
+      <ScaleDecorator>
+        <Animated.View
+          style={[
+            styles.cardContainer,
+            numColumns > 1 && { width: '48%', marginHorizontal: '1%' },
+            isActive && { opacity: 0.9, elevation: 10, shadowOpacity: 0.3 }
+          ]}
+        >
+          <Card
+            style={[
+                styles.card, 
+                isActive && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
+            ]}
+            onPress={reorderMode ? undefined : () => router.push({
+              pathname: "/library/[id]",
+              params: { id: item.id, title: item.title }
+            })}
+            onLongPress={reorderMode ? drag : undefined}
+            delayLongPress={100}
+            activeOpacity={reorderMode ? 1 : 0.7}
+          >
+            <View variant="transparent" style={styles.cardHeader}>
+              <View variant="transparent" style={styles.iconContainer}>
+                <Image
+                  source={{ uri: Strings.home.images.libraryDefault }}
+                  style={{ width: 22, height: 22, tintColor: colors.tint }}
+                />
+              </View>
+              <View variant="transparent" style={styles.titleContainer}>
+                <Text type="title" style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+                {item.category && (
+                  <Text style={[styles.categoryText, { color: colors.tint }]} numberOfLines={1}>{item.category}</Text>
+                )}
+              </View>
+              {!reorderMode && (
+                <TouchableOpacity
+                  style={styles.moreButton}
+                  onPress={(e) => showLibraryOptions(item, e)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <FontAwesome name={Strings.home.icons.more as any} size={18} color={colors.textSecondary} />
+                </TouchableOpacity>
+              )}
+              {reorderMode && (
+                <View variant="transparent" style={{ padding: 10 }}>
+                   <FontAwesome name="bars" size={16} color={colors.border} />
+                </View>
+              )}
             </View>
-            <FontAwesome name={Strings.home.icons.arrowRight as any} size={18} color={colors.textSecondary} />
-          </View>
-        </View>
 
-        {reorderMode && (
-          <View variant="transparent" style={[styles.reorderControls, { borderTopColor: colors.border + '20' }]}>
-            <TouchableOpacity
-              style={[styles.reorderButton, index === 0 && { opacity: 0.3 }]}
-              onPress={() => handleMoveUp(index)}
-              disabled={index === 0}
-            >
-              <FontAwesome name={Strings.home.icons.up as any} size={16} color={colors.tint} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.reorderButton, index === libraries.length - 1 && { opacity: 0.3 }]}
-              onPress={() => handleMoveDown(index)}
-              disabled={index === libraries.length - 1}
-            >
-              <FontAwesome name={Strings.home.icons.down as any} size={16} color={colors.tint} />
-            </TouchableOpacity>
-          </View>
-        )}
-      </Card>
-    </Animated.View>
-  );
+            <View variant="transparent" style={styles.footerRow}>
+              <View variant="transparent" style={styles.stat}>
+                <FontAwesome name={Strings.home.icons.items as any} size={12} color={colors.textSecondary} />
+                <Text style={styles.statText}>{item.items_count || 0} {Strings.common.unitWord}</Text>
+              </View>
+              <View variant="transparent" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View variant="transparent" style={styles.stat}>
+                  <FontAwesome name={Strings.home.icons.date as any} size={12} color={colors.textSecondary} />
+                  <Text style={styles.statText}>
+                    {new Date(item.created_at || Date.now()).toLocaleDateString()}
+                  </Text>
+                </View>
+                {!reorderMode && <FontAwesome name={Strings.home.icons.arrowRight as any} size={18} color={colors.textSecondary} />}
+              </View>
+            </View>
+          </Card>
+        </Animated.View>
+      </ScaleDecorator>
+    );
+  };
 
   if (loading && !refreshing) {
     return (
@@ -197,12 +192,13 @@ export default function LibraryListScreen() {
           ),
         }}
       />
-      <FlatList
+      <DraggableFlatList
         key={key}
         data={filteredLibraries}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={numColumns}
+        onDragEnd={({ data }) => reorderLibraries(data)}
         contentContainerStyle={[
           styles.listContent,
           isWeb && width > 1200 && { maxWidth: 1200, alignSelf: 'center', width: '100%' }

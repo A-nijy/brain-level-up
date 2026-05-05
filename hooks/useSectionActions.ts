@@ -90,20 +90,6 @@ export const useSectionActions = (
         });
     };
 
-    const handleMoveUp = async (index: number) => {
-        if (index === 0) return;
-        const newSections = [...sections];
-        [newSections[index - 1], newSections[index]] = [newSections[index], newSections[index - 1]];
-        await reorderSections(newSections);
-    };
-
-    const handleMoveDown = async (index: number) => {
-        if (index === sections.length - 1) return;
-        const newSections = [...sections];
-        [newSections[index + 1], newSections[index]] = [newSections[index], newSections[index + 1]];
-        await reorderSections(newSections);
-    };
-
     return {
         reorderMode,
         setReorderMode,
@@ -122,7 +108,5 @@ export const useSectionActions = (
         handleEditSection,
         openEditModal,
         handleDeleteSection,
-        handleMoveUp,
-        handleMoveDown
     };
 };

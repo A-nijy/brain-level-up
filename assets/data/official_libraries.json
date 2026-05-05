@@ -1,126 +1,358 @@
 {
   "categories": [
-    { "id": "cat-1", "title": "기초 영단어", "display_order": 1 }
+    {
+      "id": "cat-1",
+      "title": "기초 영단어",
+      "display_order": 1
+    }
   ],
   "libraries": [
     {
       "id": "elementary-part1",
       "title": "초등 필수 영단어 (Part 1)",
-      "description": "초등학생이 꼭 알아야 할 기초 영단어 Day 01~10",
+      "description": "교육부가 지정한 초등학생이 알아야 할 영단어 Day 01~10",
       "category_id": "cat-1",
       "is_official": true,
       "sections": [
-        { "id": "elementary-1day", "title": "Day 01", "display_order": 1 },
-        { "id": "elementary-2day", "title": "Day 02", "display_order": 2 },
-        { "id": "elementary-3day", "title": "Day 03", "display_order": 3 },
-        { "id": "elementary-4day", "title": "Day 04", "display_order": 4 },
-        { "id": "elementary-5day", "title": "Day 05", "display_order": 5 },
-        { "id": "elementary-6day", "title": "Day 06", "display_order": 6 },
-        { "id": "elementary-7day", "title": "Day 07", "display_order": 7 },
-        { "id": "elementary-8day", "title": "Day 08", "display_order": 8 },
-        { "id": "elementary-9day", "title": "Day 09", "display_order": 9 },
-        { "id": "elementary-10day", "title": "Day 10", "display_order": 10 }
+        {
+          "id": "elementary-1day",
+          "title": "Day 01",
+          "display_order": 1
+        },
+        {
+          "id": "elementary-2day",
+          "title": "Day 02",
+          "display_order": 2
+        },
+        {
+          "id": "elementary-3day",
+          "title": "Day 03",
+          "display_order": 3
+        },
+        {
+          "id": "elementary-4day",
+          "title": "Day 04",
+          "display_order": 4
+        },
+        {
+          "id": "elementary-5day",
+          "title": "Day 05",
+          "display_order": 5
+        },
+        {
+          "id": "elementary-6day",
+          "title": "Day 06",
+          "display_order": 6
+        },
+        {
+          "id": "elementary-7day",
+          "title": "Day 07",
+          "display_order": 7
+        },
+        {
+          "id": "elementary-8day",
+          "title": "Day 08",
+          "display_order": 8
+        },
+        {
+          "id": "elementary-9day",
+          "title": "Day 09",
+          "display_order": 9
+        },
+        {
+          "id": "elementary-10day",
+          "title": "Day 10",
+          "display_order": 10
+        }
       ]
     },
     {
       "id": "elementary-part2",
       "title": "초등 필수 영단어 (Part 2)",
-      "description": "초등학생이 꼭 알아야 할 기초 영단어 Day 11~15",
+      "description": "교육부가 지정한 초등학생이 알아야 할 영단어 Day 11~15",
       "category_id": "cat-1",
       "is_official": true,
       "sections": [
-        { "id": "elementary-11day", "title": "Day 11", "display_order": 1 },
-        { "id": "elementary-12day", "title": "Day 12", "display_order": 2 },
-        { "id": "elementary-13day", "title": "Day 13", "display_order": 3 },
-        { "id": "elementary-14day", "title": "Day 14", "display_order": 4 },
-        { "id": "elementary-15day", "title": "Day 15", "display_order": 5 }
+        {
+          "id": "elementary-11day",
+          "title": "Day 11",
+          "display_order": 1
+        },
+        {
+          "id": "elementary-12day",
+          "title": "Day 12",
+          "display_order": 2
+        },
+        {
+          "id": "elementary-13day",
+          "title": "Day 13",
+          "display_order": 3
+        },
+        {
+          "id": "elementary-14day",
+          "title": "Day 14",
+          "display_order": 4
+        },
+        {
+          "id": "elementary-15day",
+          "title": "Day 15",
+          "display_order": 5
+        }
       ]
     },
     {
       "id": "middle-part1",
       "title": "중등 필수 영단어 (Part 1)",
-      "description": "중학교 교육과정 핵심 영단어 Day 01~10",
+      "description": "교육부가 지정한 중학생이 알아야 할 영단어 Day 01~10",
       "category_id": "cat-1",
       "is_official": true,
       "sections": [
-        { "id": "middle-1day", "title": "Day 01", "display_order": 1 },
-        { "id": "middle-2day", "title": "Day 02", "display_order": 2 },
-        { "id": "middle-3day", "title": "Day 03", "display_order": 3 },
-        { "id": "middle-4day", "title": "Day 04", "display_order": 4 },
-        { "id": "middle-5day", "title": "Day 05", "display_order": 5 },
-        { "id": "middle-6day", "title": "Day 06", "display_order": 6 },
-        { "id": "middle-7day", "title": "Day 07", "display_order": 7 },
-        { "id": "middle-8day", "title": "Day 08", "display_order": 8 },
-        { "id": "middle-9day", "title": "Day 09", "display_order": 9 },
-        { "id": "middle-10day", "title": "Day 10", "display_order": 10 }
+        {
+          "id": "middle-1day",
+          "title": "Day 01",
+          "display_order": 1
+        },
+        {
+          "id": "middle-2day",
+          "title": "Day 02",
+          "display_order": 2
+        },
+        {
+          "id": "middle-3day",
+          "title": "Day 03",
+          "display_order": 3
+        },
+        {
+          "id": "middle-4day",
+          "title": "Day 04",
+          "display_order": 4
+        },
+        {
+          "id": "middle-5day",
+          "title": "Day 05",
+          "display_order": 5
+        },
+        {
+          "id": "middle-6day",
+          "title": "Day 06",
+          "display_order": 6
+        },
+        {
+          "id": "middle-7day",
+          "title": "Day 07",
+          "display_order": 7
+        },
+        {
+          "id": "middle-8day",
+          "title": "Day 08",
+          "display_order": 8
+        },
+        {
+          "id": "middle-9day",
+          "title": "Day 09",
+          "display_order": 9
+        },
+        {
+          "id": "middle-10day",
+          "title": "Day 10",
+          "display_order": 10
+        }
       ]
     },
     {
       "id": "middle-part2",
       "title": "중등 필수 영단어 (Part 2)",
-      "description": "중학교 교육과정 핵심 영단어 Day 11~20",
+      "description": "교육부가 지정한 중학생이 알아야 할 영단어 Day 11~20",
       "category_id": "cat-1",
       "is_official": true,
       "sections": [
-        { "id": "middle-11day", "title": "Day 11", "display_order": 1 },
-        { "id": "middle-12day", "title": "Day 12", "display_order": 2 },
-        { "id": "middle-13day", "title": "Day 13", "display_order": 3 },
-        { "id": "middle-14day", "title": "Day 14", "display_order": 4 },
-        { "id": "middle-15day", "title": "Day 15", "display_order": 5 },
-        { "id": "middle-16day", "title": "Day 16", "display_order": 6 },
-        { "id": "middle-17day", "title": "Day 17", "display_order": 7 },
-        { "id": "middle-18day", "title": "Day 18", "display_order": 8 },
-        { "id": "middle-19day", "title": "Day 19", "display_order": 9 },
-        { "id": "middle-20day", "title": "Day 20", "display_order": 10 }
+        {
+          "id": "middle-11day",
+          "title": "Day 11",
+          "display_order": 1
+        },
+        {
+          "id": "middle-12day",
+          "title": "Day 12",
+          "display_order": 2
+        },
+        {
+          "id": "middle-13day",
+          "title": "Day 13",
+          "display_order": 3
+        },
+        {
+          "id": "middle-14day",
+          "title": "Day 14",
+          "display_order": 4
+        },
+        {
+          "id": "middle-15day",
+          "title": "Day 15",
+          "display_order": 5
+        },
+        {
+          "id": "middle-16day",
+          "title": "Day 16",
+          "display_order": 6
+        },
+        {
+          "id": "middle-17day",
+          "title": "Day 17",
+          "display_order": 7
+        },
+        {
+          "id": "middle-18day",
+          "title": "Day 18",
+          "display_order": 8
+        },
+        {
+          "id": "middle-19day",
+          "title": "Day 19",
+          "display_order": 9
+        },
+        {
+          "id": "middle-20day",
+          "title": "Day 20",
+          "display_order": 10
+        }
       ]
     },
     {
       "id": "middle-part3",
       "title": "중등 필수 영단어 (Part 3)",
-      "description": "중학교 교육과정 핵심 영단어 Day 21~23",
+      "description": "교육부가 지정한 중학생이 알아야 할 영단어 Day 21~23",
       "category_id": "cat-1",
       "is_official": true,
       "sections": [
-        { "id": "middle-21day", "title": "Day 21", "display_order": 1 },
-        { "id": "middle-22day", "title": "Day 22", "display_order": 2 },
-        { "id": "middle-23day", "title": "Day 23", "display_order": 3 }
+        {
+          "id": "middle-21day",
+          "title": "Day 21",
+          "display_order": 1
+        },
+        {
+          "id": "middle-22day",
+          "title": "Day 22",
+          "display_order": 2
+        },
+        {
+          "id": "middle-23day",
+          "title": "Day 23",
+          "display_order": 3
+        }
       ]
     },
     {
       "id": "high-part1",
       "title": "고등 필수 영단어 (Part 1)",
-      "description": "수능 및 내신 대비 필수 고등 영단어 Day 01~10",
+      "description": "교육부가 지정한 고등학생이 알아야 할 영단어 Day 01~10",
       "category_id": "cat-1",
       "is_official": true,
       "sections": [
-        { "id": "high-1day", "title": "Day 01", "display_order": 1 },
-        { "id": "high-2day", "title": "Day 02", "display_order": 2 },
-        { "id": "high-3day", "title": "Day 03", "display_order": 3 },
-        { "id": "high-4day", "title": "Day 04", "display_order": 4 },
-        { "id": "high-5day", "title": "Day 05", "display_order": 5 },
-        { "id": "high-6day", "title": "Day 06", "display_order": 6 },
-        { "id": "high-7day", "title": "Day 07", "display_order": 7 },
-        { "id": "high-8day", "title": "Day 08", "display_order": 8 },
-        { "id": "high-9day", "title": "Day 09", "display_order": 9 },
-        { "id": "high-10day", "title": "Day 10", "display_order": 10 }
+        {
+          "id": "high-1day",
+          "title": "Day 01",
+          "display_order": 1
+        },
+        {
+          "id": "high-2day",
+          "title": "Day 02",
+          "display_order": 2
+        },
+        {
+          "id": "high-3day",
+          "title": "Day 03",
+          "display_order": 3
+        },
+        {
+          "id": "high-4day",
+          "title": "Day 04",
+          "display_order": 4
+        },
+        {
+          "id": "high-5day",
+          "title": "Day 05",
+          "display_order": 5
+        },
+        {
+          "id": "high-6day",
+          "title": "Day 06",
+          "display_order": 6
+        },
+        {
+          "id": "high-7day",
+          "title": "Day 07",
+          "display_order": 7
+        },
+        {
+          "id": "high-8day",
+          "title": "Day 08",
+          "display_order": 8
+        },
+        {
+          "id": "high-9day",
+          "title": "Day 09",
+          "display_order": 9
+        },
+        {
+          "id": "high-10day",
+          "title": "Day 10",
+          "display_order": 10
+        }
       ]
     },
     {
       "id": "high-part2",
       "title": "고등 필수 영단어 (Part 2)",
-      "description": "수능 및 내신 대비 필수 고등 영단어 Day 11~19",
+      "description": "교육부가 지정한 고등학생이 알아야 할 영단어 Day 11~19",
       "category_id": "cat-1",
       "is_official": true,
       "sections": [
-        { "id": "high-11day", "title": "Day 11", "display_order": 1 },
-        { "id": "high-12day", "title": "Day 12", "display_order": 2 },
-        { "id": "high-13day", "title": "Day 13", "display_order": 3 },
-        { "id": "high-14day", "title": "Day 14", "display_order": 4 },
-        { "id": "high-15day", "title": "Day 15", "display_order": 5 },
-        { "id": "high-16day", "title": "Day 16", "display_order": 6 },
-        { "id": "high-17day", "title": "Day 17", "display_order": 7 },
-        { "id": "high-18day", "title": "Day 18", "display_order": 8 },
-        { "id": "high-19day", "title": "Day 19", "display_order": 9 }
+        {
+          "id": "high-11day",
+          "title": "Day 11",
+          "display_order": 1
+        },
+        {
+          "id": "high-12day",
+          "title": "Day 12",
+          "display_order": 2
+        },
+        {
+          "id": "high-13day",
+          "title": "Day 13",
+          "display_order": 3
+        },
+        {
+          "id": "high-14day",
+          "title": "Day 14",
+          "display_order": 4
+        },
+        {
+          "id": "high-15day",
+          "title": "Day 15",
+          "display_order": 5
+        },
+        {
+          "id": "high-16day",
+          "title": "Day 16",
+          "display_order": 6
+        },
+        {
+          "id": "high-17day",
+          "title": "Day 17",
+          "display_order": 7
+        },
+        {
+          "id": "high-18day",
+          "title": "Day 18",
+          "display_order": 8
+        },
+        {
+          "id": "high-19day",
+          "title": "Day 19",
+          "display_order": 9
+        }
       ]
     }
   ]

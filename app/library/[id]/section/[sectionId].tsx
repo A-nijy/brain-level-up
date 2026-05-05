@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, ScrollView, DeviceEventEmitter, Modal, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
+import { StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, ScrollView, DeviceEventEmitter, Modal, TouchableWithoutFeedback, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
@@ -19,6 +19,8 @@ import { useAlert } from '@/contexts/AlertContext';
 import { useHeader, useHeaderActions, useWebHeaderTitle } from '@/contexts/HeaderContext';
 import { Strings } from '@/constants/Strings';
 import { StudyConfigModal } from '@/components/study/StudyConfigModal';
+
+import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 
 export default function SectionDetailScreen() {
     const { id, sectionId, title: paramTitle } = useLocalSearchParams<{ id: string; sectionId: string; title?: string }>();
@@ -55,9 +57,6 @@ export default function SectionDetailScreen() {
     const [selectedItemForStatus, setSelectedItemForStatus] = useState<Item | null>(null);
     const [isExporting, setIsExporting] = useState(false);
     const [configModalVisible, setConfigModalVisible] = useState(false);
-
-
-
 
     const toggleMenu = () => setMenuVisible(!menuVisible);
 
@@ -122,20 +121,6 @@ export default function SectionDetailScreen() {
         });
     };
 
-    const handleMoveUp = async (index: number) => {
-        if (index === 0) return;
-        const newItems = [...items];
-        [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
-        await reorderItems(newItems);
-    };
-
-    const handleMoveDown = async (index: number) => {
-        if (index === items.length - 1) return;
-        const newItems = [...items];
-        [newItems[index + 1], newItems[index]] = [newItems[index], newItems[index + 1]];
-        await reorderItems(newItems);
-    };
-
     const handleExport = async (options: PDFExportOptions) => {
         let exportItems = [...items];
         if (options.range === 'wrong') {
@@ -157,72 +142,66 @@ export default function SectionDetailScreen() {
         }
     };
 
-
-
-    const renderItem = ({ item, index }: { item: Item, index: number }) => (
-        <Animated.View
-            entering={FadeInUp.delay(index * 40).duration(400)}
-            style={isWeb && { width: '48%', marginBottom: 16 }}
-        >
-            <Card
-                style={styles.itemCard}
-                onPress={reorderMode ? undefined : () => showItemOptions(item)}
-                activeOpacity={reorderMode ? 1 : 0.7}
+    const renderItem = ({ item, drag, isActive }: RenderItemParams<Item>) => (
+        <ScaleDecorator>
+            <Animated.View
+                style={[
+                    isWeb && { width: '48%', marginBottom: 16 },
+                    isActive && { opacity: 0.9, elevation: 10 }
+                ]}
             >
-                <View variant="transparent" style={styles.itemContent}>
-                    <Text style={styles.questionText}>{item.question}</Text>
-                    <Text style={[styles.answerText, { color: colors.textSecondary }]}>{item.answer}</Text>
-                    {item.memo && (
-                        <Text style={[styles.memoText, { color: colors.tint }]}>{item.memo}</Text>
-                    )}
-                </View>
-                <View variant="transparent" style={styles.rightAction}>
-                    {!reorderMode && (
-                        <TouchableOpacity
-                            style={[styles.statusIconButton, { marginRight: 8 }]}
-                            onPress={() => TtsService.speak(item.question)}
-                        >
-                            <FontAwesome name={Strings.common.icons.speaker as any} size={22} color={colors.tint} />
-                        </TouchableOpacity>
-                    )}
-                    <TouchableOpacity
-                        style={styles.statusIconButton}
-                        onPress={() => {
-                            setSelectedItemForStatus(item);
-                            setStatusModalVisible(true);
-                        }}
-                    >
-                        {item.study_status === 'learned' ? (
-                            <FontAwesome name={Strings.settings.icons.check as any} size={24} color={colors.success} />
-                        ) : item.study_status === 'confused' ? (
-                            <FontAwesome name="exclamation-circle" size={24} color={colors.error} />
-                        ) : (
-                            <FontAwesome name={Strings.settings.icons.circle as any} size={24} color={colors.textSecondary} />
+                <Card
+                    style={[
+                        styles.itemCard,
+                        isActive && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
+                    ]}
+                    onPress={reorderMode ? undefined : () => showItemOptions(item)}
+                    onLongPress={reorderMode ? drag : undefined}
+                    delayLongPress={100}
+                    activeOpacity={reorderMode ? 1 : 0.7}
+                >
+                    <View variant="transparent" style={styles.itemContent}>
+                        <Text style={styles.questionText}>{item.question}</Text>
+                        <Text style={[styles.answerText, { color: colors.textSecondary }]}>{item.answer}</Text>
+                        {item.memo && (
+                            <Text style={[styles.memoText, { color: colors.tint }]}>{item.memo}</Text>
                         )}
-                    </TouchableOpacity>
-                    <FontAwesome name={Strings.home.icons.arrowRight as any} size={20} color={colors.border} />
-                </View>
-
-                {reorderMode && (
-                    <View variant="transparent" style={styles.reorderControls}>
-                        <TouchableOpacity
-                            style={[styles.reorderButton, index === 0 && { opacity: 0.3 }]}
-                            onPress={() => handleMoveUp(index)}
-                            disabled={index === 0}
-                        >
-                            <FontAwesome name={Strings.home.icons.up as any} size={16} color={colors.tint} />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={[styles.reorderButton, index === items.length - 1 && { opacity: 0.3 }]}
-                            onPress={() => handleMoveDown(index)}
-                            disabled={index === items.length - 1}
-                        >
-                            <FontAwesome name={Strings.home.icons.down as any} size={16} color={colors.tint} />
-                        </TouchableOpacity>
                     </View>
-                )}
-            </Card>
-        </Animated.View>
+                    <View variant="transparent" style={styles.rightAction}>
+                        {!reorderMode ? (
+                            <>
+                                <TouchableOpacity
+                                    style={[styles.statusIconButton, { marginRight: 8 }]}
+                                    onPress={() => TtsService.speak(item.question)}
+                                >
+                                    <FontAwesome name={Strings.common.icons.speaker as any} size={22} color={colors.tint} />
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.statusIconButton}
+                                    onPress={() => {
+                                        setSelectedItemForStatus(item);
+                                        setStatusModalVisible(true);
+                                    }}
+                                >
+                                    {item.study_status === 'learned' ? (
+                                        <FontAwesome name={Strings.settings.icons.check as any} size={24} color={colors.success} />
+                                    ) : item.study_status === 'confused' ? (
+                                        <FontAwesome name="exclamation-circle" size={24} color={colors.error} />
+                                    ) : (
+                                        <FontAwesome name={Strings.settings.icons.circle as any} size={24} color={colors.textSecondary} />
+                                    )}
+                                </TouchableOpacity>
+                                <FontAwesome name={Strings.home.icons.arrowRight as any} size={20} color={colors.border} />
+                            </>
+                        ) : (
+                            <View variant="transparent" style={{ padding: 10 }}>
+                                <FontAwesome name="bars" size={18} color={colors.border} />
+                            </View>
+                        )}
+                    </View>
+                </Card>
+            </Animated.View>
+        </ScaleDecorator>
     );
 
 
@@ -337,13 +316,11 @@ export default function SectionDetailScreen() {
                 </TouchableWithoutFeedback>
             </Modal>
 
-            <FlatList
-                key={`item-list-${reorderMode}-${isWeb ? 2 : 1}`}
+            <DraggableFlatList
                 data={items}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
-                numColumns={isWeb ? 2 : 1}
-                columnWrapperStyle={isWeb ? { gap: 16 } : undefined}
+                onDragEnd={({ data }) => reorderItems(data)}
                 contentContainerStyle={[
                     styles.listContent,
                     isWeb && { maxWidth: 1000, alignSelf: 'center', width: '100%' }

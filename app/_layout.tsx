@@ -370,20 +370,24 @@ function InitialLayout() {
   );
 }
 
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 export default function RootLayout() {
   return (
-    <SafeAreaProvider>
-      <AppThemeProvider>
-        <HeaderProvider>
-          <AlertProvider>
-            <AuthProvider>
-              <InitialLayout />
-              <CustomAlert />
-              <StatusBar style="auto" />
-            </AuthProvider>
-          </AlertProvider>
-        </HeaderProvider>
-      </AppThemeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <AppThemeProvider>
+          <HeaderProvider>
+            <AlertProvider>
+              <AuthProvider>
+                <InitialLayout />
+                <CustomAlert />
+                <StatusBar style="auto" />
+              </AuthProvider>
+            </AlertProvider>
+          </HeaderProvider>
+        </AppThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
