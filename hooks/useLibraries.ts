@@ -13,18 +13,16 @@ export function useLibraries() {
 
     const fetchLibraries = useCallback(async (isRefresh = false) => {
         if (!user) {
-            console.log('[useLibraries] No user, clearing loading.');
             setLoading(false);
             return;
         }
 
         try {
-            console.log('[useLibraries] Fetching libraries for:', user.id);
+            // [Optimization] 데이터가 이미 있으면 로딩 스피너를 띄우지 않음 (체감 속도 향상)
             if (isRefresh) setRefreshing(true);
-            else setLoading(true);
+            else if (libraries.length === 0) setLoading(true);
 
             const data = await LibraryService.getLibraries(user.id);
-            console.log('[useLibraries] Libraries fetched:', data.length);
             setLibraries(data);
             setError(null);
         } catch (err: any) {
@@ -34,7 +32,7 @@ export function useLibraries() {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [user]);
+    }, [user, libraries.length]);
 
     useFocusEffect(
         useCallback(() => {

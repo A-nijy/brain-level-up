@@ -8,7 +8,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useCallback, useState } from 'react';
 import 'react-native-reanimated';
 import { View, ActivityIndicator, Platform, TouchableOpacity, DeviceEventEmitter, AppState } from 'react-native';
 import { PushNotificationService } from '@/services/PushNotificationService';
@@ -59,116 +59,133 @@ function InitialLayout() {
   const segments = useSegments();
   const router = useRouter();
   const colorScheme = useColorScheme();
-
-  // 모든 플랫폼에서 사용 시간 추적 활성화 (1분 단위 하트비트)
-  useUsageTracking();
+  const isWeb = Platform.OS === 'web';
 
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });
 
-  // 3. 앱 상태 변화(포그라운드 복귀) 및 초기 기동 시 버퍼 체크
+  // 모든 플랫폼에서 사용 시간 추적 활성화
+  useUsageTracking();
+
+  // [Optimization] 레이아웃 구성을 메모이제이션하여 렌더링 가속
+  const LayoutContent = useMemo(() => {
+    const HeaderActions = require('@/components/HeaderActions').default;
+    return (
+      <Stack
+        screenOptions={{
+          headerShown: !isWeb,
+          title: "뇌벨업",
+          headerShadowVisible: false,
+          headerTintColor: colorScheme === 'dark' ? '#fff' : '#000',
+          headerLeft: (props) => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{
+                marginLeft: Platform.OS === 'web' ? 0 : 8,
+                padding: 8,
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginRight: 10,
+              }}
+            >
+              <FontAwesome
+                name="chevron-left"
+                size={20}
+                color={colorScheme === 'dark' ? '#fff' : '#000'}
+                style={{ transform: [{ translateY: Platform.OS === 'ios' ? 1 : 0 }] }}
+              />
+            </TouchableOpacity>
+          ),
+          headerRight: () => <HeaderActions />,
+        }}
+      >
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="library/create" options={{ headerTitle: Strings.libraryForm.createTitle }} />
+        <Stack.Screen name="library/edit" options={({ route }) => ({
+          headerTitle: (route.params as any)?.title || Strings.libraryForm.editTitle
+        })} />
+        <Stack.Screen name="library/[id]" options={({ route }) => ({
+          headerTitle: (route.params as any)?.title || "암기장"
+        })} />
+        <Stack.Screen name="library/[id]/section/[sectionId]" options={({ route }) => ({
+          headerTitle: (route.params as any)?.title || "학습 섹션"
+        })} />
+        <Stack.Screen name="study/[id]" options={{ headerShown: !isWeb }} />
+        <Stack.Screen name="library/[id]/section/[sectionId]/create-item" options={({ route }) => ({
+          headerTitle: (route.params as any)?.title || Strings.itemForm.createTitle
+        })} />
+        <Stack.Screen name="library/[id]/section/[sectionId]/edit-item" options={({ route }) => ({
+          headerTitle: (route.params as any)?.title || Strings.itemForm.editTitle
+        })} />
+        <Stack.Screen name="library/[id]/section/[sectionId]/import" options={({ route }) => ({
+          headerTitle: (route.params as any)?.title || Strings.librarySection.menu.importWords
+        })} />
+        <Stack.Screen name="shared/[id]" options={({ route }) => ({
+          headerTitle: (route.params as any)?.title || Strings.sharedDetail.screenTitle
+        })} />
+        <Stack.Screen name="shared/[id]/section/[sectionId]" options={({ route }) => ({
+          headerTitle: (route.params as any)?.title || Strings.sharedDetail.screenTitle
+        })} />
+        <Stack.Screen name="notifications" options={{ headerTitle: Strings.notifications.screenTitle }} />
+        <Stack.Screen name="statistics_detail" options={{ headerTitle: Strings.stats.detailTitle }} />
+        <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+      </Stack>
+    );
+  }, [colorScheme, isWeb]);
+
+  // 푸시 알림 및 상태 변화 핸들러
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
     const handleAppStateChange = async (nextAppState: string) => {
       if (nextAppState === 'active') {
-        console.log('[Layout] App became active. Checking progress and buffer...');
-
-        // 0. 누락된 과거 알림 선제적 동기화
         await PushNotificationService.syncDeliveredNotifications();
-
-        // 1. 진행도 체크 및 완료 처리 (100% 도달 시 알림 비활성화)
         const progress = await PushNotificationService.getProgress();
-        console.log('📊 [Layout] Current Progress:', progress);
-
         if (progress && progress.total > 0 && progress.current >= progress.total) {
           const settings = await PushNotificationService.getSettings();
           if (settings && settings.enabled) {
-            console.warn('🎉 [Layout] 100% Reached! DISABLING NOTIFICATIONS NOW.');
-            // 중복 루프 방지를 위해 saveSettings 호출 전 한 번 더 체크 (서비스 내부 가드도 동일하게 동작)
             await PushNotificationService.saveSettings({ ...settings, enabled: false });
-            // 진행도가 100%가 되었을 때 완료 알림을 보냄
             await PushNotificationService.showCompletionNotification();
-            return; // 100% 상태면 예약 건너뜀
+            return;
           }
         }
-
-        // 2. 고정 슬롯 예약 갱신
         await PushNotificationService.scheduleNextNotification();
       }
     };
 
-    // 초기 기동 시 실행 (동기화 먼저 수행 후 스케줄링)
     const initPushOnStartup = async () => {
       await PushNotificationService.syncDeliveredNotifications();
-      
-      const progress = await PushNotificationService.getProgress();
-      if (progress && progress.total > 0 && progress.current >= progress.total) {
-          const settings = await PushNotificationService.getSettings();
-          if (settings && settings.enabled) {
-              await PushNotificationService.saveSettings({ ...settings, enabled: false });
-              await PushNotificationService.showCompletionNotification();
-              return;
-          }
-      }
-      
       await PushNotificationService.scheduleNextNotification();
     };
 
     initPushOnStartup();
-
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-
-    return () => {
-      subscription.remove();
-    };
+    return () => subscription.remove();
   }, []);
 
-  // 푸시 알림 클릭 및 수신 핸들러
   useEffect(() => {
     if (Platform.OS === 'web') return;
 
-    // 1. 알림 응답(클릭) 리스너 - 클릭 시 버퍼 다시 채움
     const responseSubscription = Notifications.addNotificationResponseReceivedListener(async response => {
-      try {
-        const data = response.notification.request.content.data;
-        if (!data) return;
-
-        console.log('[Layout] Notification response received:', data.type);
-
-        if (data.itemId) {
-          await NotificationCommonService.addShownId(data.itemId as string);
-
-          if (data.type !== 'completion' && data.libraryId) {
-            router.push(`/library/${data.libraryId as string}`);
-          }
+      const data = response.notification.request.content.data;
+      if (data?.itemId) {
+        await NotificationCommonService.addShownId(data.itemId as string);
+        if (data.type !== 'completion' && data.libraryId) {
+          router.push(`/library/${data.libraryId as string}`);
         }
-
-        DeviceEventEmitter.emit('push-progress-updated');
-
-        // 사용자 요청: 알림 클릭 시의 재예약 로직 완전 삭제 (중복 방지)
-        // 예약은 오직 앱 활성화(active) 시점에만 일괄 처리함.
-      } catch (err) {
-        console.error('[Layout] Error handling notification response:', err);
       }
+      DeviceEventEmitter.emit('push-progress-updated');
     });
 
-    // 2. 알림 수신 리스너 - 수신 시에는 진행도 반영만 수행 (재예약 X)
     const notificationSubscription = Notifications.addNotificationReceivedListener(async notification => {
-      try {
-        const data = notification.request.content.data;
-        if (data?.itemId) {
-          console.log('[Layout] Foreground notification arrived:', data.itemId);
-          await NotificationCommonService.addShownId(data.itemId as string);
-          DeviceEventEmitter.emit('push-progress-updated');
-
-          // 알림이 올 때마다 전체를 재예약하면 성능 저하 및 알림 뭉침의 원인이 될 수 있으므로 제거함.
-          // 대신 앱을 열거나 알림을 클릭할 때만 보충함.
-        }
-      } catch (err) {
-        console.error('[Layout] Error handling foreground notification:', err);
+      const data = notification.request.content.data;
+      if (data?.itemId) {
+        await NotificationCommonService.addShownId(data.itemId as string);
+        DeviceEventEmitter.emit('push-progress-updated');
       }
     });
 
@@ -178,49 +195,6 @@ function InitialLayout() {
     };
   }, [router]);
 
-  // 웹 푸시 알림 전역 초기화
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-
-    const initWebPush = async () => {
-      try {
-        console.log('[Layout] Checking for Web Push settings...');
-        const { WebPushService } = require('@/services/WebPushService');
-        // WebPushService가 사용하는 고유 키와 PushNotificationService 공용 키 모두 확인
-        const WEB_SETTINGS_KEY = '@web_push_settings';
-        const PUSH_SETTINGS_KEY = '@push_notification_settings';
-        const AsyncStorage = require('@react-native-async-storage/async-storage').default;
-
-        let settings = null;
-        const webJson = await AsyncStorage.getItem(WEB_SETTINGS_KEY);
-        const pushJson = await AsyncStorage.getItem(PUSH_SETTINGS_KEY);
-
-        console.log('[Layout] Web Settings raw:', webJson);
-        console.log('[Layout] Push Settings raw:', pushJson);
-
-        if (webJson) settings = JSON.parse(webJson);
-        else if (pushJson) settings = JSON.parse(pushJson);
-
-        if (settings && settings.enabled) {
-          console.log('[Layout] Initializing Web Push with settings. Interval:', settings.interval);
-          if (settings.interval > 0) {
-            WebPushService.handleWebPushInterval(settings);
-          } else {
-            console.warn('[Layout] Web Push interval is 0, not starting');
-          }
-        } else {
-          console.log('[Layout] Web Push is disabled or no settings found. Settings:', settings);
-        }
-      } catch (error) {
-        console.error('[Layout] Failed to initialize Web Push:', error);
-      }
-    };
-
-    // 약간의 지연을 주어 다른 초기화와 겹치지 않게 함
-    const timer = setTimeout(initWebPush, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
   useEffect(() => {
     if (loaded && !isLoading) {
       SplashScreen.hideAsync();
@@ -228,13 +202,10 @@ function InitialLayout() {
   }, [loaded, isLoading]);
 
   useEffect(() => {
-    console.log('[Layout] Navigation check:', { hasUser: !!user, isLoading, loaded });
-
     if (!user && !isLoading && loaded) {
-      // 로컬 모드에서는 사실상 항상 user가 생성되어야 함
-      // 만약 없다면 다시 홈으로 리다이렉트 (무한루프 방지 위해 auth 체크 제거)
+      // 로컬 모드 리다이렉트 가드
     }
-  }, [user, segments, isLoading, loaded]);
+  }, [user?.id, segments.join('/'), isLoading, loaded]);
 
   useEffect(() => {
     if (user?.id) {
@@ -242,32 +213,20 @@ function InitialLayout() {
     }
   }, [user?.id]);
 
-  // 웹 브라우저 탭 제목 강제 고정 ("뇌벨업")
+  // 웹 브라우저 탭 제목 고정
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-
     const appName = "뇌벨업";
     document.title = appName;
-
-    // 다른 컴포넌트나 내비게이션에 의해 제목이 바뀌는 것을 방지
     const observer = new MutationObserver(() => {
-      if (document.title !== appName) {
-        document.title = appName;
-      }
+      if (document.title !== appName) document.title = appName;
     });
-
     const titleElement = document.querySelector('title');
-    if (titleElement) {
-      observer.observe(titleElement, {
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-    }
-
+    if (titleElement) observer.observe(titleElement, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);
 
+  // [Early Return] 모든 훅 선언 후에 위치해야 함
   if (!loaded || isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colorScheme === 'dark' ? '#000' : '#fff' }}>
@@ -276,73 +235,9 @@ function InitialLayout() {
     );
   }
 
-  const isWeb = Platform.OS === 'web';
   const showWebLayout = isWeb && user && segments[0] !== 'auth';
-  const HeaderActions = require('@/components/HeaderActions').default;
-
-  const LayoutContent = (
-    <Stack
-      screenOptions={{
-        headerShown: !isWeb, // 웹에서는 WebHeader가 있으므로 Stack 헤더를 숨깁니다.
-        title: "뇌벨업",
-        headerShadowVisible: false,
-        headerTintColor: colorScheme === 'dark' ? '#fff' : '#000',
-        headerLeft: (props) => (
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginLeft: Platform.OS === 'web' ? 0 : 8,
-              padding: 8,
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginRight: 10,
-            }}
-          >
-            <FontAwesome
-              name="chevron-left"
-              size={20}
-              color={colorScheme === 'dark' ? '#fff' : '#000'}
-              style={{ transform: [{ translateY: Platform.OS === 'ios' ? 1 : 0 }] }}
-            />
-          </TouchableOpacity>
-        ),
-        headerRight: () => <HeaderActions />,
-      }}
-    >
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="library/create" options={{ headerTitle: Strings.libraryForm.createTitle }} />
-      <Stack.Screen name="library/edit" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || Strings.libraryForm.editTitle
-      })} />
-      <Stack.Screen name="library/[id]" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || "암기장"
-      })} />
-      <Stack.Screen name="library/[id]/section/[sectionId]" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || "학습 섹션"
-      })} />
-      <Stack.Screen name="study/[id]" options={{ headerShown: !isWeb }} />
-      <Stack.Screen name="library/[id]/section/[sectionId]/create-item" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || Strings.itemForm.createTitle
-      })} />
-      <Stack.Screen name="library/[id]/section/[sectionId]/edit-item" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || Strings.itemForm.editTitle
-      })} />
-      <Stack.Screen name="library/[id]/section/[sectionId]/import" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || Strings.librarySection.menu.importWords
-      })} />
-      <Stack.Screen name="shared/[id]" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || Strings.sharedDetail.screenTitle
-      })} />
-      <Stack.Screen name="shared/[id]/section/[sectionId]" options={({ route }) => ({
-        headerTitle: (route.params as any)?.title || Strings.sharedDetail.screenTitle
-      })} />
-      <Stack.Screen name="notifications" options={{ headerTitle: Strings.notifications.screenTitle }} />
-      <Stack.Screen name="statistics_detail" options={{ headerTitle: Strings.stats.detailTitle }} />
-      <Stack.Screen name="webview" options={{ presentation: 'modal', headerShown: false }} />
-      <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-    </Stack>
-  );
+  const CustomLightTheme = { ...DefaultTheme, colors: { ...DefaultTheme.colors, card: '#F8FAFC', background: '#F8FAFC' } };
+  const CustomDarkTheme = { ...DarkTheme, colors: { ...DarkTheme.colors, card: '#0F172A', background: '#0F172A' } };
 
   if (showWebLayout) {
     const WebSidebar = require('@/components/WebSidebar').default;
@@ -354,7 +249,7 @@ function InitialLayout() {
           <WebSidebar />
           <View style={{ flex: 1 }}>
             <WebHeader />
-            <View style={{ flex: 1, paddingRight: Platform.OS === 'web' ? 24 : 0, paddingLeft: Platform.OS === 'web' ? 8 : 0 }}>
+            <View style={{ flex: 1, paddingRight: 24, paddingLeft: 8 }}>
               {LayoutContent}
             </View>
           </View>

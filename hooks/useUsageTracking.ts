@@ -8,12 +8,12 @@ import { useAuth } from '@/contexts/AuthContext';
  * 앱이 활성 상태일 때 1분마다 'heartbeat' 로그를 전송합니다.
  */
 export function useUsageTracking() {
-    const { session } = useAuth();
+    const { user } = useAuth();
     const intervalRef = useRef<any>(null);
     const appState = useRef(AppState.currentState);
 
     const sendHeartbeat = async () => {
-        if (!session?.user) return;
+        if (!user?.id) return;
 
         await LogService.logEvent('heartbeat', {
             platform: Platform.OS,
@@ -23,8 +23,8 @@ export function useUsageTracking() {
     };
 
     useEffect(() => {
-        // 세션이 없으면 추적 중단
-        if (!session?.user) {
+        // 유저 정보가 없으면 추적 중단
+        if (!user?.id) {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
                 intervalRef.current = null;
@@ -60,5 +60,5 @@ export function useUsageTracking() {
             }
             subscription.remove();
         };
-    }, [session?.user]);
+    }, [user?.id]);
 }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 import { runQuery, runCommand } from '../lib/db';
@@ -106,13 +106,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const value = {
+    const value = useMemo(() => ({
         user,
         profile,
         isLoading,
         signOut,
         refreshProfile,
-    };
+    }), [user, profile, isLoading]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
