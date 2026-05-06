@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, Modal, TouchableWithoutFeedback, TextInput } from 'react-native';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl, Platform, Modal, TouchableWithoutFeedback, TextInput, InteractionManager } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -17,6 +17,56 @@ import { useSectionActions } from '@/hooks/useSectionActions';
 import { Strings } from '@/constants/Strings';
 
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
+
+const SectionItem = React.memo(({ item, drag, isActive, colors, reorderMode, router, libraryId, openEditModal, handleDeleteSection }: any) => (
+    <ScaleDecorator>
+        <Animated.View
+            style={[
+                styles.cardWrapper,
+                isActive && { opacity: 0.9, elevation: 10 }
+            ]}
+        >
+            <Card
+                style={[
+                    styles.sectionCard,
+                    isActive && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
+                ]}
+                onPress={reorderMode ? undefined : () => router.push({
+                    pathname: "/library/[id]/section/[sectionId]",
+                    params: { id: libraryId, sectionId: item.id, title: item.title }
+                })}
+                onLongPress={reorderMode ? drag : undefined}
+                delayLongPress={100}
+            >
+                <View variant="transparent" style={styles.sectionInfo}>
+                    <Text style={styles.sectionTitle}>{item.title}</Text>
+                </View>
+
+                {reorderMode ? (
+                    <View variant="transparent" style={{ padding: 10 }}>
+                        <FontAwesome name="bars" size={18} color={colors.border} />
+                    </View>
+                ) : (
+                    <View variant="transparent" style={styles.rightAction}>
+                        <TouchableOpacity
+                            onPress={() => openEditModal(item)}
+                            style={styles.editIconButton}
+                        >
+                            <FontAwesome name={Strings.settings.icons.pencil as any} size={18} color={colors.tint} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => handleDeleteSection(item)}
+                            style={styles.deleteIconButton}
+                        >
+                            <FontAwesome name={Strings.common.icons.delete as any} size={18} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                        <FontAwesome name={Strings.home.icons.arrowRight as any} size={20} color={colors.border} />
+                    </View>
+                )}
+            </Card>
+        </Animated.View>
+    </ScaleDecorator>
+));
 
 export default function LibraryDetailScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -70,73 +120,31 @@ export default function LibraryDetailScreen() {
         reorderSections
     );
 
-    const renderItem = ({ item, drag, isActive }: RenderItemParams<Section>) => (
-        <ScaleDecorator>
-            <Animated.View
-                style={[
-                    styles.cardWrapper,
-                    isActive && { opacity: 0.9, elevation: 10 }
-                ]}
-            >
-                <Card
-                    style={[
-                        styles.sectionCard,
-                        isActive && { backgroundColor: colors.tint + '10', borderColor: colors.tint }
-                    ]}
-                    onPress={reorderMode ? undefined : () => router.push({
-                        pathname: "/library/[id]/section/[sectionId]",
-                        params: { id: libraryId, sectionId: item.id, title: item.title }
-                    })}
-                    onLongPress={reorderMode ? drag : undefined}
-                    delayLongPress={100}
-                >
-                    <View variant="transparent" style={styles.sectionInfo}>
-                        <Text style={styles.sectionTitle}>{item.title}</Text>
-                    </View>
+    // [Optimization] 인터랙션 지연 로딩
+    const [isInteracting, setIsInteracting] = useState(true);
 
-                    {reorderMode ? (
-                        <View variant="transparent" style={{ padding: 10 }}>
-                            <FontAwesome name="bars" size={18} color={colors.border} />
-                        </View>
-                    ) : (
-                        <View variant="transparent" style={styles.rightAction}>
-                            <TouchableOpacity
-                                onPress={() => openEditModal(item)}
-                                style={styles.editIconButton}
-                            >
-                                <FontAwesome name={Strings.settings.icons.pencil as any} size={18} color={colors.tint} />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => handleDeleteSection(item)}
-                                style={styles.deleteIconButton}
-                            >
-                                <FontAwesome name={Strings.common.icons.delete as any} size={18} color={colors.textSecondary} />
-                            </TouchableOpacity>
-                            <FontAwesome name={Strings.home.icons.arrowRight as any} size={20} color={colors.border} />
-                        </View>
-                    )}
-                </Card>
-            </Animated.View>
-        </ScaleDecorator>
-    );
+    useEffect(() => {
+        const task = InteractionManager.runAfterInteractions(() => {
+            setIsInteracting(false);
+        });
+        return () => task.cancel();
+    }, []);
 
+    // ... (Moved Outside)
 
-    // 웹 헤더 액션 등록 (자동 정리 기능 포함)
-    useHeaderActions([
-        {
-            id: 'create-section',
-            icon: Strings.shared.icons.plus,
-            onPress: () => setCreateModalVisible(true)
-        },
-        {
-            id: 'toggle-reorder',
-            icon: Strings.common.icons.sort,
-            onPress: () => setReorderMode(prev => !prev),
-            color: reorderMode ? colors.tint : colors.textSecondary
-        }
-    ], [reorderMode, library]);
+    const renderItem = useCallback((params: RenderItemParams<Section>) => (
+        <SectionItem 
+            {...params} 
+            colors={colors} 
+            reorderMode={reorderMode} 
+            router={router} 
+            libraryId={libraryId}
+            openEditModal={openEditModal}
+            handleDeleteSection={handleDeleteSection}
+        />
+    ), [colors, reorderMode, router, libraryId, openEditModal, handleDeleteSection]);
 
-    if (loading && !refreshing) {
+    if ((loading || (isInteracting && sections.length === 0)) && !refreshing) {
         return (
             <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
                 <ActivityIndicator size="large" color={colors.tint} />
@@ -174,7 +182,10 @@ export default function LibraryDetailScreen() {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id}
                 onDragEnd={({ data }) => reorderSections(data)}
-                contentContainerStyle={styles.listContent}
+                initialNumToRender={10}
+                windowSize={5}
+                removeClippedSubviews={Platform.OS === 'android'}
+                contentContainerStyle={[styles.listContent, { paddingBottom: 100 }]}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />
                 }

@@ -206,7 +206,8 @@ export default function SectionDetailScreen() {
 
 
     // 웹 헤더 액션 등록 (자동 정리 기능 포함)
-    useHeaderActions([
+    // 네이티브는 Stack.Screen에서 직접 처리하여 깜빡임 방지
+    const currentHeaderActions = React.useMemo(() => [
         {
             id: 'add-item',
             icon: Strings.common.icons.add,
@@ -235,6 +236,8 @@ export default function SectionDetailScreen() {
             color: reorderMode ? colors.tint : colors.textSecondary
         }
     ], [reorderMode, libraryId, sid, items.length]);
+
+    useHeaderActions(Platform.OS === 'web' ? currentHeaderActions : [], [currentHeaderActions]);
 
     if (loading && !refreshing) {
         return (

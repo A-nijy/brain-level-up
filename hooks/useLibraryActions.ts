@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Library } from '@/types';
@@ -23,14 +23,14 @@ export const useLibraryActions = (
     const [selectedLibraryForMenu, setSelectedLibraryForMenu] = useState<Library | null>(null);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
 
-    const handleEditLibrary = (libraryId: string, title: string) => {
+    const handleEditLibrary = useCallback((libraryId: string, title: string) => {
         router.push({
             pathname: "/library/edit",
             params: { id: libraryId, title: title }
         });
-    };
+    }, [router]);
 
-    const handleDeleteLibrary = async (libraryId: string) => {
+    const handleDeleteLibrary = useCallback(async (libraryId: string) => {
         try {
             await deleteLibrary(libraryId);
             showAlert({ title: Strings.common.success, message: Strings.libraryForm.deleteSuccess });
@@ -38,14 +38,14 @@ export const useLibraryActions = (
             console.error(error);
             showAlert({ title: Strings.common.error, message: `${Strings.common.delete} 실패: ${error.message}` });
         }
-    };
+    }, [deleteLibrary, showAlert]);
 
-    const handleCreateLibrary = async () => {
+    const handleCreateLibrary = useCallback(async () => {
         // 로컬 버전: 권한 확인 없이 즉시 생성 화면으로 이동
         router.push('/library/create');
-    };
+    }, [router]);
 
-    const showLibraryOptions = (library: Library, event: any) => {
+    const showLibraryOptions = useCallback((library: Library, event: any) => {
         if (reorderMode) return;
 
         if (Platform.OS === 'web') {
@@ -76,7 +76,7 @@ export const useLibraryActions = (
                 ]
             });
         }
-    };
+    }, [reorderMode, handleEditLibrary, handleDeleteLibrary, showAlert]);
 
     return {
         reorderMode,

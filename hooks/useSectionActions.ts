@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Section, Library } from '@/types';
 import { useAlert } from '@/contexts/AlertContext';
 import { Strings } from '@/constants/Strings';
@@ -26,7 +26,7 @@ export const useSectionActions = (
     const [updating, setUpdating] = useState(false);
 
 
-    const handleCreateSection = async () => {
+    const handleCreateSection = useCallback(async () => {
         if (!newSectionTitle.trim()) {
             showAlert({ title: Strings.common.warning, message: Strings.libraryDetail.alerts.enterName });
             return;
@@ -42,9 +42,9 @@ export const useSectionActions = (
         } finally {
             setCreating(false);
         }
-    };
+    }, [newSectionTitle, createSection, showAlert]);
 
-    const handleEditSection = async () => {
+    const handleEditSection = useCallback(async () => {
         if (!editingSection || !editSectionTitle.trim()) {
             showAlert({ title: Strings.common.warning, message: Strings.libraryDetail.alerts.enterName });
             return;
@@ -61,15 +61,15 @@ export const useSectionActions = (
         } finally {
             setUpdating(false);
         }
-    };
+    }, [editingSection, editSectionTitle, updateSection, showAlert]);
 
-    const openEditModal = (section: Section) => {
+    const openEditModal = useCallback((section: Section) => {
         setEditingSection(section);
         setEditSectionTitle(section.title);
         setEditModalVisible(true);
-    };
+    }, []);
 
-    const handleDeleteSection = async (section: Section) => {
+    const handleDeleteSection = useCallback(async (section: Section) => {
         showAlert({
             title: Strings.common.deleteConfirmTitle,
             message: Strings.libraryDetail.alerts.deleteConfirm(section.title),
@@ -88,7 +88,7 @@ export const useSectionActions = (
                 }
             ]
         });
-    };
+    }, [deleteSection, showAlert]);
 
     return {
         reorderMode,

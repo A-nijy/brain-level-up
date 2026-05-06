@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, View as DefaultView, SectionList, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, View as DefaultView, SectionList, Platform, InteractionManager } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View, Card } from '@/components/Themed';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
@@ -16,6 +16,7 @@ import { Strings } from '@/constants/Strings';
 import { LogService } from '@/services/LogService';
 import { useWebHeaderTitle } from '@/contexts/HeaderContext';
 import { useLoading } from '@/contexts/LoadingContext';
+import { useAlert } from '@/contexts/AlertContext';
 
 export default function SharedLibraryPreviewScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -29,6 +30,16 @@ export default function SharedLibraryPreviewScreen() {
     const insets = useSafeAreaInsets();
 
     const { library, sections, loading, refreshing, refresh, downloadLibrary } = useSharedDetail(sharedLibraryId);
+
+    // [Optimization] 인터랙션 지연 로딩
+    const [isInteracting, setIsInteracting] = useState(true);
+
+    useEffect(() => {
+        const task = InteractionManager.runAfterInteractions(() => {
+            setIsInteracting(false);
+        });
+        return () => task.cancel();
+    }, []);
 
     // 웹 헤더 제목 설정
     useWebHeaderTitle(library?.title || paramTitle || Strings.sharedDetail.screenTitle, [library?.title, paramTitle]);
@@ -66,7 +77,7 @@ export default function SharedLibraryPreviewScreen() {
 
 
 
-    const renderItem = ({ item, index }: { item: SharedSection, index: number }) => (
+    const renderItem = useCallback(({ item, index }: { item: SharedSection, index: number }) => (
         <Animated.View entering={FadeInUp.delay(index * 40).duration(400)}>
             <Card
                 style={styles.sectionCard}
@@ -81,9 +92,9 @@ export default function SharedLibraryPreviewScreen() {
                 <FontAwesome name="angle-right" size={20} color={colors.textSecondary} />
             </Card>
         </Animated.View>
-    );
+    ), [sharedLibraryId, colors.textSecondary, router]);
 
-    if (loading) {
+    if ((loading || (isInteracting && sections.length === 0)) && !refreshing) {
         return (
             <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
                 <ActivityIndicator size="large" color={colors.tint} />
@@ -106,6 +117,9 @@ export default function SharedLibraryPreviewScreen() {
                 data={sections}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
+                initialNumToRender={10}
+                windowSize={5}
+                removeClippedSubviews={Platform.OS === 'android'}
                 contentContainerStyle={styles.listContent}
                 ListHeaderComponent={
                     <View variant="transparent" style={styles.listHeader}>

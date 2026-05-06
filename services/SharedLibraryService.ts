@@ -68,8 +68,9 @@ export const SharedLibraryService = {
                 for (const ss of manifest.sections) {
                     const newSection = await LibraryService.createSection(newLib.id, ss.title, true);
 
-                    // 레지스트리에서 해당 섹션의 문제 데이터 가져오기
-                    const sectionItems = SharedDataRegistry[ss.id];
+                    // 레지스트리에서 해당 섹션의 문제 데이터 가져오기 (지연 로딩 지원)
+                    const dataGetter = SharedDataRegistry[ss.id];
+                    const sectionItems = typeof dataGetter === 'function' ? dataGetter() : dataGetter;
                     
                     if (sectionItems && sectionItems.length > 0) {
                         const newItems = sectionItems.map((si: any) => ({
@@ -130,8 +131,9 @@ export const SharedLibraryService = {
      * 특정 공유 섹션의 문항 목록 조회
      */
     async getSharedItems(sharedSectionId: string): Promise<SharedItem[]> {
-        // 레지스트리에서 데이터 가져오기
-        const items = SharedDataRegistry[sharedSectionId];
+        // 레지스트리에서 데이터 가져오기 (지연 로딩 지원)
+        const dataGetter = SharedDataRegistry[sharedSectionId];
+        const items = typeof dataGetter === 'function' ? dataGetter() : dataGetter;
         
         if (items) {
             // SharedItem 형식에 맞게 변환하여 반환

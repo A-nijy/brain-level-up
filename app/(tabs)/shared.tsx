@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, useWindowDimensions, Platform } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator, useWindowDimensions, Platform, InteractionManager } from 'react-native';
 import { Text, View, Card } from '@/components/Themed';
 import { useRouter } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -39,6 +39,16 @@ export default function SharedLibraryScreen() {
 
     const { showLoading, hideLoading } = useLoading();
     const [searchQuery, setSearchQuery] = useState('');
+
+    // [Optimization] 인터랙션 지연 로딩
+    const [isInteracting, setIsInteracting] = useState(true);
+
+    React.useEffect(() => {
+        const task = InteractionManager.runAfterInteractions(() => {
+            setIsInteracting(false);
+        });
+        return () => task.cancel();
+    }, []);
 
     const isWeb = Platform.OS === 'web';
     const numColumns = isWeb && width > 768 ? 2 : 1;
@@ -115,6 +125,14 @@ export default function SharedLibraryScreen() {
         );
     };
 
+    if ((loading || (isInteracting && libraries.length === 0)) && !refreshing) {
+        return (
+            <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+                <ActivityIndicator size="large" color={colors.tint} />
+            </View>
+        );
+    }
+
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]} >
             <FlatList
@@ -127,6 +145,9 @@ export default function SharedLibraryScreen() {
                     styles.listContent,
                     isWeb && width > 1200 && { maxWidth: 1200, alignSelf: 'center', width: '100%' }
                 ]}
+                initialNumToRender={8}
+                windowSize={5}
+                removeClippedSubviews={Platform.OS === 'android'}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.tint} />
                 }
