@@ -22,6 +22,9 @@ import { Strings } from '@/constants/Strings';
  * [Local-Only] 설정 페이지
  * 서버 의존적인 계정/프로필 섹션을 제거하고 백업 및 데이터 관리 중심으로 재구성됨
  */
+import * as AuthSession from 'expo-auth-session';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+
 export default function SettingsScreen() {
   const { themeMode, setThemeMode } = useTheme();
   const colorScheme = useColorScheme() ?? 'light';
@@ -42,29 +45,25 @@ export default function SettingsScreen() {
     refresh: refreshSettings
   } = usePushSettings();
 
-  // --- Google Drive Backup Setup ---
+  // --- Google Drive Backup Setup (Successful Model) ---
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_ANDROID || process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
-    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS || process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB || process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
-  });
+  
+  const { signInAndGetToken, isAuthLoading } = useGoogleAuth();
 
   const handleBackup = async () => {
     try {
       setIsBackingUp(true);
-      const token = await BackupService.getAccessToken(request, response, promptAsync);
-      if (!token) {
-        showAlert({ title: Strings.common.warning, message: Strings.backup.loginRequired });
-        return;
-      }
+      
+      // 1. 토큰 획득
+      const token = await signInAndGetToken();
+      if (!token) return;
 
+      // 2. 백업 실행
       await BackupService.backup(token);
       showAlert({ title: Strings.common.success, message: Strings.backup.backupSuccess });
     } catch (error: any) {
+      console.error('Backup Error:', error);
       showAlert({ title: Strings.common.error, message: error.message });
     } finally {
       setIsBackingUp(false);
@@ -82,18 +81,23 @@ export default function SettingsScreen() {
             onPress: async () => {
               setIsRestoring(true);
               try {
-                const token = await BackupService.getAccessToken(request, response, promptAsync);
-                if (!token) {
-                  showAlert({ title: Strings.common.warning, message: Strings.backup.loginRequired });
-                  return;
-                }
+                // 1. 토큰 획득
+                const token = await signInAndGetToken();
+                if (!token) return;
 
+                // 2. 복원 실행
                 await BackupService.restore(token);
-                showAlert({ 
-                  title: Strings.common.success, 
-                  message: Strings.backup.restoreSuccess,
-                });
+                showAlert({ title: Strings.common.success, message: Strings.backup.restoreSuccess });
+                
+                // 앱 리로드 권장 (DB가 바뀌었으므로)
+                setTimeout(() => {
+                  showAlert({
+                    title: Strings.common.success,
+                    message: "데이터 복원이 완료되었습니다. 변경사항을 적용하기 위해 앱을 재시작해 주세요.",
+                  });
+                }, 500);
               } catch (error: any) {
+                console.error('Restore Error:', error);
                 showAlert({ title: Strings.common.error, message: error.message });
               } finally {
                 setIsRestoring(false);
@@ -104,9 +108,11 @@ export default function SettingsScreen() {
         ]
       });
     } catch (error: any) {
-      showAlert({ title: Strings.common.error, message: error.message });
+      console.error('Restore Setup Error:', error);
     }
   };
+
+
   // ---------------------------------
 
   // 화면 진입 시마다 진행도 새로고침

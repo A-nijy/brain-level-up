@@ -8,7 +8,7 @@ export default {
         version: packageInfo.version,
         orientation: "portrait",
         icon: "./assets/images/icon.png",
-        scheme: "brainlevelup",
+        scheme: "com.googleusercontent.apps.93551489917-8a5eule47c8ib1a5iu9imvvbg1jadp74",
         userInterfaceStyle: "automatic",
         newArchEnabled: true,
         updates: {

@@ -31,6 +31,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="brainlevelup"/>
+        <data android:scheme="com.googleusercontent.apps.93551489917-8a5eule47c8ib1a5iu9imvvbg1jadp74"/>
         <data android:scheme="exp+brain-level-up"/>
       </intent-filter>
     </activity>
