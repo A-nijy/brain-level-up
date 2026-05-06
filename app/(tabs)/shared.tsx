@@ -12,6 +12,7 @@ import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Strings } from '@/constants/Strings';
+import { useLoading } from '@/contexts/LoadingContext';
 
 /**
  * [Local-Only] 공유 자료실 화면
@@ -36,7 +37,7 @@ export default function SharedLibraryScreen() {
     const { width } = useWindowDimensions();
     const { showAlert } = useAlert();
 
-    const [downloading, setDownloading] = useState<string | null>(null);
+    const { showLoading, hideLoading } = useLoading();
     const [searchQuery, setSearchQuery] = useState('');
 
     const isWeb = Platform.OS === 'web';
@@ -48,9 +49,10 @@ export default function SharedLibraryScreen() {
     );
 
     const handleDownloadRequest = async (item: SharedLibrary) => {
-        setDownloading(item.id);
+        showLoading("암기장을 가져오고 있습니다...");
         try {
             const newLib = await downloadLibrary(user?.id || 'guest', item);
+            hideLoading();
 
             showAlert({
                 title: Strings.common.success,
@@ -62,9 +64,8 @@ export default function SharedLibraryScreen() {
             });
             refresh();
         } catch (e: any) {
+            hideLoading();
             showAlert({ title: Strings.shared.alerts.downloadFail, message: e.message });
-        } finally {
-            setDownloading(null);
         }
     };
 
@@ -105,13 +106,8 @@ export default function SharedLibraryScreen() {
                         <TouchableOpacity
                             style={[styles.compactDownloadButton, { backgroundColor: colors.tint }]}
                             onPress={() => handleDownloadRequest(item)}
-                            disabled={downloading === item.id}
                         >
-                            {downloading === item.id ? (
-                                <ActivityIndicator size="small" color="#fff" />
-                            ) : (
-                                <Text style={styles.downloadButtonText}>{Strings.shared.import}</Text>
-                            )}
+                            <Text style={styles.downloadButtonText}>{Strings.shared.import}</Text>
                         </TouchableOpacity>
                     </View>
                 </Card>

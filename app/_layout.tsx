@@ -23,6 +23,7 @@ import { ThemeProvider as AppThemeProvider } from '@/contexts/ThemeContext';
 import { useUsageTracking } from '@/hooks/useUsageTracking';
 import { LogService } from '@/services/LogService';
 import { initDB } from '@/lib/db';
+import { LoadingProvider } from '@/contexts/LoadingContext';
 
 // DB 초기화 실행
 initDB().catch(err => console.error('Failed to init DB:', err));
@@ -274,11 +275,13 @@ export default function RootLayout() {
         <AppThemeProvider>
           <HeaderProvider>
             <AlertProvider>
-              <AuthProvider>
-                <InitialLayout />
-                <CustomAlert />
-                <StatusBar style="auto" />
-              </AuthProvider>
+              <LoadingProvider>
+                <AuthProvider>
+                  <InitialLayout />
+                  <CustomAlert />
+                  <StatusBar style="auto" />
+                </AuthProvider>
+              </LoadingProvider>
             </AlertProvider>
           </HeaderProvider>
         </AppThemeProvider>

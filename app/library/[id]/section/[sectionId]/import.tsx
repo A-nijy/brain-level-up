@@ -12,8 +12,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
 import { useSectionDetail } from '@/hooks/useSectionDetail';
-import { useAlert } from '@/contexts/AlertContext';
 import { LogService } from '@/services/LogService';
+import { useLoading } from '@/contexts/LoadingContext';
 
 export default function ImportItemsScreen() {
     const { id, sectionId } = useLocalSearchParams();
@@ -21,7 +21,7 @@ export default function ImportItemsScreen() {
     const sid = Array.isArray(sectionId) ? sectionId[0] : sectionId;
 
     const router = useRouter();
-    const [loading, setLoading] = useState(false);
+    const { showLoading, hideLoading } = useLoading();
     const [parsedData, setParsedData] = useState<any[]>([]);
     const [fileName, setFileName] = useState<string | null>(null);
 
@@ -49,7 +49,7 @@ export default function ImportItemsScreen() {
 
             const file = result.assets[0];
             setFileName(file.name);
-            setLoading(true);
+            showLoading("데이터를 분석하고 있습니다...");
 
             try {
                 let json: any[] = [];
@@ -72,11 +72,11 @@ export default function ImportItemsScreen() {
                                 showAlert({ title: Strings.common.info, message: Strings.userImport.alerts.emptyFile });
                             }
                             setParsedData(json);
-                            setLoading(false);
+                            hideLoading();
                         } catch (err) {
                             console.error('Web file parsing error:', err);
                             showAlert({ title: Strings.common.error, message: Strings.userImport.alerts.parseError });
-                            setLoading(false);
+                            hideLoading();
                         }
                     };
 
@@ -120,14 +120,13 @@ export default function ImportItemsScreen() {
                 });
                 showAlert({ title: Strings.common.error, message: Strings.userImport.alerts.parseError });
             } finally {
-                // For Native, we stop loading here. Web stops in reader.onload.
-                if (Platform.OS !== 'web') setLoading(false);
+                if (Platform.OS !== 'web') hideLoading();
             }
 
         } catch (error) {
             console.error('Document picking error:', error);
             showAlert({ title: Strings.common.error, message: Strings.userImport.alerts.pickError });
-            setLoading(false);
+            hideLoading();
         }
     };
 
@@ -184,7 +183,7 @@ export default function ImportItemsScreen() {
             });
             showAlert({ title: Strings.userImport.alerts.importFail, message: error.message });
         } finally {
-            setLoading(false);
+            hideLoading();
         }
     };
 
@@ -256,18 +255,12 @@ export default function ImportItemsScreen() {
                 style={[styles.footerGradient, { paddingBottom: Math.max(insets.bottom, 20) }]}
             >
                 <TouchableOpacity
-                    style={[styles.importButton, { backgroundColor: colors.tint }, (parsedData.length === 0 || loading) && styles.disabledButton]}
+                    style={[styles.importButton, { backgroundColor: colors.tint }, parsedData.length === 0 && styles.disabledButton]}
                     onPress={handleImport}
-                    disabled={parsedData.length === 0 || loading}
+                    disabled={parsedData.length === 0}
                 >
-                    {loading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <>
-                            <FontAwesome name="download" size={18} color="#fff" style={{ marginRight: 10 }} />
-                            <Text style={styles.importButtonText}>{Strings.userImport.btnImport}</Text>
-                        </>
-                    )}
+                    <FontAwesome name="download" size={18} color="#fff" style={{ marginRight: 10 }} />
+                    <Text style={styles.importButtonText}>{Strings.userImport.btnImport}</Text>
                 </TouchableOpacity>
             </LinearGradient>
         </View>

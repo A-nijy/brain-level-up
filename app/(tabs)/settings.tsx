@@ -24,6 +24,7 @@ import { Strings } from '@/constants/Strings';
  */
 import * as AuthSession from 'expo-auth-session';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { useLoading } from '@/contexts/LoadingContext';
 
 export default function SettingsScreen() {
   const { themeMode, setThemeMode } = useTheme();
@@ -46,27 +47,29 @@ export default function SettingsScreen() {
   } = usePushSettings();
 
   // --- Google Drive Backup Setup (Successful Model) ---
-  const [isBackingUp, setIsBackingUp] = useState(false);
-  const [isRestoring, setIsRestoring] = useState(false);
+  const { showLoading, hideLoading } = useLoading();
   
   const { signInAndGetToken, isAuthLoading } = useGoogleAuth();
 
   const handleBackup = async () => {
     try {
-      setIsBackingUp(true);
+      showLoading('데이터를 백업하고 있습니다...');
       
       // 1. 토큰 획득
       const token = await signInAndGetToken();
-      if (!token) return;
+      if (!token) {
+        hideLoading();
+        return;
+      }
 
       // 2. 백업 실행
       await BackupService.backup(token);
+      hideLoading();
       showAlert({ title: Strings.common.success, message: Strings.backup.backupSuccess });
     } catch (error: any) {
+      hideLoading();
       console.error('Backup Error:', error);
       showAlert({ title: Strings.common.error, message: error.message });
-    } finally {
-      setIsBackingUp(false);
     }
   };
 
@@ -79,14 +82,18 @@ export default function SettingsScreen() {
           {
             text: Strings.common.confirm,
             onPress: async () => {
-              setIsRestoring(true);
+              showLoading('데이터를 복원하고 있습니다...');
               try {
                 // 1. 토큰 획득
                 const token = await signInAndGetToken();
-                if (!token) return;
+                if (!token) {
+                  hideLoading();
+                  return;
+                }
 
                 // 2. 복원 실행
                 await BackupService.restore(token);
+                hideLoading();
                 showAlert({ title: Strings.common.success, message: Strings.backup.restoreSuccess });
                 
                 // 앱 리로드 권장 (DB가 바뀌었으므로)
@@ -97,10 +104,9 @@ export default function SettingsScreen() {
                   });
                 }, 500);
               } catch (error: any) {
+                hideLoading();
                 console.error('Restore Error:', error);
                 showAlert({ title: Strings.common.error, message: error.message });
-              } finally {
-                setIsRestoring(false);
               }
             }
           },
@@ -242,7 +248,7 @@ export default function SettingsScreen() {
         isWeb && { maxWidth: 800, alignSelf: 'center', width: '100%', paddingVertical: 40 }
       ]}
     >
-      <View variant="transparent" style={styles.headerSpacer} />
+      {/* [Optimization] 중복된 상단 스페이서 제거 */}
 
       <View variant="transparent" style={styles.content}>
         {/* 백업 및 데이터 섹션 */}
@@ -251,16 +257,11 @@ export default function SettingsScreen() {
           <TouchableOpacity 
             style={styles.item} 
             onPress={handleBackup} 
-            disabled={isBackingUp}
             activeOpacity={0.7}
           >
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
-                {isBackingUp ? (
-                  <ActivityIndicator size="small" color={colors.tint} />
-                ) : (
-                  <FontAwesome name="cloud-upload" size={18} color={colors.tint} />
-                )}
+                <FontAwesome name="cloud-upload" size={18} color={colors.tint} />
               </View>
               <Text style={styles.itemText}>{Strings.backup.btnBackup}</Text>
             </View>
@@ -272,16 +273,11 @@ export default function SettingsScreen() {
           <TouchableOpacity 
             style={styles.item} 
             onPress={handleRestore} 
-            disabled={isRestoring}
             activeOpacity={0.7}
           >
             <View variant="transparent" style={styles.itemLeft}>
               <View variant="transparent" style={styles.iconWrapper}>
-                {isRestoring ? (
-                  <ActivityIndicator size="small" color={colors.tint} />
-                ) : (
-                  <FontAwesome name="cloud-download" size={18} color={colors.tint} />
-                )}
+                <FontAwesome name="cloud-download" size={18} color={colors.tint} />
               </View>
               <Text style={styles.itemText}>{Strings.backup.btnRestore}</Text>
             </View>
@@ -364,79 +360,104 @@ export default function SettingsScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>{Strings.pushModal.title}</Text>
-              <TouchableOpacity onPress={() => setShowNotificationModal(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                <FontAwesome name={Strings.settings.icons.close as any} size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
-
-            {tempSettings ? (
-              <ScrollView style={styles.modalScroll} contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
-                <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.step1}</Text>
-                <TouchableOpacity style={[styles.selectBox, { borderColor: colors.border }]} onPress={() => setShowLibraryList(true)}>
-                  <Text style={[styles.selectBoxText, { color: tempSettings?.libraryId ? colors.text : colors.textSecondary }]}>
-                    {tempSettings?.libraryId ? libraries.find(l => l.id === tempSettings.libraryId)?.title || Strings.pushModal.librarySelected : Strings.pushModal.libraryPlaceholder}
-                  </Text>
-                  <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} />
+            <KeyboardAvoidingView 
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ flex: 1 }}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 100}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>{Strings.pushModal.title}</Text>
+                <TouchableOpacity onPress={() => setShowNotificationModal(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                  <FontAwesome name={Strings.settings.icons.close as any} size={24} color={colors.text} />
                 </TouchableOpacity>
+              </View>
 
-                {tempSettings?.libraryId && (
-                  <>
-                    <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.step2}</Text>
-                    <TouchableOpacity style={[styles.selectBox, { borderColor: colors.border }]} onPress={() => !loadingSections && setShowSectionList(true)} disabled={loadingSections}>
-                      {loadingSections ? (
-                        <ActivityIndicator size="small" color={colors.tint} />
-                      ) : (
-                        <Text style={[styles.selectBoxText, { color: colors.text }]}>
-                          {tempSettings.sectionId === 'all' || !tempSettings.sectionId ? Strings.pushModal.sectionAll : sections.find(s => s.id === tempSettings.sectionId)?.title || Strings.pushModal.sectionSelected}
-                        </Text>
-                      )}
+              {tempSettings ? (
+                <>
+                  <ScrollView 
+                    style={styles.modalScroll} 
+                    contentContainerStyle={{ paddingBottom: 100 }} 
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.step1}</Text>
+                    <TouchableOpacity style={[styles.selectBox, { borderColor: colors.border }]} onPress={() => setShowLibraryList(true)}>
+                      <Text style={[styles.selectBoxText, { color: tempSettings?.libraryId ? colors.text : colors.textSecondary }]}>
+                        {tempSettings?.libraryId ? libraries.find(l => l.id === tempSettings.libraryId)?.title || Strings.pushModal.librarySelected : Strings.pushModal.libraryPlaceholder}
+                      </Text>
                       <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} />
                     </TouchableOpacity>
-                  </>
-                )}
 
-                <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelRange}</Text>
-                <View style={styles.chipContainer}>
-                  {[{ label: Strings.pushModal.ranges.all, value: 'all' }, { label: Strings.pushModal.ranges.learned, value: 'learned' }, { label: Strings.pushModal.ranges.confused, value: 'confused' }, { label: Strings.pushModal.ranges.undecided, value: 'undecided' }].map((opt) => {
-                    const isSelected = tempSettings?.ranges?.includes(opt.value as any);
-                    return (
-                      <TouchableOpacity key={opt.value} style={[styles.chip, { borderColor: colors.border, backgroundColor: colors.background }, isSelected && { backgroundColor: colors.tint, borderColor: colors.tint }]} onPress={() => {
-                        let newRanges: NotificationRange[] = [...(tempSettings.ranges || [])];
-                        const value = opt.value as NotificationRange;
-                        if (value === 'all') newRanges = ['all'];
-                        else {
-                          newRanges = newRanges.filter(r => r !== 'all');
-                          if (newRanges.includes(value)) {
-                            newRanges = newRanges.filter(r => r !== value);
-                            if (newRanges.length === 0) newRanges = ['all'];
-                          } else newRanges.push(value);
-                        }
-                        setTempSettings({ ...tempSettings, ranges: newRanges });
-                      }}>
-                        <Text style={[styles.chipText, { color: colors.text }, isSelected && { color: '#fff' }]}>{opt.label}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
+                    {tempSettings?.libraryId && (
+                      <>
+                        <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.step2}</Text>
+                        <TouchableOpacity style={[styles.selectBox, { borderColor: colors.border }]} onPress={() => !loadingSections && setShowSectionList(true)} disabled={loadingSections}>
+                          {loadingSections ? (
+                            <ActivityIndicator size="small" color={colors.tint} />
+                          ) : (
+                            <Text style={[styles.selectBoxText, { color: colors.text }]}>
+                              {tempSettings.sectionId === 'all' || !tempSettings.sectionId ? Strings.pushModal.sectionAll : sections.find(s => s.id === tempSettings.sectionId)?.title || Strings.pushModal.sectionSelected}
+                            </Text>
+                          )}
+                          <FontAwesome name={Strings.settings.icons.down as any} size={12} color={colors.textSecondary} />
+                        </TouchableOpacity>
+                      </>
+                    )}
 
-                <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelInterval}</Text>
-                <View style={styles.intervalContainer}>
-                  <TextInput style={[styles.input, { color: colors.text, borderColor: colors.border }]} keyboardType="numeric" value={tempSettings?.interval === 0 ? '' : tempSettings?.interval.toString()} onChangeText={(text) => setTempSettings({ ...tempSettings, interval: text === '' ? 0 : (parseInt(text) || 0) })} />
-                  <Text style={{ marginLeft: 12, color: colors.text, fontWeight: '700' }}>{Strings.pushModal.unitInterval}</Text>
-                </View>
-              </ScrollView>
-            ) : <ActivityIndicator size="large" color={colors.tint} />}
+                    <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelRange}</Text>
+                    <View style={styles.chipContainer}>
+                      {[{ label: Strings.pushModal.ranges.all, value: 'all' }, { label: Strings.pushModal.ranges.learned, value: 'learned' }, { label: Strings.pushModal.ranges.confused, value: 'confused' }, { label: Strings.pushModal.ranges.undecided, value: 'undecided' }].map((opt) => {
+                        const isSelected = tempSettings?.ranges?.includes(opt.value as any);
+                        return (
+                          <TouchableOpacity key={opt.value} style={[styles.chip, { borderColor: colors.border, backgroundColor: colors.background }, isSelected && { backgroundColor: colors.tint, borderColor: colors.tint }]} onPress={() => {
+                            let newRanges: NotificationRange[] = [...(tempSettings.ranges || [])];
+                            const value = opt.value as NotificationRange;
+                            if (value === 'all') newRanges = ['all'];
+                            else {
+                              newRanges = newRanges.filter(r => r !== 'all');
+                              if (newRanges.includes(value)) {
+                                newRanges = newRanges.filter(r => r !== value);
+                                if (newRanges.length === 0) newRanges = ['all'];
+                              } else newRanges.push(value);
+                            }
+                            setTempSettings({ ...tempSettings, ranges: newRanges });
+                          }}>
+                            <Text style={[styles.chipText, { color: colors.text }, isSelected && { color: '#fff' }]}>{opt.label}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
 
-            <TouchableOpacity style={[styles.confirmButton, { backgroundColor: colors.tint }]} onPress={handleSaveSettings}>
-              <Text style={styles.confirmButtonText}>{Strings.pushModal.submit}</Text>
-            </TouchableOpacity>
+                    <Text style={[styles.modalLabel, { color: colors.text }]}>{Strings.pushModal.labelInterval}</Text>
+                    <View style={styles.intervalContainer}>
+                      <TextInput 
+                        style={[styles.input, { color: colors.text, borderColor: colors.border }]} 
+                        keyboardType="numeric" 
+                        value={tempSettings?.interval === 0 ? '' : tempSettings?.interval.toString()} 
+                        onChangeText={(text) => setTempSettings({ ...tempSettings, interval: text === '' ? 0 : (parseInt(text) || 0) })} 
+                        placeholder="최소 5분"
+                        placeholderTextColor={colors.textSecondary}
+                      />
+                      <Text style={{ marginLeft: 12, color: colors.text, fontWeight: '700' }}>{Strings.pushModal.unitInterval}</Text>
+                    </View>
+                    {tempSettings.interval > 0 && tempSettings.interval < 5 && (
+                      <Text style={{ color: colors.error, fontSize: 12, marginTop: 4, marginLeft: 4 }}>
+                        {Strings.pushModal.alerts.intervalTooShort}
+                      </Text>
+                    )}
+                  </ScrollView>
+
+                  <TouchableOpacity style={[styles.confirmButton, { backgroundColor: colors.tint }]} onPress={handleSaveSettings}>
+                    <Text style={styles.confirmButtonText}>{Strings.pushModal.submit}</Text>
+                  </TouchableOpacity>
+                </>
+              ) : <ActivityIndicator size="large" color={colors.tint} />}
+            </KeyboardAvoidingView>
           </View>
         </View>
       </Modal>
 
-      {/* 하위 선택 모달 (기존 코드 유지) */}
+      {/* 암기장 선택 모달 */}
       <Modal visible={showLibraryList} transparent={true} animationType="fade" onRequestClose={() => setShowLibraryList(false)}>
         <TouchableWithoutFeedback onPress={() => setShowLibraryList(false)}>
           <View style={styles.subModalOverlay}>
@@ -446,6 +467,34 @@ export default function SettingsScreen() {
                 {libraries.map((lib) => (
                   <TouchableOpacity key={lib.id} style={[styles.listItem, tempSettings?.libraryId === lib.id ? { backgroundColor: `${colors.tint}20` } : { backgroundColor: colors.background }]} onPress={() => { setTempSettings({ ...tempSettings!, libraryId: lib.id, sectionId: 'all' }); setShowLibraryList(false); }}>
                     <Text style={[styles.listItemText, { color: colors.text }, tempSettings?.libraryId === lib.id && { color: colors.tint, fontWeight: '800' }]}>{lib.title}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+      {/* 암기장 세부 항목 선택 모달 */}
+      <Modal visible={showSectionList} transparent={true} animationType="fade" onRequestClose={() => setShowSectionList(false)}>
+        <TouchableWithoutFeedback onPress={() => setShowSectionList(false)}>
+          <View style={styles.subModalOverlay}>
+            <View style={[styles.subModalContent, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <Text style={[styles.subModalTitle, { color: colors.text }]}>{Strings.pushModal.sectionAll}</Text>
+              <ScrollView style={{ maxHeight: 300 }}>
+                <TouchableOpacity 
+                  style={[styles.listItem, (!tempSettings?.sectionId || tempSettings?.sectionId === 'all') ? { backgroundColor: `${colors.tint}20` } : { backgroundColor: colors.background }]} 
+                  onPress={() => { setTempSettings({ ...tempSettings!, sectionId: 'all' }); setShowSectionList(false); }}
+                >
+                  <Text style={[styles.listItemText, { color: colors.text }, (!tempSettings?.sectionId || tempSettings?.sectionId === 'all') && { color: colors.tint, fontWeight: '800' }]}>{Strings.pushModal.sectionAll}</Text>
+                </TouchableOpacity>
+                {sections.map((sec) => (
+                  <TouchableOpacity 
+                    key={sec.id} 
+                    style={[styles.listItem, tempSettings?.sectionId === sec.id ? { backgroundColor: `${colors.tint}20` } : { backgroundColor: colors.background }]} 
+                    onPress={() => { setTempSettings({ ...tempSettings!, sectionId: sec.id }); setShowSectionList(false); }}
+                  >
+                    <Text style={[styles.listItemText, { color: colors.text }, tempSettings?.sectionId === sec.id && { color: colors.tint, fontWeight: '800' }]}>{sec.title}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -483,7 +532,14 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 14, fontWeight: '700' },
   intervalContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
   input: { flex: 1, height: 56, borderWidth: 1.5, borderRadius: 16, paddingHorizontal: 16, fontSize: 16, fontWeight: 'bold' },
-  confirmButton: { height: 60, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginTop: 24, marginBottom: Platform.OS === 'ios' ? 20 : 0 },
+  confirmButton: { 
+    height: 60, 
+    borderRadius: 20, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    marginTop: 12, 
+    marginBottom: Platform.OS === 'ios' ? 34 : 24 // 하단 네비게이션 바 겹침 방지
+  },
   confirmButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   subModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center', padding: 24 },
   subModalContent: { width: '100%', borderRadius: 24, padding: 20, borderWidth: 1 },

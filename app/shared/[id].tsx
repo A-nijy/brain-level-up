@@ -14,8 +14,8 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Strings } from '@/constants/Strings';
 import { LogService } from '@/services/LogService';
-import { useAlert } from '@/contexts/AlertContext';
 import { useWebHeaderTitle } from '@/contexts/HeaderContext';
+import { useLoading } from '@/contexts/LoadingContext';
 
 export default function SharedLibraryPreviewScreen() {
     const { id, title: paramTitle } = useLocalSearchParams<{ id: string; title?: string }>();
@@ -34,7 +34,7 @@ export default function SharedLibraryPreviewScreen() {
     useWebHeaderTitle(library?.title || paramTitle || Strings.sharedDetail.screenTitle, [library?.title, paramTitle]);
 
     const [modalVisible, setModalVisible] = useState(false);
-    const [downloading, setDownloading] = useState(false);
+    const { showLoading, hideLoading } = useLoading();
 
     const handleDownloadRequest = () => {
         performDownload();
@@ -43,9 +43,10 @@ export default function SharedLibraryPreviewScreen() {
     const performDownload = async () => {
         if (!user || !library) return;
 
-        setDownloading(true);
+        showLoading("암기장을 다운로드하고 있습니다...");
         try {
             const newLib = await downloadLibrary(user.id);
+            hideLoading();
 
             showAlert({
                 title: Strings.common.success,
@@ -56,9 +57,9 @@ export default function SharedLibraryPreviewScreen() {
                 ]
             });
         } catch (e: any) {
+            hideLoading();
             showAlert({ title: Strings.sharedDetail.alerts.downloadFail, message: e.message });
         } finally {
-            setDownloading(false);
             setModalVisible(false);
         }
     };
@@ -133,7 +134,6 @@ export default function SharedLibraryPreviewScreen() {
                 <TouchableOpacity
                     style={styles.downloadButton}
                     onPress={handleDownloadRequest}
-                    disabled={downloading}
                     activeOpacity={0.9}
                 >
                     <LinearGradient
@@ -142,19 +142,11 @@ export default function SharedLibraryPreviewScreen() {
                         end={{ x: 1, y: 0 }}
                         style={styles.downloadButtonGradient}
                     >
-                        {downloading ? (
-                            <ActivityIndicator size="small" color="#fff" />
-                        ) : (
-                            <>
-                                <FontAwesome name="plus" size={18} color="#fff" style={{ marginRight: 12 }} />
-                                <Text style={styles.downloadButtonText}>{Strings.sharedDetail.downloadBtn}</Text>
-                            </>
-                        )}
+                        <FontAwesome name="plus" size={18} color="#fff" style={{ marginRight: 12 }} />
+                        <Text style={styles.downloadButtonText}>{Strings.sharedDetail.downloadBtn}</Text>
                     </LinearGradient>
                 </TouchableOpacity>
             </View>
-
-
         </View>
     );
 }
