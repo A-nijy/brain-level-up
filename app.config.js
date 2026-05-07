@@ -54,6 +54,15 @@ export default {
                     "androidCollapsedTitle": "단어 학습 알림"
                 }
             ],
+            [
+                "expo-build-properties",
+                {
+                    "android": {
+                        "newArchEnabled": true,
+                        "hermesEnabled": true
+                    }
+                }
+            ],
             "./plugins/notifee-plugin"
         ],
         experiments: {
